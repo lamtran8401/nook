@@ -36,7 +36,8 @@ The tool checks the section and names each fault with its fix.
 | owner | the person | a process that Claude Code did not start (`CLAUDECODE` not set), or `KIT_ROLE=owner` in the env of such a process |
 | lead | the main session | `CLAUDECODE` set and no `KIT_ROLE` |
 | builder | a builder agent | the hook adds `--as builder --actor <name> --session <id>` to each `kit eng` call of an agent whose `agent_type` ends in `builder`, or that has an `agent_id` and no `agent_type` (an in-process teammate; only builders run as teammates); a flag that the model wrote is dropped first |
-| reader | every other agent | the hook adds `--as reader …` |
+| reader | a read-only agent of the pack: verifier, reviewer, code-reviewer, scout, skeptic and the three designers | the hook adds `--as reader …` to each call of `kit eng` |
+| lead, as a helper | any other agent, such as a general-purpose agent that the lead starts | the rules of the lead: no owner move, and the guards of the areas |
 
 The hook blocks a command of the model that sets `KIT_ROLE`, unsets `CLAUDECODE`, or runs the tool through `env`, `exec`, `xargs`, `eval`, `sh -c` or a path to its code. The core bash guard already blocks the first two.
 
@@ -135,7 +136,7 @@ The owner moves are also denied to the model in `templates/settings.json`: `Bash
 ## 9. Hooks (`plugins/engineering/hooks/hooks.json`, each one `bin/kit eng hook <name>`)
 | Event | Job | Fails |
 |---|---|---|
-| PreToolUse Bash | block the owner moves by the model, in any spelling; block wrappers around the tool; add `--as`, `--actor`, `--session` right after `kit eng` in each call by an agent (the lead gets `--session` only), so the permission rule `Bash(kit eng *)` still matches; a reader may run only read commands (`ls`, `cat`, `head`, `tail`, `wc`, `rg`, `grep`, `find`, `git status\|diff\|log\|show`, the read commands of the tool, plus `task prove` and `item verify` for the verifier, `item ac done` for the reviewer); no `$( )` and no `>` for a reader | closed |
+| PreToolUse Bash | read the command as the shell does: a quoted string is one argument, and only the command word of each simple command counts; the code of `sh -c`, of a shell that reads a heredoc, and of `$( )` and backticks counts too; block the owner moves by the model, in any spelling; block wrappers around the tool; add `--as`, `--actor`, `--session` right after `kit eng` in each call by an agent (the lead gets `--session` only), so the permission rule `Bash(kit eng *)` still matches; a reader may run only read commands (`ls`, `cat`, `head`, `tail`, `wc`, `rg`, `grep`, `find`, `git status\|diff\|log\|show`, the read commands of the tool, plus `task prove` and `item verify` for the verifier, `item ac done` for the reviewer); no `$( )` and no `>` for a reader | closed |
 | PreToolUse Edit, Write | a reader cannot write; `spec.md` opens only in framing, `plan.md` and `tasks.md` only in planning (the lead may edit `work/<id>/` otherwise only for `findings.md`, `walkthrough.md`, `handoff.md`); a file in a git area needs an item in cooking with a running slice in that area, and a builder may edit only in the areas of its own slice; a file outside the areas and outside `work/` is free | closed |
 | Stop | hold the lead (`decision: block`) while a blocking question of its item is open, or while the item is in mode auto and the next stage is the lead's; the reason names the next skill: "read `${CLAUDE_PLUGIN_ROOT}/skills/<stage>/SKILL.md` and follow it for <id>"; let go after 6 holds in one session; the count resets on release | open |
 | SubagentStop | hold a builder subagent that still has a running slice: "finish the slice: `kit eng task done` or `task wait`" | open |

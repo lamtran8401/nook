@@ -51,6 +51,60 @@ describe('bashGuard: the owner moves and the plain name of the tool', () => {
   })
 })
 
+describe('bashGuard: only command words count', () => {
+  test('a quoted word that names a wrapper does not block a later call of the tool', () => {
+    expect(bash('kit eng ask IT-1 "One status at a time, or several?" --blocking && kit eng questions IT-1').kind).not.toBe('block')
+  })
+
+  test('a path to the source of the kit as an argument does not block', () => {
+    expect(bash('wc -l packages/engineering/src/guards/plan.ts').kind).toBe('pass')
+    expect(bash('cd packages/engineering && grep -rn Caller src/hooks && bun test packages/engineering').kind).toBe('pass')
+  })
+
+  test('an owner move named inside a quoted string is text, not a call', () => {
+    expect(bash('kit eng note add IT-1 "the owner runs kit eng item approve IT-1 next"').kind).not.toBe('block')
+  })
+
+  test.each(['time kit eng next', 'sh -c "kit eng item approve A"', 'sudo kit eng item show A'])('a wrapper around the tool still blocks: %s', command => {
+    expect(reason(bash(command))).toBe('run `kit eng` by its plain name: no env, exec, xargs, eval or sh -c around the tool.')
+  })
+
+  test.each(['bun packages/engineering/src/commands.ts item show A', 'bun run apps/kit/src/main.ts eng next', './plugins/engineering/bin/kit eng next'])(
+    'a run of the code of the kit by its path still blocks: %s',
+    command => expect(reason(bash(command))).toBe('run `kit eng` by its plain name, not by a path to its code.'),
+  )
+
+  test.each(['echo $(kit eng item approve A)', 'echo `kit eng item accept A`', "bash <<'EOF'\nkit eng item approve A\nEOF"])('an owner move inside code that runs still blocks: %s', command => {
+    expect(reason(bash(command))).toMatch(/owner's move/)
+  })
+
+  test.each(['export KIT_ROLE=owner', 'unset CLAUDECODE', 'KIT_ACTOR=x kit eng next'])('a command that sets a role still blocks: %s', command => {
+    expect(reason(bash(command))).toBe('the role of an agent is set by the kit, not by a command.')
+  })
+})
+
+describe('inject: only calls that run get the flags', () => {
+  test('a heredoc body that mentions the tool is written as it is', () => {
+    const command = "cat > note.md <<'EOF'\nRun $(kit eng next) or (kit eng item show A).\nEOF\nkit eng next"
+    expect(rewritten(bash(command))).toBe("cat > note.md <<'EOF'\nRun $(kit eng next) or (kit eng item show A).\nEOF\nkit eng --session sess-1 next")
+  })
+
+  test('a quoted string that mentions the tool keeps its text', () => {
+    expect(rewritten(bash('echo "then kit eng next" && kit eng next'))).toBe('echo "then kit eng next" && kit eng --session sess-1 next')
+  })
+
+  test('a call inside a substitution or after then gets the flags', () => {
+    expect(rewritten(bash('if true; then kit eng next; fi'))).toBe('if true; then kit eng --session sess-1 next; fi')
+    expect(rewritten(bash('echo $(kit eng next)'))).toBe('echo $(kit eng --session sess-1 next)')
+  })
+
+  test('a flag that the model wrote is dropped only from the call', () => {
+    expect(rewritten(bash('kit eng item show A --as owner && echo "--as owner"', SCOUT))).toBe(
+      'kit eng --as reader --actor scout-0001 --session sess-1 item show A && echo "--as owner"',
+    )
+  })
+})
+
 describe('bashGuard: the role goes in front of each call of an agent', () => {
   test('a builder gets --as, --actor and --session on every segment that starts with the tool', () => {
     const result = bash('cd projects/bff && kit eng task start SHOP-1 T1; kit engineering task brief SHOP-1 T1 | head -3\nkit eng note add SHOP-1 "kit eng is fine in text"', BUILDER_AGENT)
