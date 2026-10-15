@@ -127,7 +127,7 @@ A kit-made id is `IT-` and one more than the highest IT number of the ledger, wi
 | Part | What it shows |
 |---|---|
 | header | the id, the title, badges for the state, the kind, the size and the areas; an audit line with the date of each move and the `updated` date of each document |
-| tabs | Spec, Plan and Tasks; each tab shows the path and the front matter of its document, then the document with the components of the UI kit |
+| tabs | Spec, Plan and Tasks, and Walkthrough when `walkthrough.md` exists; each tab shows the path and the front matter of its document, then the document with the components of the UI kit |
 | diagrams | a mermaid flowchart or sequence diagram becomes nodes of the UI kit; the page script draws the edges; a mermaid block of another kind stays a mermaid block |
 | lanes | in the Tasks tab, after the In short block: one group for each area, a node for each slice, a solid edge for each `depends`, a dashed edge to the next slice of a lane |
 | lane line | the slices that start first, and the slices of different areas that run side by side |

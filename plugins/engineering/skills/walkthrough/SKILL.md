@@ -17,12 +17,12 @@ The parts in full, and the path with no item: `parts.md` (this folder).
 2. Read the work itself: the diff of each area on the branch (`git -C <folder> diff <base>...<branch>`), or the code that the prompt names.
    Explain the code that exists, not the plan.
 3. Write `walkthrough.md` with the six parts of `parts.md`, in this order: the verdict, what changed, one request step by step, how each AC is met, try it, need to know. 200 lines or fewer.
-4. Report in chat: five lines with the verdict and the path. Then one question: a page now, later or not at all. The HTML page comes with the visual pack; without it, the Markdown file is the walkthrough.
+4. Report in chat: five lines with the verdict and the path. Then one question: a page now, later or not at all. The page is the Walkthrough tab of the item page: `kit eng item page <id>` (skill `item-view`).
 
 ## The six parts, in short
 ```
 ## The verdict          the verdict of /check (or "no review exists" for a prompt) and the weakest evidence, five lines or fewer
-## What changed         a tree: area → file → the change, with the slice and the ACs it serves
+## What changed         a table: file → the change, with the slice and the ACs it serves
 ## One request          one real request or user action through the changed code: numbered steps with file:line; new lines marked
 ## How each AC is met   AC → where (file:line) → the evidence and its grade
 ## Try it               the manual checks and what the owner must see

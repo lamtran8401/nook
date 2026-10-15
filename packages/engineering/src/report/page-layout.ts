@@ -30,6 +30,7 @@ body { margin: 0; background: var(--bg); }
 .kd-page .bn-alert__body { overflow-wrap: anywhere; }
 .kd-page .bn-table td { vertical-align: top; overflow-wrap: break-word; }
 .kd-page .bn-table td:first-child { font-weight: 600; }
+.kd-page .bn-table td:first-child .bn-inline-code { white-space: nowrap; }
 .kd-page .bn-inline-code { font-size: .86em; overflow-wrap: break-word; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .kd-empty { margin: 0; color: var(--fg-muted); }
 @media (max-width: 560px) {

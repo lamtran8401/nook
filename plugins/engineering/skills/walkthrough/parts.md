@@ -19,17 +19,13 @@ Five lines or fewer: the verdict of `/check`, the weakest evidence, and the one 
 In an auto run, say first that the lead passed the plan gate and the owner did not read the plan.
 
 ### What changed
-A tree from the diff, not from the plan:
-```
-bff
-  src/shipments/list.ts        reads `status`, filters in the query (T1, AC1 to AC3)
-  src/shipments/list.test.ts   3 new cases (T1)
-  migrations/0042_status.sql   index on status (T1)
-frontend
-  src/shipments/StatusFilter.tsx   new control (T2, AC1)
-  src/shipments/ShipmentList.tsx   sends the status; the banner on error (T2, AC4)
-  src/shipments/export.ts          passes the status to the export (T2, AC5)
-```
+A table from the diff, not from the plan: one row for each file, with the change and the slice and ACs it serves.
+| File | Change | Slice and ACs |
+|---|---|---|
+| `bff/src/shipments/list.ts` | reads `status`, filters in the query | T1: AC1 to AC3 |
+| `bff/migrations/0042_status.sql` | an index on status | T1 |
+| `frontend/src/shipments/StatusFilter.tsx` | new control | T2: AC1 |
+| `frontend/src/shipments/export.ts` | passes the status to the export | T2: AC5 |
 
 ### One request, step by step
 One real request or user action through the changed code. Number the steps. Give `file:line` for each. Mark the new lines.
@@ -60,8 +56,8 @@ Each item with where to look: a guess (`kit eng guesses <id>`), a deviation from
 An item that fits a part above goes there as a callout; the rest goes here.
 
 ## The page
-The visual pack renders the same parts as one HTML page in the same folder, with the diff and its notes next to the lines and one diagram of the mechanism.
-Without the visual pack, offer no page; the Markdown file is the walkthrough.
+`kit eng item page <id>` shows `walkthrough.md` in its own tab, next to Spec, Plan and Tasks.
+The Markdown file stays the record; the page is a view of it.
 
 ## Deep dives
 When the owner asks for a deep dive, explain that topic in full: the code with its lines, the reason for each choice, an example run.

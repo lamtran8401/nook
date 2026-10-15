@@ -5,10 +5,16 @@ import { renderDiagram } from './diagrams.ts'
 
 /** The Markdown of an item document as HTML with the components of the UI kit; every text is escaped. */
 
-export type PageDoc = 'spec' | 'plan' | 'tasks'
+export type PageDoc = 'spec' | 'plan' | 'tasks' | 'walkthrough'
 
 const TONES: Record<string, string> = { ADD: 'success', CHANGE: 'warning', REMOVE: 'danger', NONE: 'neutral' }
-const AC_LINE = /^\[(ADD|CHANGE|REMOVE|NONE)\]\s+(.*?)(?:\s+\(([^()]+)\))?$/
+/** A quote that starts with one of these labels becomes an alert of its tone; any other quote is a neutral Note. */
+const CALLOUTS: { label: string; tone: string; icon: string }[] = [
+  { label: 'In short', tone: 'primary', icon: 'info' },
+  { label: 'Need to know', tone: 'warning', icon: 'alert' },
+]
+const NOTE = { label: 'Note', tone: 'neutral', icon: 'quote' }
+const AC_LINE =/^\[(ADD|CHANGE|REMOVE|NONE)\]\s+(.*?)(?:\s+\(([^()]+)\))?$/
 const SLICE_HEADING = /^##\s+(T\d+)\s*:\s*(.*?)\s*$/
 const SLICE_FIELD = /^[-*]\s+([A-Za-z][A-Za-z ]*?)\s*:\s*(.*)$/
 const LIST_ITEM = /^(?:[-*]|\d+\.)\s+/
@@ -153,12 +159,13 @@ class Renderer {
     while (this.i < this.lines.length && this.lines[this.i]!.startsWith('>'))
       parts.push(this.lines[this.i++]!.replace(/^>\s?/, ''))
     const text = parts.join(' ')
-    const short = /^In short:\s*/i.test(text)
-    const [tone, icon, label] = short ? ['primary', 'info', 'In short'] : ['neutral', 'quote', 'Note']
+    const callout = CALLOUTS.find(c => text.toLowerCase().startsWith(`${c.label.toLowerCase()}:`))
+    const { label, tone, icon } = callout ?? NOTE
+    const body = callout ? text.slice(label.length + 1).trim() : text
     this.push(
-      `<div class="bn-alert" data-tone="${tone}"><span class="bn-alert__icon"><span data-bn-icon="${icon}"></span></span><div><p class="bn-alert__label">${label}</p><p class="bn-alert__body">${inline(text.replace(/^In short:\s*/i, ''))}</p></div></div>`,
+      `<div class="bn-alert" data-tone="${tone}"><span class="bn-alert__icon"><span data-bn-icon="${icon}"></span></span><div><p class="bn-alert__label">${label}</p><p class="bn-alert__body">${inline(body)}</p></div></div>`,
     )
-    if (short && this.extra) {
+    if (label === 'In short' && this.extra) {
       this.push(this.extra)
       this.extra = ''
     }

@@ -2,7 +2,7 @@ import { uiKit } from '@kit/env/env.ts'
 
 import { dateOf, frontMatter } from '../documents/markdown.ts'
 import { TasksDocument } from '../documents/tasks.ts'
-import type { WorkDoc } from '../documents/work-folder.ts'
+import type { ItemDoc } from '../documents/work-folder.ts'
 import type { Engineering } from '../service.ts'
 import type { Event } from '../stores/events.ts'
 import type { Item } from '../stores/items.ts'
@@ -14,10 +14,14 @@ import { docTitle, escape, type PageDoc, renderDocument } from './page-markdown.
 
 export type PageSlice = { id: string; title: string; area: string; depends: string[]; acs: number[]; size?: string | null }
 
-const TABS: { doc: PageDoc; file: WorkDoc; name: string }[] = [
+type Tab = { doc: PageDoc; file: ItemDoc; name: string; optional?: boolean }
+
+/** The documents of the page; an optional one shows only when its file exists. */
+const TABS: Tab[] = [
   { doc: 'spec', file: 'spec.md', name: 'Spec' },
   { doc: 'plan', file: 'plan.md', name: 'Plan' },
   { doc: 'tasks', file: 'tasks.md', name: 'Tasks' },
+  { doc: 'walkthrough', file: 'walkthrough.md', name: 'Walkthrough', optional: true },
 ]
 const AUDIT_MOVES = ['start', 'agree', 'approve', 'begin', 'submit', 'accept']
 
@@ -25,6 +29,7 @@ export function itemPage(eng: Engineering, id: string): string {
   const item = eng.item(id)
   const folder = eng.folder(id)
   const texts = new Map(TABS.map(tab => [tab.file, folder.read(tab.file)]))
+  const tabs = TABS.filter(tab => !tab.optional || texts.get(tab.file) !== null)
   const slices = slicesOf(eng, id, texts.get('tasks.md') ?? null)
   const kit = uiKit()
   return [
@@ -34,8 +39,8 @@ export function itemPage(eng: Engineering, id: string): string {
     '<div class="bn-root kd-page">',
     header(item, eng.stores.events.history(id), texts),
     '<div class="bn-tabs" data-bn-tabs>',
-    tabList(),
-    ...TABS.map((tab, i) => panel(item, tab, texts.get(tab.file) ?? null, slices, i === 0)),
+    tabList(tabs),
+    ...tabs.map((tab, i) => panel(item, tab, texts.get(tab.file) ?? null, slices, i === 0)),
     '</div>',
     '</div>',
     `<script>${kit.js}</script>`,
@@ -81,7 +86,7 @@ function groupBy<T>(list: T[], key: (entry: T) => string): Map<string, T[]> {
 }
 
 /** The dates of the moves that happened, then the `updated` date of each document. */
-export function auditLine(events: Event[], texts: Map<WorkDoc, string | null>): string {
+export function auditLine(events: Event[], texts: Map<ItemDoc, string | null>): string {
   const moves = AUDIT_MOVES.flatMap(move => {
     const last = events.filter(e => e.type === move || (move === 'approve' && e.type === 'proceed')).at(-1)
     return last ? [`${move} ${last.at.slice(0, 10)}`] : []
@@ -95,7 +100,7 @@ export function auditLine(events: Event[], texts: Map<WorkDoc, string | null>): 
 
 const badge = (text: string, attrs = '') => `<span class="bn-badge" data-size="sm"${attrs}>${escape(text)}</span>`
 
-function header(item: Item, events: Event[], texts: Map<WorkDoc, string | null>): string {
+function header(item: Item, events: Event[], texts: Map<ItemDoc, string | null>): string {
   const badges = [
     badge(item.state, ' data-tone="primary"'),
     badge(`kind ${item.kind}`, ' data-variant="outline"'),
@@ -113,13 +118,13 @@ function header(item: Item, events: Event[], texts: Map<WorkDoc, string | null>)
   ].join('')
 }
 
-const tabList = () =>
-  `<div class="bn-tabs__list" role="tablist" aria-label="Documents of the item">${TABS.map(
+const tabList = (tabs: Tab[]) =>
+  `<div class="bn-tabs__list" role="tablist" aria-label="Documents of the item">${tabs.map(
     (tab, i) =>
       `<button type="button" class="bn-tabs__tab" role="tab" id="tab-${tab.doc}" data-doc="${tab.doc}" aria-controls="panel-${tab.doc}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}">${tab.name}</button>`,
   ).join('')}</div>`
 
-function panel(item: Item, tab: (typeof TABS)[number], text: string | null, slices: PageSlice[], shown: boolean): string {
+function panel(item: Item, tab: Tab, text: string | null, slices: PageSlice[], shown: boolean): string {
   const front = text === null ? {} : frontMatter(text)
   const meta = [
     `work/${item.id}/${tab.file}`,

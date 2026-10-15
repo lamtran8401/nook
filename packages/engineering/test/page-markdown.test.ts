@@ -16,6 +16,16 @@ describe('renderDocument', () => {
     )
   })
 
+  test('a Need to know quote becomes an alert of the warning tone with that label', () => {
+    expect(renderDocument('> Need to know: the export reuses this call.\n', 'walkthrough')).toBe(
+      '<div class="bn-alert" data-tone="warning"><span class="bn-alert__icon"><span data-bn-icon="alert"></span></span><div><p class="bn-alert__label">Need to know</p><p class="bn-alert__body">the export reuses this call.</p></div></div>',
+    )
+  })
+
+  test('another quote becomes a neutral Note alert', () => {
+    expect(renderDocument('> keep the old text\n', 'plan')).toContain('<p class="bn-alert__label">Note</p><p class="bn-alert__body">keep the old text</p>')
+  })
+
   test('the extra block goes right after the In short alert', () => {
     const html = renderDocument('> In short: two lanes.\n\nThe rest.\n', 'tasks', '<i>lanes</i>')
     expect(html.split('\n')).toEqual([expect.stringContaining('In short'), '<i>lanes</i>', '<div class="bn-prose"><p>The rest.</p></div>'])

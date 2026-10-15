@@ -192,4 +192,18 @@ describe('itemPage', () => {
   test('a slice card shows its files line', () => {
     expect(panelOf(planned(), 'tasks')).toContain('<dt>Files</dt><dd>the cart page, its tests</dd>')
   })
+
+  test('an item with no walkthrough.md has no Walkthrough tab', () => {
+    expect(planned()).not.toContain('id="tab-walkthrough"')
+  })
+
+  test('walkthrough.md adds a Walkthrough tab after Tasks, hidden at first, with its document', () => {
+    planned()
+    writeDoc(t, 'SHOP-7', 'walkthrough.md', '---\nid: SHOP-7\ncreated: 2026-10-18\nupdated: 2026-10-18\n---\n\n# SHOP-7: the walkthrough\n\n## The verdict\n\n- accept\n')
+    const html = itemPage(t.kit(LEAD), 'SHOP-7')
+    expect([...html.matchAll(/role="tab" id="tab-(\w+)"/g)].map(m => m[1])).toEqual(['spec', 'plan', 'tasks', 'walkthrough'])
+    expect(html).toContain('<button type="button" class="bn-tabs__tab" role="tab" id="tab-walkthrough" data-doc="walkthrough" aria-controls="panel-walkthrough" aria-selected="false" tabindex="-1">Walkthrough</button>')
+    expect(panelOf(html, 'walkthrough')).toContain('<h2 class="kd-sec__title">The verdict</h2>')
+    expect(html).toContain('id="panel-walkthrough" aria-labelledby="tab-walkthrough" hidden>')
+  })
 })
