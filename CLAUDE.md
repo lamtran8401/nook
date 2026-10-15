@@ -26,6 +26,20 @@ v0.1 has the packs core and engineering. `kit eng …` runs the commands of engi
 - The kit never names the owner's folders. Examples use `company/`, `personal/`, `shop`, `SHOP-12`.
 - A guard hook blocks when it cannot decide. A helper hook (style, context) lets the call pass when it fails.
 - `kit init` writes only what it marks: the kit block, `.claude/rules/kit/`, its settings keys, `.kit/`. Never a line of the owner.
-- Write clear code: clear names, small functions, early returns. Comment only hard logic, in one or two lines.
+- Write clear code: clear names, small functions, early returns.
+
+## Comments
+- Comment only hard logic, in one or two lines: what and why.
+- Never write history, a decision log or a "kept for" note in a comment. Git holds the history.
+- Delete a comment that repeats the name or the code. Never leave code in a comment.
+- When a comment grows long, find a better name or a smaller function.
+
+## Tests
 - Test first with `bun test`. A test uses a temporary folder and never touches `~/.claude` or the owner's folders.
+- One test file for each unit under test (a class, a module, a command), next to its package: `packages/<name>/test/`.
+- A test name states the behavior: `approve by the lead exits 5`. Never name a test or a group by a scenario id such as `E-13`.
+- One behavior for each test. Assert a visible result: a return value, an exit code, printed text, a row, a file.
+- A test must be able to fail. Write the expected value by hand; never compute it with the code under test. A test that asserts only a mock call, a constant, `toBeDefined` or `not.toThrow` proves nothing.
+- Break the rule in the code once and see the test fail before you trust it.
+- Never weaken, skip or comment out a test to make it pass. Change a test only when the behavior changed.
 - Commit only when the owner asks. One commit for each part, with a message that says what changed and why.

@@ -15,7 +15,7 @@ The item, the scope (one slice or the full item), the area and its folder, the b
 
 ## Order
 1. Read the standard of the area first: its `CLAUDE.md`, `.claude/rules/`, lint config and CONTRIBUTING when they exist. A pattern the area uses everywhere is not a finding.
-2. Read the diff: `git -C <folder> diff <base>...HEAD -- <files>`. Read each changed function in full, not only the changed lines.
+2. Read the diff: `git -C <folder> diff <base>...HEAD -- <files>`. Read each changed function in full.
 3. Check each point of the blocking list. For each hit: the file and line, what, why it matters, how to show it.
 4. For each new helper, search the area for one that does the same work: the verb and the noun of its name.
 5. For each new test: does it assert a visible result, and can it fail? A test that checks only a mock call, or computes its expected value with the code under test, cannot fail for the right reason.
@@ -27,18 +27,20 @@ The item, the scope (one slice or the full item), the area and its folder, the b
 an error is swallowed: an empty catch, or an error that is dropped
 a secret, a token or a personal field in a log line
 dead code, or code in a comment
+a comment that tells history or a decision log
 a second copy of a helper that the area has already
 a lint rule turned off with no reason on the same line
 a test that is skipped, disabled or in a comment
 a test that cannot fail
+a test named by a ticket or scenario id, not by its behavior
 a dependency that the plan did not name
 ```
 
 ## Gotchas
-- Read the whole function. A catch that looks empty can rethrow two lines below.
+- Read the whole function: a catch that looks empty can rethrow below.
 - A blocking finding with no way to show it is a guess. Find the line and the test, or move it to Not checked.
-- A test that cannot fail is the finding that a green suite hides best. Ask of each new test: what change would make it red?
-- Write Not checked for each part you could not read, and why. A silent gap reads as a pass.
+- A green suite hides a test that cannot fail best. Ask of each new test: what change makes it red?
+- Write Not checked for each part you could not read: a silent gap reads as a pass.
 
 ## Return
 ```

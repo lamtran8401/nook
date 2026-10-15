@@ -169,6 +169,7 @@ An agent body has at most 500 words. The rules that every agent follows are in t
 ## 12. Templates
 The templates live in `plugins/engineering/templates/`; the code lives in `packages/engineering/`.
 `templates/rules/engineering.md`: the workspace rules of the pack, copied to `.claude/rules/kit/engineering.md` by `kit init`: never build on a protected branch; never commit unless the owner asks, then `item commit --run`; never push; never start apps, containers or deploys; never change an approved document, replan first; the code rules (the area's conventions first; clear names, small functions, early returns; no dead code; reuse a helper of the area; no dependency that the plan did not name; never swallow an error; never log a secret; comment only hard logic).
+`templates/rules/testing.md`: the test rules, for test files only (`paths` in its front matter): a name that states the behavior, one behavior for each test, a test that can fail, expected values written by hand, never a skipped or weakened test.
 `templates/settings.json`: allow `Bash(kit eng *)`, `Bash(git switch -c kit/*)`, `Edit(work/**)`, `Edit(backlog/**)`, `Edit(docs/adr/**)`; ask `Bash(git commit *)`, `Bash(git worktree *)`, installs; deny the owner moves; env `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1`, `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=4`.
 `templates/spec.md`, `plan.md`, `tasks.md`, `findings.md`, `handoff.md`: the documents of section 6.
 `init` of the pack makes `<home>/work/`, `<home>/backlog/`, `<home>/docs/adr/`.

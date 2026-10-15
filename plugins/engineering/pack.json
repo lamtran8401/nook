@@ -2,7 +2,8 @@
   "name": "engineering",
   "description": "the item flow from intake to the owner's accept: the ledger, two gates, 28 skills, 10 agents",
   "rules": [
-    "templates/rules/engineering.md"
+    "templates/rules/engineering.md",
+    "templates/rules/testing.md"
   ],
   "settings": "templates/settings.json",
   "state": [
