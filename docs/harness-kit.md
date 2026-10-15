@@ -24,7 +24,7 @@ A folder with `kit.yml` is an environment. A boundary such as `company/` is a la
 - The kit has no fixed structure. A folder can turn on many packs. How you split folders is your choice.
 - Packs flow down: the packs of a folder are the union of every `kit.yml` above it; a child can add one or turn one off (`packs: { off: [jira] }`).
 - State stays at the nearest environment that turns the pack on: one ledger and one wiki for a whole boundary, or a child with its own when you init the pack there again.
-- One init for a whole boundary is enough: `company/` with every pack, nothing inside; one ledger, one wiki, one session or many. Do not init packs above the boundaries, or company and personal data mix.
+- One init for a whole boundary is enough: `company/` with every pack, nothing inside; one ledger, one wiki, one session or many. Do not init packs in a folder that holds two boundaries that must stay apart; that folder needs no init, or words only.
 - Hooks follow the packs, not the folder: the kit plugin is on for your user, and each hook finds the nearest `kit.yml` up the tree before it acts.
 
 ```
@@ -55,7 +55,7 @@ Rules of a pack: it imports `packages/shared` only, never another pack; its read
 
 ## 4. Engineering: the life of one item
 
-One piece of work is an **item**. Its id is the key of the tracker (`BKM-12`) or one that the kit makes (`IT-7`). A slice inside an item is `T1`, `T2`.
+One piece of work is an **item**. Its id is the key of the tracker (`SHOP-12`) or one that the kit makes (`IT-7`). A slice inside an item is `T1`, `T2`.
 
 | Phase | State | Stage skill | Craft skills | Agents | Ends when |
 |---|---|---|---|---|---|
@@ -88,7 +88,7 @@ Each step starts with your expectations as scenarios in `docs/expect/v0.x.md`: w
 
 | Step | Parts | Checks |
 |---|---|---|
-| v0.1 work | core, engineering, the walkthrough page, jira | a session shows every layer; a real item goes from intake to close; the gates refuse the model; a test that cannot fail is caught |
+| v0.1 work | first the scaffold (`kit init`, the templates, `/setup`), tried in your own boundaries; then core, engineering, the walkthrough page, jira | a session shows every layer; a real item goes from intake to close; the gates refuse the model; a test that cannot fail is caught |
 | v0.2 grow and learn | wiki, learn as files, `/brief`, the first `/retro` | an item cites a wiki page; practice on 5 days; the top patterns show; you compare the scores with a real test once |
 | v0.3 answer and report | research, `/report week`, `/learn-progress`, the README, the first public release | a real question ends in a wiki page with sources; the week report needs no edit |
 
