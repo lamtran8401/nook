@@ -34,6 +34,8 @@ kit init --update                # replace only what the kit owns
 kit doctor                       # every layer, every pack, every gap with its fix
 ```
 
+`kit init` only scaffolds the kit: `kit.yml` with the packs, the kit block of `CLAUDE.md`, `.claude/rules/kit/`, its settings keys, `.kit/`. The `/setup` skill builds the environment: it reads the disk, asks what the disk cannot settle, writes the areas, checks, tracker and shelves into `kit.yml`, makes the folders (`spaces/`, `backlog/`, `work/`, `wiki/`, `references/`, a learning folder), and writes the map of the folder in `CLAUDE.md`. `/setup <what changed>` runs again when a repo or a check changes.
+
 The kit owns only what it marks: the block in `CLAUDE.md`, `.claude/rules/kit/`, its keys in settings. Everything else is yours.
 To drop a base rule, turn it off in `kit.yml`. Do not write the opposite rule: Claude Code has no sure override between two rules.
 

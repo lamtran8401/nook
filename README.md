@@ -22,6 +22,8 @@ kit init --update                 # replace only what the kit owns
 kit doctor                        # every layer, every pack, every gap with its fix
 ```
 
+`kit init` scaffolds the kit only. The `/setup` skill, in Claude Code, builds the environment: it reads the disk, asks what the disk cannot settle, and writes the areas, the folders and the map of the folder.
+
 ## Packs
 
 | Pack | What it gives |
