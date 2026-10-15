@@ -46,7 +46,8 @@ import { Permissions, Who } from './who.ts'
 /** The pack as one object: each method checks the role, runs the guards and writes in one transaction. */
 
 export type NewItem = {
-  id: string
+  /** Missing: the kit makes the next `IT-NNN`. */
+  id?: string
   title: string
   kind?: string
   size?: string
@@ -71,6 +72,14 @@ export type NextGaps = { id: string; state: State; move: MoveName | undefined; g
 export type Proved = { slice: string; proof: Slice['proof']; note: string; tests: string[] }
 
 export const ID_PATTERN = /^[A-Z][A-Z0-9]*-\d+$/
+
+/** The words of `item new`: a first word in the form of an id is the id; else all of them are the title. */
+export function idAndTitle(words: string[]): { id: string | undefined; title: string } {
+  const [first, ...more] = words
+  return first && ID_PATTERN.test(first)
+    ? { id: first, title: more.join(' ') }
+    : { id: undefined, title: words.join(' ') }
+}
 export const EDIT_FIELDS = ['title', 'kind', 'size', 'areas', 'source', 'rank'] as const
 type EditField = (typeof EDIT_FIELDS)[number]
 
@@ -136,12 +145,13 @@ export class Engineering {
     if (!isOneOf(ITEM_KINDS, input.kind ?? 'feature'))
       throw usage(`kind must be one of ${ITEM_KINDS.join(', ')}`)
     if (!isOneOf(SIZES, input.size ?? 'M')) throw usage('size must be S, M or L')
-    if (items.find(input.id)) throw refused(`item ${input.id} exists`, `kit eng item show ${input.id}`)
+    if (input.id && items.find(input.id)) throw refused(`item ${input.id} exists`, `kit eng item show ${input.id}`)
     for (const name of input.areas ?? []) this.home.areaNamed(name)
     const state = input.state ?? 'backlog'
-    this.ledger.write(() => {
+    const id = this.ledger.write(() => {
+      const id = input.id ?? items.nextId()
       const row = {
-        id: input.id,
+        id,
         title: input.title,
         kind: input.kind ?? 'feature',
         size: input.size ?? 'M',
@@ -150,10 +160,11 @@ export class Engineering {
         source: input.source ?? null,
       }
       items.insert({ ...row, quick: input.quick === true })
-      events.record(input.id, 'new', { to: state })
+      events.record(id, 'new', { to: state })
+      return id
     })
-    if (input.backlog) this.writeTicket(input.id, input.title)
-    return this.item(input.id)
+    if (input.backlog) this.writeTicket(id, input.title)
+    return this.item(id)
   }
 
   private writeTicket(id: string, title: string): void {
@@ -267,7 +278,7 @@ export class Engineering {
       const notes = this.applyMove(moveName, item, reason)
       // a document that cannot be written fails the move, so no item sits in a stage without its document
       for (const doc of move.scaffolds ?? [])
-        notes.push(...this.templates.scaffold(this.folder(id), item, doc))
+        notes.push(...this.templates.scaffold(this.folder(id), this.item(id), doc))
       return { item, warnings, notes }
     })
     return { item: this.item(id), warnings, notes }
@@ -322,7 +333,7 @@ export class Engineering {
   /** `quick`: an item in cooking with one running slice for the caller, with no spec and no plan. */
   quick(idOrTitle: string, areaName: string): Item {
     this.permissions.assert('quick')
-    const id = ID_PATTERN.test(idOrTitle) ? idOrTitle : this.stores.items.nextId()
+    const named = ID_PATTERN.test(idOrTitle) ? idOrTitle : undefined
     const area = this.home.areaNamed(areaName)
     const other = this.stores.items.cookingIn(area.name)
     if (other)
@@ -330,9 +341,9 @@ export class Engineering {
         `area ${area.name} is in use by ${other.id}`,
         `wait for ${other.id}, or pick another area`,
       )
-    this.ledger.write(() => {
-      this.newItem({
-        id,
+    return this.ledger.write(() => {
+      const { id } = this.newItem({
+        id: named,
         title: idOrTitle,
         kind: 'fix',
         size: 'S',
@@ -343,8 +354,8 @@ export class Engineering {
       this.stores.slices.insertRunning(id, idOrTitle, area.name, this.who.actor)
       this.stores.events.record(id, 'quick', { to: 'cooking', reason: `T1 running in ${area.name}` })
       if (this.who.role === 'lead') this.stores.sessions.record(id)
+      return this.item(id)
     })
-    return this.item(id)
   }
 
   addCriterion(id: string, text: string, tag = 'ADD'): Criterion {

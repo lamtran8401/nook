@@ -19,4 +19,14 @@ describe('taskBrief', () => {
     expect(slice).toContain('1 [ADD] the export has the right date')
     expect(slice).toContain('kit eng task prove SHOP-1 T1')
   })
+
+  test('prints the files line of the slice in tasks.md', () => {
+    itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }]).replace('- size: S\n', '- size: S\n- files: the export, its tests\n'))
+    expect(taskBrief(t.kit(LEAD), 'SHOP-1', 'T1')).toContain('\nfiles: the export, its tests\n')
+  })
+
+  test('prints no files line when the slice has none', () => {
+    itemAt(t, 'cooking')
+    expect(taskBrief(t.kit(LEAD), 'SHOP-1', 'T1')).not.toContain('\nfiles:')
+  })
 })

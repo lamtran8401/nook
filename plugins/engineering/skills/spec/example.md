@@ -1,65 +1,59 @@
-# A spec: SHOP-12, filter shipments by status
+# A spec of size M: SHOP-12
 
-## The reading before the questions
-```
-My reading of SHOP-12:
-- Shippers filter the shipment list by tracking status.
-- The filter lists every status that the API returns. A selected status narrows the list.
-- Changes in bff (a parameter) and frontend (a control). No contract change.
-- Saved filters are out of scope.
-Tell me what is wrong, then I ask the open questions.
-```
+The file that `/spec` writes for a ticket in two areas, after one question round.
 
-## The spec
-```markdown
+````markdown
 ---
 id: SHOP-12
 kind: feature
 size: M
 areas: [bff, frontend]
+created: 2026-10-15
+updated: 2026-10-15
 ---
-# SHOP-12: Filter shipments by tracking status
 
-## Intent
-Shippers scroll a long list to find one shipment. They cannot narrow it by tracking status.
+# SHOP-12: Filter shipments by status
 
-## What we will do
-- bff: accept an optional `status` on the list call and filter in the query.
-- frontend: add a status control above the list; send the status; show the empty state.
-- Old clients keep working, because the status is optional.
+> In short: a person picks one status and sees only those shipments. The API filters, and the page passes the status.
 
-## Open points
-- The ticket says "all statuses". The API has 7, and 2 of them are internal. Resolved: Q1, the filter shows the 5 public ones.
-- No status selected: the ticket is silent. Resolved: G1, the list shows every shipment (impact low).
-- The export button uses the same list call. Impact: it exports the filtered list. Resolved: Q2, yes.
+## Why
+
+A person who looks for the pending shipments reads the whole list today and picks them out by eye. The API returns every shipment, and the page has no way to ask for less. The filter runs in the API, so it still holds when the list grows.
+
+## What changes
+
+- **bff:** `GET /shipments` takes an optional `status`. A known status returns only its shipments. An unknown status returns a 400 that names the valid ones.
+- **frontend:** the page gets a status select with All and the three statuses. Called with a status, it asks the API for that status only.
+- **Stays as it is:** one shipment by id, the sort order, the columns, the error banner text.
 
 ## Acceptance criteria
-- [ADD] The filter lists the 5 public tracking statuses that the API returns. (ticket AC1, Q1)
-- [ADD] A selected status narrows the shipment list to that status. (ticket AC2)
-- [ADD] With no status selected, the list shows every shipment. (G1)
-- [ADD] When the status query fails, the list stays unchanged and a banner shows "Unable to filter". (edge case)
-- [CHANGE] The export of a filtered list holds only the shipments of that status. (Q2)
+
+- [ADD] `GET /shipments?status=pending` returns only the pending shipments, newest first. (Q1)
+- [ADD] `GET /shipments?status=` returns every shipment, as with no status. (G3)
+- [ADD] `GET /shipments?status=lost` returns a 400: "unknown status lost; use pending, shipped or delivered". (Q3)
+- [ADD] The page shows a select with All, pending, shipped and delivered, in this order. (Q2)
+- [ADD] When the page opens, All is selected and every shipment shows. (Q2)
+- [ADD] Called with a status, the page asks for `/shipments?status=<status>` and shows what the API returns. (Q1)
+- [ADD] Called with All, the page asks for `/shipments` with no status. (Q2)
+- [ADD] When no shipment has the status, the page shows "No pending shipments.", with the status in the text. (G1)
+- [CHANGE] A failed call with a status shows the error banner of today. (edge case)
+
+## Decisions
+
+| Point | Answer | From |
+|---|---|---|
+| Where the filter lives | in the API; the page passes the status | Q1 |
+| How the user picks | a select, All first | Q2 |
+| An unknown status | a 400 that names the valid ones | Q3 |
+| How many statuses | one for each request | Q4 |
+| The text when nothing matches | it names the status | G1, low |
+| The status type of the frontend | a string | G2, low |
+| An empty `status=` | the same as no status | G3, low |
 
 ## Out of scope
-- Saved filters.
-```
 
-## Criteria: one behavior and one observable result
-| Weak | Strong |
-|---|---|
-| The filter works well. | [ADD] The filter lists every tracking status that the API returns. |
-| The list is fast. | [NONE] A selected status shows the filtered list in under 1 second for 500 shipments. |
-| Handle errors. | [ADD] When the status query fails, the list stays unchanged and a banner shows "Unable to filter". |
-
-A criterion is checkable when a person who did not write the code can say yes or no.
-A number, a text or a visible state makes it checkable.
-
-## From the ticket to the criteria
-The ticket says: "As a shipper I want to filter shipments by status. AC: filter works for all statuses."
-The clarify step of `write-spec` finds what the ticket leaves out:
-```
-gap         "all statuses": the API has 7; 2 are internal           → Q1: show the 5 public ones
-edge case   no status selected                                      → G1: the full list (impact low)
-edge case   a status with no shipments                              → G2: the empty state "No shipments"
-impact      the export button uses the same list call               → Q2: export the filtered list
-```
+- The DOM entry of the page and the wiring of the select. (owner, at /recipe)
+- Several statuses in one request.
+- The status in the page address.
+- Statuses in another case, such as `Pending`: they are unknown.
+````

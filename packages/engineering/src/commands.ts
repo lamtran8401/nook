@@ -1,3 +1,6 @@
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+
 import { arg, type Command, type Context, list, type Program, text } from '@kit/shared/cli.ts'
 import { Exit, usage } from '@kit/shared/errors.ts'
 import { readInput, runHook } from '@kit/shared/hook.ts'
@@ -33,9 +36,10 @@ import { areaStatus } from './report/areas.ts'
 import { brief } from './report/brief.ts'
 import { doctor } from './report/doctor.ts'
 import { itemBrief, pickup } from './report/item-brief.ts'
+import { itemPage } from './report/item-page.ts'
 import { next } from './report/next.ts'
 import { taskBrief } from './report/task-brief.ts'
-import { Engineering } from './service.ts'
+import { Engineering, idAndTitle } from './service.ts'
 
 const eng = () => Engineering.here()
 const ifVersion = (c: Context) => text(c, 'if-version')
@@ -96,8 +100,8 @@ const guessDecisions: Command[] = (['accept', 'flip'] as const).map(decision => 
 const itemCommands: Command[] = [
   {
     path: ['item', 'new'],
-    summary: 'make an item in the backlog',
-    usage: '<id> <title...> [--kind k --size s --area a... --source s --backlog]',
+    summary: 'make an item in the backlog; with no id, the kit makes the next IT-NNN',
+    usage: '[<id>] <title...> [--kind k --size s --area a... --source s --backlog]',
     flags: {
       kind: { type: 'string', help: 'feature | fix | chore | investigate' },
       size: { type: 'string', help: 'S | M | L' },
@@ -106,8 +110,7 @@ const itemCommands: Command[] = [
       backlog: { type: 'boolean', help: 'also make backlog/<id>/ticket.md' },
     },
     run(c) {
-      const id = arg(c, 0, 'item id')
-      const title = rest(c, 1)
+      const { id, title } = idAndTitle(c.args)
       if (!title) throw usage('give the title')
       const input = {
         id,
@@ -157,6 +160,25 @@ const itemCommands: Command[] = [
       const value = rest(c, 2)
       if (!value) throw usage('give the value')
       c.out(eng().editItem(arg(c, 0, 'item id'), arg(c, 1, 'field'), value, ifVersion(c)), itemLine)
+    },
+  },
+  {
+    path: ['item', 'page'],
+    summary: 'one HTML page of the item: the spec, the plan, the slices, an overview and the lanes',
+    usage: '<id> [--out <file>]',
+    flags: { out: { type: 'string', help: 'write the page to this file and print its path' } },
+    run(c) {
+      const id = arg(c, 0, 'item id')
+      const html = itemPage(eng(), id)
+      const out = text(c, 'out')
+      if (!out) {
+        c.out({ id, html }, r => r.html)
+        return
+      }
+      const file = resolve(out)
+      mkdirSync(dirname(file), { recursive: true })
+      writeFileSync(file, `${html}\n`)
+      c.out({ id, file }, r => r.file)
     },
   },
   {

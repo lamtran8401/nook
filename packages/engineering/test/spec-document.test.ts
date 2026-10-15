@@ -6,17 +6,32 @@ import { SPEC } from './helpers.ts'
 describe('SpecDocument', () => {
   test('front matter, sections, AC lines with their tags, areas as a list or a comma list, problems', () => {
     const spec = SpecDocument.parse(SPEC({ areas: ['bff', 'web'] }))
-    expect(spec).toMatchObject({ kind: 'feature', size: 'S', areas: ['bff', 'web'], intent: 'Fix the export date.', problems: [] })
+    expect(spec).toMatchObject({ kind: 'feature', size: 'S', areas: ['bff', 'web'], why: 'Fix the export date.', problems: [] })
     expect(spec.criteria.map(c => [c.n, c.tag, c.text])).toEqual([[1, 'ADD', '[ADD] the export has the right date'], [2, 'CHANGE', '[CHANGE] the error shows a reason']])
     expect(SpecDocument.parse(SPEC().replace('areas: [bff]', 'areas: bff, web')).areas).toEqual(['bff', 'web'])
     expect(SpecDocument.parse(SPEC().replace('areas: [bff]', 'areas:\n  - bff\n  - web')).areas).toEqual(['bff', 'web'])
     const bad = SpecDocument.parse('# no front matter\n\n## Acceptance criteria\n\n- the date is right\n- [FIX] x\n')
-    expect(bad.problems).toContain('no front matter: start the file with --- id, kind, size, areas ---')
+    expect(bad.problems).toContain('no front matter: start the file with --- id, kind, size, areas, created, updated ---')
     expect(bad.problems).toContain('front matter: kind is missing')
-    expect(bad.problems).toContain('write the Intent')
     expect(bad.problems.some(p => p.includes('"- the date is right" is not a'))).toBe(true)
     expect(bad.criteria).toEqual([])
     expect(SpecDocument.parse(SPEC({ kind: 'investigate', questions: ['why?', 'how?'] })).questions).toEqual(['why?', 'how?'])
+  })
+
+  test('a spec with no text under ## Why names the Why as a problem', () => {
+    const spec = SpecDocument.parse(SPEC().replace('Fix the export date.', '<!-- guidance -->'))
+    expect(spec.problems).toEqual(['write the Why'])
+  })
+
+  test('the old ## Intent does not take the place of the Why', () => {
+    const spec = SpecDocument.parse(SPEC().replace('## Why', '## Intent'))
+    expect(spec.problems).toEqual(['write the Why'])
+  })
+
+  test('reads the In short line and the source of a criterion stays in its text', () => {
+    const spec = SpecDocument.parse(SPEC({ acs: ['[ADD] the list filters by status (Q1)'] }))
+    expect(spec.short).toBe('the export shows the date of the shop.')
+    expect(spec.criteria[0]!.text).toBe('[ADD] the list filters by status (Q1)')
   })
 
   test('withCriterion adds the line at the end of the criteria, before the next section', () => {

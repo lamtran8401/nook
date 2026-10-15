@@ -47,6 +47,26 @@ describe('Engineering.moveItem: start, agree and approve', () => {
     expect(t.kit().item('SHOP-1').state).toBe('framing')
   })
 
+  test('start writes the date of today as created and updated of spec.md', () => {
+    itemAt(t, 'framing')
+    const spec = readFileSync(join(t.root, 'work', 'SHOP-1', 'spec.md'), 'utf8')
+    const today = new Date().toISOString().slice(0, 10)
+    expect(spec).toContain(`created: ${today}\nupdated: ${today}\n`)
+  })
+
+  test('agree scaffolds a plan with a Flow when the spec says size L', () => {
+    itemAt(t, 'framing')
+    writeDoc(t, 'SHOP-1', 'spec.md', SPEC({ size: 'L' }))
+    t.kit(LEAD).moveItem('agree', 'SHOP-1')
+    expect(readFileSync(join(t.root, 'work', 'SHOP-1', 'plan.md'), 'utf8')).toContain('\n## Flow\n')
+  })
+
+  test('agree refuses a spec with no updated date and names the fix', () => {
+    itemAt(t, 'framing')
+    writeDoc(t, 'SHOP-1', 'spec.md', SPEC().replace('updated: 2026-10-15\n', ''))
+    fails(() => t.kit(LEAD).moveItem('agree', 'SHOP-1'), Exit.refused, /spec.md: front matter updated is missing/, /write updated: YYYY-MM-DD in the front matter/)
+  })
+
   test('agree lists every gap of the spec with its fix, then copies the front matter and the criteria', () => {
     itemAt(t, 'framing')
     const lead = t.kit(LEAD)
@@ -284,7 +304,7 @@ describe('Engineering.quick', () => {
     expect(lead.stores.slices.list('SHOP-30')[0]).toMatchObject({ id: 'T1', state: 'running', assignee: 'lead' })
     fails(() => lead.quick('another quick fix', 'bff'), Exit.refused, 'area bff is in use by SHOP-30')
     const second = lead.quick('the web title is wrong', 'web')
-    expect(second.id).toBe('IT-1')
+    expect(second.id).toBe('IT-001')
     expect(second.title).toBe('the web title is wrong')
     lead.moveSlice('done', 'SHOP-30', 'T1', { files: ['src/date.ts'] })
     lead.verify('SHOP-30')

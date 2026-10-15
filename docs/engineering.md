@@ -6,7 +6,7 @@ The plan is in `harness-kit.md` section 4 and `harness-guide.html` chapter 8. Th
 ## 1. Words
 | Word | Meaning |
 |---|---|
-| item | one piece of work with a goal and acceptance criteria (AC). Its id is the key of the tracker (`SHOP-12`) or one that the kit makes (`IT-7`). |
+| item | one piece of work with a goal and acceptance criteria (AC). Its id is the key of the tracker (`SHOP-12`) or one that the kit makes (`IT-001`). |
 | area | a folder of the environment with a kind and its checks, named in `kit.yml` |
 | slice | one task of an item in one area: `T1`, `T2` |
 | guess | an assumption that an agent made in place of a question to the owner |
@@ -52,7 +52,7 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | Move | Who | Guard: each gap is listed, with the command that fixes it |
 |---|---|---|
 | start | lead, owner | none; scaffolds `spec.md` |
-| agree | lead, owner | `spec.md` parses: front matter `kind`, `size`, `areas`; an Intent; at least one AC line `- [ADD\|CHANGE\|REMOVE\|NONE] text`, or at least one Question for kind `investigate`; every area exists in `kit.yml`; no open blocking question. Scaffolds `plan.md` and `tasks.md`. |
+| agree | lead, owner | `spec.md` parses: front matter `kind`, `size`, `areas`, `created`, `updated`; a Why; at least one AC line `- [ADD\|CHANGE\|REMOVE\|NONE] text`, or at least one Question for kind `investigate`; every area exists in `kit.yml`; no open blocking question. Scaffolds `plan.md` and `tasks.md`. |
 | approve | owner | `plan.md` is filled (not the template); the slices of `tasks.md` are imported and equal the ledger; every AC is in a slice; each slice has one area of the item; no cycle in `depends`; no open blocking question. Stores a SHA-256 of `spec.md`, `plan.md`, `tasks.md`. |
 | proceed | lead | the guard of approve; the item mode is `auto`, and the last mode change was by the owner |
 | begin | lead, owner | no change in the three approved documents; each git area of the item is on a branch that is not protected; no other item in cooking uses an area of this item (v0.1) |
@@ -88,12 +88,19 @@ Every write is one transaction that takes the lock at its start. `--if-version <
 ## 6. Documents: `<home>/work/<id>/`
 | File | Made at | Sections |
 |---|---|---|
-| `spec.md` | start | front matter `id, kind, size, areas`; `## Intent`; `## What we will do`; `## Open points`; `## Acceptance criteria` (one `- [TAG] text` line each; the n-th line is AC n); `## Out of scope`. Kind investigate: `## Questions` in place of the criteria. |
-| `plan.md` | agree | `## Architecture` (facts with file and line); `## Design` (the choice and the options not taken); `## Steps` (order, compatibility, rollback); `## Tests` (one check and one negative case for each AC); `## Risks` |
-| `tasks.md` | agree | `## T<n>: title` then lines `area:`, `depends:`, `acs:`, `size:`, `done when:`; `proof: none (reason)` when the slice has no test to prove |
+| `spec.md` | start | front matter `id, kind, size, areas, created, updated`; `# <id>: <title>`; one `> In short:` line; `## Why`; `## What changes`; `## Acceptance criteria` (one `- [TAG] text (source)` line each; the n-th line is AC n); `## Decisions` (a table: Point, Answer, From); `## Out of scope`. Kind investigate: `## Questions` in place of the criteria. |
+| `plan.md` | agree | front matter `id, approach, created, updated`; `# <id>: the plan`; one `> In short:` line; `## Today`; `## Approach`; `## Impact`; `## Flow` (size L only); `## Proof`; `## Risks`. No code, no function signature, no path with a line number. |
+| `tasks.md` | agree | front matter `id, created, updated`; `# <id>: the slices`; an optional `> In short:` line; then `## T<n>: title` and the lines `area:`, `depends:`, `acs:`, `size:`, `files:` (optional, text), `done when:`; `proof: none (reason)` when the slice has no test to prove |
 | `findings.md` | kind investigate | `## Q<n>` with `Answer`, `Evidence`, `Open` |
 | `walkthrough.md` | on request | the verdict, what changed, one request step by step, how each AC is met, try it, need to know; an HTML page when the visual pack is on |
 | `handoff.md` | handoff | State, Done, Next, Open, Guesses, Watch; at most 40 lines |
+
+Rules of the three documents:
+- The dates use the form `YYYY-MM-DD`. A scaffold writes the date of today in `created` and `updated`. The writer changes `updated` at each edit.
+- `agree` needs `## Why` with text and both dates in `spec.md`. `approve` needs both dates in `plan.md` and `tasks.md`.
+- `approve` needs text in Today, Approach, Impact, Proof and Risks, and in Flow for an item of size L. A mermaid block counts as text.
+- The parser of `tasks.md` skips the front matter, the `> In short:` line and every fenced block.
+- The templates hold the size rules of the plan. A plan of size M has fewer than 60 lines with text. A plan of size L has fewer than 100.
 
 Tickets: `<home>/backlog/<KEY>/ticket.md` and `attachments/`. ADRs: `<home>/docs/adr/NNNN-title.md`. Wiki pages: the wiki pack, when it is on.
 The front matter of `spec.md` is the source of kind, size and areas: `agree` and `approve` copy it into the item.
@@ -103,18 +110,31 @@ Every read command takes `--json`. Exit codes: 0 ok, 1 error, 2 usage, 3 refused
 
 | Group | Commands |
 |---|---|
-| items | `item new <id> <title...> [--kind k --size s --area a... --source s --backlog]`, `item show <id>`, `item list [--state s]`, `item edit <id> <title\|kind\|size\|areas\|source\|rank> <value>`, `item history <id>`, `item brief <id>` (the context for an agent, at most about 1800 characters: state, next step, areas with folders, ACs with marks, slices, open questions and guesses, mode), `item mode <id> auto\|normal` (owner only), `item archive <id>` (the ticket folder to `backlog/archive/`) |
+| items | `item new [<id>] <title...> [--kind k --size s --area a... --source s --backlog]` (a first word in the form `KEY-12` is the id; with no id, the kit makes the next `IT-NNN`), `item show <id>`, `item list [--state s]`, `item edit <id> <title\|kind\|size\|areas\|source\|rank> <value>`, `item history <id>`, `item brief <id>` (the context for an agent, at most about 1800 characters: state, next step, areas with folders, ACs with marks, slices, open questions and guesses, mode), `item mode <id> auto\|normal` (owner only), `item archive <id>` (the ticket folder to `backlog/archive/`), `item page <id> [--out <file>]` (one HTML page of the item: see below) |
 | moves | `item start\|agree\|approve\|proceed\|begin\|submit\|accept\|reject\|replan\|reframe\|reopen\|block\|unblock\|cancel\|restore <id> [--reason r]`, `item check <id>` (the gaps of the next move, no move) |
 | criteria | `item ac list <id>`, `item ac add <id> <text> [--tag ADD\|CHANGE\|REMOVE\|NONE]`, `item ac done <id> <n> --evidence <text> --grade run\|sourced\|judged\|owner`, `item ac undo <id> <n>` |
 | checks | `item verify <id> [--area a] [--last]`, `item branch <id>`, `item commit <id> [--run]` |
 | slices | `task import <id>`, `task list <id> [--ready\|--state s]`, `task show <id> <T>`, `task brief <id> <T>`, `task start\|done\|wait\|resume\|fail\|retry\|reopen\|cancel <id> <T> [--reason r] [--files f...]`, `task prove <id> <T> --files <f...>` |
 | questions | `ask <id> <text> [--blocking] [--rec <answer>]`, `answer <id> <Q> <text>`, `questions [<id>] [--open]` |
 | guesses | `guess <id> <question> --took <a> --other <b> --impact low\|med\|high [--slices T1,T2]`, `guesses [<id>] [--open]`, `guess accept\|flip <id> <G> [--answer <text>]` |
-| the day | `next [<id>]` (what to do now, and the skill to type), `pickup <id>` (records the lead session; prints the brief and the last handoff), `quick <id\|title> --area <a>`, `note add <id> <text>`, `notes <id>` |
+| the day | `next [<id>]` (what to do now, and the skill to type), `pickup <id>` (records the lead session; prints the brief and the last handoff), `quick <id\|title> --area <a>` (a title gets the next `IT-NNN`), `note add <id> <text>`, `notes <id>` |
 | knowledge | `adr new <title> [--item id]`, `adr list`, `adr accept <n>`, `adr supersede <n> --by <m>` |
 | areas | `area list`, `area status` (folder, kind, branch, dirty files, the item that uses it) |
 | contract | `brief --json` (BriefLine: items that wait for the owner = urgency now; open blocking questions; failed slices; items in cooking with no activity for a day), `doctor --json` (unknown areas, a missing `checks`, drift after approve, cooking with no slices, waiting or failed slices, two items in one area, a blocking question open for more than a day), `init` (the same folders that `kit init` makes through the pack module), `hook <name>` |
 
+A kit-made id is `IT-` and one more than the highest IT number of the ledger, with three digits at least: `IT-001`, `IT-042`, `IT-1000`.
+`item page` builds one HTML page from `spec.md`, `plan.md`, `tasks.md` and the ledger, for the artifact viewer. It has no doctype and no `html` or `body` tag. The page holds:
+| Part | What it shows |
+|---|---|
+| header | the id, the title, the state, the kind and the size; an audit line with the date of each move and the `updated` date of each document |
+| overview | a mermaid mindmap: the item at the root, then the Why, the areas, the criteria and the slices |
+| tabs | Spec, Plan and Tasks, each document in the style of the kit; a mermaid block stays a mermaid block |
+| lanes | in the Tasks tab: a mermaid flowchart from the ledger, one subgraph for each area, an edge for each `depends` |
+| lane line | the slices that start first, and the slices of different areas that run side by side |
+
+The audit line names start, agree, approve, begin, submit and accept, when they happened.
+The mindmap puts each criterion under the area of its slice or its Proof row. With no area, it goes under its tag.
+Without `--out` it prints the page. With `--out` it writes the file and prints its path. A reader can print the page but cannot use `--out`.
 `verify` runs the checks of each area of the item in the area folder (or the `verify` template of the section with `{area}`), writes one `check_run` row for each check, and keeps the last 4000 characters of output. `--last` prints the last run without a new run.
 `task prove` makes a git worktree of the area at the merge base of the branch and the first protected branch, copies the new test files of the slice into it, and runs the `test` command of the area with `{files}`. A failure there is `proven`; a pass there is `weak` (the tests cannot fail); a load or import error is `none`. The result goes into `slice.proof`. Submit warns on a done slice with proof `none` or `weak`; it does not block.
 `item branch` makes `kit/<id>-<slug>` in each git area of the item and switches the checkout to it, or refuses when the area is in use by another item in cooking. `item commit --run` makes one commit for each done slice from its recorded files, on the branch of the item; it refuses a protected branch; it never pushes. Without `--run` it prints the plan.

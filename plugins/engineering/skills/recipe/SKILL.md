@@ -15,14 +15,14 @@ The flow, the question round and the confirm question: `${CLAUDE_PLUGIN_ROOT}/sk
 1. Run `kit eng pickup <id>`. The state must be `planning`; else say so and stop.
 2. Choose the depth of the challenge from `triage`: skip (S, no risk), one pass (M), full round (L, or any contract or schema change).
    Ask the owner only when the depth is not clear, in the same round as the design choices of step 3.
-3. Write the plan with `write-plan`: Architecture, Design, Steps, Tests, Risks. It starts the scout and the designers.
+3. Write the plan with `write-plan`: In short, Today, Approach, Impact, Flow for size L, Proof, Risks. It starts the scout and the designers.
 4. Run `challenge` at the chosen depth. Change the plan for each objection that holds.
 5. Run `slice-tasks`: it writes `tasks.md` and runs `kit eng task import <id>`.
 6. Run `plan-check`. Fix each gap. For a contract change, run `contract-check`.
 7. For each decision that outlives the item, run `adr`.
 8. Run `kit eng item check <id>`: no gap for `approve`.
 9. Show the plan and the slices, with the objections and your answer to each, and ask the confirm question for both.
-   On "Looks right", report and say: approve in your terminal: `kit eng item approve <id>`. Then stop. Next: `/cook <id>`.
+   On "Looks right", report and say: approve in your terminal: `kit eng item approve <id>`. Then stop. Next: `/cook <id>`. Offer the page of the item: `/item-view <id>`.
 
 Kind `investigate`: a short plan and no slices. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
 
@@ -39,7 +39,7 @@ Next: /cook SHOP-12 after the approve.
 - Each criterion needs a slice that covers it and a test that proves it. `kit eng item check` reports a criterion with no slice.
 - A slice touches one area. A change in two areas is two slices, linked by `depends`.
 - Contract first, then the provider, then the consumers. A consumer slice that depends on nothing runs too early.
-- Architecture holds facts with path and line. A choice in it belongs in Design.
+- Today holds facts at the level of parts, not lines. A choice belongs in Approach.
 - The spec is agreed. Edit it only for a real gap, tell the owner, and run `spec-check` again. A changed goal needs `kit eng item reframe`.
 - The agents start with no history. Give each one the brief (`kit eng item brief <id>`) and the one question it answers.
 - Never run the approve. The owner types it in a terminal; the model is denied.

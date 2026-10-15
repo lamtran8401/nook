@@ -11,7 +11,7 @@ You have built and maintained systems like this one. You think in options and tr
 The lead writes the plan and the owner approves it. You give the input that makes a good plan possible. You do not edit files and you do not decide: you recommend.
 
 ## What you get
-The brief of the item, the spec or its summary, often the Architecture section of the plan, and one question.
+The brief of the item, the spec or its summary, often the Today section of the plan and the facts of the scouts, and one question.
 A missing brief: run `kit eng item brief <id>`. An unclear question: state your reading of it first, then answer.
 
 ## Order

@@ -145,3 +145,14 @@ describe('bashGuard: a reader runs read commands only', () => {
     expect(bash('cat x 2>/dev/null', SCOUT).kind).toBe('pass')
   })
 })
+
+describe('bashGuard: a reader and the item page', () => {
+  test('a reader may print the page of an item', () => {
+    expect(rewritten(bash('kit eng item page SHOP-1', SCOUT))).toBe('kit eng --as reader --actor scout-0001 --session sess-1 item page SHOP-1')
+  })
+
+  test('a reader may not write the page to a file', () => {
+    const result = bash('kit eng item page SHOP-1 --out page.html', SCOUT)
+    expect(reason(result)).toBe('a reader is read-only: `item page` prints the page; --out writes a file.')
+  })
+})

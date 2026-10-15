@@ -1,7 +1,8 @@
 import { isOneOf, SIZES, type Size } from '../vocabulary.ts'
-import { COMMENT } from './markdown.ts'
+import { bodyLines, FENCE } from './markdown.ts'
 
 /** `work/<id>/tasks.md`: one `## T<n>: title` section for each slice, then `key: value` lines. */
+/** The front matter, the `> In short:` line and every fenced block are not slices. */
 
 export type SliceSpec = {
   id: string
@@ -10,6 +11,8 @@ export type SliceSpec = {
   depends: string[]
   acs: number[]
   size: Size | null
+  /** The files that the slice plans to touch, as the file writes them. */
+  files: string | null
   doneWhen: string
   /** `none (reason)` marks a slice with no test to prove. */
   proof: string | null
@@ -50,7 +53,13 @@ export class TasksDocument {
 function readSections(text: string): Section[] {
   const found: Section[] = []
   let current: Section | null = null
-  for (const line of text.replace(COMMENT, '').split(/\r?\n/)) {
+  let fenced = false
+  for (const line of bodyLines(text)) {
+    if (FENCE.test(line)) {
+      fenced = !fenced
+      continue
+    }
+    if (fenced || line.startsWith('>')) continue
     const heading = HEADING.exec(line)
     if (heading) {
       current = { id: heading[1]!, title: heading[2]!, fields: new Map() }
@@ -88,6 +97,7 @@ function build({ id, title, fields }: Section, problems: string[]): SliceSpec {
     depends: depends.filter(d => SLICE_ID.test(d)),
     acs: acs.filter(isAc),
     size: isOneOf(SIZES, size) ? size : null,
+    files: fields.get('files') || null,
     doneWhen: fields.get('done when') ?? '',
     proof: (fields.get('proof') ?? '').trim() || null,
   }

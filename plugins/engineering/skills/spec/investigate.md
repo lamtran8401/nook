@@ -7,7 +7,7 @@ Everything else follows the standard flow.
 | Stage | What changes |
 |---|---|
 | spec | `## Questions` in place of `## Acceptance criteria`: one bullet for each question. `agree` needs at least one question. |
-| recipe | No slices and no builders. `plan.md` is short: Architecture names where to look, with path and line; Steps has one step for each question; Tests names the evidence each answer needs; Risks names what the code cannot answer. `tasks.md` stays empty. No skeptic. |
+| recipe | No slices and no builders. `plan.md` is short: Today names where to look; Approach has one row for each question, with how it gets its answer; Impact is one line, "None: the item changes no code"; Proof names the evidence each answer needs; Risks names what the code cannot answer. `tasks.md` stays empty. No skeptic. |
 | cook | No branch and no builders. `begin`, then the lead and the read-only agents do the research. Write `findings.md`, then `submit`. |
 | check | The reviewer checks `findings.md`, not criteria. Each question needs an answer with evidence. |
 | close | No commit. A follow-up item for each Follow-up line. A wiki page when the answers matter again. |
@@ -19,8 +19,14 @@ id: SHOP-15
 kind: investigate
 size: S
 areas: [bff]
+created: 2026-10-15
+updated: 2026-10-15
 ---
-## Intent
+# SHOP-15: Find why the shipment list is slow
+
+> In short: find the cause of the 4 seconds of the list call before anyone changes code.
+
+## Why
 The shipment list call takes 4 seconds at peak. Find the cause before anyone changes code.
 
 ## Questions

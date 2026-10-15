@@ -1,75 +1,236 @@
-# A plan and its slices: SHOP-12
+# Two plans and one list of slices
 
-## plan.md
-```markdown
-# Plan: SHOP-12
+The files that `/recipe` writes. SHOP-12 is size M: no Flow section. SHOP-30 is size L: a table with "If it fails" and a Flow section.
+The lanes of the slices are not in `tasks.md`: `kit eng item page` draws them from the ledger.
 
-## Architecture
-- bff `src/shipments/list.ts:42` builds the list query from `page` and `sort`. It reads no `status`.
-  - Tests: `src/shipments/list.test.ts`, run by `yarn test` (the check of bff in `kit.yml`).
-- frontend `src/shipments/ShipmentList.tsx:18` calls `GET /shipments` with `page` and `sort`.
-- frontend `src/shipments/export.ts:31` reuses the same call for the export.
-- Contract: none. The list is a REST call of the bff with no shared schema file.
-- Unknown: how the cache key of the list is built.
+## SHOP-12: plan.md (size M)
 
-## Design
-Add `status` as an optional query parameter of the list in bff. The frontend sends it from a new filter control.
-- Decision: the parameter is optional. Reason: old frontends keep working during the rollout.
-- Decision: the filter runs in the query. Reason: the list has up to 5,000 rows.
-- Contract impact: none. Data impact: the `status` column needs an index (`schema.sql:88` shows none).
-- Outlives the item: filter in the query, not in memory (ADR 0007).
+````markdown
+---
+id: SHOP-12
+approach: the bff filters, the page passes the status
+created: 2026-10-15
+updated: 2026-10-15
+---
 
-Rejected: a new endpoint `/shipments/by-status`. It repeats the list contract and doubles the consumers.
-Rejected: a filter in the frontend. It breaks above 500 rows.
+# SHOP-12: the plan
 
-## Steps
-1. bff: the index, then the optional parameter and the filter. Ships first.
-2. frontend: the control, the banner, the export. Ships after the bff.
-Compatibility: new bff with old frontend works (the parameter is optional). New frontend with old bff does not filter.
-Rollback: remove the control. The bff ignores a missing parameter. The index is hard to undo: the owner decides when it runs.
+> In short: an optional `status` query in the bff, and page functions that pass it. 4 slices; the bff ships first. The main risk: the page ships before the bff reads the query.
 
-## Tests
-- AC1 (the filter lists the 5 public statuses): bff unit test on the status list. Negative: an internal status adds no option.
-- AC2 (a status narrows the list): bff test with two statuses. Negative: an unknown status returns an empty list, not an error.
-- AC3 (no status shows every shipment): bff test with no parameter. Negative: an empty string equals no parameter.
-- AC4 (the banner): frontend test with a failing query asserts "Unable to filter". Negative: a slow query shows no banner.
-- AC5 (the export): frontend test that the export call carries the status. Negative: no status exports every row.
-- Keep green: `list.test.ts` (bff), `ShipmentList.test.tsx` (frontend). `kit eng item verify SHOP-12` runs both areas.
+## Today
+
+```mermaid
+flowchart TB
+  frontend["frontend: client and renderer"] -->|"no query"| bff["bff: GET /shipments"]
+  bff --> list["listShipments: every shipment, newest first"]
+```
+
+- `GET /shipments` returns every shipment, newest first, and reads no query.
+- The statuses exist only as a type in the bff.
+- The frontend has a client and a renderer, both pure functions, and no page entry.
+
+## Approach
+
+```mermaid
+flowchart TB
+  page["frontend: page with the status select (new)"] -->|"the picked status"| client["frontend: client adds ?status= (changes)"]
+  client -->|"GET /shipments?status="| handler["bff: handler checks the status (changes)"]
+  handler -->|"unknown"| bad["400: names the valid statuses (new)"]
+  handler -->|"known or empty"| list["listShipments filters, then sorts (changes)"]
+```
+
+| Decision | Why |
+|---|---|
+| One list of statuses in the bff | it gives the valid values and the text of the 400, so the two never differ |
+| An empty value means no filter (ADR 2) | an All option needs no special value |
+| The page stays functions that return HTML (ADR 1) | a test checks each criterion, with no browser and no new dependency |
+
+| Option not taken | Why not |
+|---|---|
+| A DOM page with a change handler | nothing serves a page yet, so only a person could check it; happy-dom adds a dependency |
+| `all` as the value of All | the bff answers it with a 400 |
+
+## Impact
+
+| Kind | Impact |
+|---|---|
+| Contract | one optional query on `GET /shipments`; additive |
+| Security | the status goes into the HTML through the escape of the area |
+| Rollout | the bff first, then the frontend; rollback in reverse; nothing is hard to undo |
+
+None: Data, Cache, Consistency, Performance.
+
+## Proof
+
+| Criteria | Layer | Proof |
+|---|---|---|
+| 1, 2, 3 | bff, call | `pending` gives the two pending shipments, newest first; an empty status gives all four; `lost` and `Pending` give the 400 with the exact text. Negative: `shipped` never gives a pending one |
+| 4, 5, 7 | frontend, page | the select lists All first; opened with no status or with All, the URL is a bare `/shipments`. Negative: no option has the value `all` |
+| 6, 8 | frontend, page | called with `pending`, the URL has the status and the rows are what the bff returns; no match gives "No pending shipments.", with `<b>` escaped. Negative: with no status, the old text stays |
+| 9 | frontend, page | a 503 and an unreachable API give the banner text of today. Negative: the text holds no status |
 
 ## Risks
-- The frontend ships before the bff. Effect: the filter does nothing. Reduce: Steps orders the bff first.
-- The index build locks writes on a large table. Detect: the size of `shipments` in staging. The owner decides when it runs.
-- No test covers the cache key. Detect: a stale list after a filter, in the manual check.
-- Not done on purpose: saved filters. They need a data change.
-```
 
-## tasks.md
-```markdown
-# Slices: SHOP-12
+| Risk | Likelihood | What we do |
+|---|---|---|
+| The page ships before the bff reads the query, and filters nothing | low | T4 depends on T2 in the ledger |
+| The two status lists drift: the bff and the select | low | three values today; a shared list is a later item |
+````
 
-## T1: Add the status parameter to the shipment list
+## SHOP-12: tasks.md
+
+````markdown
+---
+id: SHOP-12
+created: 2026-10-15
+updated: 2026-10-15
+---
+
+# SHOP-12: the slices
+
+> In short: two lanes. T1 and T3 start together. T4 waits for T2 and T3.
+
+## T1: Add the status list and the status filter
+
 - area: bff
 - depends: none
+- acs: AC1, AC3
+- size: S
+- files: src/shipments.ts, test/shipments.test.ts
+- done when: the filter gives the pending shipments, newest first; the 400 text comes from the list; the 4 tests of today stay green
+
+## T2: Read the status query in GET /shipments
+
+- area: bff
+- depends: T1
 - acs: AC1, AC2, AC3
 - size: S
-- done when: `list.test.ts` passes with the three new cases and `yarn lint` passes
+- files: src/handler.ts, test/handler.test.ts
+- done when: `pending`, an empty status, `lost` and `Pending` answer as the spec says; the 5 tests of today stay green
 
-## T2: Add the filter control and pass the status to the export
+## T3: Send the status from the client and name it in the empty text
+
 - area: frontend
-- depends: T1
-- acs: AC1, AC4, AC5
+- depends: none
+- acs: AC6, AC7, AC8
 - size: S
-- done when: `ShipmentList.test.tsx` and `export.test.ts` pass with the new cases and the full suite stays green
-```
-`kit eng task import` reads the heading and the lines `area`, `depends`, `acs`, `size`.
-The line `done when` is for the builder.
-A slice with no new behavior (a rename, a move) gets `- proof: none (<reason>)`, and `task prove` skips it.
+- files: src/client.ts, src/shipment-list.ts, their two test files
+- done when: a fetcher that records its URL sees the status, and none for All; the empty text names the status, escaped; "No shipments yet." stays
 
-## What each section holds
-| Section | Holds | Does not hold | Lines |
-|---|---|---|---|
-| Architecture | the parts that change and how they connect today; one fact for each line with `area path:line`; what is not there when it matters | a choice, an opinion, the new design | 30 |
-| Design | the chosen solution; each key decision with its reason; the contract and data impact ("none" when none); the rejected options with one reason each | a list of steps | 40 |
-| Steps | the order across areas; what keeps working at each step; rollout and rollback; which step is hard to undo and who runs it | the slices | 25 |
-| Tests | for each AC: the test, its layer and one negative case; the tests that must stay green; the commands | the test code | 30 |
-| Risks | what can fail, how you detect or reduce it; what is left out on purpose; the guesses the plan relies on | a generic risk of any project | 20 |
+## T4: Build the shipments page with the status select
+
+- area: frontend
+- depends: T2, T3
+- acs: AC4, AC5, AC6, AC7, AC9
+- size: S
+- files: src/page.ts (new), test/page.test.ts (new)
+- done when: the select and the page meet AC4 to AC9, with the exact banner text; `bun test` passes
+````
+
+## SHOP-30: plan.md (size L)
+
+````markdown
+---
+id: SHOP-30
+approach: reserve in the database in one transaction; cache the available count for 5 seconds
+created: 2026-10-20
+updated: 2026-10-21
+---
+
+# SHOP-30: the plan
+
+> In short: a reservations table, filled and paid in two transactions, with the available count cached for 5 seconds. 6 slices, behind a flag. The main risk: two carts lock the same products in a different order.
+
+## Today
+
+```mermaid
+flowchart TB
+  cart["frontend: cart"] -->|"checkout"| checkout["orders: checkout checks the stock, holds nothing"]
+  checkout -->|"pay"| pay["orders: payment callback lowers the stock"]
+```
+
+- Nothing holds stock between checkout and payment.
+- The product page reads the stock from the database on each view.
+
+## Approach
+
+```mermaid
+flowchart TB
+  cart["frontend: cart shows time left (changes)"] -->|"POST /checkout"| checkout["orders: checkout in one transaction (changes)"]
+  checkout -->|"hold each line"| holds["reservations: a hold for each line, 15 min (new)"]
+  checkout -->|"delete the key"| cache["cache: available count, 5 s (new)"]
+  holds -->|"paid: one order"| pay["orders: payment, second transaction (changes)"]
+  job["release job: each minute (new)"] -->|"release after 15 min"| holds
+```
+
+| Decision | Why | If it fails |
+|---|---|---|
+| The holds live in a `reservations` table, not in the cache | a lost cache key sells a unit twice | a slow insert shows in the checkout time; an index on the product keeps it short |
+| A conditional update reserves each line; all lines commit in one transaction | a read, then a write, lets two checkouts pass for the last unit | two carts can deadlock: the lines lock in product order, and a checkout retries once |
+| An expired hold never counts; a job releases it each minute | the count stays right when the job runs late | a stopped job leaves rows, and the count ignores them |
+| The available count is cached for 5 seconds; each write deletes the key | the product page reads it on each view, and the spec allows 5 seconds | a missed delete shows a count up to 5 seconds old |
+| The payment id is the key of the payment transaction | providers send the same callback more than once | a second callback changes nothing |
+
+| Option not taken | Why not |
+|---|---|
+| Holds in the cache only | a lost key sells a unit twice |
+| Lower the stock at checkout, raise it on expiry | a crash between the two leaves the stock wrong |
+
+## Impact
+
+| Kind | Impact |
+|---|---|
+| Contract | `POST /checkout` returns the hold id and its expiry; additive |
+| Data | a new `reservations` table and an index; no backfill |
+| Cache | one key for each product, 5 seconds, deleted on each write |
+| Consistency | two transactions, checkout and payment; the callback is idempotent |
+| Performance | one conditional update for each line at checkout |
+| Rollout | the flag `reserve_stock`: staging, then 10% of carts, then all; rollback: the flag off, and the table stays unused |
+
+None: Security.
+
+## Flow
+
+```mermaid
+sequenceDiagram
+  participant cart as Cart
+  participant orders as Orders
+  participant db as Database
+  participant cache as Cache
+  cart->>orders: POST /checkout
+  orders->>db: one transaction: lower the units, write the holds
+  db-->>orders: held lines, short lines
+  orders->>cache: delete the keys
+  orders-->>cart: hold id, expiry, short lines
+  Note over orders,db: payment: a second transaction, idempotent on the payment id
+```
+
+- The available units of a product are never below zero.
+- A paid hold becomes exactly one order line.
+- An expired hold never counts against the stock.
+
+| Case | What happens |
+|---|---|
+| Two checkouts for the last unit | one commits; the other sees "Only 0 left" |
+| A deadlock between two carts | the checkout retries once, then asks the person to try again |
+| A payment after the release | the payment finds no hold and fails; the person checks out again (G1) |
+
+## Proof
+
+| Criteria | Layer | Proof |
+|---|---|---|
+| 1, 3 | orders, service | a checkout writes one hold for each line; a hold older than 15 minutes no longer counts, with and without the job. Negative: a held unit never shows as available |
+| 2 | orders, integration | 20 checkouts at once for 1 unit: exactly 1 hold and 19 answers "Only 0 left" |
+| 4, 5 | orders, integration | a failure inside the payment step leaves no order and the stock unchanged; the same callback twice gives one order |
+| 6 | orders, service | after a hold, the next read of the count is a cache miss. Negative: checkout never reads the cache |
+| 7, 8 | frontend, component | the cart shows the minutes left; a short line shows its count, and the other lines show as held |
+| always | orders, property | random checkouts, releases and payments never take a count below zero |
+
+## Risks
+
+| Risk | Likelihood | What we do |
+|---|---|---|
+| Deadlocks under load | med | lock in product order, retry once, watch the deadlock count |
+| A slow payment pays after the release | med | G1: it fails, and the person checks out again |
+| The product page shows a count up to 5 seconds old | high, by design | the spec allows it; checkout never reads the cache |
+````

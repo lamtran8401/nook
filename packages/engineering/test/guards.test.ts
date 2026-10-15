@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { AreaFree, BranchNotProtected, EachArea } from '../src/guards/areas.ts'
 import { AutoByOwner } from '../src/guards/auto.ts'
 import { CriteriaMarked } from '../src/guards/criteria.ts'
+import { DatesWritten } from '../src/guards/dates.ts'
 import { FindingsFilled, QuestionsAnswered } from '../src/guards/findings.ts'
 import { FingerprintsUnchanged } from '../src/guards/fingerprints.ts'
 import { GuardContext } from '../src/guards/guard.ts'
@@ -88,15 +89,76 @@ describe('NoOpenBlockingQuestion', () => {
 })
 
 describe('PlanFilled', () => {
-  test('the template is a gap', () => {
+  test('the template is a gap that names the sections to write', () => {
     itemAt(t, 'planning')
-    expect(new PlanFilled().check(ctx())).toEqual([{ text: 'plan.md is the template, not a plan', fix: `write the sections of ${doc('plan.md')}` }])
+    expect(new PlanFilled().check(ctx())).toEqual([{ text: 'plan.md is the template, not a plan', fix: `write the sections Today, Approach, Impact, Proof, Risks of ${doc('plan.md')}` }])
   })
 
   test('each empty section is a gap of its own', () => {
     itemAt(t, 'planning')
-    writeDoc(t, 'SHOP-1', 'plan.md', '## Architecture\n\nfacts\n\n## Design\n\n## Steps\n\nsteps\n\n## Tests\n\n## Risks\n\nnone\n')
-    expect(new PlanFilled().check(ctx()).map(g => g.text)).toEqual(['plan.md: ## Design is empty', 'plan.md: ## Tests is empty'])
+    writeDoc(t, 'SHOP-1', 'plan.md', '## Today\n\nfacts\n\n## Approach\n\n## Impact\n\nNone: all.\n\n## Proof\n\n## Risks\n\nnone\n')
+    expect(new PlanFilled().check(ctx())).toEqual([
+      { text: 'plan.md: ## Approach is empty', fix: `write the Approach in ${doc('plan.md')}` },
+      { text: 'plan.md: ## Proof is empty', fix: `write the Proof in ${doc('plan.md')}` },
+    ])
+  })
+
+  test('a section with a comment and a mermaid block is filled', () => {
+    itemAt(t, 'planning')
+    writeDoc(t, 'SHOP-1', 'plan.md', PLAN.replace('The export formats the date in the zone of the server.', '<!-- one diagram -->\n```mermaid\nflowchart TB\n  a --> b\n```'))
+    expect(new PlanFilled().check(ctx())).toEqual([])
+  })
+
+  test('a plan of size L without a Flow is a gap', () => {
+    itemAt(t, 'planning')
+    t.kit(LEAD).editItem('SHOP-1', 'size', 'L')
+    writeDoc(t, 'SHOP-1', 'plan.md', PLAN)
+    expect(new PlanFilled().check(ctx())).toEqual([{ text: 'plan.md: ## Flow is empty', fix: `write the Flow in ${doc('plan.md')}` }])
+  })
+
+  test('a plan of size L with a Flow has no gap', () => {
+    itemAt(t, 'planning')
+    t.kit(LEAD).editItem('SHOP-1', 'size', 'L')
+    writeDoc(t, 'SHOP-1', 'plan.md', `${PLAN}\n## Flow\n\n\`\`\`mermaid\nsequenceDiagram\n  a->>b: export\n\`\`\`\n`)
+    expect(new PlanFilled().check(ctx())).toEqual([])
+  })
+})
+
+describe('DatesWritten', () => {
+  test('a spec with both dates has no gap', () => {
+    itemAt(t, 'framing')
+    writeDoc(t, 'SHOP-1', 'spec.md', SPEC())
+    expect(new DatesWritten(['spec.md']).check(ctx())).toEqual([])
+  })
+
+  test('a missing updated is a gap whose fix names the field and the file', () => {
+    itemAt(t, 'framing')
+    writeDoc(t, 'SHOP-1', 'spec.md', SPEC().replace('updated: 2026-10-15\n', ''))
+    expect(new DatesWritten(['spec.md']).check(ctx())).toEqual([
+      { text: 'spec.md: front matter updated is missing', fix: `write updated: YYYY-MM-DD in the front matter of ${doc('spec.md')}` },
+    ])
+  })
+
+  test('a created that is not a real date is a gap', () => {
+    itemAt(t, 'framing')
+    writeDoc(t, 'SHOP-1', 'spec.md', SPEC().replace('created: 2026-10-14', 'created: 2026-02-30'))
+    expect(new DatesWritten(['spec.md']).check(ctx()).map(g => g.text)).toEqual(['spec.md: front matter created is not a date'])
+  })
+
+  test('the dates of plan.md and tasks.md are each checked', () => {
+    planned()
+    writeDoc(t, 'SHOP-1', 'plan.md', PLAN.replace('updated: 2026-10-15', 'updated: yesterday'))
+    writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }]).replace('created: 2026-10-14\n', ''))
+    expect(new DatesWritten(['plan.md', 'tasks.md']).check(ctx()).map(g => g.text)).toEqual([
+      'plan.md: front matter updated is not a date',
+      'tasks.md: front matter created is missing',
+    ])
+  })
+
+  test('a document that does not exist is no gap of this guard', () => {
+    itemAt(t, 'framing')
+    rmSync(doc('spec.md'))
+    expect(new DatesWritten(['spec.md']).check(ctx())).toEqual([])
   })
 })
 
@@ -313,7 +375,11 @@ describe('the guard table', () => {
   const names = (move: keyof typeof GUARDS) => GUARDS[move].map(g => g.constructor.name)
 
   test('proceed runs the owner-auto guard first, then the guards of approve in their order', () => {
-    expect(names('proceed')).toEqual(['AutoByOwner', 'PlanFilled', 'SlicesImported', 'EveryAcInSlice', 'SliceAreasOfItem', 'NoDependsCycle', 'NoOpenBlockingQuestion'])
+    expect(names('proceed')).toEqual(['AutoByOwner', 'PlanFilled', 'DatesWritten', 'SlicesImported', 'EveryAcInSlice', 'SliceAreasOfItem', 'NoDependsCycle', 'NoOpenBlockingQuestion'])
+  })
+
+  test('agree checks the spec, then its dates, then the questions', () => {
+    expect(names('agree')).toEqual(['SpecParses', 'DatesWritten', 'NoOpenBlockingQuestion'])
   })
 
   test('begin compares the fingerprints before it looks at the areas', () => {

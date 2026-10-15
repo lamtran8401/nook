@@ -86,13 +86,13 @@ export const SPEC = (options: { kind?: string; areas?: string[]; acs?: string[];
   const tail = kind === 'investigate'
     ? `## Questions\n\n${(options.questions ?? ['why does the job retry?']).map(q => `- ${q}`).join('\n')}\n`
     : `## Acceptance criteria\n\n${acs.map(a => `- ${a}`).join('\n')}\n`
-  return `---\nid: SHOP-1\nkind: ${kind}\nsize: ${options.size ?? 'S'}\nareas: [${(options.areas ?? ['bff']).join(', ')}]\n---\n\n# SHOP-1\n\n## Intent\n\nFix the export date.\n\n## What we will do\n\nShift the date.\n\n## Open points\n\n${tail}\n## Out of scope\n\nNothing.\n`
+  return `---\nid: SHOP-1\nkind: ${kind}\nsize: ${options.size ?? 'S'}\nareas: [${(options.areas ?? ['bff']).join(', ')}]\ncreated: 2026-10-14\nupdated: 2026-10-15\n---\n\n# SHOP-1: the export date is off\n\n> In short: the export shows the date of the shop.\n\n## Why\n\nFix the export date.\n\n## What changes\n\n- **bff:** shift the date.\n\n${tail}\n## Decisions\n\n| Point | Answer | From |\n|---|---|---|\n| The zone | UTC | Q1 |\n\n## Out of scope\n\nNothing.\n`
 }
 
-export const PLAN = `# plan\n\n## Architecture\n\nexport.ts line 10 formats the date.\n\n## Design\n\nUse UTC. Not taken: a library.\n\n## Steps\n\n1. the test 2. the fix. Rollback: revert.\n\n## Tests\n\nAC1: a date test and a negative. AC2: an error test and a negative.\n\n## Risks\n\nTime zones.\n`
+export const PLAN = `---\nid: SHOP-1\napproach: format the date in UTC\ncreated: 2026-10-14\nupdated: 2026-10-15\n---\n\n# SHOP-1: the plan\n\n> In short: format in UTC. The risk is the time zones.\n\n## Today\n\nThe export formats the date in the zone of the server.\n\n## Approach\n\n| Decision | Why |\n|---|---|\n| Use UTC | one zone for every shop |\n\n## Impact\n\nNone: Contract, Data, Cache, Consistency, Performance, Security, Rollout.\n\n## Proof\n\n| AC | Layer | Proof |\n|---|---|---|\n| 1, 2 | bff, unit | a date test and a negative |\n\n## Risks\n\nTime zones.\n`
 
 export const TASKS = (slices: { id: string; area?: string; depends?: string; acs?: string; proof?: string; title?: string }[]) =>
-  `# tasks\n\n${slices.map(s => `## ${s.id}: ${s.title ?? `slice ${s.id}`}\n\n- area: ${s.area ?? 'bff'}\n- depends: ${s.depends ?? 'none'}\n- acs: ${s.acs ?? '1, 2'}\n- size: S\n- done when: the test passes\n${s.proof ? `- proof: ${s.proof}\n` : ''}`).join('\n')}`
+  `---\nid: SHOP-1\ncreated: 2026-10-14\nupdated: 2026-10-15\n---\n\n# SHOP-1: the slices\n\n${slices.map(s => `## ${s.id}: ${s.title ?? `slice ${s.id}`}\n\n- area: ${s.area ?? 'bff'}\n- depends: ${s.depends ?? 'none'}\n- acs: ${s.acs ?? '1, 2'}\n- size: S\n- done when: the test passes\n${s.proof ? `- proof: ${s.proof}\n` : ''}`).join('\n')}`
 
 export const writeDoc = (t: TestHome, id: string, name: string, text: string) => {
   mkdirSync(join(t.root, 'work', id), { recursive: true })

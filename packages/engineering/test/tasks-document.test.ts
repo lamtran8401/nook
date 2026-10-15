@@ -11,4 +11,16 @@ describe('TasksDocument', () => {
     expect(dependsCycle([{ id: 'T1', depends: ['T2'] }, { id: 'T2', depends: ['T1'] }])).toEqual(['T1', 'T2', 'T1'])
     expect(dependsCycle([{ id: 'T1', depends: [] }, { id: 'T2', depends: ['T1'] }])).toBeNull()
   })
+
+  test('the files line is kept as text, and a slice without it has none', () => {
+    const parsed = TasksDocument.parse('## T1: the filter\n\n- area: web\n- files: the list page, its tests\n\n## T2: the query\n\n- area: bff\n')
+    expect(parsed.slices.map(s => s.files)).toEqual(['the list page, its tests', null])
+  })
+
+  test('the front matter, the In short line and a fenced block are not read as slices or fields', () => {
+    const text = '---\nid: SHOP-1\narea: front\n---\n\n# SHOP-1: the slices\n\n> In short: area: quote\n\n```mermaid\nflowchart LR\n## T9: in a fence\n```\n\n## T1: the filter\n\n```text\narea: fenced\n```\n- area: web\n'
+    const parsed = TasksDocument.parse(text)
+    expect(parsed.slices.map(s => [s.id, s.area])).toEqual([['T1', 'web']])
+    expect(parsed.problems).toEqual([])
+  })
 })

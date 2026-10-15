@@ -1,34 +1,56 @@
 # The sections of plan.md
 
-| Section | Holds | Does not hold | Lines |
-|---|---|---|---|
-| Architecture | the parts that change and how they connect today, one fact for each line with `area path:line`; the tests that exist; the contract files and their consumers; what is not there when it matters; the unknowns | a choice, an opinion, the new design, pasted code | 30 |
-| Design | the chosen solution in plain steps of the change; each key decision with its reason; the contract impact and the data impact ("none" when none); the rejected options with one reason each; the decisions that outlive the item | a list of work steps, the slices | 40 |
-| Steps | the order of the work across areas; what must be true before each step and what works after it; compatibility when one area is on the new version and another on the old; rollout; rollback and what it leaves behind; which step is hard to undo and who runs it | the slices, the code | 25 |
-| Tests | for each AC: the area, the layer (unit, service edge, component, integration, manual), the behavior in one sentence, and one negative case; the tests that must stay green; the command for each area | the test code | 30 |
-| Risks | what can fail, with the effect, how likely (low, med, high) and how you detect or reduce it; the risk nobody sees (no data, a large list, a slow call, two versions at once); what is left out on purpose; the guesses the plan relies on | a generic risk of any project, a risk the design already removes | 20 |
+| Section | Holds | Size |
+|---|---|---|
+| In short | the approach, the count of slices, the main risk | 2 sentences |
+| Today | one mermaid diagram of the parts and calls of today; the facts that the approach rests on | 1 diagram, 3 facts |
+| Approach | one mermaid diagram after the change; a table `Decision \| Why` (size L adds `If it fails`); the options not taken with one reason each | 1 diagram, 3 options |
+| Impact | one row for each kind that changes; one line "None: ..." for the rest of Contract, Data, Cache, Consistency, Performance, Security, Rollout | the rows that change |
+| Flow | size L only: one mermaid sequence diagram of the hard path; the rules that must always be true; the failure cases | 3 rules, 4 cases |
+| Proof | the criteria grouped; for each row the layer, the proof in plain words, and the negative case | 6 rows |
+| Risks | what can fail, its likelihood (low, med, high) and what we do; what is left out on purpose; the guesses the plan relies on | 3 rows |
 
-A full `plan.md` for SHOP-12: `${CLAUDE_PLUGIN_ROOT}/skills/recipe/example.md`.
+A size M plan stays under 60 lines with text and a size L plan under 100, diagrams included; blank lines do not count.
 
 ## The bar for each section
-- Architecture: a reader finds each file in one minute from the path and the line. Each line states a fact in the present tense. A longer section means you wrote the design.
-- Design: the owner approves this text. A decision with no reason cannot be approved; a design that hides the other options hides the risk. A decision that you cannot explain in one sentence is not decided: read the code again.
-- Steps: areas deploy apart, so a wrong order breaks a running system. "Deploy together" is a risk: say which area ships first. A one-area item still has an order: the test, then the change, in one line.
-- Tests: the builders write tests first from this section, and the reviewer uses it to decide if a criterion is met. Use the lowest layer that proves the criterion. Mock the edge (network, database, clock), never the code under test. Agents cannot start the app, so a visual check is always manual.
-- Risks: an owner who sees a risk before the build accepts it or changes the plan; one who sees it at review pays twice. "Not done on purpose" is a promise that the reviewer reads.
+- In short: the owner knows the approach and the main risk after reading it once.
+- Today: a reader who does not know the code sees the parts and the calls. A fact names a part, not a line.
+- Approach: the owner approves this text. A decision with no reason cannot be approved; a plan that hides the other options hides the risk.
+- Impact: a "None" is a claim too. Write it only after you checked that kind.
+- Flow: the order of the calls, the transactions and the cache writes, where a wrong order breaks data. Agents cannot start the app, so a timing claim needs a test.
+- Proof: the builders write tests first from this section, and the reviewer uses it to decide if a criterion is met. Use the lowest layer that proves it. Mock the edge (network, database, clock), never the code under test.
+- Risks: an owner who sees a risk before the build accepts it or changes the plan. "Not done on purpose" is a promise that the reviewer reads.
+
+## The diagrams
+Write each diagram as a mermaid block. The record keeps the text; `kit eng item page` shows it as a diagram.
+```mermaid
+flowchart TB
+  page["web: page with the status select (new)"] -->|"the picked status"| client["web: client adds ?status= (changes)"]
+  client -->|"GET /shipments?status="| handler["api: handler checks the status (changes)"]
+  handler -->|"unknown"| bad["400: names the valid statuses"]
+  handler -->|"known or empty"| list["listShipments filters, then sorts (changes)"]
+```
+- `flowchart TB` for Today and Approach: it reads well on a phone.
+- `sequenceDiagram` for Flow: one participant for each part that takes part in the call.
+- Mark each part as it is: "(new)", "(changes)", or nothing for a part that stays.
 
 ## Two snippets
 ```markdown
-## Design
-Add `status` as an optional query parameter of the list in bff. The frontend sends it from a new filter control.
-- Decision: the parameter is optional. Reason: old frontends keep working during the rollout.
-- Decision: the filter runs in the query. Reason: the list has up to 5,000 rows.
-- Contract impact: none. Data impact: an index on `status` (`schema.sql:88` shows none).
-Rejected: a new endpoint `/shipments/by-status`. It repeats the list contract and doubles the consumers.
+## Approach
+| Decision | Why |
+|---|---|
+| One list of statuses in the API | it gives the valid values and the text of the 400, so the two never differ |
+| An empty value means no filter (ADR 2) | an All option needs no special value |
+
+| Option not taken | Why not |
+|---|---|
+| A DOM page with a change handler | nothing serves a page yet, so only a person could check it |
 ```
 ```markdown
-## Tests
-- AC2 (a status narrows the list): bff service-edge test with two statuses. Negative: an unknown status returns an empty list, not an error.
-- AC4 (the banner): frontend component test with a failing query asserts "Unable to filter". Negative: a slow query shows no banner.
-- Keep green: `list.test.ts` (bff), `ShipmentList.test.tsx` (frontend). `kit eng item verify SHOP-12` runs both areas.
+## Proof
+| Criteria | Layer | Proof |
+|---|---|---|
+| 1, 2, 3 | api, call | `pending` gives the two pending shipments; an empty status gives all four; `lost` and `Pending` give the 400. Negative: `shipped` never gives a pending one |
+| 4, 5, 7 | web, page | the select lists All first; opened with no status, the URL is a bare `/shipments`. Negative: no option has the value `all` |
 ```
+Two full plans, of size M and size L: `${CLAUDE_PLUGIN_ROOT}/skills/recipe/example.md`.

@@ -1,3 +1,4 @@
+import { TasksDocument } from '../documents/tasks.ts'
 import { cut } from '../format.ts'
 import type { Engineering } from '../service.ts'
 
@@ -9,11 +10,13 @@ export function taskBrief(eng: Engineering, id: string, sliceId: string): string
   const area = eng.home.config.area(slice.area)
   const acs = eng.stores.criteria.list(id).filter(c => slice.acs.includes(c.n))
   const where = area ? `${eng.home.areaDir(area)} (${area.kind})` : 'not in kit.yml'
+  const planned = plannedFiles(eng, id, slice.id)
   const lines = [
     `${item.id} ${slice.id}: ${slice.title}  [${slice.state}${slice.assignee ? `, ${slice.assignee}` : ''}]`,
     `item: ${cut(item.title, 80)} (${item.kind} ${item.size}, ${item.state})`,
     `area: ${slice.area} → ${where}${area?.test ? `; test: ${area.test}` : ''}${area?.checks?.length ? `; checks: ${area.checks.join(' && ')}` : ''}`,
     slice.depends.length ? `after: ${slice.depends.join(', ')}` : '',
+    planned ? `files: ${planned}` : '',
     acs.length ? `criteria:\n${acs.map(c => `  ${c.n} ${c.text}`).join('\n')}` : 'criteria: none named',
     slice.files.length ? `files so far: ${slice.files.join(', ')}` : '',
     `proof: ${slice.proof}${slice.proof_note ? ` (${cut(slice.proof_note, 100)})` : ''}`,
@@ -22,4 +25,11 @@ export function taskBrief(eng: Engineering, id: string, sliceId: string): string
     `record a guess: kit eng guess ${id} "<question>" --took <a> --other <b> --impact low|med|high --slices ${slice.id}`,
   ]
   return lines.filter(Boolean).join('\n')
+}
+
+/** The `files` line of the slice in tasks.md, or null. */
+function plannedFiles(eng: Engineering, id: string, sliceId: string): string | null {
+  const text = eng.folder(id).read('tasks.md')
+  if (text === null) return null
+  return TasksDocument.parse(text).slices.find(s => s.id === sliceId)?.files ?? null
 }

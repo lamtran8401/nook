@@ -1,7 +1,7 @@
 import { isOneOf, ITEM_KINDS, SIZES, type Tag } from '../vocabulary.ts'
-import { body, frontMatter, hasFrontMatter, listOf, sections } from './markdown.ts'
+import { body, frontMatter, hasFrontMatter, inShort, listOf, sections } from './markdown.ts'
 
-/** `work/<id>/spec.md`: the front matter, the Intent, the AC lines and the questions. */
+/** `work/<id>/spec.md`: the front matter, the In short line, the Why, the AC lines and the questions. */
 
 export type SpecCriterion = { n: number; tag: Tag; text: string }
 
@@ -13,7 +13,8 @@ export class SpecDocument {
     readonly kind: string | undefined,
     readonly size: string | undefined,
     readonly areas: string[],
-    readonly intent: string,
+    readonly short: string,
+    readonly why: string,
     /** `[TAG] text`; the n-th line is AC n. */
     readonly criteria: SpecCriterion[],
     readonly questions: string[],
@@ -25,18 +26,18 @@ export class SpecDocument {
     const parts = sections(text)
     const problems: string[] = []
     if (!hasFrontMatter(text))
-      problems.push('no front matter: start the file with --- id, kind, size, areas ---')
+      problems.push('no front matter: start the file with --- id, kind, size, areas, created, updated ---')
     const kind = front.kind === undefined ? undefined : String(front.kind).trim()
     const size = front.size === undefined ? undefined : String(front.size).trim().toUpperCase()
     const areas = listOf(front.areas)
     problems.push(...frontProblems(kind, size, areas))
-    const intent = body(parts.get('intent')).join(' ')
-    if (!intent) problems.push('write the Intent')
+    const why = body(parts.get('why')).join(' ')
+    if (!why) problems.push('write the Why')
     const criteria = readCriteria(body(parts.get('acceptance criteria')), problems)
     const questions = body(parts.get('questions'))
       .filter(l => l.startsWith('-'))
       .map(l => l.replace(/^-\s+/, ''))
-    return new SpecDocument(kind, size, areas, intent, criteria, questions, problems)
+    return new SpecDocument(kind, size, areas, inShort(text), why, criteria, questions, problems)
   }
 
   /** The text with `- line` added at the end of the criteria section, or null when the section is missing. */

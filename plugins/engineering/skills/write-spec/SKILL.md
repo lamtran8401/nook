@@ -1,6 +1,6 @@
 ---
 name: write-spec
-description: "Write work/<id>/spec.md from the ticket and the answers: front matter, intent, what we will do, open points, checkable acceptance criteria, out of scope. Use in /spec or when the owner says draft the spec. Not for checking it: spec-check."
+description: "Write work/<id>/spec.md from the ticket and the answers: front matter with dates, In short, Why, What changes, checkable criteria, Decisions, Out of scope. Use in /spec or when the owner says draft the spec. Not for checking it: spec-check."
 argument-hint: "<item id>"
 allowed-tools: Bash(kit eng *), Read, Glob, Grep, Edit, Write
 ---
@@ -15,11 +15,11 @@ The clarify step and the bar for a criterion: `criteria.md` (this folder). A ful
 - The result of `triage` and `find-repos`: the kind, the size, the areas.
 
 ## Order
-1. Front matter: `kind`, `size`, `areas` from `triage`. It is the source; `agree` copies it into the item.
-2. Intent: one short paragraph, who is stuck and why the item exists. Not the title again.
+1. Front matter: `kind`, `size`, `areas` from `triage`. It is the source; `agree` copies it into the item. Keep `created`; set `updated` to today on each edit (YYYY-MM-DD).
+2. In short: one line under the title, the change and who gains. Why: one short paragraph, who is stuck and why the item exists. Not the title again.
 3. Clarify before you write a criterion: list each requirement of the ticket in your own words with its source; for each, look for a gap, an edge case, a conflict and the impact on a related feature. Resolve each finding with a question, a guess, or name it as open. How: `criteria.md`.
-4. What we will do: the work in plain words, by area, and what stays as it is.
-5. Open points: one line for each finding, how it was resolved (`Q<n>`, `G<n>`, or open) and what it means for the work.
+4. What changes: one line for each area in plain words, and one line for what stays as it is.
+5. Decisions: a table `Point | Answer | From`, one row for each finding, with `Q<n>`, `G<n>` and its impact, or `open`.
 6. Acceptance criteria: one line each, `- [ADD|CHANGE|REMOVE|NONE] text (source)`. The n-th line is AC n.
 7. Out of scope: what a reader could assume, and each edge case left out.
 8. Kind `investigate`: `## Questions` in place of the criteria, one bullet each.

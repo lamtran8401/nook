@@ -11,7 +11,7 @@ Do not copy the ticket. Think it through as the person who must build it.
 3. Resolve each finding:
    - it changes the work: a blocking question in the round of `/spec`;
    - it does not block: a guess, `kit eng guess <id> "<question>" --took "<a>" --other "<b>" --impact low|med|high`;
-   - neither: name it as open under Open points.
+   - neither: give it a row with `open` in the Decisions table.
 
 ## The acceptance criteria
 One line each, `- [TAG] text (source)`. No number: the n-th line is AC n.

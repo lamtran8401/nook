@@ -35,6 +35,7 @@ const READ_CALLS = [
   ['item', 'history'],
   ['item', 'brief'],
   ['item', 'check'],
+  ['item', 'page'],
   ['item', 'ac', 'list'],
   ['task', 'list'],
   ['task', 'show'],
@@ -102,6 +103,8 @@ function kitDenial(verb: string, tokens: string[], kind: CallerKind, who: string
       ? null
       : `${who} may run only the read commands of kit (doctor, packs, where).`
   const path = verb === 'kit' ? rest.slice(1) : rest
+  if (path[0] === 'item' && path[1] === 'page' && tokens.some(t => t.startsWith('--out')))
+    return `${who} is read-only: \`item page\` prints the page; --out writes a file.`
   const extra = extraCalls(kind)
   if (!path.length || [...READ_CALLS, ...extra].some(call => call.every((w, i) => path[i] === w))) return null
   const plus = extra.length ? `, plus ${extra.map(c => c.join(' ')).join(' and ')}` : ''

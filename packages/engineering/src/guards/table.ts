@@ -2,6 +2,7 @@ import type { MoveName } from '../machine.ts'
 import { AreaFree, BranchNotProtected, EachArea } from './areas.ts'
 import { AutoByOwner } from './auto.ts'
 import { CriteriaMarked } from './criteria.ts'
+import { DatesWritten } from './dates.ts'
 import { FindingsFilled, QuestionsAnswered } from './findings.ts'
 import { FingerprintsUnchanged } from './fingerprints.ts'
 import type { Gap, Guard, GuardContext } from './guard.ts'
@@ -15,6 +16,7 @@ import { VerifyPassed } from './verify.ts'
 
 const APPROVE: Guard[] = [
   new PlanFilled(),
+  new DatesWritten(['plan.md', 'tasks.md']),
   new SlicesImported(),
   new EveryAcInSlice(),
   new SliceAreasOfItem(),
@@ -25,7 +27,7 @@ const SPEC_ONLY = new FingerprintsUnchanged(['spec.md'])
 
 export const GUARDS: Record<MoveName, Guard[]> = {
   start: [],
-  agree: [new SpecParses(), new NoOpenBlockingQuestion()],
+  agree: [new SpecParses(), new DatesWritten(['spec.md']), new NoOpenBlockingQuestion()],
   approve: APPROVE,
   proceed: [new AutoByOwner(), ...APPROVE],
   begin: [new FingerprintsUnchanged(), new EachArea(new BranchNotProtected(), new AreaFree())],
