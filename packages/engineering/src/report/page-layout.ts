@@ -52,6 +52,11 @@ body { margin: 0; background: var(--bg); }
 .kd-ac-tags { display: flex; align-items: center; gap: var(--space-2); }
 .kd-ac-src { color: var(--fg-muted); font: 500 12px/16px var(--font-mono); }
 
+/* the steps of Try it */
+.kd-try .bn-rm-stage__title { font-size: 16px; line-height: 24px; overflow-wrap: anywhere; }
+.kd-try .bn-rm-stage__desc { margin-bottom: 0; overflow-wrap: anywhere; }
+.kd-try .bn-rm-stage:last-child { padding-bottom: 0; }
+
 /* the tree of the changed files */
 .kd-tree { overflow-x: auto; }
 .kd-tree > ul { padding-left: 0; }

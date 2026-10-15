@@ -41,7 +41,8 @@ One line for each requirement, in plain words, with no grade and no test name.
 ```
 
 ### Try it
-The manual checks, with the steps and what the owner must see. Agents never start the app, so a visual check is always here.
+The manual checks as a numbered list. In each step, the first sentence says what to do, and the next sentence says what the owner must see. The page shows the steps as the stages of a roadmap.
+Agents never start the app, so a visual check is always here.
 
 ### Heads up
 A limit of the change, a side effect on another feature, a choice that the owner can still change. One line each.

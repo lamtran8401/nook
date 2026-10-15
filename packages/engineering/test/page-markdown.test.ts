@@ -68,6 +68,12 @@ describe('renderDocument', () => {
     )
   })
 
+  test('the steps under Try it become stages of the Roadmap component: the first sentence the title, the rest what you see', () => {
+    expect(renderDocument('## Try it\n\n1. Call `?status=lost`. You must see a 400.\n2. Open the page.\n', 'walkthrough')).toContain(
+      '<div class="bn-roadmap kd-try"><div class="bn-rm-stage"><span class="bn-rm-stage__marker">1</span><div><div class="bn-rm-stage__head"><h3 class="bn-rm-stage__title">Call <code class="bn-inline-code">?status=lost</code>.</h3></div><p class="bn-rm-stage__desc">You must see a 400.</p></div></div><div class="bn-rm-stage"><span class="bn-rm-stage__marker">2</span><div><div class="bn-rm-stage__head"><h3 class="bn-rm-stage__title">Open the page.</h3></div></div></div></div>',
+    )
+  })
+
   test('another fence becomes a code block with one line for each line of text', () => {
     expect(renderDocument('```\nkit doctor\nkit init\n```\n', 'plan')).toBe('<div class="bn-code"><pre><span class="ln">kit doctor</span><span class="ln">kit init</span></pre></div>')
   })

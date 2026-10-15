@@ -200,6 +200,10 @@ class Renderer {
       this.push(`<ul class="bn-list kd-acs">${items.map((item, n) => criterionRow(item, n + 1)).join('')}</ul>`)
       return
     }
+    if (this.section === 'try it' && ordered) {
+      this.push(`<div class="bn-roadmap kd-try">${items.map((item, n) => tryStage(item, n + 1)).join('')}</div>`)
+      return
+    }
     if (this.section === 'requirements met') {
       const check = '<span class="bn-list__icon" data-tone="success"><span data-bn-icon="check"></span></span>'
       this.push(`<ul class="bn-list kd-met">${items.map(item => `<li class="bn-list__item">${check}<span class="bn-list__main">${inline(item)}</span></li>`).join('')}</ul>`)
@@ -267,4 +271,11 @@ function criterionRow(item: string, n: number): string {
   const from = source ? `<span class="kd-ac-src">${escape(source)}</span>` : ''
   const tags = `<span class="kd-ac-tags"><span class="bn-badge" data-tone="${TONES[tag!]}" data-size="sm">${tag}</span>${from}</span>`
   return `<li class="bn-list__item">${number}<span class="bn-list__main">${tags}<span>${inline(text!)}</span></span></li>`
+}
+
+/** A step of Try it as a stage of the Roadmap component: the first sentence is what to do, the rest is what you see. */
+function tryStage(step: string, n: number): string {
+  const [, todo = step, see = ''] = /^(.+?[.!?])\s+(.+)$/.exec(step) ?? []
+  const desc = see ? `<p class="bn-rm-stage__desc">${inline(see)}</p>` : ''
+  return `<div class="bn-rm-stage"><span class="bn-rm-stage__marker">${n}</span><div><div class="bn-rm-stage__head"><h3 class="bn-rm-stage__title">${inline(todo)}</h3></div>${desc}</div></div>`
 }
