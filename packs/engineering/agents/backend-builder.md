@@ -1,6 +1,6 @@
 ---
 name: backend-builder
-description: "Builds one slice of an item in a backend area, test first: API, services, queries, the contract. Started by /cook with the output of kit eng task brief as its prompt."
+description: "Builds one slice of an item in a backend area, test first: API, services, queries, the contract. Started by /cook as a teammate, one for each area, with the output of kit eng task brief as its prompt."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 maxTurns: 60

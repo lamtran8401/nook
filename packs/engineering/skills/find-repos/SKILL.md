@@ -10,7 +10,7 @@ A missed area shows up as a surprise in the plan. An area added by mistake makes
 
 ## Order
 1. Run `kit eng item brief <id>` and `kit eng area list`. Read the ticket in `backlog/<id>/ticket.md` when there is one.
-2. Start the Agent tool with `subagent_type: kit-engineering:scout` and this prompt: the brief, the list of areas with their folders, the path of the ticket, and the question: "Which areas does this item change, and where? For each area give the reason and one `path:line` that proves it. Name the related areas that do not change. Name the contract files it touches."
+2. Start the Agent tool (no `name`: a subagent) with `subagent_type: kit-engineering:scout` and this prompt: the brief, the list of areas with their folders, the path of the ticket, and the question: "Which areas does this item change, and where? For each area give the reason and one `path:line` that proves it. Name the related areas that do not change. Name the contract files it touches."
    The scout has Read, Grep and Glob only. It cannot write and it cannot run commands.
 3. Check each claim that matters: open the file and read the line. A scout can be wrong about a line number.
 4. Report the result. The owner confirms the areas in the question round of `/spec`.

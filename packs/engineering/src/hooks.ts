@@ -18,8 +18,9 @@ export type Caller = { role: Role; actor: string; kind: 'lead' | 'builder' | 've
 
 /** No `agent_type` is the lead; a type that ends in `builder` is a builder; any other is a reader. */
 export function callerOf(input: HookInput): Caller {
-  if (!input.agent_type) return { role: 'lead', actor: 'lead', kind: 'lead' }
-  const type = input.agent_type.split(':').pop() ?? input.agent_type
+  if (!input.agent_type && !input.agent_id) return { role: 'lead', actor: 'lead', kind: 'lead' }
+  // an agent with an id and no type is an in-process teammate: only builders run as teammates
+  const type = input.agent_type ? (input.agent_type.split(':').pop() ?? input.agent_type) : 'teammate-builder'
   const actor = `${type}-${(input.agent_id ?? '').slice(-4) || '0000'}`
   if (type.endsWith('builder')) return { role: 'builder', actor, kind: 'builder' }
   const kind = type === 'verifier' ? 'verifier' : type === 'reviewer' ? 'reviewer' : 'reader'
@@ -261,6 +262,20 @@ export function subagentStop(input: HookInput): HookResult {
   if (!held.length) return pass
   const s = held[0]!
   return hold(`finish the slice: \`kit eng task done ${s.item} ${s.id} --files <f...>\` or \`kit eng task wait ${s.item} ${s.id} --reason "<what you need>"\` (or task fail --reason after three tries)`)
+}
+
+/** TeammateIdle: a builder teammate named `<area>-builder` stays on a running slice of that area. Exit 2 keeps it working. */
+export function teammateIdle(input: HookInput): HookResult {
+  const home = findHome(input.cwd ?? process.cwd())
+  if (!home) return pass
+  const name = String(input.teammate_name ?? '')
+  const area = /^(.+)-builder$/.exec(name)?.[1]
+  if (!area) return pass
+  const kit = kitFor(home, { role: 'lead', actor: 'lead', kind: 'lead' }, input.session_id)
+  const held = runningSlices(kit).filter(s => s.area === area)
+  if (!held.length) return pass
+  const s = held[0]!
+  return block(`${name} holds ${s.item} ${s.id} (running). Finish it: \`kit eng task done ${s.item} ${s.id} --files <f...>\`, or \`kit eng task wait ${s.item} ${s.id} --reason "<what you need>"\`, or task fail --reason after three tries.`)
 }
 
 /** SessionStart: the first lines of `kit eng next`. */

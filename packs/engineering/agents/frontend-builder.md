@@ -1,6 +1,6 @@
 ---
 name: frontend-builder
-description: "Builds one slice of an item in a frontend area, test first: UI, state, the calls to the backend, with the loading, empty and error states. Started by /cook with the output of kit eng task brief as its prompt."
+description: "Builds one slice of an item in a frontend area, test first: UI, state, the calls to the backend, with the loading, empty and error states. Started by /cook as a teammate, one for each area, with the output of kit eng task brief as its prompt."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 maxTurns: 60

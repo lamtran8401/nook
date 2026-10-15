@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 import type { HookInput, HookResult } from '@kit/shared/hook.ts'
 
-import { bashGuard, callerOf, editGuard, inject, MAX_HOLDS, normalize, sessionStart, stopHook, subagentStop } from '../src/hooks.ts'
+import { bashGuard, callerOf, editGuard, inject, MAX_HOLDS, normalize, sessionStart, stopHook, subagentStop, teammateIdle } from '../src/hooks.ts'
 import { verify } from '../src/model/checks.ts'
 import { markCriterion } from '../src/model/criteria.ts'
 import { setMode } from '../src/model/items.ts'
@@ -37,6 +37,8 @@ describe('the caller', () => {
     expect(callerOf({})).toEqual({ role: 'lead', actor: 'lead', kind: 'lead' })
     expect(callerOf(BUILDER_AGENT)).toEqual({ role: 'builder', actor: 'backend-builder-ab12', kind: 'builder' })
     expect(callerOf({ agent_type: 'frontend-builder', agent_id: 'x9' })).toMatchObject({ role: 'builder', actor: 'frontend-builder-x9' })
+    // an in-process teammate can come with an id and no type: it is a builder, never the lead
+    expect(callerOf({ agent_id: 'team-77ab' })).toEqual({ role: 'builder', actor: 'teammate-builder-77ab', kind: 'builder' })
     expect(callerOf(VERIFIER)).toMatchObject({ role: 'reader', kind: 'verifier' })
     expect(callerOf(REVIEWER)).toMatchObject({ role: 'reader', kind: 'reviewer' })
     expect(callerOf({ agent_type: 'kit-engineering:code-reviewer', agent_id: 'a' })).toMatchObject({ role: 'reader', kind: 'reader' })
@@ -236,6 +238,12 @@ describe('E-22 the Stop hook drives an auto run and holds on a blocking question
     expect(subagentStop({ cwd: t.root, ...BUILDER_AGENT, stop_hook_active: true }).kind).toBe('pass')
     expect(subagentStop({ cwd: t.root, agent_type: 'frontend-builder', agent_id: 'zz99' }).kind).toBe('pass')
     expect(subagentStop({ cwd: t.root, ...SCOUT }).kind).toBe('pass')
+    // a teammate named <area>-builder is held on the running slice of its area; exit 2 is the only form TeammateIdle honors
+    const idle = teammateIdle({ cwd: t.root, teammate_name: 'bff-builder', team_name: 'kit' })
+    expect(idle.kind).toBe('block')
+    expect((idle as { reason: string }).reason).toContain('kit eng task done')
+    expect(teammateIdle({ cwd: t.root, teammate_name: 'frontend-builder' }).kind).toBe('pass')
+    expect(teammateIdle({ cwd: t.root, teammate_name: 'scout' }).kind).toBe('pass')
     moveSlice(lead, 'done', 'SHOP-1', 'T1', { files: ['a'] })
     expect(subagentStop({ cwd: t.root, ...BUILDER_AGENT }).kind).toBe('pass')
   })

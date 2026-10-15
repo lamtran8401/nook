@@ -136,6 +136,11 @@ export function mergeSettings(owner: Settings, kit: Settings): Settings {
   }
   for (const [key, value] of Object.entries(kit)) {
     if (key === 'permissions') continue
+    // `env` holds one variable for each pack: merge it by key, the owner's values first
+    if (key === 'env' && typeof value === 'object' && value) {
+      result.env = { ...(value as Record<string, string>), ...((result.env as Record<string, string> | undefined) ?? {}) }
+      continue
+    }
     if (!(key in result)) result[key] = value
   }
   return result

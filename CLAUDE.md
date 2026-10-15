@@ -12,7 +12,7 @@ docs/                  the plan, the guide, the expectations
 
 ## Checks
 - `bun run check`: `tsc --noEmit` and `bun test`. Commit only when it passes.
-- `packs/core/bin/kit ste <file.md>` on each Markdown file of `packs/` and `docs/` (not `docs/wiki/`): above 80%.
+- `packs/core/bin/kit ste <file.md>` on each Markdown file of `packs/` and `docs/` (not `docs/archive/`): above 80%.
 - `claude plugin validate .` after a change to a manifest.
 - Try a change in a scratch folder: `kit init` there, then `kit doctor` and a hook call with JSON on stdin.
 

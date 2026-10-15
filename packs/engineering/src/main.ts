@@ -7,7 +7,7 @@ import { readInput, runHook } from '@kit/shared/hook.ts'
 
 import { branchItem, commitItem, commitPlan, prove } from './git.ts'
 import { adrDir, requireHome } from './home.ts'
-import { bashGuard, editGuard, sessionStart, stopHook, subagentStop } from './hooks.ts'
+import { bashGuard, editGuard, sessionStart, stopHook, subagentStop, teammateIdle } from './hooks.ts'
 import { type Kit, openKit } from './kit.ts'
 import { adrs, newAdr, setAdrStatus } from './model/adr.ts'
 import { formatRun, lastRun, verify } from './model/checks.ts'
@@ -241,12 +241,12 @@ const program: Program = {
       openKit(process.cwd())
       c.out({ home: home.dir, made }, r => (r.made.length ? `made: ${r.made.join(', ')}` : `nothing to make in ${r.home}`))
     } },
-    { path: ['hook'], summary: 'run one hook with the Claude Code event on stdin (bash, edit, stop, subagent-stop, start)', usage: '<name>', async run(c) {
+    { path: ['hook'], summary: 'run one hook with the Claude Code event on stdin (bash, edit, stop, subagent-stop, teammate-idle, start)', usage: '<name>', async run(c) {
       const name = arg(c, 0, 'hook name')
       const input = await readInput()
       const guards = { bash: bashGuard, edit: editGuard } as const
       if (name in guards) return runHook(() => guards[name as keyof typeof guards](input), true)
-      const open = { stop: stopHook, 'subagent-stop': subagentStop, start: sessionStart } as const
+      const open = { stop: stopHook, 'subagent-stop': subagentStop, 'teammate-idle': teammateIdle, start: sessionStart } as const
       if (name in open) return runHook(() => open[name as keyof typeof open](input), false)
       c.say(`no hook is named ${name}`)
       return Exit.usage

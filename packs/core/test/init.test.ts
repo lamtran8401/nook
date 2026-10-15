@@ -102,6 +102,8 @@ describe('E-03 update keeps what is yours', () => {
   test('mergeSettings joins lists with no doubles and keeps the owner keys', () => {
     const merged = mergeSettings({ permissions: { allow: ['a'] }, theme: 'dark' }, { permissions: { allow: ['a', 'b'], deny: ['c'] }, outputStyle: 'x', theme: 'light' })
     expect(merged).toEqual({ permissions: { allow: ['a', 'b'], ask: [], deny: ['c'] }, theme: 'dark', outputStyle: 'x' })
+    const env = mergeSettings(mergeSettings({ env: { MINE: '1' } }, { env: { A: '1', MINE: '2' } }), { env: { B: '1' } })
+    expect(env.env).toEqual({ A: '1', MINE: '1', B: '1' })
   })
 
   test('addPacks changes only the packs line', () => {

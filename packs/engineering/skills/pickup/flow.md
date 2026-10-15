@@ -43,6 +43,15 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 
 Kind `investigate` follows the standard path with Questions in place of criteria: `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
 
+## Who does the work
+| Who | Jobs | Start |
+|---|---|---|
+| lead | triage, the spec, the plan, the answers, the moves, a quick item, the reports | itself |
+| subagent | scout, verifier, reviewer, code-reviewer, skeptic, the designers: one job, a summary back | the Agent tool with `subagent_type`, no `name`; `run_in_background` when the lead has other work meanwhile |
+| teammate | a builder for each area, alive from `begin` to `submit` | the Agent tool with `name: <area>-builder`; see `../cook/brief.md` |
+
+Agent teams are on in every environment. A `name` makes a teammate, so a one-shot job never gets one.
+
 ## The question round
 Only the lead asks the owner.
 A builder parks its slice with `kit eng task wait <id> <T> --reason "<question>"`; the lead brings the question to the owner.

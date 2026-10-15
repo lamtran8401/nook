@@ -14,7 +14,7 @@ Goal: this folder becomes an environment that an agent can work in with no guess
 3. Write down what the disk settled: each repo as a candidate area with its kind (`frontend`, `backend`, `docs`, `data`), its checks (the lint, test and build scripts that exist), its test command with `{files}`, its install command from the lockfile.
 4. Ask the owner, in one round, only what the disk cannot settle. The usual questions: which candidates are areas; the kind of an area the disk does not show; a check that you could not find; the tracker (jira, github, none); the secret files; where the shelves of the wiki go; a folder for learning. Recommended answers first.
 5. Write the sections into `kit.yml`: one section for each pack that is on, by its name (`engineering:`, `wiki:`, `learn:`), with the facts from steps 3 and 4. Keep every line the owner wrote.
-6. Make the folders that the packs need and that do not exist: `backlog/`, `work/` (engineering); `wiki/`, `references/` (wiki); the learning folder (learn). Make `projects/` only when the owner wants it.
+6. Make the folders that the packs need and that do not exist: `backlog/`, `work/` (engineering); `docs/wiki/`, `docs/references/` (wiki); the learning folder (learn). Make `projects/` only when the owner wants it.
 7. Write the map of the folder into `CLAUDE.md`, outside the kit block: what each top folder is for, the areas, and the conventions that the owner named. Short, in plain words.
 8. Run `kit init --update`, then `kit doctor`. Report: what the disk settled, what the owner decided, what you wrote, and every gap that doctor still lists.
 

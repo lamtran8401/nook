@@ -82,7 +82,7 @@ export function editGuard(input: HookInput): HookResult {
   return pass
 }
 
-const CHECKED_FOLDERS = ['docs', 'work', 'backlog', 'wiki', 'references']
+const CHECKED_FOLDERS = ['docs', 'work', 'backlog']
 
 /** PostToolUse Edit, Write: a Markdown file of the record passes the writing standard, or the sentences come back. */
 export function styleCheck(input: HookInput): HookResult {
@@ -96,7 +96,8 @@ export function styleCheck(input: HookInput): HookResult {
   if (!rel || rel.startsWith('..') || isAbsolute(rel)) return pass
   const top = rel.split(sep)[0] ?? ''
   if (!CHECKED_FOLDERS.includes(top)) return pass
-  if (rel.includes(`${sep}wiki${sep}`) === false && top === 'docs' && rel.startsWith(join('docs', 'wiki'))) return pass
+  // the archive is old work: read it, never rewrite it to the standard
+  if (rel.startsWith(join('docs', 'archive'))) return pass
   let text: string
   try {
     text = readFileSync(full, 'utf8')

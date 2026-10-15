@@ -1,6 +1,6 @@
 # Writing
 
-Documents follow Simplified Technical English (ASD-STE100). A hook runs `kit ste` on each Markdown file that you write under `docs/`, `work/`, `backlog/` and `wiki/`. A file passes above 80%.
+Documents follow Simplified Technical English (ASD-STE100). A hook runs `kit ste` on each Markdown file that you write under `docs/`, `work/` and `backlog/`. A file passes above 80%.
 
 - A sentence has 25 words or fewer. An instruction has 20 or fewer.
 - One instruction for each sentence: the imperative, the active voice, the present tense.

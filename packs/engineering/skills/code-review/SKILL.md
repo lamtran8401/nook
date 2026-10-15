@@ -18,7 +18,7 @@ An S item gets the review in `/check` only.
 
 ## Order
 1. Take the scope: the files of the slice, or the full diff of each area.
-2. Start the Agent tool with `subagent_type: kit-engineering:code-reviewer` and this prompt:
+2. Start the Agent tool (no `name`: a subagent) with `subagent_type: kit-engineering:code-reviewer` and this prompt:
    ```
    Item: <id>. Scope: slice <T> | the full item.
    Area: <area>, folder <path>, base <branch>. Files: <list> | the full diff.

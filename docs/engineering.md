@@ -35,7 +35,7 @@ The tool checks the section and names each fault with its fix.
 |---|---|---|
 | owner | the person | a process that Claude Code did not start (`CLAUDECODE` not set), or `KIT_ROLE=owner` in the env of such a process |
 | lead | the main session | `CLAUDECODE` set and no `KIT_ROLE` |
-| builder | a builder agent | the hook adds `--as builder --actor <name> --session <id>` to each `kit eng` call of an agent whose `agent_type` ends in `builder`; a flag that the model wrote is dropped first |
+| builder | a builder agent | the hook adds `--as builder --actor <name> --session <id>` to each `kit eng` call of an agent whose `agent_type` ends in `builder`, or that has an `agent_id` and no `agent_type` (an in-process teammate; only builders run as teammates); a flag that the model wrote is dropped first |
 | reader | every other agent | the hook adds `--as reader …` |
 
 The hook blocks a command of the model that sets `KIT_ROLE`, unsets `CLAUDECODE`, or runs the tool through `env`, `exec`, `xargs`, `eval`, `sh -c` or a path to its code. The core bash guard already blocks the first two.
@@ -138,10 +138,11 @@ The owner moves are also denied to the model in `templates/settings.json`: `Bash
 | PreToolUse Bash | block the owner moves by the model, in any spelling; block wrappers around the tool; add `--as`, `--actor`, `--session` right after `kit eng` or `kit-eng` in each call by an agent (the lead gets `--session` only), so the permission rule `Bash(kit eng *)` still matches; a reader may run only read commands (`ls`, `cat`, `head`, `tail`, `wc`, `rg`, `grep`, `find`, `git status\|diff\|log\|show`, the read commands of the tool, plus `task prove` and `item verify` for the verifier, `item ac done` for the reviewer); no `$( )` and no `>` for a reader | closed |
 | PreToolUse Edit, Write | a reader cannot write; `spec.md` opens only in framing, `plan.md` and `tasks.md` only in planning (the lead may edit `work/<id>/` otherwise only for `findings.md`, `walkthrough.md`, `handoff.md`); a file in a git area needs an item in cooking with a running slice in that area, and a builder may edit only in the areas of its own slice; a file outside the areas and outside `work/` is free | closed |
 | Stop | hold the lead (`decision: block`) while a blocking question of its item is open, or while the item is in mode auto and the next stage is the lead's; the reason names the next skill: "read `${CLAUDE_PLUGIN_ROOT}/skills/<stage>/SKILL.md` and follow it for <id>"; let go after 6 holds in one session; the count resets on release | open |
-| SubagentStop | hold a builder that still has a running slice: "finish the slice: `kit eng task done` or `task wait`" | open |
+| SubagentStop | hold a builder subagent that still has a running slice: "finish the slice: `kit eng task done` or `task wait`" | open |
+| TeammateIdle | hold a teammate named `<area>-builder` while a slice of that area runs, with the same words; exit 2 is the only form the event honors | open |
 | SessionStart | add the first lines of `kit eng next` as context | open |
 
-The role of an agent comes from the hook input: no `agent_type` is the lead; an `agent_type` that ends in `builder` is a builder; any other is a reader. `KIT_ACTOR` is the agent type plus the last 4 characters of `agent_id`.
+The role of an agent comes from the hook input: no `agent_type` and no `agent_id` is the lead; an `agent_type` that ends in `builder` is a builder; any other is a reader. `KIT_ACTOR` is the agent type plus the last 4 characters of `agent_id`.
 
 ## 10. Skills
 Stage skills, typed by the owner (`disable-model-invocation: true`): `/intake`, `/spec`, `/recipe`, `/cook`, `/check`, `/walkthrough`, `/close`, `/quick`, `/auto`, `/guesses`, `/handoff`, `/pickup`.
@@ -163,10 +164,22 @@ Every skill uses only the commands of section 7. A skill never runs an owner mov
 | contract-designer | inherit | Read, Grep, Glob, Bash | the consumers of a contract (none, needs a change, breaks), the order, the migration path |
 | data-modeler | inherit | Read, Grep, Glob, Bash | for each entity: migration, existing rows, indexes, backfill, rollback, order |
 
-An agent body has at most 500 words. The rules that every agent follows are in the core rules and the pack rules; a body does not repeat them. A builder gets `kit eng task brief <id> <T>` as its brief and runs `task start`, `task prove`, `task done --files` or `task wait --reason`; after three failed tries it runs `task fail`. Builders run as background subagents (the Agent tool with `subagent_type` `kit-engineering:backend-builder` or `kit-engineering:frontend-builder`), at most 4 at once, one for each area.
+An agent body has at most 500 words. The rules that every agent follows are in the core rules and the pack rules; a body does not repeat them. A builder gets `kit eng task brief <id> <T>` as its brief and runs `task start`, `task prove`, `task done --files` or `task wait --reason`; after three failed tries it runs `task fail`. Builders run as teammates (section 13), at most 4 at once, one for each area, alive for the whole item. When agent teams are off, a builder runs as a background subagent with the same brief.
 
 ## 12. Templates
 `templates/rules.md`: the workspace rules of the pack, copied to `.claude/rules/kit/engineering.md` by `kit init`: never build on a protected branch; never commit unless the owner asks, then `item commit --run`; never push; never start apps, containers or deploys; never change an approved document, replan first; the code rules (the area's conventions first; clear names, small functions, early returns; no dead code; reuse a helper of the area; no dependency that the plan did not name; never swallow an error; never log a secret; comment only hard logic).
 `templates/settings.json`: allow `Bash(kit eng *)`, `Bash(kit-eng *)`, `Bash(git switch -c kit/*)`, `Edit(work/**)`, `Edit(backlog/**)`, `Edit(docs/adr/**)`; ask `Bash(git commit *)`, `Bash(git worktree *)`, installs; deny the owner moves; env `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1`, `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=4`.
 `templates/spec.md`, `plan.md`, `tasks.md`, `findings.md`, `handoff.md`: the documents of section 6.
 `init` of the pack makes `<home>/work/`, `<home>/backlog/`, `<home>/docs/adr/`.
+
+## 13. Who does the work
+The lead, the main session, directs the work. The rule of the kit (the core companion style) is: a one-shot job that returns a summary runs as a subagent; a job that builds and must keep its context for the whole item runs as a teammate; everything else the lead does itself.
+
+| Who | Jobs | How the lead starts it |
+|---|---|---|
+| lead | triage, the spec, the plan, the answers, the moves, a quick item, the reports | itself |
+| subagent | scout, verifier, reviewer, code-reviewer, skeptic, system-designer, contract-designer, data-modeler | the Agent tool with `subagent_type` and no `name`; `run_in_background: true` where the lead has other work meanwhile |
+| teammate | backend-builder, frontend-builder: one for each area of the item, alive from `begin` to `submit` | the Agent tool with `subagent_type` and `name: <area>-builder`; the next slice of the same area goes to the same teammate with SendMessage and the new `task brief` |
+
+Agent teams are on in every environment: the core settings set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and `teammateMode: auto`. While teams are on, every Agent call with a `name` makes a teammate, so a one-shot job never gets a `name`. When teams are off (a headless run), the same call makes a background subagent and the flow still works: the SubagentStop hook takes the place of TeammateIdle.
+A teammate does not see the lead's conversation and does not preload skills: the brief from `task brief` is all it knows, and the body of its agent file stands alone. A teammate does not survive `/resume` or a compaction of the lead: `task list --state running` names the slices to give to a new teammate with the same brief.

@@ -9,7 +9,7 @@ Goal: a true answer to one question: do the checks pass for the code on the bran
 The answer gates `submit` and the review. A false pass costs the most of any mistake in the flow, because the owner trusts it.
 
 ## Order
-1. Start the Agent tool with `subagent_type: kit-engineering:verifier` and the item id, plus an area when only one failed before.
+1. Start the Agent tool (no `name`: a subagent) with `subagent_type: kit-engineering:verifier` and the item id, plus an area when only one failed before.
    It runs `kit eng item verify <id>` (the `checks` of each area, in the area folder; one `check_run` row for each) and `kit eng task prove <id> <T>` for each done slice.
 2. Read its report against the ledger: `kit eng item verify <id> --last` shows the last run and its output; `kit eng task show <id> <T>` shows the proof.
 3. Report each area as pass or fail for each check, with the counts when the output shows them, and each proof as `proven`, `weak`, `none` or `skipped`.
