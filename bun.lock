@@ -20,9 +20,18 @@
         "kit": "bin/kit",
       },
     },
+    "packs/engineering": {
+      "name": "@kit/engineering",
+      "version": "0.1.0",
+      "bin": {
+        "kit-eng": "bin/kit-eng",
+      },
+    },
   },
   "packages": {
     "@kit/core": ["@kit/core@workspace:packs/core"],
+
+    "@kit/engineering": ["@kit/engineering@workspace:packs/engineering"],
 
     "@kit/shared": ["@kit/shared@workspace:packages/shared"],
 

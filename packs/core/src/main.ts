@@ -105,4 +105,14 @@ const program: Program = {
   ],
 }
 
-process.exit(await run(program, process.argv.slice(2)))
+const argv = process.argv.slice(2)
+const aliases: Record<string, string> = { eng: 'engineering' }
+const first = argv[0] ?? ''
+const packName = aliases[first] ?? first
+const pack = packName && !program.commands.some(c => c.path[0] === first) ? availablePacks().get(packName) : undefined
+if (pack?.manifest.bin) {
+  // `kit eng item show A-1` runs the tool of the engineering pack with the same stdio
+  const child = Bun.spawnSync([join(pack.dir, pack.manifest.bin), ...argv.slice(1)], { stdio: ['inherit', 'inherit', 'inherit'], env: process.env })
+  process.exit(child.exitCode ?? 1)
+}
+process.exit(await run(program, argv))

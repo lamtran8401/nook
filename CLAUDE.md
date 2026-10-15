@@ -8,7 +8,7 @@ packages/shared/src/   the library of every tool: cli, errors, env (environments
 packs/<name>/          one Claude Code plugin each: pack.json, .claude-plugin/, bin/, src/, templates/, skills/, hooks/, test/
 docs/                  the plan, the guide, the expectations
 ```
-Only `packs/core` exists in v0.1. Its tool is `packs/core/bin/kit`.
+`packs/core` (tool `kit`) and `packs/engineering` (tool `kit-eng`, also `kit eng …`) exist in v0.1. The contract of engineering is `docs/engineering.md`.
 
 ## Checks
 - `bun run check`: `tsc --noEmit` and `bun test`. Commit only when it passes.

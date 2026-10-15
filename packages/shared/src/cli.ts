@@ -93,7 +93,7 @@ function parse(command: Command, rest: string[]): Context {
 function report(program: Program, command: Command, error: unknown): number {
   if (error instanceof EvError) {
     process.stderr.write(`${program.name} ${command.path.join(' ')}: ${error.message}\n`)
-    if (error.fix) process.stderr.write(`fix: ${error.fix}\n`)
+    if (error.fix && !error.message.includes(error.fix)) process.stderr.write(`fix: ${error.fix}\n`)
     if (error.code === Exit.usage) process.stderr.write(`usage: ${line(program, command)}\n`)
     return error.code
   }

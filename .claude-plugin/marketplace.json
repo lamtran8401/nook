@@ -1,8 +1,21 @@
 {
   "name": "harness-kit",
-  "owner": { "name": "Lam" },
-  "metadata": { "description": "Harness Kit: a base layer for Claude Code that you init into any folder." },
+  "owner": {
+    "name": "Lam"
+  },
+  "metadata": {
+    "description": "Harness Kit: a base layer for Claude Code that you init into any folder."
+  },
   "plugins": [
-    { "name": "kit", "source": "./packs/core", "description": "The core: the kit tool, the base rules, the persona, the secret guards and the writing check." }
+    {
+      "name": "kit",
+      "source": "./packs/core",
+      "description": "The core: the kit tool, the base rules, the persona, the secret guards and the writing check."
+    },
+    {
+      "name": "kit-engineering",
+      "source": "./packs/engineering",
+      "description": "The item flow from intake to the owner's accept, the ledger and its gates, builders and reviewers."
+    }
   ]
 }

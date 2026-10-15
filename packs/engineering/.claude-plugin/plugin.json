@@ -1,0 +1,7 @@
+{
+  "name": "kit-engineering",
+  "version": "0.1.0",
+  "description": "Harness Kit engineering: the item flow from intake to the owner's accept (intake, spec, recipe, cook, check, close), the ledger and its gates, builders and reviewers.",
+  "author": { "name": "Lam" },
+  "license": "MIT"
+}

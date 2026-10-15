@@ -69,7 +69,8 @@ export function init(options: InitOptions): InitReport {
     if (!pack?.manifest) continue
     for (const rel of pack.manifest.rules ?? []) {
       const file = join(pack.dir, rel)
-      const ruleName = basename(rel, '.md')
+      const base = basename(rel, '.md')
+      const ruleName = base === 'rules' ? name : base
       if (env.config.rules.off.includes(ruleName)) continue
       wanted.set(`${ruleName}.md`, readFileSync(file, 'utf8'))
     }
