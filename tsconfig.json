@@ -14,7 +14,12 @@
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "paths": { "@kit/shared/*": ["./packages/shared/src/*"] }
+    "paths": {
+      "@kit/shared/*": ["./packages/shared/src/*"],
+      "@kit/env/*": ["./packages/env/src/*"],
+      "@kit/core/*": ["./packages/core/src/*"],
+      "@kit/engineering/*": ["./packages/engineering/src/*"]
+    }
   },
-  "include": ["packages/*/src", "packs/*/src", "packs/*/test", "test"]
+  "include": ["apps/*/src", "packages/*/src", "packages/*/test"]
 }

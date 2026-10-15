@@ -97,7 +97,7 @@ Every write is one transaction that takes the lock at its start. `--if-version <
 Tickets: `<home>/backlog/<KEY>/ticket.md` and `attachments/`. ADRs: `<home>/docs/adr/NNNN-title.md`. Wiki pages: the wiki pack, when it is on.
 The front matter of `spec.md` is the source of kind, size and areas: `agree` and `approve` copy it into the item.
 
-## 7. The tool: `kit eng` (`packs/engineering/bin/kit-eng`)
+## 7. The tool: `kit eng`
 Every read command takes `--json`. Exit codes: 0 ok, 1 error, 2 usage, 3 refused (the gaps and their fixes), 4 version conflict, 5 the role may not do it.
 
 | Group | Commands |
@@ -130,12 +130,12 @@ Every read command takes `--json`. Exit codes: 0 ok, 1 error, 2 usage, 3 refused
 | guess, note add | yes | yes | yes | no |
 | read commands | yes | yes | yes | yes |
 
-The owner moves are also denied to the model in `templates/settings.json`: `Bash(kit eng item approve *)`, `accept`, `mode`, and the same through `kit-eng`.
+The owner moves are also denied to the model in `templates/settings.json`: `Bash(kit eng item approve *)`, `accept`, `mode`, and the same through `kit engineering`.
 
-## 9. Hooks (`hooks/hooks.json`)
+## 9. Hooks (`plugins/engineering/hooks/hooks.json`, each one `bin/kit eng hook <name>`)
 | Event | Job | Fails |
 |---|---|---|
-| PreToolUse Bash | block the owner moves by the model, in any spelling; block wrappers around the tool; add `--as`, `--actor`, `--session` right after `kit eng` or `kit-eng` in each call by an agent (the lead gets `--session` only), so the permission rule `Bash(kit eng *)` still matches; a reader may run only read commands (`ls`, `cat`, `head`, `tail`, `wc`, `rg`, `grep`, `find`, `git status\|diff\|log\|show`, the read commands of the tool, plus `task prove` and `item verify` for the verifier, `item ac done` for the reviewer); no `$( )` and no `>` for a reader | closed |
+| PreToolUse Bash | block the owner moves by the model, in any spelling; block wrappers around the tool; add `--as`, `--actor`, `--session` right after `kit eng` in each call by an agent (the lead gets `--session` only), so the permission rule `Bash(kit eng *)` still matches; a reader may run only read commands (`ls`, `cat`, `head`, `tail`, `wc`, `rg`, `grep`, `find`, `git status\|diff\|log\|show`, the read commands of the tool, plus `task prove` and `item verify` for the verifier, `item ac done` for the reviewer); no `$( )` and no `>` for a reader | closed |
 | PreToolUse Edit, Write | a reader cannot write; `spec.md` opens only in framing, `plan.md` and `tasks.md` only in planning (the lead may edit `work/<id>/` otherwise only for `findings.md`, `walkthrough.md`, `handoff.md`); a file in a git area needs an item in cooking with a running slice in that area, and a builder may edit only in the areas of its own slice; a file outside the areas and outside `work/` is free | closed |
 | Stop | hold the lead (`decision: block`) while a blocking question of its item is open, or while the item is in mode auto and the next stage is the lead's; the reason names the next skill: "read `${CLAUDE_PLUGIN_ROOT}/skills/<stage>/SKILL.md` and follow it for <id>"; let go after 6 holds in one session; the count resets on release | open |
 | SubagentStop | hold a builder subagent that still has a running slice: "finish the slice: `kit eng task done` or `task wait`" | open |
@@ -167,8 +167,9 @@ Every skill uses only the commands of section 7. A skill never runs an owner mov
 An agent body has at most 500 words. The rules that every agent follows are in the core rules and the pack rules; a body does not repeat them. A builder gets `kit eng task brief <id> <T>` as its brief and runs `task start`, `task prove`, `task done --files` or `task wait --reason`; after three failed tries it runs `task fail`. A builder runs as a teammate or a background subagent by the rule of section 13, at most 4 at once, one for each area.
 
 ## 12. Templates
-`templates/rules.md`: the workspace rules of the pack, copied to `.claude/rules/kit/engineering.md` by `kit init`: never build on a protected branch; never commit unless the owner asks, then `item commit --run`; never push; never start apps, containers or deploys; never change an approved document, replan first; the code rules (the area's conventions first; clear names, small functions, early returns; no dead code; reuse a helper of the area; no dependency that the plan did not name; never swallow an error; never log a secret; comment only hard logic).
-`templates/settings.json`: allow `Bash(kit eng *)`, `Bash(kit-eng *)`, `Bash(git switch -c kit/*)`, `Edit(work/**)`, `Edit(backlog/**)`, `Edit(docs/adr/**)`; ask `Bash(git commit *)`, `Bash(git worktree *)`, installs; deny the owner moves; env `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1`, `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=4`.
+The templates live in `plugins/engineering/templates/`; the code lives in `packages/engineering/`.
+`templates/rules/engineering.md`: the workspace rules of the pack, copied to `.claude/rules/kit/engineering.md` by `kit init`: never build on a protected branch; never commit unless the owner asks, then `item commit --run`; never push; never start apps, containers or deploys; never change an approved document, replan first; the code rules (the area's conventions first; clear names, small functions, early returns; no dead code; reuse a helper of the area; no dependency that the plan did not name; never swallow an error; never log a secret; comment only hard logic).
+`templates/settings.json`: allow `Bash(kit eng *)`, `Bash(git switch -c kit/*)`, `Edit(work/**)`, `Edit(backlog/**)`, `Edit(docs/adr/**)`; ask `Bash(git commit *)`, `Bash(git worktree *)`, installs; deny the owner moves; env `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1`, `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=4`.
 `templates/spec.md`, `plan.md`, `tasks.md`, `findings.md`, `handoff.md`: the documents of section 6.
 `init` of the pack makes `<home>/work/`, `<home>/backlog/`, `<home>/docs/adr/`.
 

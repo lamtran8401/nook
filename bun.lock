@@ -9,29 +9,38 @@
         "typescript": "7.0.2",
       },
     },
-    "packages/shared": {
-      "name": "@kit/shared",
-      "version": "0.1.0",
-    },
-    "packs/core": {
-      "name": "@kit/core",
+    "apps/kit": {
+      "name": "@kit/app",
       "version": "0.1.0",
       "bin": {
         "kit": "bin/kit",
       },
     },
-    "packs/engineering": {
+    "packages/core": {
+      "name": "@kit/core",
+      "version": "0.1.0",
+    },
+    "packages/engineering": {
       "name": "@kit/engineering",
       "version": "0.1.0",
-      "bin": {
-        "kit-eng": "bin/kit-eng",
-      },
+    },
+    "packages/env": {
+      "name": "@kit/env",
+      "version": "0.1.0",
+    },
+    "packages/shared": {
+      "name": "@kit/shared",
+      "version": "0.1.0",
     },
   },
   "packages": {
-    "@kit/core": ["@kit/core@workspace:packs/core"],
+    "@kit/app": ["@kit/app@workspace:apps/kit"],
 
-    "@kit/engineering": ["@kit/engineering@workspace:packs/engineering"],
+    "@kit/core": ["@kit/core@workspace:packages/core"],
+
+    "@kit/engineering": ["@kit/engineering@workspace:packages/engineering"],
+
+    "@kit/env": ["@kit/env@workspace:packages/env"],
 
     "@kit/shared": ["@kit/shared@workspace:packages/shared"],
 

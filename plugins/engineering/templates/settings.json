@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(kit eng *)",
+      "Bash(git switch -c kit/*)",
+      "Edit(work/**)",
+      "Edit(backlog/**)",
+      "Edit(docs/adr/**)"
+    ],
+    "ask": [
+      "Bash(git commit *)",
+      "Bash(git worktree *)",
+      "Bash(npm install*)",
+      "Bash(yarn install*)",
+      "Bash(pnpm install*)",
+      "Bash(bun install*)",
+      "Bash(pip install*)",
+      "Bash(uv sync*)"
+    ],
+    "deny": [
+      "Bash(kit eng item approve *)",
+      "Bash(kit eng item accept *)",
+      "Bash(kit eng item mode *)",
+      "Bash(kit engineering item approve *)",
+      "Bash(kit engineering item accept *)",
+      "Bash(kit engineering item mode *)"
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "1",
+    "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS": "4"
+  }
+}

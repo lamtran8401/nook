@@ -1,0 +1,12 @@
+#!/bin/sh
+# The hooks of this plugin call the kit binary through this file. A plugin holds no code.
+# The kit project that holds this plugin comes first, then KIT_PROJECT, then `kit` on the PATH.
+self=$(readlink -f "$0")
+project=$(cd "$(dirname "$self")/../../.." 2>/dev/null && pwd)
+for kit in "$project/apps/kit/bin/kit" "${KIT_PROJECT:+$KIT_PROJECT/apps/kit/bin/kit}"; do
+  [ -n "$kit" ] && [ -x "$kit" ] && exec "$kit" "$@"
+done
+found=$(command -v kit 2>/dev/null || true)
+if [ -n "$found" ] && [ "$(readlink -f "$found")" != "$self" ]; then exec "$found" "$@"; fi
+echo "kit: cannot find the kit binary (install it, or set KIT_PROJECT to the harness-kit folder)" >&2
+exit 1

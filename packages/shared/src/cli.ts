@@ -38,10 +38,12 @@ const GLOBAL_FLAGS: Record<string, Flag> = {
 export async function run(program: Program, argv: string[]): Promise<number> {
   const command = find(program.commands, argv)
   if (!command) {
-    const wanted = argv.filter(word => !word.startsWith('-')).join(' ')
-    if (wanted && wanted !== 'help') process.stderr.write(`${program.name}: unknown command "${wanted}"\n\n`)
+    const words = argv.filter(word => !word.startsWith('-') && word !== 'help')
+    // `kit eng` alone names a group: its help, not an error
+    const known = words.length === 0 || program.commands.some(c => words.every((word, i) => c.path[i] === word))
+    if (!known) process.stderr.write(`${program.name}: unknown command "${words.join(' ')}"\n\n`)
     process.stdout.write(help(program, argv))
-    return wanted && wanted !== 'help' ? Exit.usage : Exit.ok
+    return known ? Exit.ok : Exit.usage
   }
   const rest = argv.slice(command.path.length)
   try {

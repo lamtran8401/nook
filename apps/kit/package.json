@@ -1,0 +1,1 @@
+{ "name": "@kit/app", "private": true, "version": "0.1.0", "type": "module", "bin": { "kit": "bin/kit" } }
