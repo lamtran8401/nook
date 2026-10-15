@@ -24,6 +24,7 @@ A folder with `kit.yml` is an environment. A boundary such as `company/` is a la
 - The kit has no fixed structure. A folder can turn on many packs. How you split folders is your choice.
 - Packs flow down: the packs of a folder are the union of every `kit.yml` above it; a child can add one or turn one off (`packs: { off: [jira] }`).
 - State stays at the nearest environment that turns the pack on: one ledger and one wiki for a whole boundary, or a child with its own when you init the pack there again.
+- One init for a whole boundary is enough: `company/` with every pack, nothing inside; one ledger, one wiki, one session or many. Do not init packs above the boundaries, or company and personal data mix.
 - Hooks follow the packs, not the folder: the kit plugin is on for your user, and each hook finds the nearest `kit.yml` up the tree before it acts.
 
 ```
