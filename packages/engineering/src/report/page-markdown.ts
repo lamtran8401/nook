@@ -1,6 +1,7 @@
 import { match } from 'ts-pattern'
 
 import { bodyLines, FENCE } from '../documents/markdown.ts'
+import { renderDiagram } from './diagrams.ts'
 
 /** The Markdown of an item document as HTML in the Bench style; every text is escaped. */
 
@@ -93,7 +94,7 @@ class Renderer {
     while (this.i < this.lines.length && !FENCE.test(this.lines[this.i]!)) body.push(this.lines[this.i++]!)
     this.i++
     const source = body.join('\n')
-    this.out.push(language === 'mermaid' ? mermaidBlock(source) : `<pre class="source">${escape(source)}</pre>`)
+    this.out.push(language === 'mermaid' ? (renderDiagram(source) ?? mermaidBlock(source)) : `<pre class="source">${escape(source)}</pre>`)
   }
 
   private heading(line: string): void {

@@ -116,6 +116,36 @@ td.k { font-weight: 600; overflow-wrap: normal; }
 
 /* Diagrams in Bench style */
 .dg-block { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.dg-wrap svg.dg { display: block; width: 100%; max-width: 440px; height: auto; margin: 0 auto; }
+.dg-wrap.seq svg.dg { max-width: none; min-width: 520px; }
+.dg text { font-family: var(--font-sans); fill: var(--fg); }
+.dg .t-mono { font-family: var(--font-mono); }
+.dg .t-muted { fill: var(--fg-muted); }
+.dg .t-bold { font-weight: 600; }
+.dg .t-on-accent { fill: var(--accent-fg); }
+.dg .solid { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.25; filter: var(--svg-shadow); }
+.dg .solid-primary { fill: var(--primary-subtle); stroke: var(--primary); stroke-width: 1.75; filter: var(--svg-shadow); }
+.dg .solid-danger { fill: var(--danger-subtle); stroke: var(--danger); stroke-width: 1.5; filter: var(--svg-shadow); }
+.dg .dash-new { fill: var(--surface); stroke: var(--primary); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.dg .band { fill: var(--bg-muted); stroke: var(--border); stroke-width: 1; }
+.dg .gate-chip { fill: var(--accent); stroke: var(--accent-fg); stroke-width: 1; }
+.dg .note { fill: var(--primary-subtle); stroke: var(--primary); stroke-width: 1; stroke-dasharray: 4 3; }
+.dg .edge-label { fill: var(--bg-muted); stroke: none; }
+.dg .line { fill: none; stroke: var(--border-strong); stroke-width: 1.5; }
+.dg .line-reply { fill: none; stroke: var(--border-strong); stroke-width: 1.25; stroke-dasharray: 5 4; }
+.dg .line-queue { fill: none; stroke: var(--border-strong); stroke-width: 1.25; stroke-dasharray: 2 4; }
+.dg .lifeline { stroke: var(--border); stroke-width: 1.25; stroke-dasharray: 3 4; }
+.dg .head { fill: var(--border-strong); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 13px; color: var(--fg-muted); }
+.lg { display: inline-flex; align-items: center; gap: 7px; }
+.lg i { display: inline-block; width: 22px; height: 14px; border-radius: 4px; }
+.lg .l-solid { background: var(--surface); border: 1.25px solid var(--border-strong); }
+.lg .l-primary { background: var(--primary-subtle); border: 1.5px solid var(--primary); }
+.lg .l-dash { border: 1.5px dashed var(--primary); }
+.lg .l-danger { background: var(--danger-subtle); border: 1.5px solid var(--danger); }
+.lg .l-line { height: 0; border-top: 2px solid var(--border-strong); border-radius: 0; }
+.lg .l-reply { height: 0; border-top: 2px dashed var(--border-strong); border-radius: 0; }
+.lg .l-queue { height: 0; border-top: 2px dotted var(--border-strong); border-radius: 0; }
 .dg-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 14px; overflow-x: auto; box-shadow: var(--shadow); }
 
 /* Slices */

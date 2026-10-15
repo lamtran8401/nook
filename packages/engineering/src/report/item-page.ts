@@ -1,18 +1,16 @@
-import { dateOf, frontMatter, sections } from '../documents/markdown.ts'
-import { SpecDocument } from '../documents/spec.ts'
+import { dateOf, frontMatter } from '../documents/markdown.ts'
 import { TasksDocument } from '../documents/tasks.ts'
 import type { WorkDoc } from '../documents/work-folder.ts'
-import { cut } from '../format.ts'
 import type { Engineering } from '../service.ts'
 import type { Event } from '../stores/events.ts'
 import type { Item } from '../stores/items.ts'
-import { escape, mermaidBlock, type PageDoc, renderDocument } from './page-markdown.ts'
+import { lanesFigure } from './diagrams.ts'
+import { escape, type PageDoc, renderDocument } from './page-markdown.ts'
 import { PAGE_FONTS, PAGE_STYLE } from './page-style.ts'
 
 /** `item page`: one HTML page of an item from its three documents and the ledger, for the artifact viewer. */
 
 export type PageSlice = { id: string; title: string; area: string; depends: string[]; acs: number[] }
-export type PageCriterion = { n: number; tag: string; text: string }
 
 const TABS: { doc: PageDoc; file: WorkDoc; name: string }[] = [
   { doc: 'spec', file: 'spec.md', name: 'Spec' },
@@ -20,17 +18,12 @@ const TABS: { doc: PageDoc; file: WorkDoc; name: string }[] = [
   { doc: 'tasks', file: 'tasks.md', name: 'Tasks' },
 ]
 const AUDIT_MOVES = ['start', 'agree', 'approve', 'begin', 'submit', 'accept']
-const AC_TEXT = /^\[(ADD|CHANGE|REMOVE|NONE)\]\s+(.*)$/
 
 export function itemPage(eng: Engineering, id: string): string {
   const item = eng.item(id)
   const folder = eng.folder(id)
   const texts = new Map(TABS.map(tab => [tab.file, folder.read(tab.file)]))
   const slices = slicesOf(eng, id, texts.get('tasks.md') ?? null)
-  const spec = texts.get('spec.md') ? SpecDocument.parse(texts.get('spec.md')!) : null
-  const criteria = criteriaOf(eng, id, spec)
-  const why = spec?.short || cut(spec?.why ?? '', 120)
-  const areasOfAc = criterionAreas(item, slices, texts.get('plan.md') ?? null)
   return [
     `<title>${escape(`${item.id}: ${item.title}`)}</title>`,
     '<meta name="claude:viewport-fit-sides" content="cover">',
@@ -38,7 +31,6 @@ export function itemPage(eng: Engineering, id: string): string {
     `<style>${PAGE_STYLE}</style>`,
     '<div class="page">',
     header(item, eng.stores.events.history(id), texts),
-    `<section class="sec"><h3><span class="label">Overview</span></h3>${mermaidBlock(mindmap(item, why, criteria, areasOfAc, slices))}</section>`,
     tabBar(),
     `<main class="panels">${TABS.map((tab, i) => panel(item, tab, texts.get(tab.file) ?? null, slices, i === 0)).join('\n')}</main>`,
     '</div>',
@@ -53,94 +45,6 @@ function slicesOf(eng: Engineering, id: string, tasks: string | null): PageSlice
   return TasksDocument.parse(tasks).slices
 }
 
-/** The criteria of spec.md; without them, the criteria of the ledger. */
-function criteriaOf(eng: Engineering, id: string, spec: SpecDocument | null): PageCriterion[] {
-  if (spec?.criteria.length) return spec.criteria.map(c => ({ n: c.n, tag: c.tag, text: AC_TEXT.exec(c.text)?.[2] ?? c.text }))
-  return eng.stores.criteria.list(id).map(c => {
-    const found = AC_TEXT.exec(c.text)
-    return { n: c.n, tag: found?.[1] ?? 'ADD', text: found?.[2] ?? c.text }
-  })
-}
-
-/** The areas that prove each criterion: from the slices, then from the rows of the Proof table of the plan. */
-export function criterionAreas(item: Item, slices: PageSlice[], plan: string | null): Map<number, string[]> {
-  const found = new Map<number, string[]>()
-  const add = (n: number, area: string) => {
-    const list = found.get(n) ?? []
-    if (!list.includes(area)) found.set(n, [...list, area])
-  }
-  for (const slice of slices) for (const n of slice.acs) add(n, slice.area)
-  const sliced = new Set(found.keys())
-  for (const row of proofRows(plan)) {
-    const area = row.layer.split(/[,\s]+/)[0] ?? ''
-    if (!item.areas.includes(area)) continue
-    for (const n of row.acs.filter(n => !sliced.has(n))) add(n, area)
-  }
-  return found
-}
-
-function proofRows(plan: string | null): { acs: number[]; layer: string }[] {
-  if (plan === null) return []
-  return (sections(plan).get('proof') ?? [])
-    .filter(line => line.trim().startsWith('|'))
-    .map(line => line.trim().replace(/^\||\|$/g, '').split('|').map(cell => cell.trim()))
-    .map(([first = '', layer = '']) => ({ acs: (first.match(/\d+/g) ?? []).map(Number), layer }))
-    .filter(row => row.acs.length)
-}
-
-/** A text that mermaid draws as a plain node: no brackets, quotes or marks that open a shape. */
-const node = (text: string, max = 60) =>
-  cut(
-    text
-      .replace(/[()[\]{}"'`<>#:;|]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim(),
-    max,
-  )
-
-/** The overview: the item at the root, then Why, Areas, Criteria by area (else by tag) and Slices by area. */
-export function mindmap(
-  item: Item,
-  why: string,
-  criteria: PageCriterion[],
-  areasOfAc: Map<number, string[]>,
-  slices: PageSlice[],
-): string {
-  const lines = ['mindmap', `  root((${node(`${item.id} ${item.title}`)}))`]
-  const branch = (name: string, children: string[], depth = 2) => {
-    if (!children.length) return
-    lines.push(`${'  '.repeat(depth)}${name}`)
-    for (const child of children) lines.push(`${'  '.repeat(depth + 1)}${child}`)
-  }
-  branch('Why', why ? [node(why, 90)] : [])
-  branch('Areas', item.areas.map(a => node(a)))
-  const groups = new Map<string, string[]>()
-  for (const c of criteria) {
-    for (const key of areasOfAc.get(c.n) ?? [c.tag])
-      groups.set(key, [...(groups.get(key) ?? []), node(`AC${c.n} ${c.text}`)])
-  }
-  if (groups.size) lines.push('    Criteria')
-  for (const [key, children] of groups) branch(node(key), children, 3)
-  const byArea = groupBy(slices, s => s.area)
-  if (byArea.size) lines.push('    Slices')
-  for (const [area, list] of byArea) branch(node(area), list.map(s => node(`${s.id} ${s.title}`)), 3)
-  return lines.join('\n')
-}
-
-/** The lanes: one subgraph for each area and an edge for each `depends`. */
-export function lanes(slices: PageSlice[]): string {
-  const label = (text: string) => text.replace(/"/g, "'").replace(/[<>]/g, ' ')
-  const lines = ['flowchart TB']
-  for (const [area, list] of groupBy(slices, s => s.area)) {
-    lines.push(`  subgraph lane_${area.replace(/\W/g, '_')}["${label(area)}"]`)
-    lines.push('    direction TB')
-    for (const s of list) lines.push(`    ${s.id}["${label(cut(`${s.id}: ${s.title}`, 50))}"]`)
-    lines.push('  end')
-  }
-  const ids = new Set(slices.map(s => s.id))
-  for (const s of slices) for (const dep of s.depends.filter(d => ids.has(d))) lines.push(`  ${dep} --> ${s.id}`)
-  return lines.join('\n')
-}
 
 /** The slices that start first, and the slices of different areas that can run side by side. */
 export function laneNote(slices: PageSlice[]): string {
@@ -221,7 +125,7 @@ const chipValue = (value: unknown) =>
 function lanesSection(item: Item, slices: PageSlice[]): string {
   if (!slices.length)
     return `<p class="empty">No slices yet: kit eng task import ${escape(item.id)}.</p>`
-  return `<section class="sec"><h3><span class="label">Lanes from the ledger</span></h3>${mermaidBlock(lanes(slices))}<p class="lanes-note">${escape(laneNote(slices))}</p></section>`
+  return `<section class="sec"><h3><span class="label">Lanes from the ledger</span></h3>${lanesFigure(slices)}<p class="lanes-note">${escape(laneNote(slices))}</p></section>`
 }
 
 const TAB_SCRIPT = `

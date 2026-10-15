@@ -17,9 +17,16 @@ describe('renderDocument', () => {
     expect(html).toBe('<div class="table-wrap stack"><table><thead><tr><th>Risk</th><th>Likelihood</th><th>What we do</th></tr></thead><tbody><tr><td data-label="Risk" class="k"><span class="cell">a &lt;b&gt;</span></td><td data-label="Likelihood"><span class="cell">low</span></td><td data-label="What we do"><span class="cell">watch</span></td></tr></tbody></table></div>')
   })
 
-  test('a mermaid fence becomes a mermaid block with the escaped source', () => {
-    expect(renderDocument('```mermaid\nflowchart LR\n  a["x & y"] --> b\n```\n', 'plan')).toBe('<div class="dg-wrap"><pre class="mermaid">%%{init: {&quot;theme&quot;: &quot;neutral&quot;, &quot;flowchart&quot;: {&quot;useMaxWidth&quot;: false}, &quot;sequence&quot;: {&quot;useMaxWidth&quot;: false}, &quot;mindmap&quot;: {&quot;useMaxWidth&quot;: false}}}%%\nflowchart LR\n  a[&quot;x &amp; y&quot;] --&gt; b</pre></div>')
+  test('a mermaid fence of a kind that the kit does not draw stays a mermaid block, with the neutral theme', () => {
+    expect(renderDocument('```mermaid\ngantt\n  title x & y\n```\n', 'plan')).toBe(
+      '<div class="dg-wrap"><pre class="mermaid">%%{init: {&quot;theme&quot;: &quot;neutral&quot;, &quot;flowchart&quot;: {&quot;useMaxWidth&quot;: false}, &quot;sequence&quot;: {&quot;useMaxWidth&quot;: false}, &quot;mindmap&quot;: {&quot;useMaxWidth&quot;: false}}}%%\ngantt\n  title x &amp; y</pre></div>',
+    )
   })
+
+  test('a flowchart fence becomes a diagram in the style of the UI kit', () => {
+    expect(renderDocument('```mermaid\nflowchart LR\n  a["x"] --> b\n```\n', 'plan')).toContain('<figure class="dg-block"><div class="dg-wrap"><svg class="dg"')
+  })
+
 
   test('a slice of tasks.md becomes a card with its area, size, depends and fields', () => {
     const html = renderDocument('## T2: Show the time\n\n- area: web\n- depends: T1\n- acs: AC2\n- size: S\n- done when: the cart shows it\n', 'tasks')
