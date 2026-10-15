@@ -4,7 +4,6 @@
  * A guard must fail closed: when it cannot decide, it blocks with the reason.
  */
 
-/** The common fields of the JSON that a hook gets on stdin. */
 export type HookInput = {
   session_id?: string
   cwd?: string
@@ -24,7 +23,6 @@ export async function readInput(): Promise<HookInput> {
   return JSON.parse(raw) as HookInput
 }
 
-/** The outcome of one hook. */
 export type HookResult =
   | { kind: 'pass' }
   | { kind: 'block'; reason: string }

@@ -4,14 +4,15 @@ import { arg, list, type Program } from '@kit/shared/cli.ts'
 import { activePacks, environmentsAbove, projectRoot } from '@kit/env/env.ts'
 import { Exit } from '@kit/shared/errors.ts'
 import { readInput, runHook } from '@kit/shared/hook.ts'
-import { availablePacks, pluginDir } from '@kit/env/pack.ts'
+import { Catalog } from '@kit/env/pack.ts'
 
-import { doctor, formatDoctor } from './doctor.ts'
-import { bashGuard, editGuard, readGuard, sessionStart, styleCheck } from './hooks.ts'
-import { init } from './init.ts'
+import { doctor } from './doctor/doctor.ts'
+import { formatDoctor } from './doctor/format.ts'
+import { CORE_HOOKS } from './hooks/table.ts'
+import { init } from './init/initializer.ts'
 import { markdownFiles, scoreFile } from './ste.ts'
 
-const coreDir = () => pluginDir('core')
+const coreDir = () => Catalog.load().dirOf('core')
 
 export const coreProgram: Program = {
   name: 'kit',
@@ -38,7 +39,7 @@ export const coreProgram: Program = {
       summary: 'the environments above this folder, the packs each one gives, and every gap with its fix',
       run(c) {
         const from = process.cwd()
-        const report = doctor(from, coreDir())
+        const report = doctor(from)
         c.out(report, r => formatDoctor(r, from))
         return report.findings.some(f => f.level === 'error') ? Exit.error : Exit.ok
       },
@@ -48,7 +49,7 @@ export const coreProgram: Program = {
       summary: 'the packs on in this folder, where each keeps its record, and the packs that the kit ships',
       run(c) {
         const on = activePacks(process.cwd())
-        const shipped = [...availablePacks().values()].map(p => ({ name: p.manifest.name, description: p.manifest.description }))
+        const shipped = Catalog.load().all().map(p => ({ name: p.manifest.name, description: p.manifest.description }))
         c.out({ on, shipped }, () => [
           'on here:',
           '  core         (every environment)',
@@ -93,13 +94,13 @@ export const coreProgram: Program = {
       usage: '<name>',
       async run(c) {
         const name = arg(c, 0, 'hook name')
+        const hook = CORE_HOOKS[name]
+        if (!hook) {
+          c.say(`no hook is named ${name}`)
+          return Exit.usage
+        }
         const input = await readInput()
-        const guards = { read: readGuard, bash: bashGuard, edit: editGuard } as const
-        if (name in guards) return runHook(() => guards[name as keyof typeof guards](input), true)
-        if (name === 'style') return runHook(() => styleCheck(input), false)
-        if (name === 'start') return runHook(() => sessionStart(input), false)
-        c.say(`no hook is named ${name}`)
-        return Exit.usage
+        return runHook(() => hook.handler(input), hook.closed)
       },
     },
   ],

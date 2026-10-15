@@ -1,4 +1,4 @@
-/** Exit codes shared by every tool of everything. A caller (a skill, a hook, a script) can trust them. */
+/** The exit codes of every kit command. A skill, a hook or a script branches on them. */
 export const Exit = {
   ok: 0,
   error: 1,
@@ -13,7 +13,6 @@ export const Exit = {
 
 export type ExitCode = (typeof Exit)[keyof typeof Exit]
 
-/** An error that a tool reports to its caller: a message, an exit code and an optional fix. */
 export class EvError extends Error {
   constructor(
     message: string,

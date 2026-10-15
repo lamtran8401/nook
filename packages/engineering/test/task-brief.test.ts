@@ -1,0 +1,22 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+
+import { taskBrief } from '../src/report/task-brief.ts'
+import { itemAt, LEAD, makeHome, TASKS, type TestHome } from './helpers.ts'
+
+let t: TestHome
+beforeEach(() => {
+  t = makeHome()
+})
+afterEach(() => t.cleanup())
+
+describe('taskBrief', () => {
+  test('names the area folder with its test command, the criteria of the slice and the commands to run', () => {
+    itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS(Array.from({ length: 30 }, (_, i) => ({ id: `T${i + 1}`, title: `a long slice title number ${i + 1} that goes on and on for a while` }))))
+    const lead = t.kit(LEAD)
+    lead.ask('SHOP-1', 'which zone?', false, 'UTC')
+    const slice = taskBrief(lead, 'SHOP-1', 'T1')
+    expect(slice).toContain(`area: bff → ${t.area('bff')} (backend); test: sh test.sh {files}`)
+    expect(slice).toContain('1 [ADD] the export has the right date')
+    expect(slice).toContain('kit eng task prove SHOP-1 T1')
+  })
+})

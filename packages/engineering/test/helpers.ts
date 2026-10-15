@@ -2,23 +2,19 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { dbFile, findHome, type Home } from '../src/home.ts'
-import { openDb } from '../src/db.ts'
-import type { Kit } from '../src/kit.ts'
-import { moveItem } from '../src/model/moves.ts'
-import { newItem } from '../src/model/items.ts'
-import { importTasks } from '../src/model/slices.ts'
-import type { Who } from '../src/role.ts'
+import { Home } from '../src/home.ts'
+import { Engineering } from '../src/service.ts'
+import { Who } from '../src/who.ts'
 
 /** A temporary home: kit.yml with the engineering pack and two areas that are small git repos. */
 
 process.env.KIT_PROJECT = join(import.meta.dir, '..', '..', '..')
 Object.assign(process.env, { GIT_AUTHOR_NAME: 'kit test', GIT_AUTHOR_EMAIL: 'test@example.com', GIT_COMMITTER_NAME: 'kit test', GIT_COMMITTER_EMAIL: 'test@example.com' })
 
-export const OWNER: Who = { role: 'owner', actor: 'owner', session: null }
-export const LEAD: Who = { role: 'lead', actor: 'lead', session: 'sess-1' }
-export const BUILDER: Who = { role: 'builder', actor: 'backend-builder-ab12', session: 'sess-1' }
-export const READER: Who = { role: 'reader', actor: 'verifier-cd34', session: 'sess-1' }
+export const OWNER = new Who('owner', 'owner', null)
+export const LEAD = new Who('lead', 'lead', 'sess-1')
+export const BUILDER = new Who('builder', 'backend-builder-ab12', 'sess-1')
+export const READER = new Who('reader', 'verifier-cd34', 'sess-1')
 
 /** The test runner of an area: each file argument is a shell test; with no argument the FAIL marker decides. */
 const TEST_SH = `#!/bin/sh
@@ -31,7 +27,7 @@ exit $code
 export type TestHome = {
   root: string
   home: Home
-  kit(who?: Who): Kit
+  kit(who?: Who): Engineering
   area(name: string): string
   fail(name: string, on: boolean): void
   git(name: string, ...args: string[]): string
@@ -62,11 +58,11 @@ export function makeHome(options: { section?: boolean; checks?: boolean } = {}):
 `
   writeFileSync(join(root, 'kit.yml'), `packs: [engineering]\n${section}`)
   mkdirSync(join(root, 'work'), { recursive: true })
-  const home = findHome(root)!
+  const home = Home.find(root)!
   return {
     root,
     home,
-    kit: (who = OWNER) => ({ home, db: openDb(dbFile(home)), who }),
+    kit: (who = OWNER) => Engineering.open(home, who),
     area: name => join(root, 'projects', name),
     fail(name, on) {
       const marker = join(root, 'projects', name, 'FAIL')
@@ -107,21 +103,21 @@ export const writeDoc = (t: TestHome, id: string, name: string, text: string) =>
 export function itemAt(t: TestHome, state: 'backlog' | 'framing' | 'planning' | 'ready' | 'cooking' | 'checking', id = 'SHOP-1', spec = SPEC(), tasks = TASKS([{ id: 'T1' }])) {
   const lead = t.kit(LEAD)
   const owner = t.kit(OWNER)
-  newItem(lead, { id, title: 'the export date is off', kind: 'feature', size: 'S', areas: ['bff'] })
+  lead.newItem({ id, title: 'the export date is off', kind: 'feature', size: 'S', areas: ['bff'] })
   if (state === 'backlog') return
-  moveItem(lead, 'start', id)
+  lead.moveItem('start', id)
   if (state === 'framing') return
   writeDoc(t, id, 'spec.md', spec.replaceAll('SHOP-1', id))
-  moveItem(lead, 'agree', id)
+  lead.moveItem('agree', id)
   if (state === 'planning') return
   writeDoc(t, id, 'plan.md', PLAN)
   writeDoc(t, id, 'tasks.md', tasks)
-  importTasks(lead, id)
-  moveItem(owner, 'approve', id)
+  lead.importTasks(id)
+  owner.moveItem('approve', id)
   if (state === 'ready') return
   const areas = /areas: \[([^\]]*)\]/.exec(spec)?.[1]?.split(',').map(s => s.trim()) ?? ['bff']
   for (const area of areas) t.git(area, 'switch', '-q', '-c', `kit/${id}-work`)
-  moveItem(lead, 'begin', id)
+  lead.moveItem('begin', id)
   if (state === 'cooking') return
   throw new Error('itemAt: checking needs the slices done and a verify; do it in the test')
 }

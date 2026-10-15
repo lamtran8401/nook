@@ -1,1 +1,12 @@
-{ "name": "@kit/env", "private": true, "version": "0.1.0", "type": "module", "exports": { "./*": "./src/*" } }
+{
+  "name": "@kit/env",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "yaml": "2.9.1"
+  }
+}

@@ -6,10 +6,8 @@ import { EvError, Exit, usage } from './errors.ts'
 export type Flag = { type: 'string' | 'boolean'; short?: string; list?: boolean; help?: string }
 
 export type Context = {
-  /** The words after the command path. */
   args: string[]
   flags: Record<string, string | boolean | string[] | undefined>
-  /** True with `--json`: print one JSON value on stdout and nothing else. */
   json: boolean
   /** Print a result: JSON with `--json`, else the text that `text` makes from it. */
   out<T>(value: T, text?: (value: T) => string): void
@@ -18,10 +16,8 @@ export type Context = {
 }
 
 export type Command = {
-  /** The words that name the command, for example `['item', 'new']`. */
   path: string[]
   summary: string
-  /** The argument part of the usage line, for example `<id> <title...>`. */
   usage?: string
   flags?: Record<string, Flag>
   run(context: Context): Promise<number | undefined> | number | undefined
@@ -34,7 +30,6 @@ const GLOBAL_FLAGS: Record<string, Flag> = {
   help: { type: 'boolean', short: 'h', help: 'show the usage' },
 }
 
-/** Runs one program with the words of the command line and returns the exit code. */
 export async function run(program: Program, argv: string[]): Promise<number> {
   const command = find(program.commands, argv)
   if (!command) {
@@ -123,20 +118,18 @@ function help(program: Program, argv: string[]): string {
     .join('\n')}\n`
 }
 
-/** Reads a string flag, or undefined. */
 export function text(context: Context, name: string): string | undefined {
   const value = context.flags[name]
   return typeof value === 'string' ? value : undefined
 }
 
-/** Reads a repeated string flag, or an empty list. Also splits one value at commas. */
+/** A repeated flag; one value can also join names with commas. */
 export function list(context: Context, name: string): string[] {
   const value = context.flags[name]
   const values = Array.isArray(value) ? value : typeof value === 'string' ? [value] : []
   return values.flatMap(entry => entry.split(',')).map(entry => entry.trim()).filter(Boolean)
 }
 
-/** Reads the positional argument at `index`, or fails with a usage error that names it. */
 export function arg(context: Context, index: number, name: string): string {
   const value = context.args[index]
   if (!value) throw usage(`give the ${name}`)

@@ -1,0 +1,94 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
+import type { HookInput } from '@kit/shared/hook.ts'
+
+import { MAX_HOLDS, stopDriver } from '../src/hooks/stop-driver.ts'
+import { pickup } from '../src/report/item-brief.ts'
+import { itemAt, LEAD, makeHome, OWNER, PLAN, SPEC, TASKS, type TestHome, writeDoc } from './helpers.ts'
+import { reason } from './hook-inputs.ts'
+
+let t: TestHome
+beforeEach(() => {
+  t = makeHome()
+})
+afterEach(() => t.cleanup())
+
+const stop = (extra: Partial<HookInput> = {}) => stopDriver({ cwd: t.root, session_id: 'sess-1', hook_event_name: 'Stop', ...extra })
+
+describe('stopDriver', () => {
+  test('a blocking question holds the lead of the item until it is answered', () => {
+    itemAt(t, 'framing')
+    const lead = t.kit(LEAD)
+    expect(stop().kind).toBe('pass')
+    pickup(lead, 'SHOP-1')
+    expect(stop().kind).toBe('pass')
+    lead.ask('SHOP-1', 'which zone?', true)
+    const held = stop()
+    expect(held.kind).toBe('json')
+    expect(reason(held)).toContain('blocking question Q1 is open')
+    expect(reason(held)).toContain('"decision":"block"')
+    lead.answer('SHOP-1', 'Q1', 'UTC')
+    expect(stop({ stop_hook_active: true }).kind).toBe('pass')
+  })
+
+  test('mode auto: the next stage of the lead, the proceed step, the owner stages let go, 6 holds at most', () => {
+    itemAt(t, 'framing')
+    const lead = t.kit(LEAD)
+    const owner = t.kit(OWNER)
+    pickup(lead, 'SHOP-1')
+    expect(stop().kind).toBe('pass')
+    owner.setMode('SHOP-1', 'auto')
+    expect(reason(stop())).toContain('skills/spec/SKILL.md')
+    writeDoc(t, 'SHOP-1', 'spec.md', SPEC())
+    lead.moveItem('agree', 'SHOP-1')
+    expect(reason(stop({ stop_hook_active: true }))).toContain('skills/recipe/SKILL.md')
+    writeDoc(t, 'SHOP-1', 'plan.md', PLAN)
+    writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }]))
+    lead.importTasks('SHOP-1')
+    const ready = reason(stop({ stop_hook_active: true }))
+    expect(ready).toContain('kit eng item proceed SHOP-1')
+    expect(ready).toContain('skills/cook/SKILL.md')
+    lead.moveItem('proceed', 'SHOP-1')
+    expect(reason(stop({ stop_hook_active: true }))).toContain('skills/cook/SKILL.md')
+    t.git('bff', 'switch', '-q', '-c', 'kit/SHOP-1-x')
+    lead.moveItem('begin', 'SHOP-1')
+    lead.moveSlice('start', 'SHOP-1', 'T1')
+    expect(stop({ stop_hook_active: true }).kind).toBe('pass')
+    lead.moveSlice('done', 'SHOP-1', 'T1', { files: ['a'] })
+    lead.verify('SHOP-1')
+    expect(reason(stop({ stop_hook_active: true }))).toContain('skills/cook/SKILL.md')
+    lead.moveItem('submit', 'SHOP-1')
+    expect(reason(stop({ stop_hook_active: true }))).toContain('skills/check/SKILL.md')
+    lead.markCriterion('SHOP-1', 1, 'x', 'run')
+    lead.markCriterion('SHOP-1', 2, 'y', 'run')
+    expect(stop({ stop_hook_active: true }).kind).toBe('pass')
+    // the owner accepts outside the session; the run ends
+    owner.moveItem('accept', 'SHOP-1')
+    expect(stop().kind).toBe('pass')
+  })
+
+  test('a stuck lead is let go after MAX_HOLDS holds, then the count starts again', () => {
+    itemAt(t, 'framing')
+    const lead = t.kit(LEAD)
+    pickup(lead, 'SHOP-1')
+    t.kit(OWNER).setMode('SHOP-1', 'auto')
+    for (let i = 1; i <= MAX_HOLDS; i++) expect(reason(stop({ stop_hook_active: i > 1 }))).toContain(`hold ${i} of ${MAX_HOLDS}`)
+    expect(stop({ stop_hook_active: true }).kind).toBe('pass')
+    expect(reason(stop())).toContain(`hold 1 of ${MAX_HOLDS}`)
+  })
+
+  test('the single item in an auto run is found with no session row', () => {
+    itemAt(t, 'cooking')
+    t.kit(OWNER).setMode('SHOP-1', 'auto')
+    expect(reason(stop({ session_id: 'another' }))).toContain('skills/cook/SKILL.md')
+  })
+
+  test('outside a home the Stop hook passes', () => {
+    const outside = mkdtempSync(join(tmpdir(), 'kit-eng-out-'))
+    expect(stopDriver({ cwd: outside, session_id: 's' }).kind).toBe('pass')
+    rmSync(outside, { recursive: true, force: true })
+  })
+})

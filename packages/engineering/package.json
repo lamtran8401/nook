@@ -1,1 +1,13 @@
-{ "name": "@kit/engineering", "private": true, "version": "0.1.0", "type": "module", "exports": { "./*": "./src/*" } }
+{
+  "name": "@kit/engineering",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "ts-pattern": "5.9.0",
+    "yaml": "2.9.1"
+  }
+}
