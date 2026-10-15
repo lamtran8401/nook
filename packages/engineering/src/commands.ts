@@ -1,5 +1,3 @@
-import { existsSync, mkdirSync } from 'node:fs'
-
 import { arg, type Command, type Context, list, type Program, text } from '@kit/shared/cli.ts'
 import { Exit, usage } from '@kit/shared/errors.ts'
 import { readInput, runHook } from '@kit/shared/hook.ts'
@@ -28,8 +26,8 @@ import {
   sliceList,
 } from './format.ts'
 import { Home } from './home.ts'
+import { engineeringModule } from './module.ts'
 import { hookNamed } from './hooks/index.ts'
-import { Ledger } from './ledger.ts'
 import { MOVE_NAMES, SLICE_MOVE_NAMES } from './machine.ts'
 import { areaStatus } from './report/areas.ts'
 import { brief } from './report/brief.ts'
@@ -558,9 +556,7 @@ const homeCommands: Command[] = [
     summary: 'make work/, backlog/ and docs/adr/ in the home',
     run(c) {
       const home = Home.require()
-      const made = [home.workRoot, home.backlogRoot, home.adrDir].filter(dir => !existsSync(dir))
-      for (const dir of made) mkdirSync(dir, { recursive: true })
-      Ledger.open(home.dbFile).close()
+      const made = engineeringModule.setup(home.dir)
       c.out({ home: home.dir, made }, r =>
         r.made.length ? `made: ${r.made.join(', ')}` : `nothing to make in ${r.home}`,
       )

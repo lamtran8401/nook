@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 
 import { arg, list, type Program } from '@kit/shared/cli.ts'
-import { activePacks, environmentsAbove, projectRoot } from '@kit/env/env.ts'
+import { activePacks, environmentsAbove, type PackModule, projectRoot } from '@kit/env/env.ts'
 import { Exit } from '@kit/shared/errors.ts'
 import { readInput, runHook } from '@kit/shared/hook.ts'
 import { Catalog } from '@kit/env/pack.ts'
@@ -14,7 +14,8 @@ import { markdownFiles, scoreFile } from './ste.ts'
 
 const coreDir = () => Catalog.load().dirOf('core')
 
-export const coreProgram: Program = {
+/** The commands of the core. `modules` are the pack packages that `kit init` and `kit doctor` reach. */
+export const coreProgram = (modules: PackModule[] = []): Program => ({
   name: 'kit',
   summary: 'Harness Kit: a base layer for Claude Code that you init into any folder',
   commands: [
@@ -24,12 +25,13 @@ export const coreProgram: Program = {
       usage: '[--pack a,b] [--update]',
       flags: { pack: { type: 'string', list: true, help: 'a pack to turn on here; repeat it, or join names with a comma' }, update: { type: 'boolean', help: 'replace what the kit owns; never a line of yours' } },
       run(c) {
-        const report = init({ dir: process.cwd(), packs: list(c, 'pack'), update: c.flags.update === true, coreDir: coreDir() })
+        const report = init({ dir: process.cwd(), packs: list(c, 'pack'), update: c.flags.update === true, coreDir: coreDir(), modules })
         c.out(report, r => {
           const lines = [`packs on here: ${r.packs.join(', ')}`]
           if (r.wrote.length) lines.push(`wrote: ${r.wrote.join(', ')}`)
           if (r.kept.length) lines.push(`kept: ${r.kept.join(', ')}`)
-          if (r.wrote.includes('kit.yml')) lines.push('next: in Claude Code, run /setup to build the structure, then kit doctor')
+          if (r.unset.length) lines.push(`next: in Claude Code, run /setup: it writes the section of ${r.unset.join(', ')} in kit.yml`)
+          else if (r.wrote.includes('kit.yml')) lines.push('next: in Claude Code, run /setup to build the structure, then kit doctor')
           return lines.join('\n')
         })
       },
@@ -39,7 +41,7 @@ export const coreProgram: Program = {
       summary: 'the environments above this folder, the packs each one gives, and every gap with its fix',
       run(c) {
         const from = process.cwd()
-        const report = doctor(from)
+        const report = doctor(from, { modules })
         c.out(report, r => formatDoctor(r, from))
         return report.findings.some(f => f.level === 'error') ? Exit.error : Exit.ok
       },
@@ -104,4 +106,4 @@ export const coreProgram: Program = {
       },
     },
   ],
-}
+})

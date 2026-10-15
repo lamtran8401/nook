@@ -5,6 +5,7 @@ import { KitConfig } from './kit-config.ts'
 export { Environment, KIT_FILE, STATE_DIR } from './environment.ts'
 export { KitConfig, strings } from './kit-config.ts'
 export { type ActivePack, activePacks } from './packs.ts'
+export type { Finding, PackModule } from './pack-module.ts'
 export { projectRoot } from './project.ts'
 
 export const parseKitConfig = (source: string, file: string): KitConfig => KitConfig.parse(source, file)

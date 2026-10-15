@@ -5,7 +5,27 @@ A base layer for Claude Code that you init into any folder.
 Harness Kit gives Claude Code your standards: base rules, templates and packs for work, research, learning, knowledge and reports.
 You run `kit init` in a folder. Claude Code stacks the folders, and you add your own context on top.
 
-Status: v0.1 in progress. The scaffold exists: `kit init`, `kit doctor`, `kit ste`, the base rules, the persona, the secret guards, the writing check, `/setup`, `/checkup`. The engineering pack comes next. Each part arrives when real use asks for it.
+Status: v0.1 in progress. The core and the engineering pack work: `kit init`, `kit doctor`, `kit ste`, `kit eng`, the base rules, the persona, the guards, the writing check, `/setup`, and the item flow from `/intake` to the owner's accept. The other packs come in v0.2 and v0.3. Each part arrives when real use asks for it.
+
+## Install
+
+You need [Bun](https://bun.sh) and Claude Code.
+
+```
+git clone <this repo> harness-kit && cd harness-kit && bun install
+ln -s "$PWD/apps/kit/bin/kit" ~/.local/bin/kit        # kit on your PATH; the hooks need it
+claude plugin marketplace add "$PWD"
+claude plugin install kit@harness-kit                  # the core: always
+claude plugin install kit-engineering@harness-kit      # one plugin for each pack that you use
+```
+
+Then, in each folder that you want as an environment:
+
+```
+kit init --pack engineering    # kit.yml, the rules, the settings, and the folders of each pack
+```
+
+In Claude Code, run `/setup` in that folder. It writes the section of each pack in `kit.yml` (for engineering: the areas, their checks and their test command). Run it again when you turn a pack on. `kit doctor` lists every gap that is left, the gaps of each pack and a plugin that is off included.
 
 ## The one idea
 
@@ -28,10 +48,10 @@ kit doctor                        # every layer, every pack, every gap with its 
 
 | Pack | What it gives |
 |---|---|
-| core | the persona, base rules, `kit init`, `kit doctor`, `/brief`, `/report`, `/retro` |
+| core | the persona, the base rules, the guards, `kit init`, `kit doctor`, `/setup` |
 | engineering | the item flow from intake to your accept, two gates, 28 skills, 10 agents |
 | research | `/research`: analysts in parallel, findings with sources, a fact-checker |
-| learn | a course against a standard (English to IELTS 7 first), and `/study <topic>` |
+| learn | a course in any subject against a standard, and `/study <topic>` for one topic |
 | wiki | one knowledge base for you and the agents: `/wiki-add`, `/wiki-ask`, `/wiki-tidy` |
 | visual | pages that explain, for every pack: the UI kit, diagrams, decks |
 | jira | pull a ticket, read only |

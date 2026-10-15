@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
-import { Environment, KIT_FILE, KitConfig, STATE_DIR } from '@kit/env/env.ts'
+import { Environment, KIT_FILE, KitConfig, type PackModule, STATE_DIR } from '@kit/env/env.ts'
 import { Catalog, type Plugin } from '@kit/env/pack.ts'
 import { usage } from '@kit/shared/errors.ts'
 
@@ -13,15 +13,16 @@ const RULES_DIR = join('.claude', 'rules', 'kit')
 const STYLE_FILE = join('.claude', 'output-styles', 'kit-companion.md')
 const SETTINGS_FILE = join('.claude', 'settings.json')
 
-export type InitOptions = { dir: string; packs: string[]; update: boolean; coreDir: string }
-export type InitReport = { wrote: string[]; kept: string[]; packs: string[] }
+export type InitOptions = { dir: string; packs: string[]; update: boolean; coreDir: string; modules?: PackModule[] }
+/** `unset`: the packs on here whose section of kit.yml /setup has not written yet. */
+export type InitReport = { wrote: string[]; kept: string[]; packs: string[]; unset: string[] }
 
 /**
  * Scaffolds the kit in one folder: kit.yml (once), the kit block of CLAUDE.md, the base rules, the output style,
  * the kit keys of the settings, the state folder. It never touches a line that the owner wrote.
  */
 export class Initializer {
-  private readonly report: InitReport = { wrote: [], kept: [], packs: [] }
+  private readonly report: InitReport = { wrote: [], kept: [], packs: [], unset: [] }
   private readonly wanted: string[]
 
   constructor(
@@ -41,6 +42,7 @@ export class Initializer {
     this.writeRules(env.config)
     this.writeStyle()
     this.writeSettings()
+    this.setupPacks()
     return this.report
   }
 
@@ -110,6 +112,18 @@ export class Initializer {
     const text = `${JSON.stringify(merged, null, 2)}\n`
     if (existsSync(file) && readFileSync(file, 'utf8') === text) return this.kept(SETTINGS_FILE)
     this.wrote(`${SETTINGS_FILE} (the kit keys)`, () => writeFileSync(file, text))
+  }
+
+  /** The folders and the state of each pack on here, and the packs that still need /setup. */
+  private setupPacks(): void {
+    for (const module of this.modulesOn()) {
+      for (const made of module.setup(this.options.dir)) this.report.wrote.push(made)
+      if (!module.configured(this.options.dir)) this.report.unset.push(module.name)
+    }
+  }
+
+  private modulesOn(): PackModule[] {
+    return (this.options.modules ?? []).filter(module => this.report.packs.includes(module.name))
   }
 
   private plugins(): Plugin[] {

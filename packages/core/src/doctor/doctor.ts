@@ -1,12 +1,13 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { homedir } from 'node:os'
 import { basename, join } from 'node:path'
 
-import { activePacks, Environment, KIT_FILE, STATE_DIR } from '@kit/env/env.ts'
+import { activePacks, type ActivePack, Environment, type Finding, KIT_FILE, type PackModule, STATE_DIR } from '@kit/env/env.ts'
 import { Catalog } from '@kit/env/pack.ts'
 
 import { hasBlock } from '../init/claude-block.ts'
 
-export type Finding = { level: 'error' | 'warn' | 'ok'; where: string; text: string; fix?: string }
+export type { Finding } from '@kit/env/env.ts'
 export type DoctorReport = {
   environments: { dir: string; packs: string[]; off: string[] }[]
   packs: { name: string; home: string }[]
@@ -60,23 +61,66 @@ const emptyPacksKey: Check = env =>
 
 const CHECKS: Check[] = [unknownPacks, claudeBlock, baseRules, stateDir, settings, secrets, emptyPacksKey]
 
+export type DoctorOptions = {
+  catalog?: Catalog
+  /** The modules of the pack packages, for the gaps of each pack. */
+  modules?: PackModule[]
+  /** The user folder of Claude Code; `CLAUDE_CONFIG_DIR` or `~/.claude`. */
+  claudeDir?: string
+}
+
+const CLAUDE_WHERE = 'Claude Code'
+
 export class Doctor {
+  private readonly catalog: Catalog
+  private readonly modules: PackModule[]
+  private readonly claudeDir: string
+
   constructor(
     private readonly from: string,
-    private readonly catalog = Catalog.load(),
-  ) {}
+    options: DoctorOptions = {},
+  ) {
+    this.catalog = options.catalog ?? Catalog.load()
+    this.modules = options.modules ?? []
+    this.claudeDir = options.claudeDir ?? process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), '.claude')
+  }
 
   run(): DoctorReport {
     const envs = Environment.above(this.from)
     if (!envs.length) return { environments: [], packs: [], findings: [this.outside()] }
-    const findings = envs.flatMap(env => CHECKS.flatMap(check => check(env, this.catalog)))
-    const packs = activePacks(this.from).map(p => ({ name: p.name, home: p.home.dir }))
+    const active = activePacks(this.from)
+    const findings = [
+      ...envs.flatMap(env => CHECKS.flatMap(check => check(env, this.catalog))),
+      ...this.pluginsOff(envs, active),
+      ...active.flatMap(pack => this.packGaps(pack)),
+    ]
+    const packs = active.map(p => ({ name: p.name, home: p.home.dir }))
     if (!findings.length) findings.push(this.healthy(envs.length, packs.length + 1))
     return {
       environments: envs.map(e => ({ dir: e.dir, packs: e.config.packs, off: e.config.off })),
       packs: [{ name: 'core', home: envs[0]!.dir }, ...packs],
       findings,
     }
+  }
+
+  /** A pack whose plugin Claude Code does not load has no hooks and no skills, so each guard is off. */
+  private pluginsOff(envs: Environment[], active: ActivePack[]): Finding[] {
+    const on = enabledPlugins([join(this.claudeDir, 'settings.json'), ...envs.flatMap(settingsFiles)])
+    return ['core', ...active.map(p => p.name)].flatMap(pack => {
+      const id = this.catalog.pluginId(pack)
+      if (!id || on.has(id)) return []
+      return [{ level: 'error', where: CLAUDE_WHERE, text: `the plugin ${id} of the pack ${pack} is off: its hooks and skills do not run`, fix: `claude plugin install ${id}` } satisfies Finding]
+    })
+  }
+
+  /** The gaps that a pack finds in its home, named by the pack. */
+  private packGaps(pack: ActivePack): Finding[] {
+    const module = this.modules.find(m => m.name === pack.name)
+    if (!module) return []
+    return module
+      .doctor(pack.home.dir)
+      .filter(f => f.level !== 'ok')
+      .map(f => ({ ...f, text: `${pack.name}: ${f.text}` }))
   }
 
   private outside(): Finding {
@@ -88,4 +132,16 @@ export class Doctor {
   }
 }
 
-export const doctor = (from: string): DoctorReport => new Doctor(from).run()
+export const doctor = (from: string, options: DoctorOptions = {}): DoctorReport => new Doctor(from, options).run()
+
+const settingsFiles = (env: Environment) => ['settings.json', 'settings.local.json'].map(name => join(env.dir, '.claude', name))
+
+/** The plugin ids that are on in any of the settings files: a later file can turn one off again. */
+function enabledPlugins(files: string[]): Set<string> {
+  const on = new Set<string>()
+  for (const file of files.filter(existsSync)) {
+    const plugins = (JSON.parse(readFileSync(file, 'utf8')) as { enabledPlugins?: Record<string, boolean> }).enabledPlugins ?? {}
+    for (const [id, enabled] of Object.entries(plugins)) enabled ? on.add(id) : on.delete(id)
+  }
+  return on
+}

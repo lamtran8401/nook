@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { initIn, removeDir, tempDir } from '../helpers.ts'
+import type { PackModule } from '@kit/env/env.ts'
+
+import { init } from '../../src/init/initializer.ts'
+import { CORE_DIR, initIn, removeDir, tempDir } from '../helpers.ts'
 
 let root: string
 beforeEach(() => {
@@ -87,5 +90,32 @@ describe('Initializer', () => {
     expect(readText('CLAUDE.md')).toContain('## My notes\n\nThe bff is the API.\n')
     expect(existsSync(join(root, '.claude', 'rules', 'my-style.md'))).toBe(true)
     expect([merged.permissions.allow.includes('Bash(make *)'), merged.theme]).toEqual([true, 'dark'])
+  })
+})
+
+describe('Initializer: the packs on here', () => {
+  const calls: string[] = []
+  const pack = (configured: boolean): PackModule => ({
+    name: 'engineering',
+    setup: dir => (calls.push(dir), ['work/']),
+    configured: () => configured,
+    doctor: () => [],
+  })
+  const initWith = (module: PackModule, packs: string[]) => init({ dir: root, packs, update: false, coreDir: CORE_DIR, modules: [module] })
+
+  test('runs the setup of each pack on here and reports what it made', () => {
+    calls.length = 0
+    expect(initWith(pack(true), ['engineering']).wrote.at(-1)).toBe('work/')
+    expect(calls).toEqual([root])
+  })
+
+  test('names a pack whose section of kit.yml is not written yet', () => {
+    expect(initWith(pack(false), ['engineering']).unset).toEqual(['engineering'])
+  })
+
+  test('does not set up a pack that is not on here', () => {
+    calls.length = 0
+    expect(initWith(pack(false), []).unset).toEqual([])
+    expect(calls).toEqual([])
   })
 })

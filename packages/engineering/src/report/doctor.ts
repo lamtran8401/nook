@@ -1,5 +1,7 @@
 import { existsSync } from 'node:fs'
 
+import type { Finding } from '@kit/env/env.ts'
+
 import { cut } from '../format.ts'
 import { FingerprintsUnchanged } from '../guards/fingerprints.ts'
 import { GuardContext } from '../guards/guard.ts'
@@ -8,7 +10,7 @@ import type { Item } from '../stores/items.ts'
 
 /** `doctor`: the gaps of the pack in this home, each with its fix. */
 
-export type Finding = { level: 'error' | 'warn' | 'ok'; where: string; text: string; fix?: string }
+export type { Finding } from '@kit/env/env.ts'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const drift = new FingerprintsUnchanged()
@@ -58,7 +60,7 @@ function configFindings(eng: Engineering): Finding[] {
   }
   for (const folder of [config.dir, config.backlog, 'docs/adr']) {
     if (!existsSync(`${home}/${folder}`))
-      found.push({ level: 'warn', where: home, text: `${folder}/ is missing`, fix: 'kit eng init' })
+      found.push({ level: 'warn', where: home, text: `${folder}/ is missing`, fix: 'kit init --update' })
   }
   return found
 }

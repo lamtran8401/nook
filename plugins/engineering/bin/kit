@@ -8,5 +8,9 @@ for kit in "$project/apps/kit/bin/kit" "${KIT_PROJECT:+$KIT_PROJECT/apps/kit/bin
 done
 found=$(command -v kit 2>/dev/null || true)
 if [ -n "$found" ] && [ "$(readlink -f "$found")" != "$self" ]; then exec "$found" "$@"; fi
-echo "kit: cannot find the kit binary (install it, or set KIT_PROJECT to the harness-kit folder)" >&2
+echo "kit: cannot find the kit binary. Link it: ln -s <harness-kit>/apps/kit/bin/kit ~/.local/bin/kit (or set KIT_PROJECT)" >&2
+# a guard that cannot run blocks the call (exit 2); any other hook lets it pass
+case "$*" in
+  "hook read"|"hook bash"|"hook edit"|"eng hook bash"|"eng hook edit") exit 2 ;;
+esac
 exit 1
