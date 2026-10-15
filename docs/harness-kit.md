@@ -68,6 +68,7 @@ One piece of work is an **item**. Its id is the key of the tracker (`BKM-12`) or
 - Other stage skills, in any phase: `/quick`, `/auto`, `/guesses`, `/handoff`, `/pickup`.
 - Moves back: `reject` to cooking, `replan` to planning, `reframe` to framing when the goal changed. Each move back clears the approval.
 - Guards: approved documents are frozen (fingerprints); a new test must fail on the base of the branch; the reviewer is not the builder; the scout reads tickets with no write tools.
+- Branches and worktrees: `item branch` makes `kit/<id>-<slug>` in each git area and switches the checkout. A second item in the same area gets a worktree in `.kit/worktrees/<id>/<area>/` with its own install; the edit guard keeps its builders there; checks, proof and commits run in the place of the item; the worktree goes at done unless it is dirty. A `WorktreeCreate` hook gives a Claude Code background session the same worktree. In v0.1 one item builds in each area at a time; worktrees come when two items need the same area.
 - Evidence grades: run, sourced, judged, owner. At the accept, the weakest shows first.
 - The kit never approves or accepts for you, never pushes, never reads secrets, and commits only when you say yes.
 
