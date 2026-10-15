@@ -1,0 +1,17 @@
+{
+  "name": "harness-kit",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "bun@1.4.3",
+  "workspaces": ["packages/*", "packs/*"],
+  "scripts": {
+    "check": "bun run typecheck && bun run test",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test --timeout 30000"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.2",
+    "typescript": "7.0.2"
+  }
+}

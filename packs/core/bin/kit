@@ -1,0 +1,15 @@
+#!/bin/sh
+# The kit tool. It runs packs/core/src/main.ts of the kit project with bun.
+# The project holds this plugin, or KIT_PROJECT names it (an installed copy of the plugin has no packages/).
+here=$(dirname "$(readlink -f "$0")")
+project=$(cd "$here/../../.." 2>/dev/null && pwd)
+[ -f "$project/packs/core/src/main.ts" ] || project="${KIT_PROJECT:-}"
+if [ -z "$project" ] || [ ! -f "$project/packs/core/src/main.ts" ]; then
+  echo "kit: cannot find the kit project (set KIT_PROJECT to the harness-kit folder)" >&2
+  exit 1
+fi
+if command -v bun >/dev/null 2>&1; then bun=bun; elif [ -x "$HOME/.bun/bin/bun" ]; then bun="$HOME/.bun/bin/bun"; else
+  echo "kit: bun is not installed" >&2
+  exit 1
+fi
+KIT_PROJECT="$project" exec "$bun" "$project/packs/core/src/main.ts" "$@"

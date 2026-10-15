@@ -1,0 +1,7 @@
+{
+  "name": "kit",
+  "version": "0.1.0",
+  "description": "Harness Kit core: the kit tool, the base rules, the persona, the secret guards and the writing check. Init any folder to make an environment.",
+  "author": { "name": "Lam" },
+  "license": "MIT"
+}

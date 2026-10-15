@@ -1,0 +1,41 @@
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+import { EvError } from './errors.ts'
+import { projectRoot } from './env.ts'
+
+/** `pack.json`: what a pack tells the core. A pack is also a Claude Code plugin (skills, agents, hooks). */
+export type PackManifest = {
+  name: string
+  description: string
+  /** The tool of the pack, relative to the pack folder, when it has one. */
+  bin?: string
+  /** Rules that `kit init` copies into `.claude/rules/kit/`, relative to the pack folder. */
+  rules?: string[]
+  /** A settings fragment that `kit init` merges into `.claude/settings.json`. */
+  settings?: string
+  /** Folders that the pack keeps under the state folder. */
+  state?: string[]
+}
+
+export function readManifest(dir: string): PackManifest {
+  const file = join(dir, 'pack.json')
+  if (!existsSync(file)) throw new EvError(`${file} is missing`)
+  const manifest = JSON.parse(readFileSync(file, 'utf8')) as PackManifest
+  if (!manifest.name) throw new EvError(`${file} needs a name`)
+  return manifest
+}
+
+/** Every pack that the kit project ships, by name. */
+export function availablePacks(): Map<string, { dir: string; manifest: PackManifest }> {
+  const packsDir = join(projectRoot(), 'packs')
+  const found = new Map<string, { dir: string; manifest: PackManifest }>()
+  if (!existsSync(packsDir)) return found
+  for (const entry of readdirSync(packsDir, { withFileTypes: true })) {
+    const dir = join(packsDir, entry.name)
+    if (!entry.isDirectory() || !existsSync(join(dir, 'pack.json'))) continue
+    const manifest = readManifest(dir)
+    found.set(manifest.name, { dir, manifest })
+  }
+  return found
+}

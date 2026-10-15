@@ -5,7 +5,7 @@ A base layer for Claude Code that you init into any folder.
 Harness Kit gives Claude Code your standards: base rules, templates and packs for work, research, learning, knowledge and reports.
 You run `kit init` in a folder. Claude Code stacks the folders, and you add your own context on top.
 
-Status: version 0 plan. No code yet. The plan comes first, and each part arrives when real use asks for it.
+Status: v0.1 in progress. The scaffold exists: `kit init`, `kit doctor`, `kit ste`, the base rules, the persona, the secret guards, the writing check, `/setup`, `/checkup`. The engineering pack comes next. Each part arrives when real use asks for it.
 
 ## The one idea
 

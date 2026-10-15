@@ -1,0 +1,142 @@
+import { parseArgs } from 'node:util'
+
+import { EvError, Exit, usage } from './errors.ts'
+
+/** A flag of a command. `list` collects every value of a repeated flag. */
+export type Flag = { type: 'string' | 'boolean'; short?: string; list?: boolean; help?: string }
+
+export type Context = {
+  /** The words after the command path. */
+  args: string[]
+  flags: Record<string, string | boolean | string[] | undefined>
+  /** True with `--json`: print one JSON value on stdout and nothing else. */
+  json: boolean
+  /** Print a result: JSON with `--json`, else the text that `text` makes from it. */
+  out<T>(value: T, text?: (value: T) => string): void
+  /** Print a line on stderr (never mixed into `--json` output). */
+  say(line: string): void
+}
+
+export type Command = {
+  /** The words that name the command, for example `['item', 'new']`. */
+  path: string[]
+  summary: string
+  /** The argument part of the usage line, for example `<id> <title...>`. */
+  usage?: string
+  flags?: Record<string, Flag>
+  run(context: Context): Promise<number | undefined> | number | undefined
+}
+
+export type Program = { name: string; summary: string; commands: Command[] }
+
+const GLOBAL_FLAGS: Record<string, Flag> = {
+  json: { type: 'boolean', help: 'print JSON' },
+  help: { type: 'boolean', short: 'h', help: 'show the usage' },
+}
+
+/** Runs one program with the words of the command line and returns the exit code. */
+export async function run(program: Program, argv: string[]): Promise<number> {
+  const command = find(program.commands, argv)
+  if (!command) {
+    const wanted = argv.filter(word => !word.startsWith('-')).join(' ')
+    if (wanted && wanted !== 'help') process.stderr.write(`${program.name}: unknown command "${wanted}"\n\n`)
+    process.stdout.write(help(program, argv))
+    return wanted && wanted !== 'help' ? Exit.usage : Exit.ok
+  }
+  const rest = argv.slice(command.path.length)
+  try {
+    const context = parse(command, rest)
+    if (context.flags.help) {
+      process.stdout.write(`${line(program, command)}\n${flagHelp(command)}`)
+      return Exit.ok
+    }
+    return (await command.run(context)) ?? Exit.ok
+  } catch (error) {
+    return report(program, command, error)
+  }
+}
+
+function find(commands: Command[], argv: string[]): Command | undefined {
+  return commands
+    .filter(command => command.path.every((word, i) => argv[i] === word))
+    .sort((a, b) => b.path.length - a.path.length)[0]
+}
+
+function parse(command: Command, rest: string[]): Context {
+  const options = Object.fromEntries(
+    Object.entries({ ...GLOBAL_FLAGS, ...command.flags }).map(([name, flag]) => [
+      name,
+      { type: flag.type, ...(flag.short ? { short: flag.short } : {}), ...(flag.list ? { multiple: true } : {}) },
+    ]),
+  )
+  let parsed: ReturnType<typeof parseArgs>
+  try {
+    parsed = parseArgs({ args: rest, options, allowPositionals: true, strict: true })
+  } catch (error) {
+    throw usage((error as Error).message.replace(/^.*?: /, ''), `run with --help to see the flags`)
+  }
+  const json = parsed.values.json === true
+  return {
+    args: parsed.positionals,
+    flags: parsed.values as Context['flags'],
+    json,
+    out(value, text) {
+      if (json) process.stdout.write(`${JSON.stringify(value, null, 2)}\n`)
+      else process.stdout.write(`${text ? text(value) : String(value)}\n`.replace(/\n+$/, '\n'))
+    },
+    say(message) {
+      process.stderr.write(`${message}\n`)
+    },
+  }
+}
+
+function report(program: Program, command: Command, error: unknown): number {
+  if (error instanceof EvError) {
+    process.stderr.write(`${program.name} ${command.path.join(' ')}: ${error.message}\n`)
+    if (error.fix) process.stderr.write(`fix: ${error.fix}\n`)
+    if (error.code === Exit.usage) process.stderr.write(`usage: ${line(program, command)}\n`)
+    return error.code
+  }
+  process.stderr.write(`${program.name} ${command.path.join(' ')}: ${(error as Error)?.stack ?? String(error)}\n`)
+  return Exit.error
+}
+
+const line = (program: Program, command: Command) =>
+  `${program.name} ${command.path.join(' ')}${command.usage ? ` ${command.usage}` : ''}`
+
+function flagHelp(command: Command): string {
+  const flags = Object.entries({ ...command.flags, ...GLOBAL_FLAGS })
+  return `${command.summary}\n${flags
+    .map(([name, flag]) => `  --${name}${flag.type === 'string' ? ' <value>' : ''}${flag.help ? `  ${flag.help}` : ''}`)
+    .join('\n')}\n`
+}
+
+function help(program: Program, argv: string[]): string {
+  const prefix = argv.filter(word => !word.startsWith('-') && word !== 'help')
+  const shown = program.commands.filter(command => prefix.every((word, i) => command.path[i] === word))
+  const list = shown.length ? shown : program.commands
+  const width = Math.max(...list.map(command => line(program, command).length))
+  return `${program.name}: ${program.summary}\n\n${list
+    .map(command => `  ${line(program, command).padEnd(width)}  ${command.summary}`)
+    .join('\n')}\n`
+}
+
+/** Reads a string flag, or undefined. */
+export function text(context: Context, name: string): string | undefined {
+  const value = context.flags[name]
+  return typeof value === 'string' ? value : undefined
+}
+
+/** Reads a repeated string flag, or an empty list. Also splits one value at commas. */
+export function list(context: Context, name: string): string[] {
+  const value = context.flags[name]
+  const values = Array.isArray(value) ? value : typeof value === 'string' ? [value] : []
+  return values.flatMap(entry => entry.split(',')).map(entry => entry.trim()).filter(Boolean)
+}
+
+/** Reads the positional argument at `index`, or fails with a usage error that names it. */
+export function arg(context: Context, index: number, name: string): string {
+  const value = context.args[index]
+  if (!value) throw usage(`give the ${name}`)
+  return value
+}

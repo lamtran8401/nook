@@ -1,6 +1,6 @@
 # Harness Kit
 
-Status: version 0 plan, 2026-10-15. The full guide is `harness-guide.html` (published at <https://claude.ai/artifact/17Dr7beapRMnecSZJ1QeTp>). This file is the short form.
+Status: v0.1 in progress, 2026-10-15; the scaffold of the core pack exists. The full guide is `harness-guide.html` (published at <https://claude.ai/artifact/17Dr7beapRMnecSZJ1QeTp>). This file is the short form.
 The old plans and the code sketch are in `~/Workspaces/personal/archive/spaces/` (stackspace, harness-code-sketch, ideas-everything).
 
 ## 1. In one line
