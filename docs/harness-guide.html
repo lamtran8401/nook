@@ -523,7 +523,7 @@ footer { font-size: 13px; color: var(--fg-muted); border-top: 1px solid var(--bo
           <p>Claude Code reads <code style="background:transparent;color:var(--inverse-fg);border-color:var(--inverse-muted)">CLAUDE.md</code> and <code style="background:transparent;color:var(--inverse-fg);border-color:var(--inverse-muted)">.claude/rules/</code> from every folder above a session, so words flow down. It reads settings only in the start folder, so hooks and permissions stay where a pack is on.</p>
         </div>
         <div class="ly" aria-label="Example of nested layers">
-          <div class="ly-head"><span class="ly-name">~/Workprojects/</span><span class="ly-what">who I am, my language, how I write</span></div>
+          <div class="ly-head"><span class="ly-name">~/Workspaces/</span><span class="ly-what">who I am, my language, how I write</span></div>
           <div class="ly">
             <div class="ly-head"><span class="ly-name">company/</span><span class="ly-what">company rules, what must not leave</span></div>
             <div class="ly">
@@ -534,7 +534,7 @@ footer { font-size: 13px; color: var(--fg-muted); border-top: 1px solid var(--bo
         </div>
       </div>
 
-      <div class="sub"><h3>Environments nest</h3><p>A folder with <code>kit.yml</code> is an environment. A boundary such as <code>company/</code> is a large one; the folders inside it are smaller ones, and a project is only one of them. You init where you want the packs, and the folders below inherit them.</p><div class="grid2"><pre class="tree">~/Workprojects/          <span class="i">kit init</span>                   <span class="c">who I am, how I write</span>
+      <div class="sub"><h3>Environments nest</h3><p>A folder with <code>kit.yml</code> is an environment. A boundary such as <code>company/</code> is a large one; the folders inside it are smaller ones, and a project is only one of them. You init where you want the packs, and the folders below inherit them.</p><div class="grid2"><pre class="tree">~/Workspaces/          <span class="i">kit init</span>                   <span class="c">who I am, how I write</span>
 ├── company/           <span class="i">kit init --pack engineering,wiki,jira</span>
 │   │                  <span class="c">one ledger and one wiki for the whole company</span>
 │   ├── projects/shop/           <span class="c">no init needed: it inherits</span>
@@ -547,7 +547,7 @@ footer { font-size: 13px; color: var(--fg-muted); border-top: 1px solid var(--bo
       <div class="sub">
         <h3>It fits any structure</h3>
         <div class="grid3">
-<pre class="tree">~/Workprojects/      <span class="i">kit init</span>
+<pre class="tree">~/Workspaces/      <span class="i">kit init</span>
 ├── company/       <span class="i">kit init</span>
 │   ├── shop/   <span class="i">--pack engineering,wiki</span>
 │   └── wiki/      <span class="i">--pack wiki</span>
