@@ -43,8 +43,9 @@ One line for each requirement, in plain words, with no grade and no test name.
 ### Try it
 The manual checks, with the steps and what the owner must see. Agents never start the app, so a visual check is always here.
 
-### Need to know
+### Heads up
 A limit of the change, a side effect on another feature, a choice that the owner can still change. One line each.
+A `Need to know:` quote stays in How it works, under its step; Heads up holds the rest.
 
 ## The page
 `kit eng item page <id>` shows `walkthrough.md` in its own tab, next to Spec, Plan and Tasks. The tree and the flowchart render as components of the UI kit.

@@ -53,13 +53,22 @@ body { margin: 0; background: var(--bg); }
 .kd-ac-src { color: var(--fg-muted); font: 500 12px/16px var(--font-mono); }
 
 /* the tree of the changed files */
+.kd-tree { overflow-x: auto; }
 .kd-tree > ul { padding-left: 0; }
-.kd-tree .bn-tree__row { height: auto; min-height: 30px; padding: 6px 8px; flex-wrap: wrap; row-gap: 2px; cursor: default; font-size: 14px; line-height: 20px; }
+.kd-tree .bn-tree__row { height: 32px; min-width: 0; cursor: default; }
 .kd-tree .bn-tree__row:hover { background: none; }
 .kd-tree summary .bn-tree__row { cursor: pointer; }
-.kd-tree__name { font: 500 13px/20px var(--font-mono); }
-.kd-tree summary .kd-tree__name { font-weight: 600; }
-.kd-tree__note { flex: 1 1 220px; min-width: 0; color: var(--fg-muted); }
+.kd-tree summary .bn-tree__row:hover { background: var(--bg-muted); }
+.kd-tree details > summary .bn-tree__row::before { display: none; }
+.kd-chev { display: inline-flex; flex: none; width: 14px; height: 14px; align-items: center; justify-content: center; color: var(--fg-muted); transition: transform .15s; }
+.kd-chev svg { width: 14px; height: 14px; }
+.kd-chev--leaf { visibility: hidden; }
+.kd-tree details[open] > summary .kd-chev { transform: rotate(90deg); }
+b.kd-tree__name { flex: none; font-weight: 600; }
+code.kd-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: var(--fg); white-space: nowrap; }
+.kd-tree__note { flex: 1 1 auto; min-width: 0; color: var(--fg-muted); font-size: 12.5px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kd-tree .bn-tree__row > small { flex: none; padding: 0 6px; }
+@media (prefers-reduced-motion: reduce) { .kd-chev { transition: none; } }
 
 /* the slices */
 .kd-slices { display: flex; flex-direction: column; gap: var(--space-4); }

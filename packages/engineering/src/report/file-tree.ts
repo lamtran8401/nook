@@ -43,10 +43,14 @@ const toneOf = (mark: Mark) =>
     .with('moved', () => 'neutral')
     .exhaustive()
 
+/** One row: a chevron (a blank one for a file, so the icons line up), the icon, the name, the note on one line, the mark at the right. */
 function row(icon: 'file' | 'folder', name: string, mark: Mark | null, note: string): string {
-  const badge = mark ? `<span class="bn-badge" data-tone="${toneOf(mark)}" data-size="sm">${mark}</span>` : ''
+  const chev = icon === 'folder' ? '<span class="kd-chev" data-bn-icon="chevron-right"></span>' : '<span class="kd-chev kd-chev--leaf"></span>'
+  const label = icon === 'folder' ? `<b class="kd-tree__name">${esc(name)}</b>` : `<code class="kd-tree__name">${esc(name)}</code>`
   const text = note ? `<span class="kd-tree__note">${esc(note)}</span>` : ''
-  return `<span class="bn-tree__row"><span data-bn-icon="${icon}"></span><span class="kd-tree__name">${esc(name)}</span>${badge}${text}</span>`
+  const tag = mark ? `<small data-tone="${toneOf(mark)}">${mark}</small>` : ''
+  const title = note ? ` title="${esc(note)}"` : ''
+  return `<span class="bn-tree__row"${title}>${chev}<span data-bn-icon="${icon}"></span>${label}${text}${tag}</span>`
 }
 
 function nodeHtml(node: TreeNode): string {

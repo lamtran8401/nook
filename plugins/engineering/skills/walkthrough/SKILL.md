@@ -27,7 +27,7 @@ The parts in full, and the path with no item: `parts.md` (this folder).
 ## How it works          one diagram of the flow, and five short steps or fewer
 ## Requirements met      one line for each requirement, in plain words
 ## Try it                the manual checks and what the owner must see
-## Need to know          a limit, a side effect, a choice that the owner can change
+## Heads up              a limit, a side effect, a choice that the owner can change
 ```
 
 ## Gotchas

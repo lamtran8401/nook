@@ -38,16 +38,16 @@ describe('parseFileTree', () => {
 })
 
 describe('fileTreeHtml', () => {
-  test('a file row has the file icon, its name, a badge of the tone of its mark, and its note', () => {
+  test('a file row has the file icon, its name, its note with the full text on hover, and its mark at the right in its tone', () => {
     expect(fileTreeHtml(parseFileTree('page.ts  new  the select'))).toBe(
-      '<div class="bn-tree kd-tree"><ul><li><span class="bn-tree__row"><span data-bn-icon="file"></span><span class="kd-tree__name">page.ts</span><span class="bn-badge" data-tone="success" data-size="sm">new</span><span class="kd-tree__note">the select</span></span></li></ul></div>',
+      '<div class="bn-tree kd-tree"><ul><li><span class="bn-tree__row" title="the select"><span class="kd-chev kd-chev--leaf"></span><span data-bn-icon="file"></span><code class="kd-tree__name">page.ts</code><span class="kd-tree__note">the select</span><small data-tone="success">new</small></span></li></ul></div>',
     )
   })
 
   test('a folder is open and holds its rows', () => {
     const html = fileTreeHtml(parseFileTree('api/\n  a.ts  deleted'))
     expect(html).toBe(
-      '<div class="bn-tree kd-tree"><ul><li><details open><summary><span class="bn-tree__row"><span data-bn-icon="folder"></span><span class="kd-tree__name">api</span></span></summary><ul><li><span class="bn-tree__row"><span data-bn-icon="file"></span><span class="kd-tree__name">a.ts</span><span class="bn-badge" data-tone="danger" data-size="sm">deleted</span></span></li></ul></details></li></ul></div>',
+      '<div class="bn-tree kd-tree"><ul><li><details open><summary><span class="bn-tree__row"><span class="kd-chev" data-bn-icon="chevron-right"></span><span data-bn-icon="folder"></span><b class="kd-tree__name">api</b></span></summary><ul><li><span class="bn-tree__row"><span class="kd-chev kd-chev--leaf"></span><span data-bn-icon="file"></span><code class="kd-tree__name">a.ts</code><small data-tone="danger">deleted</small></span></li></ul></details></li></ul></div>',
     )
   })
 
