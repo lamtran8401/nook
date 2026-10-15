@@ -51,7 +51,7 @@ To drop a base rule, turn it off in `kit.yml`. Do not write the opposite rule: C
 | visual | write and draw for the reader: the UI kit, page templates, `page`, `diagram`, `deck`, `sketch`; used by every pack | pages next to the work or the record |
 | jira | `pull-ticket`, read only | none |
 
-Rules of a pack: it imports `packages/shared` only, never another pack; its read commands print JSON with `--json`; the exit codes are the same in every tool.
+Rules of a pack: its library in `packages/` imports `shared` and `env` only; its plugin in `plugins/` has no code and calls the `kit` binary; its read commands print JSON with `--json`; the exit codes are the same in every tool.
 
 ## 4. Engineering: the life of one item
 
@@ -74,7 +74,7 @@ One piece of work is an **item**. Its id is the key of the tracker (`SHOP-12`) o
 - Evidence grades: run, sourced, judged, owner. At the accept, the weakest shows first.
 - The kit never approves or accepts for you, never pushes, never reads secrets, and commits only when you say yes.
 
-Who does the work. The lead, the main session, directs the work. A one-shot job that returns a summary runs as a subagent: a scout, a verifier, a reviewer, a skeptic, a designer, an analyst. It runs in the background where it can, so its context never enters the lead's. A job that builds and must keep its context for the whole item runs as a teammate: a builder, one for each area. A teammate is a separate session that lives for the item and talks with the lead. Everything else the lead does itself: triage, the spec, the plan, the answers, the moves, a quick item. Agent teams are on in every environment of the kit. When teams are off, in a headless run, a builder falls back to a background subagent.
+Who does the work. The lead, the main session, directs the work. A one-shot job that returns a summary runs as a subagent: a scout, a verifier, a reviewer, a skeptic, a designer, an analyst. It runs in the background where it can, so its context never enters the lead's. A builder is a teammate only when it keeps context worth keeping: an area with two or more slices, or an item of size M or L. A teammate is a separate session that lives for the item and talks with the lead. An area with one slice gets a background subagent with the same brief. A quick item, or an item of size S with one slice, the lead builds itself. Everything else the lead does itself: triage, the spec, the plan, the answers, the moves. Agent teams are on in every environment of the kit; a `name` on an Agent call goes only to such a builder. When teams are off, in a headless run, a builder falls back to a background subagent.
 
 ## 5. Research, learn, wiki, visual
 
@@ -103,8 +103,13 @@ Later, only when real use asks: a main session that sends stages to other folder
 ```
 harness-kit/
 ├── package.json                 Bun workspaces
-├── packages/shared/             cli, exit codes, config, state, roles
-├── packs/                       core, engineering, research, learn, wiki, visual, jira
+├── apps/kit/                    the CLI, the binary kit: kit init, kit doctor, kit ste, kit eng …, kit hook …
+├── packages/                    the domain libraries
+│   ├── shared/                  the CLI router, exit codes, hook IO
+│   ├── env/                     environments, kit.yml, pack manifests
+│   ├── core/                    init, doctor, ste, the core hooks
+│   └── engineering/             the ledger, the item machine, guards, permissions, the document parsers, git, the engineering hooks
+├── plugins/                     one Claude Code plugin each: manifest, skills, agents, hooks.json, templates; no code
 ├── docs/                        this plan, docs/expect/
 ├── .claude-plugin/marketplace.json
 └── LICENSE                      MIT
@@ -112,6 +117,7 @@ harness-kit/
 
 In the repo: skills, agents, hooks, tools, base rules, templates, the courses in our own words, the UI kit.
 Never in the repo: your `CLAUDE.md` and rules, ledgers, findings, mistake logs, wiki pages, goals, company names, paths, prompts.
+Dependency rule: `apps/kit` imports the packages; a package imports `shared` and `env` only; a plugin imports nothing and calls the `kit` binary.
 Built-ins such as `/code-review` and `/verify` are tools inside a craft skill. The kit keeps its rubric, its evidence grades and its gates as the contract.
 
 ## 8. To decide
