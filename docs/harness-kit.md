@@ -1,7 +1,7 @@
 # Harness Kit
 
 Status: v0.1 in progress, 2026-10-15; the scaffold of the core pack exists. The full guide is `harness-guide.html` (published at <https://claude.ai/artifact/17Dr7beapRMnecSZJ1QeTp>). This file is the short form.
-The old plans and the code sketch are in `~/Workspaces/personal/archive/spaces/` (stackspace, harness-code-sketch, ideas-everything).
+The old plans and the code sketch are in `~/Workprojects/personal/archive/projects/` (stackspace, harness-code-sketch, ideas-everything).
 
 ## 1. In one line
 
@@ -18,7 +18,7 @@ Claude Code runs the sessions. The kit holds the goals, the standards, the recor
 ## 2. The one idea
 
 **Init a folder to make an environment. Its packs and rules reach every folder inside it.**
-A folder with `kit.yml` is an environment. A boundary such as `company/` is a large one; the folders inside it are smaller ones, and a space is only one of them.
+A folder with `kit.yml` is an environment. A boundary such as `company/` is a large one; the folders inside it are smaller ones, and a project is only one of them.
 - Claude Code reads `CLAUDE.md` and `.claude/rules/` from every folder above a session. Words flow down.
 - It reads `.claude/settings.json` only in the start folder. So hooks and permissions stay in the folder where a pack is on.
 - The kit has no fixed structure. A folder can turn on many packs. How you split folders is your choice.
@@ -34,7 +34,7 @@ kit init --update                # replace only what the kit owns
 kit doctor                       # every layer, every pack, every gap with its fix
 ```
 
-`kit init` only scaffolds the kit: `kit.yml` with the packs, the kit block of `CLAUDE.md`, `.claude/rules/kit/`, its settings keys, `.kit/`. The `/setup` skill builds the environment: it reads the disk, asks what the disk cannot settle, writes the areas, checks, tracker and shelves into `kit.yml`, makes the folders (`spaces/`, `backlog/`, `work/`, `wiki/`, `references/`, a learning folder), and writes the map of the folder in `CLAUDE.md`. `/setup <what changed>` runs again when a repo or a check changes.
+`kit init` only scaffolds the kit: `kit.yml` with the packs, the kit block of `CLAUDE.md`, `.claude/rules/kit/`, its settings keys, `.kit/`. The `/setup` skill builds the environment: it reads the disk, asks what the disk cannot settle, writes the areas, checks, tracker and shelves into `kit.yml`, makes the folders (`projects/`, `backlog/`, `work/`, `wiki/`, `references/`, a learning folder), and writes the map of the folder in `CLAUDE.md`. `/setup <what changed>` runs again when a repo or a check changes.
 
 The kit owns only what it marks: the block in `CLAUDE.md`, `.claude/rules/kit/`, its keys in settings. Everything else is yours.
 To drop a base rule, turn it off in `kit.yml`. Do not write the opposite rule: Claude Code has no sure override between two rules.
