@@ -5,8 +5,5 @@
   "type": "module",
   "exports": {
     "./*": "./src/*"
-  },
-  "dependencies": {
-    "ts-pattern": "5.9.0"
   }
 }
