@@ -14,6 +14,9 @@ export type HookInput = {
   agent_type?: string
   prompt?: string
   stop_hook_active?: boolean
+  /** UserPromptExpansion: the command that a person typed, and the words after it. */
+  command_name?: string
+  command_args?: string
   [key: string]: unknown
 }
 

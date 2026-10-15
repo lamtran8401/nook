@@ -64,6 +64,18 @@ describe('bashGuard', () => {
     expect(bash(command)).toBe('pass')
   })
 
+  test.each(['claude -p "/kit:gate approve IT-1"', 'claude --bg "/gate accept IT-1"'])('blocks a session started by a tool that types /gate: %s', command => {
+    expect(bash(command)).toBe('block')
+  })
+
+  test('lets a session started by a tool pass when it does not name /gate', () => {
+    expect(bash('claude -p "summarize the plan"')).toBe('pass')
+  })
+
+  test('a path that holds a folder named gate is not the command /gate', () => {
+    expect(bash('claude plugin validate . && cat plugins/core/skills/gate/SKILL.md')).toBe('pass')
+  })
+
   test('does nothing outside an environment', () => {
     const outside = tempDir('kit-outside-')
     expect(bash('cat .env', outside)).toBe('pass')

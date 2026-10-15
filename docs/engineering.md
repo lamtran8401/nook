@@ -33,7 +33,7 @@ The tool checks the section and names each fault with its fix.
 ## 3. Roles
 | Role | Who | How the tool knows |
 |---|---|---|
-| owner | the person | a process that Claude Code did not start (`CLAUDECODE` not set), or `KIT_ROLE=owner` in the env of such a process |
+| owner | the person | a process that Claude Code did not start (`CLAUDECODE` not set), or `KIT_ROLE=owner` in the env of such a process; or a move that the owner typed as `/gate` in the prompt, which a `UserPromptExpansion` hook of the core runs with the actor `owner via /gate` |
 | lead | the main session | `CLAUDECODE` set and no `KIT_ROLE` |
 | builder | a builder agent | the hook adds `--as builder --actor <name> --session <id>` to each `kit eng` call of an agent whose `agent_type` ends in `builder`, or that has an `agent_id` and no `agent_type` (an in-process teammate; only builders run as teammates); a flag that the model wrote is dropped first |
 | reader | a read-only agent of the pack: verifier, reviewer, code-reviewer, scout, skeptic and the three designers | the hook adds `--as reader …` to each call of `kit eng` |
@@ -162,6 +162,7 @@ The owner moves are also denied to the model in `templates/settings.json`: `Bash
 | SubagentStop | hold a builder subagent that still has a running slice: "finish the slice: `kit eng task done` or `task wait`" | open |
 | TeammateIdle | hold a teammate named `<area>-builder` while a slice of that area runs, with the same words; exit 2 is the only form the event honors | open |
 | SessionStart | add the first lines of `kit eng next` as context | open |
+| UserPromptExpansion (core) | `/gate <move> <id>`: run an owner move of a pack because the owner typed it; refuse it inside an agent and in a session that the Bash tool of another session started; `/gate` alone lists the moves that wait. The hook runs once `plugins/core/hooks/hooks.json` lists it | closed |
 
 The role of an agent comes from the hook input: no `agent_type` and no `agent_id` is the lead; an `agent_type` that ends in `builder` is a builder; any other is a reader. `KIT_ACTOR` is the agent type plus the last 4 characters of `agent_id`.
 

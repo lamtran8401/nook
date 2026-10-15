@@ -33,6 +33,8 @@ export function bashGuard(input: HookInput): HookResult {
   const listed = policy.listedIn(plain)
   if (listed) return block(`the command names ${listed}, a secret of kit.yml.`)
   if (/\bKIT_ROLE\s*=/.test(plain) || /env\s+-u\s+CLAUDECODE/.test(plain)) return block('the role of an agent is set by the kit, not by a command.')
+  // a session that a tool starts could type /gate in place of the owner
+  if (words.some(w => /(^|\/)claude$/.test(w)) && /(^|\s)\/(?:[\w-]+:)?gate(\s|$)/.test(plain)) return block('only the owner types /gate; an agent never starts a session that runs it.')
   return pass
 }
 

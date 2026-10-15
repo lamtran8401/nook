@@ -8,7 +8,8 @@ import { Catalog } from '@kit/env/pack.ts'
 
 import { doctor } from './doctor/doctor.ts'
 import { formatDoctor } from './doctor/format.ts'
-import { CORE_HOOKS } from './hooks/table.ts'
+import { gateHook } from './hooks/gate.ts'
+import { CORE_HOOKS, type CoreHook } from './hooks/table.ts'
 import { init } from './init/initializer.ts'
 import { markdownFiles, scoreFile } from './ste.ts'
 
@@ -92,11 +93,12 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
     },
     {
       path: ['hook'],
-      summary: 'run one hook of the core with the Claude Code event on stdin (read, bash, edit, style, start)',
+      summary: 'run one hook of the core with the Claude Code event on stdin (read, bash, edit, style, start, gate)',
       usage: '<name>',
       async run(c) {
         const name = arg(c, 0, 'hook name')
-        const hook = CORE_HOOKS[name]
+        const hooks: Record<string, CoreHook> = { ...CORE_HOOKS, gate: { handler: input => gateHook(input, { modules }), closed: true } }
+        const hook = hooks[name]
         if (!hook) {
           c.say(`no hook is named ${name}`)
           return Exit.usage
