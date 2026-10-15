@@ -67,12 +67,22 @@ export const criterionList = (all: Criterion[]) =>
     'no criteria',
   )
 
+const COUNT = /(\d+)\s+(pass(?:ed)?|fail(?:ed)?|skip(?:ped)?|todo)\b/gi
+
+/** The test counts that a check printed, such as `19 pass, 0 fail`; empty when it printed none. */
+export function testCounts(output: string): string {
+  return output
+    .split('\n')
+    .flatMap(line => [...line.matchAll(COUNT)].map(m => `${m[1]} ${m[2]}`))
+    .join(', ')
+}
+
 export const runText = (run: CheckRun[]) => {
   if (!run.length) return 'no run yet'
   return run
     .map(
       r =>
-        `${r.result === 'pass' ? '✓' : '✗'} ${r.area}: ${r.check}${r.result === 'fail' ? `\n${tail(r.output)}` : ''}`,
+        `${r.result === 'pass' ? '✓' : '✗'} ${r.area}: ${r.check}${testCounts(r.output) ? ` (${testCounts(r.output)})` : ''}${r.result === 'fail' ? `\n${tail(r.output)}` : ''}`,
     )
     .join('\n')
 }
