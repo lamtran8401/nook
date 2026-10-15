@@ -114,9 +114,9 @@ const planned = () => {
 }
 
 const panelOf = (html: string, name: string) => {
-  const start = html.indexOf(`data-panel="${name}"`)
-  const end = html.indexOf('data-panel="', start + 10)
-  return html.slice(start, end < 0 ? html.indexOf('</main>') : end)
+  const start = html.indexOf(`id="panel-${name}"`)
+  const end = html.indexOf('role="tabpanel"', start + 10)
+  return html.slice(start, end < 0 ? html.indexOf('<script>') : end)
 }
 
 describe('itemPage', () => {
@@ -130,25 +130,33 @@ describe('itemPage', () => {
     expect(planned()).not.toContain('mindmap')
   })
 
-  test('the plan tab draws each flowchart and sequence diagram as an SVG in the style of the UI kit', () => {
+  test('the page carries the UI kit: its tokens, its components and its script', () => {
+    const html = planned()
+    expect(html).toContain('--primary: #2b4de6;')
+    expect(html).toContain('.bn-node {')
+    expect(html).toContain('window.Bench = {')
+    expect(html).toContain('<div class="bn-root kd-page">')
+  })
+
+  test('the plan tab draws each flowchart and sequence diagram with nodes of the UI kit, not mermaid', () => {
     const plan = panelOf(planned(), 'plan')
-    expect(plan.match(/<svg class="dg"/g)?.length).toBe(3)
+    expect(plan.match(/<figure class="kd-dg">/g)?.length).toBe(3)
+    expect(plan.match(/class="kd-seq"/g)?.length).toBe(1)
     expect(plan).not.toContain('<pre class="mermaid">')
   })
 
-  test('the tasks tab draws the lanes as an SVG with one band for each area and a card for each slice', () => {
+  test('the tasks tab draws one group for each area and a node for each slice', () => {
     const tasks = panelOf(planned(), 'tasks')
-    expect(tasks).toContain('BFF · ONE BUILDER')
-    expect(tasks).toContain('WEB · ONE BUILDER')
-    expect(tasks.match(/class="gate-chip"/g)?.length).toBe(3)
+    expect([...tasks.matchAll(/<span class="bn-group__label">(\w+)<\/span>/g)].map(m => m[1])).toEqual(['bff', 'web'])
+    expect(tasks.match(/class="kd-lanes__cell"/g)?.length).toBe(3)
   })
 
   test('a line under the lanes names the slices that start first and the ones that run side by side', () => {
-    expect(planned()).toContain('<p class="lanes-note">Start first: T1. Side by side in different areas: T2 (bff) with T3 (web).</p>')
+    expect(planned()).toContain('<p class="kd-lanes-note">Start first: T1. Side by side in different areas: T2 (bff) with T3 (web).</p>')
   })
 
   test('the audit line has the dates of the moves that happened and the updated date of each document', () => {
-    expect(planned()).toContain('<p class="audit">start 2026-10-01 · agree 2026-10-02 · spec.md updated 2026-10-15 · plan.md updated 2026-10-16 · tasks.md updated 2026-10-17</p>')
+    expect(planned()).toContain('<p class="kd-audit">start 2026-10-01 · agree 2026-10-02 · spec.md updated 2026-10-15 · plan.md updated 2026-10-16 · tasks.md updated 2026-10-17</p>')
   })
 
   test('the text of a document is escaped', () => {
@@ -157,14 +165,28 @@ describe('itemPage', () => {
     expect(html).not.toContain('<script>alert')
   })
 
-  test('only the first tab shows; the others keep their layout under the hidden class', () => {
+  test('the first tab is selected and the other panels are hidden, each tied to its tab', () => {
     const html = planned()
-    expect([...html.matchAll(/<div class="(panel[^"]*)"[^>]*data-panel="(\w+)"/g)].map(m => [m[2], m[1]])).toEqual([
-      ['spec', 'panel'],
-      ['plan', 'panel is-hidden'],
-      ['tasks', 'panel is-hidden'],
+    expect([...html.matchAll(/<button type="button" class="bn-tabs__tab" role="tab" id="tab-(\w+)" data-doc="\w+" aria-controls="panel-\w+" aria-selected="(\w+)"/g)].map(m => [m[1], m[2]])).toEqual([
+      ['spec', 'true'],
+      ['plan', 'false'],
+      ['tasks', 'false'],
     ])
-    expect(html).toContain('.panel.is-hidden { position: absolute; visibility: hidden; left: 0; right: 0;')
+    expect([...html.matchAll(/<div class="bn-tabs__panel" role="tabpanel" id="panel-(\w+)" aria-labelledby="tab-\w+"( hidden)?>/g)].map(m => [m[1], Boolean(m[2])])).toEqual([
+      ['spec', false],
+      ['plan', true],
+      ['tasks', true],
+    ])
+  })
+
+  test('a hidden panel keeps its layout, so its diagrams keep their size', () => {
+    expect(planned()).toContain('.kd-page .bn-tabs__panel[hidden] { display: flex; position: absolute;')
+  })
+
+  test('each panel names its file and its front matter above the title of the document', () => {
+    expect(panelOf(planned(), 'plan')).toContain(
+      '<div class="kd-doc-head"><p class="kd-doc-meta">work/SHOP-7/plan.md · approach hold the stock in one table · created 2026-10-14 · updated 2026-10-16</p><h2 class="kd-doc-title">SHOP-7: the plan</h2></div>',
+    )
   })
 
   test('a slice card shows its files line', () => {

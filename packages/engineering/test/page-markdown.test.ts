@@ -1,40 +1,81 @@
 import { describe, expect, test } from 'bun:test'
 
-import { renderDocument } from '../src/report/page-markdown.ts'
+import { docTitle, renderDocument } from '../src/report/page-markdown.ts'
 
 describe('renderDocument', () => {
-  test('an AC line becomes a row with its number, a tag pill and its source', () => {
+  test('an AC line becomes a list row with its number, a tag badge of its tone and its source', () => {
     const html = renderDocument('## Acceptance criteria\n\n- [REMOVE] the old **filter** goes (Q2)\n', 'spec')
-    expect(html).toContain('<ol class="acs"><li><span class="ac-n">AC1</span><span class="tag tone-danger">REMOVE</span><span class="ac-t">the old <strong>filter</strong> goes <span class="src">Q2</span></span></li></ol>')
+    expect(html).toContain(
+      '<ul class="bn-list kd-acs"><li class="bn-list__item"><span class="bn-list__icon">AC1</span><span class="bn-list__main"><span class="kd-ac-tags"><span class="bn-badge" data-tone="danger" data-size="sm">REMOVE</span><span class="kd-ac-src">Q2</span></span><span>the old <strong>filter</strong> goes</span></span></li></ul>',
+    )
   })
 
-  test('the In short quote becomes the In short box', () => {
-    expect(renderDocument('> In short: one `status` filter.\n', 'spec')).toBe('<div class="short"><span class="label">In short</span><p>one <code>status</code> filter.</p></div>')
+  test('the In short quote becomes an alert of the primary tone', () => {
+    expect(renderDocument('> In short: one `status` filter.\n', 'spec')).toBe(
+      '<div class="bn-alert" data-tone="primary"><span class="bn-alert__icon"><span data-bn-icon="info"></span></span><div><p class="bn-alert__label">In short</p><p class="bn-alert__body">one <code class="bn-inline-code">status</code> filter.</p></div></div>',
+    )
   })
 
-  test('a table of three columns stacks on a phone and labels each cell with its column', () => {
+  test('the extra block goes right after the In short alert', () => {
+    const html = renderDocument('> In short: two lanes.\n\nThe rest.\n', 'tasks', '<i>lanes</i>')
+    expect(html.split('\n')).toEqual([expect.stringContaining('In short'), '<i>lanes</i>', '<div class="bn-prose"><p>The rest.</p></div>'])
+  })
+
+  test('with no In short alert, the extra block goes first', () => {
+    expect(renderDocument('The rest.\n', 'tasks', '<i>lanes</i>')).toBe('<i>lanes</i>\n<div class="bn-prose"><p>The rest.</p></div>')
+  })
+
+  test('a table of three columns is a table of the UI kit that stacks on a phone, each cell with its column', () => {
     const html = renderDocument('| Risk | Likelihood | What we do |\n|---|---|---|\n| a <b> | low | watch |\n', 'plan')
-    expect(html).toBe('<div class="table-wrap stack"><table><thead><tr><th>Risk</th><th>Likelihood</th><th>What we do</th></tr></thead><tbody><tr><td data-label="Risk" class="k"><span class="cell">a &lt;b&gt;</span></td><td data-label="Likelihood"><span class="cell">low</span></td><td data-label="What we do"><span class="cell">watch</span></td></tr></tbody></table></div>')
+    expect(html).toBe(
+      '<div class="bn-table-wrap kd-stack"><table class="bn-table"><thead><tr><th>Risk</th><th>Likelihood</th><th>What we do</th></tr></thead><tbody><tr><td data-label="Risk">a &lt;b&gt;</td><td data-label="Likelihood">low</td><td data-label="What we do">watch</td></tr></tbody></table></div>',
+    )
+  })
+
+  test('a table of two columns does not stack', () => {
+    expect(renderDocument('| Kind | Impact |\n|---|---|\n| Data | none |\n', 'plan')).toStartWith('<div class="bn-table-wrap"><table class="bn-table">')
   })
 
   test('a mermaid fence of a kind that the kit does not draw stays a mermaid block, with the neutral theme', () => {
     expect(renderDocument('```mermaid\ngantt\n  title x & y\n```\n', 'plan')).toBe(
-      '<div class="dg-wrap"><pre class="mermaid">%%{init: {&quot;theme&quot;: &quot;neutral&quot;, &quot;flowchart&quot;: {&quot;useMaxWidth&quot;: false}, &quot;sequence&quot;: {&quot;useMaxWidth&quot;: false}, &quot;mindmap&quot;: {&quot;useMaxWidth&quot;: false}}}%%\ngantt\n  title x &amp; y</pre></div>',
+      '<figure class="kd-dg"><div class="kd-dg__scroll"><pre class="mermaid">%%{init: {&quot;theme&quot;: &quot;neutral&quot;, &quot;flowchart&quot;: {&quot;useMaxWidth&quot;: false}, &quot;sequence&quot;: {&quot;useMaxWidth&quot;: false}}}%%\ngantt\n  title x &amp; y</pre></div></figure>',
     )
   })
 
-  test('a flowchart fence becomes a diagram in the style of the UI kit', () => {
-    expect(renderDocument('```mermaid\nflowchart LR\n  a["x"] --> b\n```\n', 'plan')).toContain('<figure class="dg-block"><div class="dg-wrap"><svg class="dg"')
+  test('a flowchart fence becomes nodes of the UI kit', () => {
+    const html = renderDocument('```mermaid\nflowchart LR\n  a["x"] --> b\n```\n', 'plan')
+    expect(html).toContain('<div class="bn-node" data-node="a" data-variant="root"><span class="bn-node__title">x</span></div>')
+    expect(html).not.toContain('mermaid')
   })
 
+  test('another fence becomes a code block with one line for each line of text', () => {
+    expect(renderDocument('```\nkit doctor\nkit init\n```\n', 'plan')).toBe('<div class="bn-code"><pre><span class="ln">kit doctor</span><span class="ln">kit init</span></pre></div>')
+  })
 
-  test('a slice of tasks.md becomes a card with its area, size, depends and fields', () => {
+  test('a slice of tasks.md becomes a card with its id, area and size, its fields, and what it waits for', () => {
     const html = renderDocument('## T2: Show the time\n\n- area: web\n- depends: T1\n- acs: AC2\n- size: S\n- done when: the cart shows it\n', 'tasks')
-    expect(html).toBe('<article class="slice"><header><span class="tid">T2</span><h4>Show the time</h4></header><div class="chips"><span class="chip area">web</span><span class="chip">size S</span><span class="chip">after T1</span></div><dl><dt>Criteria</dt><dd>AC2</dd><dt>Done when</dt><dd>the cart shows it</dd></dl></article>')
+    expect(html).toBe(
+      '<div class="kd-slices"><article class="bn-card"><span class="bn-card__eyebrow">T2 · web · size S</span><h3 class="bn-card__title">Show the time</h3><dl class="bn-dl"><dt>Criteria</dt><dd>AC2</dd><dt>Done when</dt><dd>the cart shows it</dd></dl><div class="bn-card__foot"><span class="bn-badge" data-size="sm">after T1</span></div></article></div>',
+    )
   })
 
-  test('a section wraps its paragraphs and lists, and the comments of the template are gone', () => {
+  test('two slices in a row share one list, and a slice with no depends starts first', () => {
+    const html = renderDocument('## T1: One\n\n- depends: none\n\n## T2: Two\n\n- depends: T1\n', 'tasks')
+    expect(html.match(/class="kd-slices"/g)?.length).toBe(1)
+    expect(html.match(/<article class="bn-card">/g)?.length).toBe(2)
+    expect(html).toContain('<span class="bn-badge" data-tone="success" data-size="sm">starts first</span>')
+  })
+
+  test('a section holds its title, then its paragraphs and lists in one prose block, and the comments of the template are gone', () => {
     const html = renderDocument('## Why\n\n<!-- guidance -->\nThe list is long\nand slow.\n\n- one\n- two\n', 'spec')
-    expect(html).toBe('<section class="sec"><h3><span class="label">Why</span></h3>\n<p>The list is long and slow.</p>\n<ul class="facts"><li>one</li><li>two</li></ul>\n</section>')
+    expect(html).toBe(
+      '<section class="kd-sec"><h2 class="kd-sec__title">Why</h2>\n<div class="bn-prose"><p>The list is long and slow.</p><ul><li>one</li><li>two</li></ul></div>\n</section>',
+    )
+  })
+
+  test('the first heading is not in the body; the page shows it above the document', () => {
+    const text = '# SHOP-1: the plan\n\n## Why\n\nA line.\n'
+    expect(renderDocument(text, 'plan')).not.toContain('SHOP-1: the plan')
+    expect(docTitle(text)).toBe('SHOP-1: the plan')
   })
 })

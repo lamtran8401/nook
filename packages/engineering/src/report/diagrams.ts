@@ -1,19 +1,20 @@
 import { match } from 'ts-pattern'
 
 /**
- * Diagrams in the style of the UI kit, drawn from the mermaid text of a document: a flowchart, a sequence
- * diagram, and the lanes of the slices. A diagram of another kind returns null, and the viewer draws the mermaid.
+ * Diagrams with the Diagram components of the UI kit, drawn from the mermaid text of a document: a flowchart, a
+ * sequence diagram, and the lanes of the slices. The nodes are HTML; the page script draws the edges between the
+ * nodes where the browser placed them. A diagram of another kind returns null, and the viewer draws the mermaid.
  */
 
 export type Tone = 'ink' | 'changes' | 'new' | 'danger'
 export type FlowNode = { id: string; label: string; tone: Tone }
-export type FlowEdge = { from: string; to: string; label: string }
+export type FlowEdge = { from: string; to: string; label: string; dashed: boolean }
 export type Flowchart = { nodes: FlowNode[]; edges: FlowEdge[] }
 export type SequenceStep =
   | { kind: 'call'; from: string; to: string; label: string; reply: boolean }
   | { kind: 'note'; from: string; to: string; label: string }
 export type Sequence = { actors: { id: string; label: string }[]; steps: SequenceStep[] }
-export type LaneSlice = { id: string; title: string; area: string; depends: string[] }
+export type LaneSlice = { id: string; title: string; area: string; depends: string[]; acs?: number[]; size?: string | null }
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
@@ -28,6 +29,7 @@ const CLASS_TONES: Record<string, Tone> = { new: 'new', changes: 'changes', prim
 
 /** One node reference: `id`, `id["label"]`, `id[label]`, `id("label")`, with an optional `:::class`. */
 const NODE = /^([A-Za-z_][\w-]*)\s*(?:(?:\[|\(|\{)\s*"?(.*?)"?\s*(?:\]|\)|\}))?\s*(?::::(\w+))?$/
+const ARROW = /\s*(-->|-\.->|==>|---)\s*/
 
 function readNode(text: string, nodes: Map<string, FlowNode>): string | null {
   const m = NODE.exec(text.trim())
@@ -46,7 +48,6 @@ function readNode(text: string, nodes: Map<string, FlowNode>): string | null {
       tone = markerTone
     }
   }
-  if (known && m[2] === undefined) return id
   nodes.set(id, { id, label, tone })
   return id
 }
@@ -59,21 +60,21 @@ export function parseFlowchart(source: string): Flowchart | null {
   const edges: FlowEdge[] = []
   for (const line of lines.slice(1)) {
     if (/^(?:classDef|class|style|linkStyle|subgraph|end|direction|click)\b/.test(line)) continue
-    // `a -->|"label"| b`, `a -- label --> b`, `a --> b`, `a -.-> b`, `a ==> b`
-    const parts = line.split(/\s*(?:-->|-\.->|==>|---)\s*/)
+    // `a -->|"label"| b`, `a -- label --> b`, `a --> b`, `a -.-> b`, `a ==> b`: the split keeps each arrow between two parts
+    const parts = line.split(ARROW)
     if (parts.length === 1) {
       if (!readNode(line, nodes)) return null
       continue
     }
     let from = readNode(parts[0]!.replace(/\s+--\s+.*$/, ''), nodes)
     const inline = /\s+--\s+(.*)$/.exec(parts[0]!)
-    for (let i = 1; i < parts.length; i++) {
+    for (let i = 2; i < parts.length; i += 2) {
       const piece = parts[i]!
       const labelled = /^\|"?(.*?)"?\|\s*(.*)$/.exec(piece)
-      const label = labelled ? labelled[1]! : i === 1 && inline ? inline[1]! : ''
+      const label = labelled ? labelled[1]! : i === 2 && inline ? inline[1]! : ''
       const to = readNode(labelled ? labelled[2]! : piece, nodes)
       if (!from || !to) return null
-      edges.push({ from, to, label })
+      edges.push({ from, to, label, dashed: parts[i - 1] === '-.->' })
       from = to
     }
   }
@@ -109,134 +110,43 @@ export function parseSequence(source: string): Sequence | null {
   return actors.length ? { actors, steps } : null
 }
 
-// ---------- drawing ----------
+// ---------- the layout ----------
 
-function wrap(text: string, max: number): string[] {
-  const lines: string[] = []
-  let line = ''
-  for (const word of text.split(/\s+/)) {
-    if (line && (line + ' ' + word).length > max) {
-      lines.push(line)
-      line = word
-    } else line = line ? `${line} ${word}` : word
+/** The rows of a flowchart from top to bottom: each node one row under its lowest parent; an edge that closes a cycle does not count. */
+export function flowLayers(chart: Flowchart): string[][] {
+  const ids = chart.nodes.map(n => n.id)
+  const out = new Map(ids.map(id => [id, chart.edges.filter(e => e.from === id).map(e => e.to)]))
+  const back = new Set<string>()
+  const state = new Map<string, 'open' | 'done'>()
+  const visit = (id: string) => {
+    state.set(id, 'open')
+    for (const to of out.get(id) ?? []) {
+      if (state.get(to) === 'open') back.add(`${id}>${to}`)
+      else if (!state.has(to)) visit(to)
+    }
+    state.set(id, 'done')
   }
-  if (line) lines.push(line)
-  return lines
-}
-const tspans = (lines: string[], x: number, y: number, lh: number) =>
-  lines.map((l, i) => `<tspan x="${x}" y="${y + i * lh}">${esc(l)}</tspan>`).join('')
-const arrowHead = (id: string) =>
-  `<defs><marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="head"/></marker></defs>`
-const boxClass = (tone: Tone) =>
-  match(tone)
-    .with('ink', () => 'solid')
-    .with('changes', () => 'solid-primary')
-    .with('new', () => 'dash-new')
-    .with('danger', () => 'solid-danger')
-    .exhaustive()
-
-/** The row of each node: after every node that points to it; a node that only points down sits just above its target. */
-function rowsOf(chart: Flowchart): FlowNode[][] {
-  const incoming = new Map(chart.nodes.map(n => [n.id, chart.edges.filter(e => e.to === n.id).map(e => e.from)]))
-  const depth = new Map<string, number>()
-  const visit = (id: string, path: Set<string>): number => {
-    if (depth.has(id)) return depth.get(id)!
-    if (path.has(id)) return 0
-    path.add(id)
-    const d = Math.max(0, ...incoming.get(id)!.map(f => visit(f, path) + 1))
-    path.delete(id)
-    depth.set(id, d)
-    return d
+  ids.forEach(id => state.has(id) || visit(id))
+  const forward = chart.edges.filter(e => !back.has(`${e.from}>${e.to}`))
+  const rank = new Map(ids.map(id => [id, 0]))
+  for (let pass = 0; pass < ids.length; pass++)
+    for (const e of forward) rank.set(e.to, Math.max(rank.get(e.to)!, rank.get(e.from)! + 1))
+  const rows: string[][] = []
+  for (const id of ids) (rows[rank.get(id)!] ??= []).push(id)
+  // order each row by the mean place of its parents, so few edges cross
+  const place = new Map<string, number>()
+  for (const [r, row] of rows.entries()) {
+    if (!row) continue
+    if (r > 0) {
+      const mean = (id: string) => {
+        const parents = forward.filter(e => e.to === id && place.has(e.from)).map(e => place.get(e.from)!)
+        return parents.length ? parents.reduce((a, b) => a + b, 0) / parents.length : Number.POSITIVE_INFINITY
+      }
+      row.sort((a, b) => mean(a) - mean(b))
+    }
+    row.forEach((id, i) => place.set(id, (i + 0.5) / row.length))
   }
-  chart.nodes.forEach(n => visit(n.id, new Set()))
-  chart.nodes.slice(1).forEach(n => {
-    if (incoming.get(n.id)!.length) return
-    const targets = chart.edges.filter(e => e.from === n.id).map(e => depth.get(e.to)!)
-    if (targets.length) depth.set(n.id, Math.max(0, Math.min(...targets) - 1))
-  })
-  const rows: FlowNode[][] = []
-  for (const n of chart.nodes) (rows[depth.get(n.id)!] ??= []).push(n)
   return rows.filter(Boolean)
-}
-
-export function flowchartSvg(chart: Flowchart, key: string): string {
-  const rows = rowsOf(chart)
-  const widest = Math.max(...rows.map(r => r.length))
-  const W = Math.max(360, widest * 128 + 24)
-  const gap = 16, gapY = 58, pad = 12, lh = 16
-  const at = new Map<string, { x: number; y: number; w: number; h: number }>()
-  const boxes: string[] = []
-  let y = pad
-  for (const row of rows) {
-    const bw = row.length === 1 ? 260 : row.length === 2 ? 160 : Math.floor((W - 2 * pad - gap * (row.length - 1)) / row.length)
-    const chars = Math.max(12, Math.floor(bw / 7.6))
-    const h = Math.max(46, ...row.map(n => 18 + wrap(n.label, chars).length * lh))
-    let x = (W - (row.length * bw + (row.length - 1) * gap)) / 2
-    for (const n of row) {
-      const lines = wrap(n.label, chars)
-      at.set(n.id, { x, y, w: bw, h })
-      boxes.push(`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="12" class="${boxClass(n.tone)}"/>`)
-      const ty = y + h / 2 - ((lines.length - 1) * lh) / 2 + 5
-      boxes.push(`<text text-anchor="middle" font-size="13"${n.tone === 'changes' ? ' class="t-bold"' : ''}>${tspans(lines, x + bw / 2, ty, lh)}</text>`)
-      x += bw + gap
-    }
-    y += h + gapY
-  }
-  const H = y - gapY + pad
-  const lines: string[] = []
-  const labels: string[] = []
-  for (const e of chart.edges) {
-    const a = at.get(e.from)!, b = at.get(e.to)!
-    const [x1, y1, x2, y2] =
-      b.y > a.y ? [a.x + a.w / 2, a.y + a.h, b.x + b.w / 2, b.y] : b.y < a.y ? [a.x + a.w / 2, a.y, b.x + b.w / 2, b.y + b.h] : [a.x + (b.x > a.x ? a.w : 0), a.y + a.h / 2, b.x + (b.x > a.x ? 0 : b.w), b.y + b.h / 2]
-    lines.push(`<path d="M${x1} ${y1} L${x2} ${y2 + (y2 > y1 ? -2 : y2 < y1 ? 2 : 0)}" class="line" marker-end="url(#ah-${key})"/>`)
-    if (!e.label) continue
-    // the middle of a straight line, nearer the target on a diagonal down, nearer the source going up
-    const t = x1 === x2 ? 0.5 : y2 > y1 ? 0.6 : 0.3
-    const mx = x1 + (x2 - x1) * t, my = y1 + (y2 - y1) * t
-    const ll = wrap(e.label, 26)
-    const lw = Math.max(...ll.map(l => l.length)) * 6.6 + 12
-    labels.push(`<rect x="${mx - lw / 2}" y="${my - 9 - (ll.length - 1) * 7}" width="${lw}" height="${18 + (ll.length - 1) * 14}" rx="6" class="edge-label"/>`)
-    labels.push(`<text text-anchor="middle" font-size="11.5" class="t-mono t-muted">${tspans(ll, mx, my + 4 - (ll.length - 1) * 7, 14)}</text>`)
-  }
-  return `<svg class="dg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(key)}">${arrowHead(`ah-${key}`)}${lines.join('')}${boxes.join('')}${labels.join('')}</svg>`
-}
-
-export function sequenceSvg(seq: Sequence, key: string): string {
-  const colW = 118, pad = 14, top = 54
-  const W = pad * 2 + seq.actors.length * colW
-  const cx = new Map(seq.actors.map((a, i) => [a.id, pad + i * colW + colW / 2]))
-  const span = (s: SequenceStep) => Math.abs(cx.get(s.to)! - cx.get(s.from)!)
-  const labelLines = (s: SequenceStep) =>
-    s.kind === 'note' ? wrap(s.label, Math.floor((span(s) + 104) / 7)) : wrap(s.label, Math.max(14, Math.floor(span(s) / 6.6)))
-  const ys: number[] = []
-  let y = top
-  for (const s of seq.steps) {
-    y += 22 + labelLines(s).length * 13 + (s.kind === 'note' ? 6 : 0)
-    ys.push(y)
-  }
-  const H = y + 26
-  const parts: string[] = []
-  for (const a of seq.actors) {
-    const x = cx.get(a.id)!
-    parts.push(`<line x1="${x}" y1="${top - 8}" x2="${x}" y2="${H - 8}" class="lifeline"/>`)
-    parts.push(`<rect x="${x - 50}" y="10" width="100" height="32" rx="10" class="solid"/>`)
-    parts.push(`<text x="${x}" y="31" text-anchor="middle" font-size="12.5" class="t-bold">${esc(a.label)}</text>`)
-  }
-  seq.steps.forEach((s, i) => {
-    const sy = ys[i]!
-    const ll = labelLines(s)
-    if (s.kind === 'note') {
-      const x1 = Math.min(cx.get(s.from)!, cx.get(s.to)!) - 52, x2 = Math.max(cx.get(s.from)!, cx.get(s.to)!) + 52
-      parts.push(`<rect x="${x1}" y="${sy - 24}" width="${x2 - x1}" height="${12 + ll.length * 14}" rx="8" class="note"/>`)
-      parts.push(`<text text-anchor="middle" font-size="11.5">${tspans(ll, (x1 + x2) / 2, sy - 10, 14)}</text>`)
-      return
-    }
-    const x1 = cx.get(s.from)!, x2 = cx.get(s.to)!
-    parts.push(`<path d="M${x1} ${sy} L${x2 + (x2 > x1 ? -3 : 3)} ${sy}" class="${s.reply ? 'line-reply' : 'line'}" marker-end="url(#ah-${key})"/>`)
-    parts.push(`<text text-anchor="middle" font-size="11.5" class="t-mono${s.reply ? ' t-muted' : ''}">${tspans(ll, (x1 + x2) / 2, sy - 8 - (ll.length - 1) * 13, 13)}</text>`)
-  })
-  return `<svg class="dg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(key)}">${arrowHead(`ah-${key}`)}${parts.join('')}</svg>`
 }
 
 /** The row of each slice: after its dependencies, and after the slice before it in its lane, since one builder runs a lane. */
@@ -260,78 +170,145 @@ export function laneRows(slices: LaneSlice[]): Map<string, number> {
   return row
 }
 
-export function lanesSvg(slices: LaneSlice[], key: string): string {
-  const areas = [...new Set(slices.map(s => s.area))]
-  const row = laneRows(slices)
-  const laneW = 168, gap = 14, rowH = 78, top = 40, pad = 10
-  const W = pad * 2 + areas.length * laneW + (areas.length - 1) * gap
-  const H = top + (Math.max(0, ...row.values()) + 1) * rowH + pad
-  const pos = new Map(slices.map(s => [s.id, { x: pad + areas.indexOf(s.area) * (laneW + gap) + 10, y: top + row.get(s.id)! * rowH + 4, w: laneW - 20, h: 52 }]))
-  const bands = areas.map((area, i) => {
-    const x = pad + i * (laneW + gap)
-    return `<rect x="${x}" y="4" width="${laneW}" height="${H - 8}" rx="14" class="band"/><text x="${x + 14}" y="26" font-size="11.5" class="t-mono t-muted">${esc(area.toUpperCase())} · ONE BUILDER</text>`
-  })
-  const lines: string[] = []
-  for (const s of slices) {
-    for (const d of s.depends.filter(id => pos.has(id))) {
-      const a = pos.get(d)!, b = pos.get(s.id)!
-      const from = slices.find(x => x.id === d)!
-      if (from.area === s.area && row.get(s.id)! - row.get(d)! > 1) {
-        // a dependency that skips a row runs on the side rail of the lane, not behind the slices
-        lines.push(`<path d="M${a.x + a.w} ${a.y + a.h / 2} H${a.x + a.w + 5} V${b.y + b.h / 2} H${b.x + b.w + 2}" class="line" marker-end="url(#ah-${key})"/>`)
-      } else if (from.area === s.area) {
-        lines.push(`<path d="M${a.x + a.w / 2} ${a.y + a.h} L${b.x + b.w / 2} ${b.y - 2}" class="line" marker-end="url(#ah-${key})"/>`)
-      } else {
-        const right = b.x > a.x
-        const x1 = a.x + (right ? a.w : 0), y1 = a.y + a.h / 2, x2 = b.x + (right ? 0 : b.w), y2 = b.y + b.h / 2
-        lines.push(`<path d="M${x1} ${y1} C${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2 + (right ? -2 : 2)} ${y2}" class="line" marker-end="url(#ah-${key})"/>`)
-      }
-    }
+// ---------- the HTML ----------
+
+const TONE_OF: Record<Tone, string> = { ink: '', changes: 'primary', new: 'success', danger: 'danger' }
+const WORD_OF: Record<Tone, string> = { ink: '', changes: 'changes', new: 'new', danger: 'error' }
+
+/** `web: the page` puts `web` in the kicker of the node. */
+const splitLabel = (label: string): [string, string] => {
+  const m = /^([\w./-]{1,16}):\s+(.+)$/.exec(label)
+  return m ? [m[1]!, m[2]!] : ['', label]
+}
+
+type NodeRole = 'root' | 'leaf' | 'inner'
+
+function flowNode(node: FlowNode, role: NodeRole): string {
+  const [area, title] = splitLabel(node.label)
+  const kicker = [area, WORD_OF[node.tone]].filter(Boolean).join(' · ')
+  const attrs = match(node.tone)
+    .with('changes', () => ' data-tone="primary" data-state="active"')
+    .with('new', () => ' data-variant="soft" data-tone="success"')
+    .with('danger', () => ' data-variant="soft" data-tone="danger"')
+    .with('ink', () => (role === 'root' ? ' data-variant="root"' : role === 'leaf' && !kicker ? ' data-shape="pill"' : ''))
+    .exhaustive()
+  const kick = kicker ? `<span class="bn-node__kicker">${esc(kicker)}</span>` : ''
+  return `<div class="bn-node" data-node="${esc(node.id)}"${attrs}>${kick}<span class="bn-node__title">${esc(title)}</span></div>`
+}
+
+type Edge = { from: string; to: string; label?: string; tone?: string; dashed?: boolean; main?: boolean }
+
+/** The canvas of a diagram: its nodes, an empty SVG for the edges that the page script draws, and the edge labels. */
+function canvas(kind: string, body: string, edges: Edge[], style = ''): string {
+  const paths = edges
+    .map((e, i) => {
+      const cls = ['bn-edge', e.dashed ? 'bn-edge--dashed' : '', e.main ? 'kd-edge--main' : ''].filter(Boolean).join(' ')
+      const tone = e.tone ? ` data-tone="${e.tone}"` : ''
+      return `<path class="${cls}"${tone} data-edge="${i}" data-from="${esc(e.from)}" data-to="${esc(e.to)}"></path><path class="kd-head"${tone} data-head="${i}"></path>`
+    })
+    .join('')
+  const labels = edges
+    .map((e, i) => (e.label ? `<span class="kd-edge-label" data-label="${i}">${esc(e.label)}</span>` : ''))
+    .join('')
+  const css = style ? ` style="${style}"` : ''
+  return `<div class="kd-dg__scroll"><div class="kd-dg__canvas kd-${kind}" data-kd-canvas${css}>${body}<svg class="kd-edges" aria-hidden="true">${paths}</svg>${labels}</div></div>`
+}
+
+function legend(tones: Tone[]): string {
+  const words = (['changes', 'new', 'danger'] as Tone[]).filter(t => tones.includes(t))
+  if (!words.length) return ''
+  const items = [...words.map(t => `<span data-tone="${TONE_OF[t]}">${WORD_OF[t]}</span>`), '<span>stays as it is</span>']
+  return `<figcaption class="bn-legend">${items.join('')}</figcaption>`
+}
+
+export function flowchartHtml(chart: Flowchart): string {
+  const byId = new Map(chart.nodes.map(n => [n.id, n]))
+  const hasIn = new Set(chart.edges.map(e => e.to))
+  const hasOut = new Set(chart.edges.map(e => e.from))
+  const role = (id: string): NodeRole => {
+    if (!chart.edges.length) return 'inner'
+    if (!hasIn.has(id)) return 'root'
+    return hasOut.has(id) ? 'inner' : 'leaf'
   }
+  const rows = flowLayers(chart)
+    .map(row => `<div class="kd-layer">${row.map(id => flowNode(byId.get(id)!, role(id))).join('')}</div>`)
+    .join('')
+  const edges: Edge[] = chart.edges.map(e => {
+    const tone = TONE_OF[byId.get(e.to)!.tone]
+    return { from: e.from, to: e.to, label: e.label, dashed: e.dashed, tone: tone || undefined, main: Boolean(tone) }
+  })
+  return `<figure class="kd-dg">${canvas('flow', rows, edges)}${legend(chart.nodes.map(n => n.tone))}</figure>`
+}
+
+export function sequenceHtml(seq: Sequence): string {
+  const col = new Map(seq.actors.map((a, i) => [a.id, i + 1]))
+  const heads = seq.actors
+    .map(
+      (a, i) =>
+        `<div class="kd-seq__actor" style="grid-column: ${i + 1}; grid-row: 1"><span class="bn-node" data-shape="pill"><span class="bn-node__title">${esc(a.label)}</span></span></div>`,
+    )
+    .join('')
+  const rows = Math.max(1, seq.steps.length)
+  const lifelines = seq.actors.map((_, i) => `<i class="kd-seq__life" style="grid-column: ${i + 1}; grid-row: 2 / span ${rows}"></i>`).join('')
+  const steps = seq.steps
+    .map((step, k) => {
+      const a = col.get(step.from) ?? 1
+      const b = col.get(step.to) ?? a
+      const [lo, hi] = [Math.min(a, b), Math.max(a, b)]
+      const place = `grid-column: ${lo} / ${hi + 1}; grid-row: ${k + 2}; --span: ${hi - lo + 1}`
+      return match(step)
+        .with(
+          { kind: 'note' },
+          s => `<div class="kd-seq__note" style="${place}"><span class="bn-node" data-variant="soft"><span class="bn-node__meta">${esc(s.label)}</span></span></div>`,
+        )
+        .with({ kind: 'call' }, s => {
+          const way = a === b ? ' is-self' : b < a ? ' is-left' : ''
+          return `<div class="kd-seq__call${s.reply ? ' is-reply' : ''}${way}" style="${place}"><span class="kd-seq__label">${esc(s.label)}</span><i class="kd-seq__line"></i></div>`
+        })
+        .exhaustive()
+    })
+    .join('')
+  const grid = `<div class="kd-seq" style="--actors: ${seq.actors.length}">${heads}${lifelines}${steps}</div>`
+  return `<figure class="kd-dg"><div class="kd-dg__scroll">${grid}</div><figcaption class="kd-dg__note">Solid line: a call. Dashed line: the answer.</figcaption></figure>`
+}
+
+/** The lanes of the slices: one group for each area, since one builder runs a lane, and the `depends` between them. */
+export function lanesFigure(slices: LaneSlice[]): string {
+  const areas = [...new Set(slices.map(s => s.area))]
+  const rows = laneRows(slices)
+  const height = Math.max(0, ...rows.values()) + 1
+  const groups = areas
+    .map(
+      (area, i) =>
+        `<div class="bn-group" style="grid-column: ${i + 1}; grid-row: 1 / -1"><span class="bn-group__label">${esc(area)}</span></div>`,
+    )
+    .join('')
+  const cells = slices
+    .map(s => {
+      const kicker = [s.id, s.size ? `size ${s.size}` : ''].filter(Boolean).join(' · ')
+      const meta = s.acs?.length ? `<span class="bn-node__meta">${s.acs.map(n => `AC${n}`).join(', ')}</span>` : ''
+      const node = `<div class="bn-node" data-node="${esc(s.id)}"><span class="bn-node__kicker">${esc(kicker)}</span><span class="bn-node__title">${esc(s.title)}</span>${meta}</div>`
+      return `<div class="kd-lanes__cell" style="grid-column: ${areas.indexOf(s.area) + 1}; grid-row: ${rows.get(s.id)! + 1}">${node}</div>`
+    })
+    .join('')
+  const ids = new Set(slices.map(s => s.id))
+  const edges: Edge[] = slices.flatMap(s => s.depends.filter(d => ids.has(d)).map(d => ({ from: d, to: s.id })))
+  // the next slice of a lane waits for the builder, also with no `depends`
   for (const area of areas) {
     const lane = slices.filter(s => s.area === area)
-    lane.forEach((s, k) => {
-      const before = lane[k - 1]
-      if (!before || s.depends.includes(before.id)) return
-      const a = pos.get(before.id)!, b = pos.get(s.id)!
-      lines.push(`<path d="M${a.x + a.w / 2} ${a.y + a.h} L${b.x + b.w / 2} ${b.y - 2}" class="line-queue"/>`)
+    lane.slice(1).forEach((s, i) => {
+      if (!edges.some(e => e.from === lane[i]!.id && e.to === s.id)) edges.push({ from: lane[i]!.id, to: s.id, dashed: true })
     })
   }
-  const cards = slices.map(s => {
-    const { x, y, w, h } = pos.get(s.id)!
-    const all = wrap(s.title, 14)
-    const tl = all.length > 2 ? [all[0]!, `${all[1]!}…`] : all
-    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="11" class="solid"/><rect x="${x + 10}" y="${y + 10}" width="30" height="18" rx="5" class="gate-chip"/><text x="${x + 25}" y="${y + 23}" text-anchor="middle" font-size="11" class="t-mono t-bold t-on-accent">${esc(s.id)}</text><text font-size="12">${tspans(tl, x + 48, y + 23, 15)}</text>`
-  })
-  return `<svg class="dg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(key)}">${arrowHead(`ah-${key}`)}${bands.join('')}${lines.join('')}${cards.join('')}</svg>`
+  const style = `grid-template-columns: repeat(${areas.length}, minmax(150px, 1fr)); grid-template-rows: repeat(${height}, auto) 16px`
+  const note = '<figcaption class="kd-dg__note">One builder for each lane. Solid line: waits for that slice. Dashed line: next for the same builder.</figcaption>'
+  return `<figure class="kd-dg">${canvas('lanes', groups + cells, edges, style)}${note}</figure>`
 }
 
-// ---------- the block on the page ----------
-
-const TONE_LEGEND: Record<Tone, string> = {
-  ink: '<span class="lg"><i class="l-solid"></i>stays</span>',
-  changes: '<span class="lg"><i class="l-primary"></i>changes</span>',
-  new: '<span class="lg"><i class="l-dash"></i>new</span>',
-  danger: '<span class="lg"><i class="l-danger"></i>an error answer</span>',
-}
-const figure = (svg: string, legend: string, wide = false) =>
-  `<figure class="dg-block"><div class="dg-wrap${wide ? ' seq' : ''}">${svg}</div><figcaption class="legend">${legend}</figcaption></figure>`
-
-let counter = 0
-
-/** The diagram of a mermaid text in the style of the UI kit, or null when the reader does not know its kind. */
+/** A mermaid text as a diagram of the UI kit, or null for a kind that the kit does not draw. */
 export function renderDiagram(source: string): string | null {
-  const key = `dg${++counter}`
   const chart = parseFlowchart(source)
-  if (chart) {
-    const used = (['ink', 'changes', 'new', 'danger'] as Tone[]).filter(t => chart.nodes.some(n => n.tone === t))
-    return figure(flowchartSvg(chart, key), used.map(t => TONE_LEGEND[t]).join(''))
-  }
+  if (chart) return flowchartHtml(chart)
   const seq = parseSequence(source)
-  if (seq) return figure(sequenceSvg(seq, key), '<span class="lg"><i class="l-line"></i>a call</span><span class="lg"><i class="l-reply"></i>an answer</span>', true)
-  return null
-}
-
-export function lanesFigure(slices: LaneSlice[]): string {
-  return figure(lanesSvg(slices, `lanes${++counter}`), '<span class="lg"><i class="l-line"></i>depends on</span><span class="lg"><i class="l-queue"></i>waits for the same builder</span>')
+  return seq ? sequenceHtml(seq) : null
 }

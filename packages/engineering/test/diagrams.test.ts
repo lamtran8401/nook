@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { laneRows, parseFlowchart, parseSequence, renderDiagram } from '../src/report/diagrams.ts'
+import { flowLayers, lanesFigure, laneRows, parseFlowchart, parseSequence, renderDiagram } from '../src/report/diagrams.ts'
 
 const APPROACH = `flowchart TB
   page["web: page with the status select (new)"] -->|"the picked status"| client["web: client adds ?status= (changes)"]
@@ -36,6 +36,10 @@ describe('parseFlowchart', () => {
     ])
   })
 
+  test('a dotted arrow makes a dashed edge', () => {
+    expect(parseFlowchart('flowchart TB\n  a -.-> b\n  b --> c')?.edges.map(e => e.dashed)).toEqual([true, false])
+  })
+
   test('a text that is not a flowchart is not read', () => {
     expect(parseFlowchart('mindmap\n  root((x))')).toBeNull()
   })
@@ -68,14 +72,50 @@ describe('laneRows', () => {
   })
 })
 
+describe('flowLayers', () => {
+  test('a node sits one row under its lowest parent, and an edge back up does not move it', () => {
+    const chart = parseFlowchart('flowchart TB\n  a --> b\n  b --> c\n  a --> c\n  c --> a')!
+    expect(flowLayers(chart)).toEqual([['a'], ['b'], ['c']])
+  })
+
+  test('the nodes of a row follow the order of their parents, so the edges do not cross', () => {
+    const chart = parseFlowchart('flowchart TB\n  r --> x\n  r --> y\n  y --> p\n  x --> q')!
+    expect(flowLayers(chart)).toEqual([['r'], ['x', 'y'], ['q', 'p']])
+  })
+})
+
 describe('renderDiagram', () => {
-  test('a flowchart becomes an SVG with a box of its tone for each node and a legend of the tones it uses', () => {
+  test('a flowchart becomes rows of nodes, each in the variant of its tone', () => {
     const html = renderDiagram(APPROACH)!
-    expect(html).toContain('<svg class="dg"')
-    expect(html.match(/class="dash-new"/g)?.length).toBe(1)
-    expect(html.match(/class="solid-primary"/g)?.length).toBe(2)
-    expect(html).toContain('class="solid-danger"')
-    expect(html).toContain('<i class="l-dash"></i>new')
+    expect(html.match(/<div class="kd-layer">/g)?.length).toBe(4)
+    expect(html).toContain('<div class="bn-node" data-node="page" data-variant="soft" data-tone="success"><span class="bn-node__kicker">web · new</span><span class="bn-node__title">page with the status select</span></div>')
+    expect(html).toContain('<div class="bn-node" data-node="handler" data-tone="primary" data-state="active"><span class="bn-node__kicker">api · changes</span>')
+    expect(html).toContain('<div class="bn-node" data-node="bad" data-variant="soft" data-tone="danger"><span class="bn-node__kicker">400 · error</span>')
+    expect(html).toContain('<div class="bn-node" data-node="list" data-shape="pill"><span class="bn-node__title">listShipments filters, then sorts</span></div>')
+  })
+
+  test('a node with no edge into it and no tone is the dark root', () => {
+    expect(renderDiagram('flowchart TB\n  a["web: start"] --> b["end"]')).toContain('<div class="bn-node" data-node="a" data-variant="root"><span class="bn-node__kicker">web</span>')
+  })
+
+  test('each edge is a path for the page script, in the tone of the node it reaches, with its label', () => {
+    const html = renderDiagram(APPROACH)!
+    expect(html).toContain('<path class="bn-edge kd-edge--main" data-tone="danger" data-edge="2" data-from="handler" data-to="bad"></path>')
+    expect(html).toContain('<path class="bn-edge" data-edge="3" data-from="handler" data-to="list"></path>')
+    expect(html).toContain('<span class="kd-edge-label" data-label="1">GET /shipments?status=</span>')
+  })
+
+  test('the legend names only the tones that the diagram uses', () => {
+    expect(renderDiagram(APPROACH)).toContain('<figcaption class="bn-legend"><span data-tone="primary">changes</span><span data-tone="success">new</span><span data-tone="danger">error</span><span>stays as it is</span></figcaption>')
+    expect(renderDiagram('flowchart TB\n  a --> b')).not.toContain('bn-legend')
+  })
+
+  test('a sequence diagram puts each call between the columns of its two participants', () => {
+    const html = renderDiagram('sequenceDiagram\n  participant cart as Cart\n  participant bff\n  participant orders\n  cart->>orders: POST /checkout\n  orders-->>cart: hold id')!
+    expect(html).toContain('<div class="kd-seq" style="--actors: 3">')
+    expect(html).toContain('<span class="bn-node" data-shape="pill"><span class="bn-node__title">Cart</span></span>')
+    expect(html).toContain('<div class="kd-seq__call" style="grid-column: 1 / 4; grid-row: 2; --span: 3"><span class="kd-seq__label">POST /checkout</span>')
+    expect(html).toContain('<div class="kd-seq__call is-reply is-left" style="grid-column: 1 / 4; grid-row: 3; --span: 3">')
   })
 
   test('the text of a node is escaped', () => {
@@ -84,5 +124,25 @@ describe('renderDiagram', () => {
 
   test('a kind that it does not draw returns null, so the viewer draws the mermaid', () => {
     expect(renderDiagram('gantt\n  title x')).toBeNull()
+  })
+})
+
+describe('lanesFigure', () => {
+  const slices = [
+    { id: 'T1', title: 'Add the table', area: 'bff', depends: [], acs: [1], size: 'S' },
+    { id: 'T2', title: 'Reserve', area: 'bff', depends: [], acs: [1, 2], size: 'M' },
+    { id: 'T3', title: 'Show the time', area: 'web', depends: ['T1'], acs: [3], size: 'S' },
+  ]
+
+  test('one group for each area and each slice in the cell of its area and row', () => {
+    const html = lanesFigure(slices)
+    expect([...html.matchAll(/<span class="bn-group__label">(\w+)<\/span>/g)].map(m => m[1])).toEqual(['bff', 'web'])
+    expect(html).toContain('<div class="kd-lanes__cell" style="grid-column: 2; grid-row: 2"><div class="bn-node" data-node="T3"><span class="bn-node__kicker">T3 · size S</span><span class="bn-node__title">Show the time</span><span class="bn-node__meta">AC3</span></div></div>')
+  })
+
+  test('a depends is a solid edge, and the next slice of a lane with no depends a dashed one', () => {
+    const html = lanesFigure(slices)
+    expect(html).toContain('<path class="bn-edge" data-edge="0" data-from="T1" data-to="T3"></path>')
+    expect(html).toContain('<path class="bn-edge bn-edge--dashed" data-edge="1" data-from="T1" data-to="T2"></path>')
   })
 })

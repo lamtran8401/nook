@@ -1,3 +1,5 @@
+import { uiKit } from '@kit/env/env.ts'
+
 import { dateOf, frontMatter } from '../documents/markdown.ts'
 import { TasksDocument } from '../documents/tasks.ts'
 import type { WorkDoc } from '../documents/work-folder.ts'
@@ -5,12 +7,12 @@ import type { Engineering } from '../service.ts'
 import type { Event } from '../stores/events.ts'
 import type { Item } from '../stores/items.ts'
 import { lanesFigure } from './diagrams.ts'
-import { escape, type PageDoc, renderDocument } from './page-markdown.ts'
-import { PAGE_FONTS, PAGE_STYLE } from './page-style.ts'
+import { PAGE_LAYOUT, PAGE_SCRIPT } from './page-layout.ts'
+import { docTitle, escape, type PageDoc, renderDocument } from './page-markdown.ts'
 
-/** `item page`: one HTML page of an item from its three documents and the ledger, for the artifact viewer. */
+/** `item page`: one HTML page of an item from its three documents and the ledger, built with the UI kit, for the artifact viewer. */
 
-export type PageSlice = { id: string; title: string; area: string; depends: string[]; acs: number[] }
+export type PageSlice = { id: string; title: string; area: string; depends: string[]; acs: number[]; size?: string | null }
 
 const TABS: { doc: PageDoc; file: WorkDoc; name: string }[] = [
   { doc: 'spec', file: 'spec.md', name: 'Spec' },
@@ -24,17 +26,20 @@ export function itemPage(eng: Engineering, id: string): string {
   const folder = eng.folder(id)
   const texts = new Map(TABS.map(tab => [tab.file, folder.read(tab.file)]))
   const slices = slicesOf(eng, id, texts.get('tasks.md') ?? null)
+  const kit = uiKit()
   return [
     `<title>${escape(`${item.id}: ${item.title}`)}</title>`,
     '<meta name="claude:viewport-fit-sides" content="cover">',
-    PAGE_FONTS,
-    `<style>${PAGE_STYLE}</style>`,
-    '<div class="page">',
+    `<style>${kit.css}\n${PAGE_LAYOUT}</style>`,
+    '<div class="bn-root kd-page">',
     header(item, eng.stores.events.history(id), texts),
-    tabBar(),
-    `<main class="panels">${TABS.map((tab, i) => panel(item, tab, texts.get(tab.file) ?? null, slices, i === 0)).join('\n')}</main>`,
+    '<div class="bn-tabs" data-bn-tabs>',
+    tabList(),
+    ...TABS.map((tab, i) => panel(item, tab, texts.get(tab.file) ?? null, slices, i === 0)),
     '</div>',
-    `<script>${TAB_SCRIPT}</script>`,
+    '</div>',
+    `<script>${kit.js}</script>`,
+    `<script>${PAGE_SCRIPT}</script>`,
   ].join('\n')
 }
 
@@ -44,7 +49,6 @@ function slicesOf(eng: Engineering, id: string, tasks: string | null): PageSlice
   if (live.length || tasks === null) return live
   return TasksDocument.parse(tasks).slices
 }
-
 
 /** The slices that start first, and the slices of different areas that can run side by side. */
 export function laneNote(slices: PageSlice[]): string {
@@ -89,73 +93,51 @@ export function auditLine(events: Event[], texts: Map<WorkDoc, string | null>): 
   return [...moves, ...files].join(' · ')
 }
 
+const badge = (text: string, attrs = '') => `<span class="bn-badge" data-size="sm"${attrs}>${escape(text)}</span>`
+
 function header(item: Item, events: Event[], texts: Map<WorkDoc, string | null>): string {
-  const chips = [
-    `<span class="chip state"><b>state</b> ${escape(item.state)}</span>`,
-    `<span class="chip"><b>kind</b> ${escape(item.kind)}</span>`,
-    `<span class="chip"><b>size</b> ${escape(item.size)}</span>`,
-    ...item.areas.map(a => `<span class="chip area">${escape(a)}</span>`),
+  const badges = [
+    badge(item.state, ' data-tone="primary"'),
+    badge(`kind ${item.kind}`, ' data-variant="outline"'),
+    badge(`size ${item.size}`, ' data-variant="outline"'),
+    ...item.areas.map(a => badge(a, ' data-variant="plain"')),
   ]
   const audit = auditLine(events, texts)
-  return `<header class="hero"><span class="label">Item ${escape(item.id)}</span><h1>${escape(`${item.id}: ${item.title}`)}</h1><div class="chips">${chips.join('')}</div>${audit ? `<p class="audit">${escape(audit)}</p>` : ''}</header>`
+  return [
+    '<header class="kd-head">',
+    `<span class="kd-eyebrow">Item ${escape(item.id)}</span>`,
+    `<h1 class="bn-page-head__title">${escape(item.title)}</h1>`,
+    `<div class="bn-row">${badges.join('')}</div>`,
+    audit ? `<p class="kd-audit">${escape(audit)}</p>` : '',
+    '</header>',
+  ].join('')
 }
 
-const tabBar = () =>
-  `<nav class="bar" aria-label="Documents"><div class="seg" role="tablist" aria-label="Documents of the item">${TABS.map(
+const tabList = () =>
+  `<div class="bn-tabs__list" role="tablist" aria-label="Documents of the item">${TABS.map(
     (tab, i) =>
-      `<button type="button" role="tab" data-tab="${tab.doc}" aria-selected="${i === 0}">${tab.name}</button>`,
-  ).join('')}</div></nav>`
+      `<button type="button" class="bn-tabs__tab" role="tab" id="tab-${tab.doc}" data-doc="${tab.doc}" aria-controls="panel-${tab.doc}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}">${tab.name}</button>`,
+  ).join('')}</div>`
 
 function panel(item: Item, tab: (typeof TABS)[number], text: string | null, slices: PageSlice[], shown: boolean): string {
   const front = text === null ? {} : frontMatter(text)
-  const chips = [
-    `<span class="chip path">work/${escape(item.id)}/${tab.file}</span>`,
+  const meta = [
+    `work/${item.id}/${tab.file}`,
     ...Object.entries(front)
       .filter(([key]) => key !== 'id')
-      .map(([key, value]) => `<span class="chip"><b>${escape(key)}</b> ${escape(chipValue(value))}</span>`),
+      .map(([key, value]) => `${key} ${metaValue(value)}`),
   ]
-  const lanesPart = tab.doc === 'tasks' ? lanesSection(item, slices) : ''
-  const body = text === null ? `<p class="empty">${tab.file} is not written yet.</p>` : renderDocument(text, tab.doc)
-  return `<div class="panel${shown ? '' : ' is-hidden'}" role="tabpanel" data-panel="${tab.doc}"${shown ? '' : ' aria-hidden="true"'}><div class="chips">${chips.join('')}</div>${lanesPart}<article class="doc">${body}</article></div>`
+  const title = text === null ? null : docTitle(text)
+  const head = `<div class="kd-doc-head"><p class="kd-doc-meta">${meta.map(escape).join(' · ')}</p>${title ? `<h2 class="kd-doc-title">${escape(title)}</h2>` : ''}</div>`
+  const lanes = tab.doc === 'tasks' ? lanesSection(item, slices) : ''
+  const body = text === null ? `<p class="kd-empty">${tab.file} is not written yet.</p>${lanes}` : renderDocument(text, tab.doc, lanes)
+  return `<div class="bn-tabs__panel" role="tabpanel" id="panel-${tab.doc}" aria-labelledby="tab-${tab.doc}"${shown ? '' : ' hidden'}>${head}${body}</div>`
 }
 
-const chipValue = (value: unknown) =>
+const metaValue = (value: unknown) =>
   Array.isArray(value) ? value.join(', ') : value instanceof Date ? value.toISOString().slice(0, 10) : String(value ?? '')
 
 function lanesSection(item: Item, slices: PageSlice[]): string {
-  if (!slices.length)
-    return `<p class="empty">No slices yet: kit eng task import ${escape(item.id)}.</p>`
-  return `<section class="sec"><h3><span class="label">Lanes from the ledger</span></h3>${lanesFigure(slices)}<p class="lanes-note">${escape(laneNote(slices))}</p></section>`
+  if (!slices.length) return `<p class="kd-empty">No slices yet: kit eng task import ${escape(item.id)}.</p>`
+  return `<section class="kd-sec"><h2 class="kd-sec__title">Lanes</h2>${lanesFigure(slices)}<p class="kd-lanes-note">${escape(laneNote(slices))}</p></section>`
 }
-
-const TAB_SCRIPT = `
-(function () {
-  var tabs = document.querySelectorAll('[data-tab]')
-  var panels = document.querySelectorAll('[data-panel]')
-  function show(name) {
-    tabs.forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === name)) })
-    panels.forEach(function (p) {
-      var off = p.dataset.panel !== name
-      p.classList.toggle('is-hidden', off)
-      if (off) p.setAttribute('aria-hidden', 'true'); else p.removeAttribute('aria-hidden')
-    })
-  }
-  tabs.forEach(function (b) {
-    b.addEventListener('click', function () {
-      show(b.dataset.tab)
-      try { history.replaceState(null, '', '#' + b.dataset.tab) } catch (e) {}
-    })
-  })
-  var start = location.hash.replace('#', '')
-  if (start === 'spec' || start === 'plan' || start === 'tasks') show(start)
-  // a diagram wider than the screen opens at its middle; the viewer draws mermaid after load, so this runs a few times
-  function center() {
-    document.querySelectorAll('.dg-wrap').forEach(function (w) {
-      if (w.dataset.centered || !w.querySelector('svg')) return
-      if (w.scrollWidth > w.clientWidth) w.scrollLeft = (w.scrollWidth - w.clientWidth) / 2
-      w.dataset.centered = '1'
-    })
-  }
-  ;[300, 1000, 2500].forEach(function (ms) { setTimeout(center, ms) })
-})()
-`

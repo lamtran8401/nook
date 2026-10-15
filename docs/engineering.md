@@ -123,17 +123,17 @@ Every read command takes `--json`. Exit codes: 0 ok, 1 error, 2 usage, 3 refused
 | contract | `brief --json` (BriefLine: items that wait for the owner = urgency now; open blocking questions; failed slices; items in cooking with no activity for a day), `doctor --json` (unknown areas, a missing `checks`, drift after approve, cooking with no slices, waiting or failed slices, two items in one area, a blocking question open for more than a day), `init` (the same folders that `kit init` makes through the pack module), `hook <name>` |
 
 A kit-made id is `IT-` and one more than the highest IT number of the ledger, with three digits at least: `IT-001`, `IT-042`, `IT-1000`.
-`item page` builds one HTML page from `spec.md`, `plan.md`, `tasks.md` and the ledger, for the artifact viewer. It has no doctype and no `html` or `body` tag. The page holds:
+`item page` builds one HTML page from `spec.md`, `plan.md`, `tasks.md` and the ledger, for the artifact viewer. It has no doctype and no `html` or `body` tag. It uses the Bench UI kit of `plugins/core/ui/bench/`: the tokens, the `bn-*` components and their script go inline into the page. The page holds:
 | Part | What it shows |
 |---|---|
-| header | the id, the title, the state, the kind and the size; an audit line with the date of each move and the `updated` date of each document |
-| overview | a mermaid mindmap: the item at the root, then the Why, the areas, the criteria and the slices |
-| tabs | Spec, Plan and Tasks, each document in the style of the kit; a mermaid block stays a mermaid block |
-| lanes | in the Tasks tab: a mermaid flowchart from the ledger, one subgraph for each area, an edge for each `depends` |
+| header | the id, the title, badges for the state, the kind, the size and the areas; an audit line with the date of each move and the `updated` date of each document |
+| tabs | Spec, Plan and Tasks; each tab shows the path and the front matter of its document, then the document with the components of the UI kit |
+| diagrams | a mermaid flowchart or sequence diagram becomes nodes of the UI kit; the page script draws the edges; a mermaid block of another kind stays a mermaid block |
+| lanes | in the Tasks tab, after the In short block: one group for each area, a node for each slice, a solid edge for each `depends`, a dashed edge to the next slice of a lane |
 | lane line | the slices that start first, and the slices of different areas that run side by side |
 
 The audit line names start, agree, approve, begin, submit and accept, when they happened.
-The mindmap puts each criterion under the area of its slice or its Proof row. With no area, it goes under its tag.
+A node label `area: text` puts the area in the kicker of the node. The marks `(new)`, `(changes)` and `(error)` at the end of a label set its tone.
 Without `--out` it prints the page. With `--out` it writes the file and prints its path. A reader can print the page but cannot use `--out`.
 `verify` runs the checks of each area of the item in the area folder (or the `verify` template of the section with `{area}`), writes one `check_run` row for each check, and keeps the last 4000 characters of output. `--last` prints the last run without a new run.
 `task prove` makes a git worktree of the area at the merge base of the branch and the first protected branch, copies the new test files of the slice into it, and runs the `test` command of the area with `{files}`. A failure there is `proven`; a pass there is `weak` (the tests cannot fail); a load or import error is `none`. The result goes into `slice.proof`. Submit warns on a done slice with proof `none` or `weak`; it does not block.

@@ -7,6 +7,7 @@ export { KitConfig, strings } from './kit-config.ts'
 export { type ActivePack, activePacks } from './packs.ts'
 export type { Finding, GateResult, PackModule, WaitingGate } from './pack-module.ts'
 export { projectRoot } from './project.ts'
+export { tokensCss, type UiKit, uiKit } from './ui-kit.ts'
 
 export const parseKitConfig = (source: string, file: string): KitConfig => KitConfig.parse(source, file)
 export const readEnvironment = (dir: string): Environment => Environment.read(dir)
