@@ -68,7 +68,7 @@ function parse(command: Command, rest: string[]): Context {
   )
   let parsed: ReturnType<typeof parseArgs>
   try {
-    parsed = parseArgs({ args: rest, options, allowPositionals: true, strict: true })
+    parsed = parseArgs({ args: spreadLists(rest, command.flags ?? {}), options, allowPositionals: true, strict: true })
   } catch (error) {
     throw usage((error as Error).message.replace(/^.*?: /, ''), `run with --help to see the flags`)
   }
@@ -85,6 +85,25 @@ function parse(command: Command, rest: string[]): Context {
       process.stderr.write(`${message}\n`)
     },
   }
+}
+
+/** `--files a b c` as `--files a --files b --files c`: a list flag takes each word up to the next flag. */
+function spreadLists(rest: string[], flags: Record<string, Flag>): string[] {
+  const out: string[] = []
+  let list: string | null = null
+  for (const [i, word] of rest.entries()) {
+    if (word === '--') return [...out, ...rest.slice(i)]
+    if (word.startsWith('-')) {
+      const name = /^--([\w-]+)$/.exec(word)?.[1]
+      list = name && flags[name]?.list ? word : null
+      out.push(word)
+      continue
+    }
+    // the first word after the flag is its own value; the next ones repeat the flag
+    if (list && out.at(-1) !== list) out.push(list)
+    out.push(word)
+  }
+  return out
 }
 
 function report(program: Program, command: Command, error: unknown): number {

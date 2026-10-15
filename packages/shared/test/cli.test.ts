@@ -49,6 +49,16 @@ describe('run', () => {
     expect(out).toBe('SHOP-1 in bff and web\n')
   })
 
+  test('a list flag takes every word after it up to the next flag', async () => {
+    await run(program, ['eng', 'item', 'show', 'SHOP-1', '--area', 'bff', 'web', 'api', '--json'])
+    expect(JSON.parse(out)).toEqual({ id: 'SHOP-1', areas: ['bff', 'web', 'api'] })
+  })
+
+  test('the words after a list flag are not arguments of the command', async () => {
+    await run(program, ['eng', 'item', 'show', '--area', 'bff', 'web'])
+    expect(err).toContain('give the item id')
+  })
+
   test('prints the value as JSON with --json', async () => {
     await run(program, ['eng', 'item', 'show', 'SHOP-1', '--area', 'bff', '--json'])
     expect(JSON.parse(out)).toEqual({ id: 'SHOP-1', areas: ['bff'] })
