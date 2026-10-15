@@ -11,7 +11,8 @@ import { GitRepo } from './repo.ts'
 
 /**
  * The proof of a slice: its new tests run on the base of the branch, with no code of the slice.
- * A failure proves the tests (`proven`); a pass means they cannot fail (`weak`); a load error, `none`.
+ * A failure proves the tests (`proven`); a pass means they cannot fail (`weak`); a load error, `none`,
+ * unless the error names code that the branch adds: then the tests need the new code, and that proves them.
  */
 
 export type ProofResult = { proof: Proof; note: string }
@@ -24,7 +25,7 @@ export const isTestFile = (file: string) =>
 
 /** The test did not run: a missing module, an import, a compile or a type error. */
 const LOAD_ERROR =
-  /Cannot find module|Failed to resolve import|Module not found|ModuleNotFoundError|ImportError|SyntaxError|error TS\d+|cannot find package|is not a function|is not defined|has no exported member|does not provide an export|No such file or directory/
+  /Cannot find module|Failed to resolve import|Module not found|ModuleNotFoundError|ImportError|SyntaxError|error TS\d+|cannot find package|is not a function|is not defined|has no exported member|does not provide an export|No such file or directory/i
 
 const DEPENDENCIES = ['node_modules', '.venv', 'venv', 'vendor']
 const PROVE_LIMIT_MS = 4 * 60 * 1000
@@ -38,15 +39,19 @@ const firstLines = (output: string) =>
     .join(' | ')
     .slice(0, 300)
 
-export function classify(exitCode: number, output: string): ProofResult {
+/** `branchCode`: the files of the branch that are not tests and differ from the base. */
+export function classify(exitCode: number, output: string, branchCode: string[] = []): ProofResult {
   if (exitCode === 0)
     return { proof: 'weak', note: 'the tests pass on the base, with no code of the slice: they cannot fail' }
   const load = LOAD_ERROR.exec(output)
-  if (load)
-    return {
-      proof: 'none',
-      note: `the tests did not run on the base (${load[0]}): ${firstLines(output.slice(Math.max(0, load.index - 80)))}`,
-    }
+  if (load) {
+    const lines = firstLines(output.slice(Math.max(0, load.index - 80)))
+    const near = output.slice(Math.max(0, load.index - 200), load.index + 300)
+    const needed = branchCode.find(file => near.includes(file.replace(/\.[^/.]+$/, '')))
+    if (needed)
+      return { proof: 'proven', note: `the tests fail on the base because they need code that the branch adds (${needed}): ${lines}` }
+    return { proof: 'none', note: `the tests did not run on the base (${load[0]}): ${lines}` }
+  }
   return { proof: 'proven', note: `the tests fail on the base: ${firstLines(output)}` }
 }
 
@@ -74,7 +79,7 @@ export class Prover {
     try {
       this.prepare(copy, tests)
       const run = runShell(test.replace('{files}', tests.map(quote).join(' ')), copy, PROVE_LIMIT_MS)
-      return classify(run.code, run.output)
+      return classify(run.code, run.output, this.repo.changedSince(base).filter(file => !isTestFile(file)))
     } finally {
       this.repo.removeWorktree(copy)
     }

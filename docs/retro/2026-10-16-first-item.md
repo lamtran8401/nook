@@ -1,6 +1,6 @@
 # Retro: the first item through the flow
 
-> In short: IT-1 of the sandbox was the first item through the whole flow, from intake to close. It showed nine faults of the kit and of the lead. Eight are fixed; one waits for the owner.
+> In short: IT-1 of the sandbox was the first item through the whole flow, from intake to close. It showed ten faults of the kit and of the lead. All ten are fixed.
 
 ## Faults and fixes
 
@@ -15,10 +15,7 @@
 | The counts of a review came from the lead's own run. | `item verify` printed only a mark for each check. | `item verify` prints the counts of each check (`2249fff`). |
 | A guess flip on a done item would send finished slices back to `todo`. | The flip reset slices in every state. | On a done item a flip records the answer only (`3240c0f`). |
 | A small item used six review agents, three of them at once. | `/cook` reviewed each slice of an M item; `/check` started one code reviewer for each area. | An S or M item gets one code reviewer in `/check`, for every area, before the AC reviewer (`9c208a4`). |
-
-## Waits for the owner
-
-- A new test file or a new export makes the proof `none`, because the tests cannot load on the base. T1 and T4 of IT-1 had this proof. The proposal: read a missing module or a missing export that the slice adds as `proven`.
+| A new file or a new export made the proof `none`, as for T1 and T4. | A load error on the base counted as "the tests did not run". | A load error that names a file that the branch adds or changes is `proven` (the owner agreed). |
 
 ## Kept
 

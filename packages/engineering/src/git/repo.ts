@@ -39,6 +39,14 @@ export class GitRepo {
     return this.isRepo() ? this.run('status', '--porcelain').out.split('\n').filter(Boolean) : []
   }
 
+  /** The files that differ from `rev` in the working tree, the new ones that git does not track yet among them. */
+  changedSince(rev: string): string[] {
+    const lines = (run: GitRun) => (run.ok ? run.out.split('\n').filter(Boolean) : [])
+    const changed = lines(this.run('diff', '--name-only', rev))
+    const added = lines(this.run('ls-files', '--others', '--exclude-standard'))
+    return [...new Set([...changed, ...added])]
+  }
+
   mergeBase(a: string, b: string): GitRun {
     return this.run('merge-base', a, b)
   }

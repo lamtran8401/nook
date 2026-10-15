@@ -8,6 +8,22 @@ describe('classify', () => {
     expect(classify(1, "Error: Cannot find module './x'").proof).toBe('none')
     expect(classify(1, 'expect(received).toBe(expected)').proof).toBe('proven')
   })
+
+  test('a missing export of a file that the branch changes is proven: the tests need the new code', () => {
+    const output = "SyntaxError: Export named 'STATUSES' not found in module '/home/.kit/prove/IT-1-T1/src/shipments.ts'."
+    expect(classify(1, output, ['src/shipments.ts'])).toEqual({
+      proof: 'proven',
+      note: "the tests fail on the base because they need code that the branch adds (src/shipments.ts): SyntaxError: Export named 'STATUSES' not found in module '/home/.kit/prove/IT-1-T1/src/shipments.ts'.",
+    })
+  })
+
+  test('a missing module that the branch adds is proven', () => {
+    expect(classify(1, "error: Cannot find module '../src/page.ts' from '/home/test/page.test.ts'", ['src/page.ts']).proof).toBe('proven')
+  })
+
+  test('a load error that names no code of the branch stays none', () => {
+    expect(classify(1, "error: Cannot find package 'happy-dom' from '/home/test/page.test.ts'", ['src/page.ts']).proof).toBe('none')
+  })
 })
 
 describe('isTestFile', () => {
