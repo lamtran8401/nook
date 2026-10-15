@@ -600,14 +600,15 @@ export class Engineering {
       .with('flip', () => ['guess flip', 'flipped'] as const)
       .exhaustive()
     this.permissions.assert(action)
-    this.item(id)
+    // a done item is accepted work: a flip records what the code took, and sends no slice back
+    const rework = this.item(id).state !== 'done'
     const guess = this.stores.guesses.find(id, gid.toUpperCase())
     if (!guess) throw usage(`${id} has no guess ${gid}`, `kit eng guesses ${id}`)
     if (guess.status !== 'open')
       throw refused(`${guess.id} is ${guess.status}`, 'record a new guess when the answer changed again')
     const reset = this.ledger.write(() => {
       this.stores.guesses.decide(id, guess.id, status, answer ?? null)
-      const reset = decision === 'flip' ? this.resetSlices(id, guess) : []
+      const reset = decision === 'flip' && rework ? this.resetSlices(id, guess) : []
       const back = reset.length ? `; back to todo: ${reset.join(', ')}` : ''
       this.stores.events.record(id, 'guess', {
         reason: `${guess.id} ${status}${back}${answer ? `; answer: ${answer}` : ''}`,

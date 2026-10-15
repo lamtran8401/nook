@@ -129,4 +129,15 @@ describe('Engineering.addGuess and decideGuess', () => {
     const second = lead.addGuess('SHOP-1', { question: 'retry count?', took: '3', other: '5', impact: 'low', slices: [] })
     expect(lead.decideGuess('SHOP-1', second.id, 'accept').status).toBe('accepted')
   })
+
+  test('a flip on a done item records the answer and resets no slice', () => {
+    itemAt(t, 'cooking')
+    const lead = t.kit(LEAD)
+    lead.moveSlice('start', 'SHOP-1', 'T1')
+    lead.moveSlice('done', 'SHOP-1', 'T1', { files: ['T1.ts'] })
+    lead.addGuess('SHOP-1', { question: 'which time zone?', took: 'UTC', other: 'local', impact: 'low', slices: ['T1'] })
+    lead.ledger.run("UPDATE item SET state = 'done' WHERE id = 'SHOP-1'")
+    const flipped = lead.decideGuess('SHOP-1', 'G1', 'flip', 'the code took local time')
+    expect([flipped.status, flipped.reset, lead.stores.slices.list('SHOP-1').map(s => s.state)]).toEqual(['flipped', [], ['done']])
+  })
 })
