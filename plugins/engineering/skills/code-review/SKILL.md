@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Review a done slice or the full diff of an item with fresh eyes through the code-reviewer agent: a fixed blocking list sends work back, the rest are nits. Use in /cook (M, L) and /check. Not for your own diff: clean-code. Not the bundled one."
+description: "Review a done slice or the full diff of an item with fresh eyes through the code-reviewer agent: a fixed blocking list sends work back, the rest are nits. Use in /cook (L) and /check. Not for your own diff: clean-code. Not the bundled one."
 argument-hint: "<item id> [<T>]"
 allowed-tools: Bash(kit eng *), Bash(git diff *), Read
 ---
@@ -11,17 +11,19 @@ The reviewer of `/check` judges the criteria. This review judges the code.
 
 ## When
 ```
-/cook    M or L item   each slice, after task done                the files of the slice (kit eng task show <id> <T>)
-/check   every item    once, in the same turn as the reviewer     the full diff of each area against its base
+/cook    L item        each slice, after task done                the files of the slice (kit eng task show <id> <T>)
+/check   every item    once, one agent for every area             the full diff of each area against its base
 ```
-An S item gets the review in `/check` only.
+An S or M item gets the review in `/check` only.
+One code-reviewer agent reads every area of the item in one run. Never start one agent for each area.
+A second round of `/check` reviews only the files that changed since the last review.
 
 ## Order
 1. Take the scope: the files of the slice, or the full diff of each area.
 2. Start the Agent tool (no `name`: a subagent) with `subagent_type: kit-engineering:code-reviewer` and this prompt:
    ```
    Item: <id>. Scope: slice <T> | the full item.
-   Area: <area>, folder <path>, base <branch>. Files: <list> | the full diff.
+   Areas: <area> folder <path> base <branch>, one line for each area. Files: <list> | the full diff.
    Plan: work/<id>/plan.md (the dependencies it names).
    ```
 3. Read the verdict. The blocking list lives in the agent file; only a finding on it sends work back. A pass with nits: keep the nits for the report of the stage.

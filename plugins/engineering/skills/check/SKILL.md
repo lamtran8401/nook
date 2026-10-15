@@ -14,13 +14,15 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
 ## Order
 1. Run `kit eng pickup <id>`. The state must be `checking`; else say so and stop.
 2. Read the last verify: `kit eng item verify <id> --last`. No code changes in checking, so it holds. When it is missing or failed, run `verify` first.
-3. Start two agents in the same turn, each with `kit eng item brief <id>`, the folder of each area and the verify output:
-   - `kit-engineering:reviewer`: it reads the spec and the diff, finds one negative case for each AC, and marks each met AC itself with `kit eng item ac done <id> <n> --evidence "<text>" --grade run|sourced|judged|owner`.
-   - `code-review`: the fresh reviewer on the full diff of each area.
-   For a contract change, add `contract-check`.
+3. Start two agents, one after the other, each with `kit eng item brief <id>`, the folder of each area and the verify output:
+   - `code-review` first: one fresh reviewer on the full diff of every area. A blocking finding goes to step 5 before any AC is marked.
+   - then `kit-engineering:reviewer`: it reads the spec and the diff, finds one negative case for each AC, and marks each met AC itself with `kit eng item ac done <id> <n> --evidence "<text>" --grade run|sourced|judged|owner`.
+   For a contract change, add `contract-check`. Start no other agent.
+   A second round after a reject: review only what changed, and give the reviewer only the ACs that the change touches.
 4. Read `kit eng item ac list <id>`. Check each mark: the evidence names a test, a file and line, or output. A mark with no evidence text is a gap: `kit eng item ac undo <id> <n>`.
 5. An AC not met, or a blocking finding: `kit eng item reject <id> --reason "<AC n or file:line: what>"`. Stop. Next: `/cook <id>`.
 6. Every AC met: report with the weakest evidence first, the nits, what was not confirmed, and the manual checks.
+   With nits: ask the owner once, clean them in this item now, or leave them. To clean them, the lead runs `kit eng item reject <id> --reason "nits: <list>"`.
    Say: accept in your terminal: `kit eng item accept <id>`. Offer `/walkthrough <id>`. Stop. Next: `/close <id>`.
 
 Kind `investigate`: the reviewer checks `findings.md`. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.

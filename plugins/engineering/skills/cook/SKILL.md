@@ -15,7 +15,7 @@ The lead directs; a builder writes the code, one for each area. Who builds: `bri
    A refusal names the gap (an area in use, a protected branch, a changed document). Report it; do not work around it.
 3. The loop, until no slice is `todo`, `running` or `waiting`:
    - `kit eng task list <id> --ready`: give each ready slice to the builder of its area; start one when the area has none (at most 4).
-   - a slice is done: check its evidence (`kit eng task show <id> <T>`: files, proof). M or L item: run `code-review`; a blocking finding reopens it: `kit eng task reopen <id> <T> --reason "<file:line> <what>"`.
+   - a slice is done: check its evidence (`kit eng task show <id> <T>`: files, proof). An L item: run `code-review` on the slice; a blocking finding reopens it: `kit eng task reopen <id> <T> --reason "<file:line> <what>"`. An S or M item gets its code review in `/check`.
    - `--state waiting`: look for the answer in `spec.md`, `plan.md`, the ADRs. Found: `kit eng task resume <id> <T>` and send it to the builder. Not found: collect it for one owner round, as `flow.md` says.
    - `--state failed`: read the reason. `kit eng task retry <id> <T>`, or `kit eng item replan <id> --reason "..."` when the plan is wrong.
 4. Run `verify`: the verifier runs `kit eng item verify <id>` and `task prove` for each done slice. A failing area goes back to its builder with the first error lines.

@@ -27,6 +27,7 @@ v0.1 has the packs core and engineering. `kit eng …` runs the commands of engi
 - A guard hook blocks when it cannot decide. A helper hook (style, context) lets the call pass when it fails.
 - `kit init` writes only what it marks: the kit block, `.claude/rules/kit/`, its settings keys, `.kit/`. Never a line of the owner.
 - Write clear code: clear names, small functions, early returns.
+- Each edit of the kit code leaves `kit` runnable. The hooks run this code, so a broken kit blocks the guards of the session. Write a new function before the line that calls it, or write the whole file at once.
 
 ## Comments
 - Comment only hard logic, in one or two lines: what and why.
