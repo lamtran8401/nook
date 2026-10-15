@@ -10,55 +10,45 @@ The subject is a prompt: a question about the code, or the open changes of the e
 - `kit eng area status` lists each area with its branch and its dirty files.
 - A question about a mechanism: read the code that answers it, from the entry point to the effect.
 - Open changes: read `git -C <folder> diff HEAD` and the commits of the branch against its base.
-- There is no spec. "How each AC is met" becomes "What it does": the goal from the owner's words or the commit messages, where the code does it, the evidence.
-- The verdict says that no plan and no review exist for this change.
+- There is no spec. "Requirements met" becomes "What it does": the goal from the owner's words or the commit messages.
 
 ## The six parts
-### The verdict
-Five lines or fewer: the verdict of `/check`, the weakest evidence, and the one thing the owner must look at.
-In an auto run, say first that the lead passed the plan gate and the owner did not read the plan.
+### In short
+A quote that starts with `In short:`. Two or three sentences: what the person can do now, and where the work happens.
 
 ### What changed
-A table from the diff, not from the plan: one row for each file, with the change and the slice and ACs it serves.
-| File | Change | Slice and ACs |
-|---|---|---|
-| `bff/src/shipments/list.ts` | reads `status`, filters in the query | T1: AC1 to AC3 |
-| `bff/migrations/0042_status.sql` | an index on status | T1 |
-| `frontend/src/shipments/StatusFilter.tsx` | new control | T2: AC1 |
-| `frontend/src/shipments/export.ts` | passes the status to the export | T2: AC5 |
-
-### One request, step by step
-One real request or user action through the changed code. Number the steps. Give `file:line` for each. Mark the new lines.
+A ```tree block from the diff, not from the plan. A line that ends in `/` is a folder. A file line is the name, its mark and a short note, with two spaces or more between them. The marks are `new`, `changed`, `deleted` and `moved`.
 ```
-1. The shipper picks "delivered" in StatusFilter.tsx:22 (new).
-2. ShipmentList.tsx:41 calls GET /shipments?status=delivered (new parameter).
-3. bff list.ts:42 validates the status against the public list (new) and list.ts:51 adds it to the query (new).
-4. The rows come back; ShipmentList.tsx:58 renders them. On an error, ShipmentList.tsx:60 shows "Unable to filter" (new).
-```
-A callout goes where the owner reads the part it is about:
-```
-   > Need to know: export.ts:31 reuses this call, so the export now returns the filtered rows. Tell support.
+bff/
+  src/shipments/
+    list.ts  changed  reads the status and filters in the query
+  migrations/0042_status.sql  new  an index on status
+frontend/
+  src/shipments/StatusFilter.tsx  new  the status control
+  src/shipments/legacy-filter.ts  deleted  the old filter
 ```
 
-### How each AC is met
-| AC | Where | Evidence | Grade |
-|---|---|---|---|
-| AC1 the 5 public statuses | `list.ts:40-48` | `list.test.ts:42` fails on the base | run |
-| AC4 the banner | `ShipmentList.tsx:60` | `ShipmentList.test.tsx:60` asserts the text | run |
-| AC4 the banner on the page | the page | the owner looks | owner |
+### How it works
+One mermaid flowchart of the flow, top to bottom. Mark a part that changed with `(changes)`, a new part with `(new)`, an error path with `(error)`. Put the area first in a label: `bff: list reads the status`.
+Then five short steps or fewer, in plain words: who does what, and what comes back.
+A side effect that the owner must know goes in a quote that starts with `Need to know:`, under the step it is about.
+
+### Requirements met
+One line for each requirement, in plain words, with no grade and no test name.
+```
+- The list shows only the shipments of the picked status, the newest first.
+- An unknown status gets a clear error that names the valid ones.
+```
 
 ### Try it
-The manual checks, with the steps and what the owner must see.
-Agents never start the app, so a visual check is always here.
+The manual checks, with the steps and what the owner must see. Agents never start the app, so a visual check is always here.
 
 ### Need to know
-Each item with where to look: a guess (`kit eng guesses <id>`), a deviation from the plan, a thing with no test, a side effect on another feature.
-An item that fits a part above goes there as a callout; the rest goes here.
+A limit of the change, a side effect on another feature, a choice that the owner can still change. One line each.
 
 ## The page
-`kit eng item page <id>` shows `walkthrough.md` in its own tab, next to Spec, Plan and Tasks.
-The Markdown file stays the record; the page is a view of it.
+`kit eng item page <id>` shows `walkthrough.md` in its own tab, next to Spec, Plan and Tasks. The tree and the flowchart render as components of the UI kit.
 
 ## Deep dives
-When the owner asks for a deep dive, explain that topic in full: the code with its lines, the reason for each choice, an example run.
+When the owner asks for a deep dive, explain that topic in full: the code, the reason for each choice, an example run.
 Append it to the file under `## Deep dive: <topic>`, so the next reader has it too.

@@ -58,6 +58,16 @@ describe('renderDocument', () => {
     expect(html).not.toContain('mermaid')
   })
 
+  test('a tree fence becomes the Tree component of the UI kit', () => {
+    expect(renderDocument('```tree\napi/\n  a.ts  new  the list\n```\n', 'walkthrough')).toStartWith('<div class="bn-tree kd-tree"><ul><li><details open>')
+  })
+
+  test('a list under Requirements met becomes a list with a check for each line', () => {
+    expect(renderDocument('## Requirements met\n\n- the API filters by **status**\n', 'walkthrough')).toContain(
+      '<ul class="bn-list kd-met"><li class="bn-list__item"><span class="bn-list__icon" data-tone="success"><span data-bn-icon="check"></span></span><span class="bn-list__main">the API filters by <strong>status</strong></span></li></ul>',
+    )
+  })
+
   test('another fence becomes a code block with one line for each line of text', () => {
     expect(renderDocument('```\nkit doctor\nkit init\n```\n', 'plan')).toBe('<div class="bn-code"><pre><span class="ln">kit doctor</span><span class="ln">kit init</span></pre></div>')
   })

@@ -1,39 +1,40 @@
 ---
 name: walkthrough
-description: "Write work/<id>/walkthrough.md for the owner's review of a built item, or of code named in a prompt: the verdict, what changed, one request step by step, each criterion with its grade, try it, need to know. Use when the owner says walk me through."
+description: "Write the report of work that is done, for the owner: what was built, the changed files as a tree, how it works, which requirements it meets, how to try it. As a Markdown file or as a tab of the item page. Use when the owner says walk me through."
 argument-hint: "<item id> or a question about the code"
 disable-model-invocation: true
-allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Write, Edit
+allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Write, Edit, AskUserQuestion
 ---
 
-Goal: a review that the owner does in minutes and trusts: what changed and why, how it works now, where each criterion is met, what to check by hand.
-A walkthrough that hides a change makes the accept blind.
+Goal: a short report of the finished work that the owner reads in minutes: what was built, how it works, what it meets.
+The owner reads the diff for the lines. The walkthrough gives the shape of the change, not the lines.
 The parts in full, and the path with no item: `parts.md` (this folder).
 
 ## Order
-1. Decide the subject:
-   - an item id: `kit eng item brief <id>`, `kit eng task list <id>` with the files of each slice, `kit eng item ac list <id>` with the marks, `kit eng guesses <id>`, `kit eng item verify <id> --last`.
-   - a prompt (`/walkthrough how does the export job retry?`): no item. Find the code with `kit eng area status` and a search. The file goes to `work/<date>-<slug>/walkthrough.md`.
-2. Read the work itself: the diff of each area on the branch (`git -C <folder> diff <base>...<branch>`), or the code that the prompt names.
+1. Ask the owner one question with AskUserQuestion: a Markdown file, or a page. Make only the one the owner picks.
+2. Decide the subject:
+   - an item id: `kit eng item brief <id>`, `kit eng item ac list <id>`, `kit eng guesses <id>`.
+   - a prompt (`/walkthrough how does the export job retry?`): no item. Find the code with `kit eng area status` and a search.
+3. Read the work itself: the diff of each area on the branch (`git -C <folder> diff <base>`), or the code that the prompt names.
    Explain the code that exists, not the plan.
-3. Write `walkthrough.md` with the six parts of `parts.md`, in this order: the verdict, what changed, one request step by step, how each AC is met, try it, need to know. 200 lines or fewer.
-4. Report in chat: five lines with the verdict and the path. Then one question: a page now, later or not at all. The page is the Walkthrough tab of the item page: `kit eng item page <id>` (skill `item-view`).
+4. Write `walkthrough.md` with the six parts of `parts.md`. 80 lines or fewer.
+5. A Markdown file: report the path. A page: run `kit eng item page <id>` (skill `item-view`); the file shows in the Walkthrough tab.
 
 ## The six parts, in short
 ```
-## The verdict          the verdict of /check (or "no review exists" for a prompt) and the weakest evidence, five lines or fewer
-## What changed         a table: file → the change, with the slice and the ACs it serves
-## One request          one real request or user action through the changed code: numbered steps with file:line; new lines marked
-## How each AC is met   AC → where (file:line) → the evidence and its grade
-## Try it               the manual checks and what the owner must see
-## Need to know         a guess, a deviation from the plan, a thing with no test, a side effect: each with where to look
+> In short:              what was built, in two or three sentences
+## What changed          a ```tree block: each file with its mark (new, changed, deleted, moved) and a short note
+## How it works          one diagram of the flow, and five short steps or fewer
+## Requirements met      one line for each requirement, in plain words
+## Try it                the manual checks and what the owner must see
+## Need to know          a limit, a side effect, a choice that the owner can change
 ```
 
 ## Gotchas
-- Every claim has a place: a file and a line, or a test. A wrong step is worse than none.
+- Report the product, not the process. Never name a slice, a proof, a gate, a review round, an agent or a guess id.
+- Give no line numbers. Name a file only in the tree; the owner reads the diff for the rest.
+- Use the components: the tree for the files, a mermaid flowchart for the flow. A table only where a list cannot hold it.
 - Pick one request that touches most of the change. A walk through every path is a second diff.
-- Where the code differs from the plan, say so under Need to know. Do not explain the plan as if it were the code.
-- Do not paste whole files. Quote the lines that matter.
-- Write the file under `work/`, never in `/tmp` or in an area folder. The owner must find it again.
+- Write the file under `work/`, never in `/tmp` or in an area folder.
 - The walkthrough does not decide. The verdict stays with the reviewer and the owner.
 - A prompt with no item: do not invent a mechanism that the code does not have. "Not found" is an answer.

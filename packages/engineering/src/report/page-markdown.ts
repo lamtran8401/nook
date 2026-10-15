@@ -2,6 +2,7 @@ import { match } from 'ts-pattern'
 
 import { bodyLines, FENCE } from '../documents/markdown.ts'
 import { renderDiagram } from './diagrams.ts'
+import { fileTreeHtml, parseFileTree } from './file-tree.ts'
 
 /** The Markdown of an item document as HTML with the components of the UI kit; every text is escaped. */
 
@@ -137,6 +138,10 @@ class Renderer {
       this.push(renderDiagram(source) ?? mermaidBlock(source))
       return
     }
+    if (language === 'tree') {
+      this.push(fileTreeHtml(parseFileTree(source)))
+      return
+    }
     this.push(`<div class="bn-code"><pre>${body.map(l => `<span class="ln">${escape(l)}</span>`).join('')}</pre></div>`)
   }
 
@@ -193,6 +198,11 @@ class Renderer {
       items.push(this.lines[this.i++]!.trimStart().replace(LIST_ITEM, ''))
     if (this.section === 'acceptance criteria') {
       this.push(`<ul class="bn-list kd-acs">${items.map((item, n) => criterionRow(item, n + 1)).join('')}</ul>`)
+      return
+    }
+    if (this.section === 'requirements met') {
+      const check = '<span class="bn-list__icon" data-tone="success"><span data-bn-icon="check"></span></span>'
+      this.push(`<ul class="bn-list kd-met">${items.map(item => `<li class="bn-list__item">${check}<span class="bn-list__main">${inline(item)}</span></li>`).join('')}</ul>`)
       return
     }
     const tag = ordered ? 'ol' : 'ul'

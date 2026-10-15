@@ -52,6 +52,15 @@ body { margin: 0; background: var(--bg); }
 .kd-ac-tags { display: flex; align-items: center; gap: var(--space-2); }
 .kd-ac-src { color: var(--fg-muted); font: 500 12px/16px var(--font-mono); }
 
+/* the tree of the changed files */
+.kd-tree > ul { padding-left: 0; }
+.kd-tree .bn-tree__row { height: auto; min-height: 30px; padding: 6px 8px; flex-wrap: wrap; row-gap: 2px; cursor: default; font-size: 14px; line-height: 20px; }
+.kd-tree .bn-tree__row:hover { background: none; }
+.kd-tree summary .bn-tree__row { cursor: pointer; }
+.kd-tree__name { font: 500 13px/20px var(--font-mono); }
+.kd-tree summary .kd-tree__name { font-weight: 600; }
+.kd-tree__note { flex: 1 1 220px; min-width: 0; color: var(--fg-muted); }
+
 /* the slices */
 .kd-slices { display: flex; flex-direction: column; gap: var(--space-4); }
 .kd-page .bn-card__title { font-size: 18px; line-height: 26px; overflow-wrap: anywhere; }
