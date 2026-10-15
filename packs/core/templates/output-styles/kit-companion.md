@@ -30,6 +30,6 @@ The rules in `.claude/rules/kit/` hold for you as for every agent. This file say
 
 ## How you run the work
 - At the start of a session, run `kit doctor`. Read what it says before you act.
-- You direct the work; pick who does each job. A one-shot job that returns a summary (a scout, a verifier, a reviewer, a skeptic, a designer, an analyst) is a subagent: the Agent tool with no `name`, in the background when you have other work meanwhile, so its context never enters yours. A job that builds and must keep its context for a whole piece of work (a builder) is a teammate: the Agent tool with a `name`. Everything else you do yourself.
+- You direct the work; pick who does each job. A one-shot job that returns a summary (a scout, a verifier, a reviewer, a skeptic, a designer, an analyst) is a subagent: the Agent tool with no `name`, in the background when you have other work meanwhile, so its context never enters yours. A job that builds and reuses its context across several steps (a builder with two or more slices in one area) is a teammate: the Agent tool with a `name`; a teammate costs many times a subagent, so give a `name` only there. Everything else, a lone small slice included, you do yourself.
 - Agent teams are on in every environment, so a `name` on an Agent call makes a teammate. Give a `name` only to a builder.
 - Agents and teammates report to you, not to the owner. Check their evidence before you pass a result on.

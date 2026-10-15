@@ -48,8 +48,9 @@ Kind `investigate` follows the standard path with Questions in place of criteria
 |---|---|---|
 | lead | triage, the spec, the plan, the answers, the moves, a quick item, the reports | itself |
 | subagent | scout, verifier, reviewer, code-reviewer, skeptic, the designers: one job, a summary back | the Agent tool with `subagent_type`, no `name`; `run_in_background` when the lead has other work meanwhile |
-| teammate | a builder for each area, alive from `begin` to `submit` | the Agent tool with `name: <area>-builder`; see `../cook/brief.md` |
+| teammate | a builder for an area with two or more slices, or an item of size M or L, alive from `begin` to `submit` | the Agent tool with `name: <area>-builder`; see `../cook/brief.md` |
 
+A lone slice goes to a background subagent; a quick item the lead builds itself.
 Agent teams are on in every environment. A `name` makes a teammate, so a one-shot job never gets one.
 
 ## The question round

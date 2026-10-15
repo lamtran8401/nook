@@ -7,14 +7,14 @@ allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git l
 ---
 
 Goal: every slice done with a proof, every check green, the item in `checking`.
-The lead directs; a builder teammate writes the code, one for each area. The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The builders: `brief.md` (this folder).
+The lead directs; a builder writes the code, one for each area. Who builds: `brief.md`. The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The builders: `brief.md` (this folder).
 
 ## Order
 1. Run `kit eng pickup <id>` and `kit eng doctor`. The state must be `ready` or `cooking`, with no drift; else report the gap and its fix and stop.
 2. In `ready`: `kit eng item branch <id>`, then `kit eng item begin <id>`.
    A refusal names the gap (an area in use, a protected branch, a changed document). Report it; do not work around it.
 3. The loop, until no slice is `todo`, `running` or `waiting`:
-   - `kit eng task list <id> --ready`: give each ready slice to the builder of its area; start the builder when the area has none (at most 4, one for each area). Read `brief.md`.
+   - `kit eng task list <id> --ready`: give each ready slice to the builder of its area; start one when the area has none (at most 4).
    - a slice is done: check its evidence (`kit eng task show <id> <T>`: files, proof). M or L item: run `code-review`; a blocking finding reopens it: `kit eng task reopen <id> <T> --reason "<file:line> <what>"`.
    - `--state waiting`: look for the answer in `spec.md`, `plan.md`, the ADRs. Found: `kit eng task resume <id> <T>` and send it to the builder. Not found: collect it for one owner round, as `flow.md` says.
    - `--state failed`: read the reason. `kit eng task retry <id> <T>`, or `kit eng item replan <id> --reason "..."` when the plan is wrong.
@@ -39,4 +39,4 @@ Next: /check SHOP-12.
 - The kind of the area picks the builder (`kit eng area list`): `backend-builder` or `frontend-builder`. A frontend slice never goes to the backend builder.
 - Uncommitted work stops `item branch`. Report it; never stash or reset.
 - A builder's summary is a claim. Its files and its proof in `task show` are the evidence.
-- A `name` on an Agent call makes a teammate. Only a builder gets one; the verifier, the reviewer and the scout run as subagents with no `name`.
+- A `name` makes a teammate. Only a builder of an area with two or more slices gets one.

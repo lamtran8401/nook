@@ -1,10 +1,19 @@
 # How to start a builder
 
-A builder is a teammate: a separate session with its own context, alive for the whole item. It does not see this conversation.
+A builder works in its own context and does not see this conversation.
 The brief is all that it knows about the item, so it comes from the tool, not from your memory.
-One builder for each area of the item, at most 4 at once. A second slice in the same area goes to the same builder.
+One builder for each area of the item, at most 4 at once.
 
-## The call
+## Who builds a slice
+| Case | Who | Why |
+|---|---|---|
+| a quick item, or size S with one slice | the lead itself | one slice is one job; a builder would cost a brief and a return for nothing |
+| an area with one slice | a background subagent, no `name`, the brief as its prompt | one job, a summary back, its context never enters the lead's |
+| an area with two or more slices, or size M or L | a teammate `name: <area>-builder`, alive from `begin` to `submit` | the second slice reuses what the first one learned about the area |
+
+A teammate costs many times the tokens of a subagent. Give a `name` only in the last case.
+
+## The call of a teammate
 1. Run `kit eng task brief <id> <T>`. It prints the slice: the item, the area and its folder, the ACs, the `done when` line, the open guesses, and the commands the builder runs.
 2. Call the Agent tool:
    - `name`: `<area>-builder`, for example `bff-builder`. The name makes it a teammate, and the TeammateIdle hook holds it on its slice by this name.
@@ -14,9 +23,9 @@ One builder for each area of the item, at most 4 at once. A second slice in the 
 3. The next slice of the same area: `kit eng task brief <id> <T2>`, then SendMessage to `<area>-builder` with the brief, word for word. A message is plain text; the builder runs the commands itself.
 4. A builder that goes idle and left the slice `running` is held by the hook once. When it still stops, send one message: finish with `kit eng task done` or `task wait`.
 
-## When agent teams are off
-A headless run (`claude -p`) makes no teammates. The same call with `run_in_background: true` and no `name` makes a background subagent with the same brief.
-Each slice then gets its own subagent; the SubagentStop hook holds it on its slice.
+## The call of a subagent
+The same call with `run_in_background: true` and no `name`. The SubagentStop hook holds it on its slice.
+A headless run (`claude -p`) makes no teammates: every builder is a subagent there.
 
 ## What the builder does with it
 The hook puts `--as builder` into each of its `kit eng` calls, so it can move only its own slice.

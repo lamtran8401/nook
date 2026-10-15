@@ -164,7 +164,7 @@ Every skill uses only the commands of section 7. A skill never runs an owner mov
 | contract-designer | inherit | Read, Grep, Glob, Bash | the consumers of a contract (none, needs a change, breaks), the order, the migration path |
 | data-modeler | inherit | Read, Grep, Glob, Bash | for each entity: migration, existing rows, indexes, backfill, rollback, order |
 
-An agent body has at most 500 words. The rules that every agent follows are in the core rules and the pack rules; a body does not repeat them. A builder gets `kit eng task brief <id> <T>` as its brief and runs `task start`, `task prove`, `task done --files` or `task wait --reason`; after three failed tries it runs `task fail`. Builders run as teammates (section 13), at most 4 at once, one for each area, alive for the whole item. When agent teams are off, a builder runs as a background subagent with the same brief.
+An agent body has at most 500 words. The rules that every agent follows are in the core rules and the pack rules; a body does not repeat them. A builder gets `kit eng task brief <id> <T>` as its brief and runs `task start`, `task prove`, `task done --files` or `task wait --reason`; after three failed tries it runs `task fail`. A builder runs as a teammate or a background subagent by the rule of section 13, at most 4 at once, one for each area.
 
 ## 12. Templates
 `templates/rules.md`: the workspace rules of the pack, copied to `.claude/rules/kit/engineering.md` by `kit init`: never build on a protected branch; never commit unless the owner asks, then `item commit --run`; never push; never start apps, containers or deploys; never change an approved document, replan first; the code rules (the area's conventions first; clear names, small functions, early returns; no dead code; reuse a helper of the area; no dependency that the plan did not name; never swallow an error; never log a secret; comment only hard logic).
@@ -177,9 +177,10 @@ The lead, the main session, directs the work. The rule of the kit (the core comp
 
 | Who | Jobs | How the lead starts it |
 |---|---|---|
-| lead | triage, the spec, the plan, the answers, the moves, a quick item, the reports | itself |
+| lead | triage, the spec, the plan, the answers, the moves, the reports, a quick item or a size S item with one slice | itself |
 | subagent | scout, verifier, reviewer, code-reviewer, skeptic, system-designer, contract-designer, data-modeler | the Agent tool with `subagent_type` and no `name`; `run_in_background: true` where the lead has other work meanwhile |
-| teammate | backend-builder, frontend-builder: one for each area of the item, alive from `begin` to `submit` | the Agent tool with `subagent_type` and `name: <area>-builder`; the next slice of the same area goes to the same teammate with SendMessage and the new `task brief` |
+| teammate | backend-builder, frontend-builder for an area with two or more slices, or an item of size M or L: one for each area, alive from `begin` to `submit` | the Agent tool with `subagent_type` and `name: <area>-builder`; the next slice of the same area goes to the same teammate with SendMessage and the new `task brief` |
+| subagent (builder) | a builder for an area with one slice | the same call with no `name` and `run_in_background: true` |
 
-Agent teams are on in every environment: the core settings set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and `teammateMode: auto`. While teams are on, every Agent call with a `name` makes a teammate, so a one-shot job never gets a `name`. When teams are off (a headless run), the same call makes a background subagent and the flow still works: the SubagentStop hook takes the place of TeammateIdle.
+A teammate costs many times the tokens of a subagent, so it is given only where its context is reused. Agent teams are on in every environment: the core settings set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and `teammateMode: auto`. While teams are on, every Agent call with a `name` makes a teammate, so a one-shot job never gets a `name`. When teams are off (a headless run), the same call makes a background subagent and the flow still works: the SubagentStop hook takes the place of TeammateIdle.
 A teammate does not see the lead's conversation and does not preload skills: the brief from `task brief` is all it knows, and the body of its agent file stands alone. A teammate does not survive `/resume` or a compaction of the lead: `task list --state running` names the slices to give to a new teammate with the same brief.
