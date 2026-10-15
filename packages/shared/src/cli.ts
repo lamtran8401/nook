@@ -66,9 +66,11 @@ function parse(command: Command, rest: string[]): Context {
       { type: flag.type, ...(flag.short ? { short: flag.short } : {}), ...(flag.list ? { multiple: true } : {}) },
     ]),
   )
+  // only a wrong flag is a usage error; a fault of the code must not look like one, since a hook reads exit 2 as a block
+  const args = spreadLists(rest, command.flags ?? {})
   let parsed: ReturnType<typeof parseArgs>
   try {
-    parsed = parseArgs({ args: spreadLists(rest, command.flags ?? {}), options, allowPositionals: true, strict: true })
+    parsed = parseArgs({ args, options, allowPositionals: true, strict: true })
   } catch (error) {
     throw usage((error as Error).message.replace(/^.*?: /, ''), `run with --help to see the flags`)
   }

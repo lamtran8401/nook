@@ -15,9 +15,18 @@ export type Adr = {
   status: string
   item: string | null
   by: number | null
+  /** The areas of the `Scope:` line under the title. */
+  scope: string[]
+  /** The first sentence of the Decision section. */
+  decision: string
 }
 
 const FILE = /^(\d{4})-(.+)\.md$/
+
+const firstSentence = (section: string) => {
+  const text = section.replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, ' ').trim()
+  return /^(.+?[.!?])(?:\s|$)/.exec(text)?.[1] ?? text
+}
 
 const body = (n: number, title: string, item: string | undefined, date: string) =>
   `---\nstatus: proposed\ndate: ${date}\n${item ? `item: ${item}\n` : ''}---\n\n# ADR ${n}: ${title}\n\n` +
@@ -86,6 +95,8 @@ export class AdrStore {
       status: String(front.status ?? 'proposed'),
       item: front.item ? String(front.item) : null,
       by: front.superseded_by ? Number(front.superseded_by) : null,
+      scope: (/^Scope:\s*(.+)$/m.exec(text)?.[1] ?? '').split(',').map(a => a.trim()).filter(Boolean),
+      decision: firstSentence(/^## Decision\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(text)?.[1] ?? ''),
     }
   }
 }
