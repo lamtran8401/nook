@@ -17,10 +17,14 @@ Claude Code runs the sessions. The kit holds the goals, the standards, the recor
 
 ## 2. The one idea
 
-**Init a folder to add a layer. Add packs where a folder needs behavior.**
+**Init a folder to make an environment. Its packs and rules reach every folder inside it.**
+A folder with `kit.yml` is an environment. A boundary such as `company/` is a large one; the folders inside it are smaller ones, and a space is only one of them.
 - Claude Code reads `CLAUDE.md` and `.claude/rules/` from every folder above a session. Words flow down.
 - It reads `.claude/settings.json` only in the start folder. So hooks and permissions stay in the folder where a pack is on.
 - The kit has no fixed structure. A folder can turn on many packs. How you split folders is your choice.
+- Packs flow down: the packs of a folder are the union of every `kit.yml` above it; a child can add one or turn one off (`packs: { off: [jira] }`).
+- State stays at the nearest environment that turns the pack on: one ledger and one wiki for a whole boundary, or a child with its own when you init the pack there again.
+- Hooks follow the packs, not the folder: the kit plugin is on for your user, and each hook finds the nearest `kit.yml` up the tree before it acts.
 
 ```
 kit init                         # context only: kit.yml, the kit block of CLAUDE.md, .claude/rules/kit/

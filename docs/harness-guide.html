@@ -515,11 +515,11 @@ footer { font-size: 13px; color: var(--fg-muted); border-top: 1px solid var(--bo
 
     <!-- ============ 3 ============ -->
     <section class="chapter" id="c6" aria-labelledby="h6">
-      <div class="ch-head"><span class="ch-num">06</span><h2 id="h6">Layers and init</h2><p>The kit has no fixed folder structure. Each folder that you init becomes a layer, and Claude Code stacks the layers.</p></div>
+      <div class="ch-head"><span class="ch-num">06</span><h2 id="h6">Layers and init</h2><p>The kit has no fixed folder structure. Each folder that you init becomes an environment, and the folders inside it inherit its words and its packs.</p></div>
       <div class="idea">
         <div class="big">
           <span class="label" style="color:var(--inverse-muted)">the rule</span>
-          <span class="q">Init a folder to add a layer. Add packs where a folder needs behavior.</span>
+          <span class="q">Init a folder to make an environment. Its packs and rules reach every folder inside it.</span>
           <p>Claude Code reads <code style="background:transparent;color:var(--inverse-fg);border-color:var(--inverse-muted)">CLAUDE.md</code> and <code style="background:transparent;color:var(--inverse-fg);border-color:var(--inverse-muted)">.claude/rules/</code> from every folder above a session, so words flow down. It reads settings only in the start folder, so hooks and permissions stay where a pack is on.</p>
         </div>
         <div class="ly" aria-label="Example of nested layers">
@@ -534,6 +534,15 @@ footer { font-size: 13px; color: var(--fg-muted); border-top: 1px solid var(--bo
         </div>
       </div>
 
+      <div class="sub"><h3>Environments nest</h3><p>A folder with <code>kit.yml</code> is an environment. A boundary such as <code>company/</code> is a large one; the folders inside it are smaller ones, and a space is only one of them. You init where you want the packs, and the folders below inherit them.</p><div class="grid2"><pre class="tree">~/Workspaces/          <span class="i">kit init</span>                   <span class="c">who I am, how I write</span>
+├── company/           <span class="i">kit init --pack engineering,wiki,jira</span>
+│   │                  <span class="c">one ledger and one wiki for the whole company</span>
+│   ├── spaces/bkm-lab/           <span class="c">no init needed: it inherits</span>
+│   ├── spaces/client-x/  <span class="i">kit init --pack engineering</span>  <span class="c">its own ledger</span>
+│   └── wiki/
+└── personal/          <span class="i">kit init --pack wiki,learn,research</span>
+    ├── english/                  <span class="c">inherits learn</span>
+    └── ideas/                    <span class="c">inherits wiki</span></pre><div class="card"><h4>The rules of nesting</h4><ul><li><b>Words flow down.</b> <code>CLAUDE.md</code> and the rules of every environment above a session load, because Claude Code stacks them.</li><li><b>Packs flow down.</b> The packs of a folder are the union of every <code>kit.yml</code> above it. A child can add a pack, or turn one off with <code>packs: { off: [jira] }</code>.</li><li><b>State stays at the nearest.</b> A pack keeps its record (the ledger, the wiki, the learn files) in the nearest environment that turns it on. Turn a pack on again in a child to give it its own record, like <code>client-x</code> above.</li><li><b>Hooks follow the packs, not the folder.</b> Claude Code reads settings only in the start folder, so the kit plugin is on for your user, and each hook finds the nearest <code>kit.yml</code> up the tree before it acts. Where a pack is off, its hooks do nothing.</li><li><code>kit doctor</code> shows the environments above the folder, the packs each one gives, and where each record lives.</li></ul></div></div></div>
       <div class="sub">
         <h3>It fits any structure</h3>
         <div class="grid3">
