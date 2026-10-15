@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { bashGuard, editGuard, readGuard, sessionStart, styleCheck } from '../src/hooks.ts'
+import { bashGuard, commandOnly, editGuard, readGuard, sessionStart, styleCheck } from '../src/hooks.ts'
 import { init } from '../src/init.ts'
 
 const coreDir = join(import.meta.dir, '..')
@@ -31,6 +31,10 @@ describe('E-06 secrets stay closed', () => {
       expect(bash(c).kind).toBe('block')
     }
     expect(bash('cat .env.example').kind).toBe('pass')
+    // text is not a command: a comment, a heredoc body, an echo of prose
+    expect(bash("cat > kit.yml <<'EOF'\n# secrets: the paths of files such as .env that no agent reads\nsecrets: []\nEOF").kind).toBe('pass')
+    expect(bash('kit doctor # the .env rule is on').kind).toBe('pass')
+    expect(bash("cat > note.md <<EOF\nnever read .env\nEOF\ncat .env").kind).toBe('block')
     expect(bash('git status').kind).toBe('pass')
     expect(bash('kit doctor').kind).toBe('pass')
   })
@@ -72,5 +76,11 @@ describe('session start', () => {
     const result = sessionStart({ cwd: root })
     expect(result.kind).toBe('json')
     if (result.kind === 'json') expect(JSON.stringify(result.value)).toContain('Packs on: core')
+  })
+})
+
+describe('commandOnly', () => {
+  test('drops heredoc bodies and comments, keeps the commands', () => {
+    expect(commandOnly("cat > a <<'EOF'\nbody .env\nEOF\nls # note .env\ncat .env")).toBe("cat > a <<'EOF'\nls\ncat .env")
   })
 })

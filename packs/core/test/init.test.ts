@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 import { activePacks, environmentsAbove, secretsAbove } from '@kit/shared/env.ts'
 
-import { doctor } from '../src/doctor.ts'
+import { doctor, formatDoctor } from '../src/doctor.ts'
 import { addPacks, init, mergeSettings, placeBlock } from '../src/init.ts'
 
 const coreDir = join(import.meta.dir, '..')
@@ -138,6 +138,13 @@ describe('E-05 doctor', () => {
     const report = doctor(root, coreDir)
     expect(report.findings[0]?.level).toBe('error')
     expect(report.findings[0]?.fix).toContain('kit init')
+  })
+
+  test('the report names core on every environment line', () => {
+    run(root)
+    const text = formatDoctor(doctor(root, coreDir), root)
+    expect(text).toContain('packs: core')
+    expect(text).not.toContain('words only')
   })
 
   test('a healthy folder: no gap; a conflicting rule and a missing pack: gaps with fixes', () => {

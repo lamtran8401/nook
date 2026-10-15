@@ -31,12 +31,29 @@ export function readGuard(input: HookInput): HookResult {
   return pass
 }
 
+/** The words that the shell runs: heredoc bodies and comments are text, not commands. */
+export function commandOnly(command: string): string {
+  const lines = command.split('\n')
+  const kept: string[] = []
+  let end: string | null = null
+  for (const line of lines) {
+    if (end !== null) {
+      if (line.trim() === end) end = null
+      continue
+    }
+    const here = line.match(/<<-?\s*['"]?([A-Za-z_][\w-]*)['"]?/)
+    kept.push(line.replace(/(^|\s)#.*$/, ''))
+    if (here) end = here[1] ?? null
+  }
+  return kept.join('\n')
+}
+
 /** PreToolUse Bash: no secret, no state database, no shell around the kit tool. */
 export function bashGuard(input: HookInput): HookResult {
   const cwd = input.cwd ?? process.cwd()
   if (!nearestEnvironment(cwd)) return pass
   const command = String(input.tool_input?.command ?? '')
-  const plain = command.replace(/["'\\]/g, '')
+  const plain = commandOnly(command).replace(/["'\\]/g, '')
   const words = plain.split(/[\s;|&<>()]+/).filter(Boolean)
   for (const word of words) {
     if (/^[~.\/\w-]*\/?\.env(\..+)?$/.test(word) && !word.endsWith('.env.example')) return block(`the command names ${word}: the kit does not read or write secrets.`)

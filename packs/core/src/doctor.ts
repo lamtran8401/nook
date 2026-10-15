@@ -63,7 +63,7 @@ export function formatDoctor(report: DoctorReport, from: string): string {
     lines.push('Environments, the outermost first:')
     for (const env of report.environments) {
       const extra = env.off.length ? `; off: ${env.off.join(', ')}` : ''
-      lines.push(`  ${env.dir === from ? '•' : '·'} ${env.dir}  packs: ${env.packs.length ? env.packs.join(', ') : '(words only)'}${extra}`)
+      lines.push(`  ${env.dir === from ? '•' : '·'} ${env.dir}  packs: ${['core', ...env.packs].join(', ')}${extra}`)
     }
     lines.push('Packs on here, and where each keeps its record:')
     for (const pack of report.packs) lines.push(`  ${pack.name.padEnd(12)} ${pack.home === from ? 'here' : pack.home}`)

@@ -28,7 +28,7 @@ const program: Program = {
           const lines = [`packs on here: ${r.packs.join(', ')}`]
           if (r.wrote.length) lines.push(`wrote: ${r.wrote.join(', ')}`)
           if (r.kept.length) lines.push(`kept: ${r.kept.join(', ')}`)
-          lines.push('next: in Claude Code, run /setup to build the structure, then kit doctor')
+          if (r.wrote.includes('kit.yml')) lines.push('next: in Claude Code, run /setup to build the structure, then kit doctor')
           return lines.join('\n')
         })
       },
