@@ -29,4 +29,18 @@ describe('taskBrief', () => {
     itemAt(t, 'cooking')
     expect(taskBrief(t.kit(LEAD), 'SHOP-1', 'T1')).not.toContain('\nfiles:')
   })
+
+  test('prints the done when line of the slice in tasks.md', () => {
+    itemAt(t, 'cooking')
+    expect(taskBrief(t.kit(LEAD), 'SHOP-1', 'T1')).toContain('\ndone when: the test passes\n')
+  })
+
+  test('prints the open guesses of the slice and of the whole item, and not those of another slice', () => {
+    itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }, { id: 'T2' }]))
+    const lead = t.kit(LEAD)
+    lead.addGuess('SHOP-1', { question: 'which zone?', took: 'UTC', other: 'local', impact: 'med', slices: ['T1'] })
+    lead.addGuess('SHOP-1', { question: 'which order?', took: 'newest first', other: 'oldest first', impact: 'low', slices: [] })
+    lead.addGuess('SHOP-1', { question: 'which font?', took: 'mono', other: 'sans', impact: 'low', slices: ['T2'] })
+    expect(taskBrief(lead, 'SHOP-1', 'T1')).toContain('\nguesses:\n  G1 (med) which zone? took UTC, not local\n  G2 (low) which order? took newest first, not oldest first\nproof: none')
+  })
 })

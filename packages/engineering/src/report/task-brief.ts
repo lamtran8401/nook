@@ -2,7 +2,7 @@ import { TasksDocument } from '../documents/tasks.ts'
 import { cut } from '../format.ts'
 import type { Engineering } from '../service.ts'
 
-/** The brief of a slice for a builder: what to build, where, and the commands to run. */
+/** The brief of a slice for a builder: what to build, where, when it is done, the guesses it rests on, and the commands to run. */
 export function taskBrief(eng: Engineering, id: string, sliceId: string): string {
   const item = eng.item(id)
   const slice = eng.stores.slices.find(id, sliceId)
@@ -10,14 +10,17 @@ export function taskBrief(eng: Engineering, id: string, sliceId: string): string
   const area = eng.home.config.area(slice.area)
   const acs = eng.stores.criteria.list(id).filter(c => slice.acs.includes(c.n))
   const where = area ? `${eng.home.areaDir(area)} (${area.kind})` : 'not in kit.yml'
-  const planned = plannedFiles(eng, id, slice.id)
+  const planned = plannedSlice(eng, id, slice.id)
+  const guesses = eng.stores.guesses.list(id, true).filter(g => !g.slices.length || g.slices.includes(slice.id))
   const lines = [
     `${item.id} ${slice.id}: ${slice.title}  [${slice.state}${slice.assignee ? `, ${slice.assignee}` : ''}]`,
     `item: ${cut(item.title, 80)} (${item.kind} ${item.size}, ${item.state})`,
     `area: ${slice.area} → ${where}${area?.test ? `; test: ${area.test}` : ''}${area?.checks?.length ? `; checks: ${area.checks.join(' && ')}` : ''}`,
     slice.depends.length ? `after: ${slice.depends.join(', ')}` : '',
-    planned ? `files: ${planned}` : '',
+    planned?.files ? `files: ${planned.files}` : '',
+    planned?.doneWhen ? `done when: ${planned.doneWhen}` : '',
     acs.length ? `criteria:\n${acs.map(c => `  ${c.n} ${c.text}`).join('\n')}` : 'criteria: none named',
+    guesses.length ? `guesses:\n${guesses.map(g => `  ${g.id} (${g.impact}) ${g.question} took ${g.took}, not ${g.other}`).join('\n')}` : '',
     slice.files.length ? `files so far: ${slice.files.join(', ')}` : '',
     `proof: ${slice.proof}${slice.proof_note ? ` (${cut(slice.proof_note, 100)})` : ''}`,
     `run: kit eng task start ${id} ${slice.id}; write the failing test first; kit eng task prove ${id} ${slice.id} --files <tests>; ` +
@@ -27,9 +30,9 @@ export function taskBrief(eng: Engineering, id: string, sliceId: string): string
   return lines.filter(Boolean).join('\n')
 }
 
-/** The `files` line of the slice in tasks.md, or null. */
-function plannedFiles(eng: Engineering, id: string, sliceId: string): string | null {
+/** The slice as tasks.md writes it, for its `files` and `done when` lines. */
+function plannedSlice(eng: Engineering, id: string, sliceId: string) {
   const text = eng.folder(id).read('tasks.md')
   if (text === null) return null
-  return TasksDocument.parse(text).slices.find(s => s.id === sliceId)?.files ?? null
+  return TasksDocument.parse(text).slices.find(s => s.id === sliceId) ?? null
 }
