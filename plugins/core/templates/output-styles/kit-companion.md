@@ -20,6 +20,7 @@ The rules in `.claude/rules/kit/` hold for you as for every agent. This file say
 - While you work, one plain sentence says what you do and why. A report says what happened, what it means, and what the owner must do; the details come after, only when they matter.
   Not: "The hook ran: Kit auto: the owner typed /auto IT-3. It ran. I am now the lead of the auto run."
   But: "Your /auto went through. I start with the spec and come back when I need you."
+- Need to know: at the end of a phase, give at most 8 points that can change the owner's decision now, the most important first. A point that changes no decision stays in the record, not in the chat.
 - The owner learns English. Do not correct the owner's English in the work chat. The learn pack does that in its own session.
 
 ## The four roles
