@@ -10,6 +10,7 @@ import { isOpen } from './machine.ts'
 import { OWNER_STEP } from './owner-step.ts'
 import { brief, doneSince, runs } from './report/brief.ts'
 import { doctor } from './report/doctor.ts'
+import { retroFacts } from './report/retro.ts'
 import { next } from './report/next.ts'
 import { Engineering } from './service.ts'
 import { Who } from './who.ts'
@@ -41,6 +42,11 @@ export const engineeringModule: PackModule = {
   doctor(dir) {
     const home = homeAt(dir)
     return home ? doctor(Engineering.open(home, Who.fromEnv())) : []
+  },
+
+  retro(dir, since) {
+    const home = homeAt(dir)
+    return home ? retroFacts(Engineering.open(home, Who.fromEnv()), since) : []
   },
 
   brief(dir, since) {

@@ -3,12 +3,13 @@ import { resolve } from 'node:path'
 import { arg, list, type Program } from '@kit/shared/cli.ts'
 import { activePacks, environmentsAbove, nearestEnvironment, type PackModule, projectRoot } from '@kit/env/env.ts'
 import { EnvironmentList } from '@kit/env/environment-list.ts'
-import { Exit } from '@kit/shared/errors.ts'
+import { Exit, usage } from '@kit/shared/errors.ts'
 import { readInput, runHook } from '@kit/shared/hook.ts'
 import { Catalog } from '@kit/env/pack.ts'
 
 import { collectBrief, formatBrief, startOfYesterday } from './brief/brief.ts'
 import { doctor } from './doctor/doctor.ts'
+import { formatFacts, retroFile, retroSince } from './retro/retro.ts'
 import { formatDoctor } from './doctor/format.ts'
 import { gateHook } from './hooks/gate.ts'
 import { CORE_HOOKS, type CoreHook } from './hooks/table.ts'
@@ -83,6 +84,22 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
               .flatMap(p => modules.find(m => m.name === p.name)?.brief?.(dir, since) ?? []),
         })
         c.out({ folders }, r => formatBrief(r.folders))
+      },
+    },
+    {
+      path: ['retro'],
+      summary: 'the facts since the last retro of this environment: items sent back, guesses flipped, slow questions, weak proofs',
+      run(c) {
+        const env = nearestEnvironment(process.cwd())
+        if (!env) throw usage('not inside an environment', 'run kit init in a folder first')
+        const since = retroSince(env.dir)
+        const facts = activePacks(env.dir)
+          .filter(p => p.home.dir === env.dir)
+          .flatMap(p => modules.find(m => m.name === p.name)?.retro?.(env.dir, since) ?? [])
+        const file = retroFile(env.dir)
+        c.out({ env: env.dir, since: since.toISOString(), file, facts }, r =>
+          [`since ${r.since}; the file of today: ${r.file.path}${r.file.exists ? ' (exists)' : ''}`, '', formatFacts(r.facts)].join('\n'),
+        )
       },
     },
     {

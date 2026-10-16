@@ -7,6 +7,9 @@ export type GateResult = { ok: boolean; lines: string[] }
 /** One line of the daily brief: its part, what it says, the action for it, and for a wait whether it comes first. */
 export type BriefLine = { part: 'waits' | 'done' | 'runs'; text: string; action?: string; urgent?: boolean }
 
+/** One fact of a retro: what went wrong or cost time, the item, and when its event happened. */
+export type RetroFact = { item: string; kind: string; text: string; at: string }
+
 /** An owner move that waits now: the words to type after /gate, and why it waits. */
 export type WaitingGate = { words: string; why: string }
 
@@ -23,6 +26,8 @@ export interface PackModule {
   doctor(dir: string): Finding[]
   /** The lines of the pack for the daily brief: what waits for the owner, what is done since `since`, what runs. */
   brief?(dir: string, since: Date): BriefLine[]
+  /** The facts of the pack for a retro: what went wrong or cost time since `since`, each from its event. */
+  retro?(dir: string, since: Date): RetroFact[]
   /** The owner moves of the pack, by their first word, for /gate. */
   readonly gates?: readonly string[]
   /** Runs one owner move; `words` are the words that the owner typed after /gate. */

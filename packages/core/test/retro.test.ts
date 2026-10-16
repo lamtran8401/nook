@@ -1,0 +1,55 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { mkdirSync, utimesSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+import type { RetroFact } from '@kit/env/env.ts'
+
+import { formatFacts, retroFile, retroSince } from '../src/retro/retro.ts'
+import { removeDir, tempDir } from './helpers.ts'
+
+let root: string
+beforeEach(() => {
+  root = tempDir()
+})
+afterEach(() => removeDir(root))
+
+const NOW = new Date(2026, 9, 23, 17, 0)
+
+describe('retroSince', () => {
+  test('is the time of the newest retro file, so a fact after it on the same day still counts', () => {
+    mkdirSync(join(root, 'docs', 'retro'), { recursive: true })
+    writeFileSync(join(root, 'docs', 'retro', '2026-10-09.md'), '# old\n')
+    writeFileSync(join(root, 'docs', 'retro', '2026-10-16.md'), '# last\n')
+    utimesSync(join(root, 'docs', 'retro', '2026-10-09.md'), new Date(2026, 9, 9, 18, 0), new Date(2026, 9, 9, 18, 0))
+    utimesSync(join(root, 'docs', 'retro', '2026-10-16.md'), new Date(2026, 9, 16, 18, 0), new Date(2026, 9, 16, 18, 0))
+    expect(retroSince(root, NOW)).toEqual(new Date(2026, 9, 16, 18, 0))
+  })
+
+  test('with no retro yet, the span is the last 7 days', () => {
+    expect(retroSince(root, NOW)).toEqual(new Date(2026, 9, 16, 17, 0))
+  })
+})
+
+describe('retroFile', () => {
+  test('is the file of the day, and says when it exists', () => {
+    expect(retroFile(root, NOW)).toEqual({ path: 'docs/retro/2026-10-23.md', exists: false })
+    mkdirSync(join(root, 'docs', 'retro'), { recursive: true })
+    writeFileSync(join(root, 'docs', 'retro', '2026-10-23.md'), '# today\n')
+    expect(retroFile(root, NOW).exists).toBe(true)
+  })
+})
+
+describe('formatFacts', () => {
+  test('groups the facts by kind, each with its item', () => {
+    const facts: RetroFact[] = [
+      { item: 'IT-7', kind: 'sent back', text: 'AC 4 has no test', at: '2026-10-20T09:00:00.000Z' },
+      { item: 'IT-8', kind: 'guess flipped', text: 'G2 flipped; answer: 2 rows', at: '2026-10-21T09:00:00.000Z' },
+      { item: 'IT-8', kind: 'sent back', text: 'nits: a name', at: '2026-10-22T09:00:00.000Z' },
+    ]
+    expect(formatFacts(facts)).toBe(['sent back (2)', '- IT-7: AC 4 has no test', '- IT-8: nits: a name', '', 'guess flipped (1)', '- IT-8: G2 flipped; answer: 2 rows'].join('\n'))
+  })
+
+  test('a span with no fact says so', () => {
+    expect(formatFacts([])).toBe('Nothing went wrong in the span.')
+  })
+})
