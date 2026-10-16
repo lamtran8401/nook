@@ -1,5 +1,5 @@
-import { mkdirSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, relative, resolve } from 'node:path'
 
 import { arg, type Command, type Context, list, type Program, text } from '@kit/shared/cli.ts'
 import { Exit, usage } from '@kit/shared/errors.ts'
@@ -36,7 +36,7 @@ import { areaStatus } from './report/areas.ts'
 import { brief } from './report/brief.ts'
 import { doctor } from './report/doctor.ts'
 import { itemBrief, pickup } from './report/item-brief.ts'
-import { itemPage } from './report/item-page.ts'
+import { docPage, itemPage } from './report/item-page.ts'
 import { next } from './report/next.ts'
 import { taskBrief } from './report/task-brief.ts'
 import { Engineering, idAndTitle } from './service.ts'
@@ -44,6 +44,16 @@ import { Engineering, idAndTitle } from './service.ts'
 const eng = () => Engineering.here()
 const ifVersion = (c: Context) => text(c, 'if-version')
 const rest = (c: Context, from: number) => c.args.slice(from).join(' ')
+
+/** A page goes to stdout, or with `--out` to that file, whose path is printed. */
+function printOrWrite(c: Context, id: string, html: string): void {
+  const out = text(c, 'out')
+  if (!out) return c.out({ id, html }, r => r.html)
+  const file = resolve(out)
+  mkdirSync(dirname(file), { recursive: true })
+  writeFileSync(file, `${html}\n`)
+  c.out({ id, file }, r => r.file)
+}
 const VERSION_FLAG = {
   'if-version': { type: 'string', help: 'fail with exit 4 when the record moved past this version' },
 } as const
@@ -183,16 +193,19 @@ const itemCommands: Command[] = [
     },
     run(c) {
       const id = arg(c, 0, 'item id')
-      const html = itemPage(eng(), id, text(c, 'tab'))
-      const out = text(c, 'out')
-      if (!out) {
-        c.out({ id, html }, r => r.html)
-        return
-      }
-      const file = resolve(out)
-      mkdirSync(dirname(file), { recursive: true })
-      writeFileSync(file, `${html}\n`)
-      c.out({ id, file }, r => r.file)
+      printOrWrite(c, id, itemPage(eng(), id, text(c, 'tab')))
+    },
+  },
+  {
+    path: ['doc', 'page'],
+    summary: 'one HTML page of a Markdown file with no item, such as the walkthrough of a question, to open from the disk',
+    usage: '<file.md> [--out <file>]',
+    flags: { out: { type: 'string', help: 'write the page to this file and print its path' } },
+    run(c) {
+      const path = arg(c, 0, 'Markdown file')
+      const source = resolve(path)
+      if (!existsSync(source)) throw usage(`no file ${path}`)
+      printOrWrite(c, path, docPage(relative(process.cwd(), source), readFileSync(source, 'utf8')))
     },
   },
   {

@@ -24,7 +24,7 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
 5. An AC not met, or a blocking finding: `kit eng item reject <id> --reason "<AC n or file:line: what>"`. Stop. Next: `/cook <id>`.
 6. Every AC met: report with the weakest evidence first, the nits, what was not confirmed, and the manual checks.
    With nits: ask the owner once, clean them in this item now, or leave them. To clean them, the lead runs `kit eng item reject <id> --reason "nits: <list>"`.
-   Say: accept: type `/gate accept <id>`. Offer `/walkthrough <id>`. Stop. Next: `/close <id>`.
+   Say: accept: type `/gate accept <id>`. Offer `/view <id>`: the page with the walkthrough. Stop. Next: `/close <id>`.
 
 Kind `investigate`: the reviewer checks `findings.md`. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
 

@@ -22,7 +22,7 @@ The flow, the question round and the confirm question: `${CLAUDE_PLUGIN_ROOT}/sk
 7. For each decision that outlives the item, run `adr`.
 8. Run `kit eng item check <id>`: no gap for `approve`.
 9. Show the plan and the slices, with the objections and your answer to each, and ask the confirm question for both.
-   On "Looks right", report and say: approve: type `/gate approve <id>`. Then stop. Next: `/cook <id>`. Offer the page of the item: `/item-view <id>`.
+   On "Looks right", report and say: approve: type `/gate approve <id>`. Then stop. Next: `/cook <id>`. Offer the page of the item: `/view <id>`.
 
 Kind `investigate`: a short plan and no slices. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
 

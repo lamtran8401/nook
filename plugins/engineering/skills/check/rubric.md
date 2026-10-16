@@ -42,6 +42,6 @@ Verdict: accept. Weakest evidence first:
 - AC1, AC2, AC3 run: list.test.ts:42-71, fail on the base and pass on the branch.
 Blocking: none. Nits: list.ts:44 names the parameter `s`.
 Not confirmed: the time for 500 shipments; looked in list.test.ts and the Tests section.
-Next: /close SHOP-12 after the accept. /walkthrough SHOP-12 for a guided review.
+Next: /close SHOP-12 after the accept. /view SHOP-12 for the page with the walkthrough.
 ```
 A send-back starts with the unmet AC or the blocking finding, then the `kit eng item reject` that ran, then `/cook <id>`.

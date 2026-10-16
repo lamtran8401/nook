@@ -41,7 +41,7 @@ Stop, write `handoff.md` (`/handoff`), and report, when:
 - the spec has a gap that changes what the owner asked for (a gap in the plan needs only `kit eng item replan <id> --reason`, then a new `proceed`);
 - two reject cycles in checking did not meet every AC;
 - a step is hard to undo (a push, a migration, a deletion, a breaking contract change): register it with `kit eng ask <id> "<text>" --blocking --rec "<answer>"` and ask;
-- the accept: say "accept: type `/gate accept <id>`"; offer `/guesses <id>` and `/walkthrough <id>`.
+- the accept: say "accept: type `/gate accept <id>`"; offer `/guesses <id>` and `/view <id>`.
 
 ## Gotchas
 - An auto run that the model started is a breach: check `mode_by` first.

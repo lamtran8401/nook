@@ -4,6 +4,7 @@ import { usage } from '@kit/shared/errors.ts'
 import { dateOf, frontMatter } from '../documents/markdown.ts'
 import { TasksDocument } from '../documents/tasks.ts'
 import type { ItemDoc } from '../documents/work-folder.ts'
+import type { State } from '../machine.ts'
 import type { Engineering } from '../service.ts'
 import type { Event } from '../stores/events.ts'
 import type { Item } from '../stores/items.ts'
@@ -26,15 +27,21 @@ const TABS: Tab[] = [
 ]
 const AUDIT_MOVES = ['start', 'agree', 'approve', 'begin', 'submit', 'accept']
 
-/** The page of an item, open on `open` (a tab name such as `walkthrough`), else on its first tab. */
-export function itemPage(eng: Engineering, id: string, open?: string): string {
-  const item = eng.item(id)
-  const folder = eng.folder(id)
-  const texts = new Map(TABS.map(tab => [tab.file, folder.read(tab.file)]))
-  const tabs = TABS.filter(tab => !tab.optional || texts.get(tab.file) !== null)
-  const shown = open === undefined ? tabs[0]! : tabs.find(tab => tab.doc === open)
-  if (!shown) throw usage(`${item.id} has no ${open} tab; its tabs: ${tabs.map(tab => tab.doc).join(', ')}`)
-  const slices = slicesOf(eng, id, texts.get('tasks.md') ?? null)
+/** The tab that the owner reads in each state, when the page names none. */
+const STATE_TAB: Record<State, PageDoc> = {
+  backlog: 'spec',
+  framing: 'spec',
+  planning: 'plan',
+  ready: 'plan',
+  cooking: 'tasks',
+  checking: 'walkthrough',
+  done: 'walkthrough',
+  blocked: 'spec',
+  cancelled: 'spec',
+}
+
+/** A whole HTML document with the UI kit, to open from the disk. */
+function pageDocument(title: string, body: string[]): string {
   const kit = uiKit()
   return [
     '<!doctype html>',
@@ -42,22 +49,45 @@ export function itemPage(eng: Engineering, id: string, open?: string): string {
     '<head>',
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    `<title>${escape(`${item.id}: ${item.title}`)}</title>`,
+    `<title>${escape(title)}</title>`,
     `<style>${kit.css}\n${PAGE_LAYOUT}</style>`,
     '</head>',
     '<body>',
     '<div class="bn-root kd-page">',
-    header(item, eng.stores.events.history(id), texts),
-    '<div class="bn-tabs" data-bn-tabs>',
-    tabList(tabs, shown),
-    ...tabs.map(tab => panel(item, tab, texts.get(tab.file) ?? null, slices, tab === shown)),
-    '</div>',
+    ...body,
     '</div>',
     `<script>${kit.js}</script>`,
     `<script>${PAGE_SCRIPT}</script>`,
     '</body>',
     '</html>',
   ].join('\n')
+}
+
+/** The page of an item, open on `open` (a tab name such as `walkthrough`), else on the tab of its state, else on its first tab. */
+export function itemPage(eng: Engineering, id: string, open?: string): string {
+  const item = eng.item(id)
+  const folder = eng.folder(id)
+  const texts = new Map(TABS.map(tab => [tab.file, folder.read(tab.file)]))
+  const tabs = TABS.filter(tab => !tab.optional || texts.get(tab.file) !== null)
+  const shown = open === undefined ? (tabs.find(tab => tab.doc === STATE_TAB[item.state]) ?? tabs[0]!) : tabs.find(tab => tab.doc === open)
+  if (!shown) throw usage(`${item.id} has no ${open} tab; its tabs: ${tabs.map(tab => tab.doc).join(', ')}`)
+  const slices = slicesOf(eng, id, texts.get('tasks.md') ?? null)
+  return pageDocument(`${item.id}: ${item.title}`, [
+    header(item, eng.stores.events.history(id), texts),
+    '<div class="bn-tabs" data-bn-tabs>',
+    tabList(tabs, shown),
+    ...tabs.map(tab => panel(item, tab, texts.get(tab.file) ?? null, slices, tab === shown)),
+    '</div>',
+  ])
+}
+
+/** `doc page`: one Markdown document with no item, such as the walkthrough of a question, in the look of the item page. */
+export function docPage(path: string, text: string): string {
+  const title = docTitle(text) ?? path
+  return pageDocument(title, [
+    `<header class="kd-head"><span class="kd-eyebrow">${escape(path)}</span><h1 class="bn-page-head__title">${escape(title)}</h1></header>`,
+    renderDocument(text, 'walkthrough'),
+  ])
 }
 
 /** The slices of the ledger; before the import, the slices of tasks.md. */

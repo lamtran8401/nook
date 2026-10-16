@@ -1,25 +1,23 @@
 ---
-name: walkthrough
-description: "Write the report of work that is done, for the owner: what was built, the changed files as a tree, how it works, which requirements it meets, how to try it. The owner reads it as the Walkthrough tab of the local item page. Use when the owner says walk me through."
+name: write-walkthrough
+description: "Write walkthrough.md, the report of finished work: what was built, the changed files as a tree, how it works, which requirements it meets, how to try it. It is the source of the Walkthrough tab of the page. Use in /view. Not for showing the page: /view does that."
 argument-hint: "[item id] or a question about the code"
-disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Write, Edit
 ---
 
 Goal: a short report of the finished work that the owner reads in minutes: what was built, how it works, what it meets.
 The owner reads the diff for the lines. The walkthrough gives the shape of the change, not the lines.
+The owner reads it only on the page, never as Markdown. Write it for the page: the tree, the flowchart, the steps.
 The parts in full, and the path with no item: `parts.md` (this folder).
 
 ## Order
 1. Decide the subject:
    - an item id: `kit eng item brief <id>`, `kit eng item ac list <id>`, `kit eng guesses <id>`.
-   - a prompt (`/walkthrough how does the export job retry?`): no item. Find the code with `kit eng area status` and a search.
-2. Read the work itself: the diff of each area on the branch (`git -C <folder> diff <base>`), or the code that the prompt names.
+   - a question (`/view how does the export job retry?`): no item. Find the code with `kit eng area status` and a search.
+2. Read the work itself: the diff of each area on the branch (`git -C <folder> diff <base>`), or the code that the question names.
    Explain the code that exists, not the plan.
 3. Write `walkthrough.md` with the six parts of `parts.md`. 80 lines or fewer. It is the source of the page, as `spec.md` is the source of the Spec tab.
-4. Build the page: `kit eng item page <id> --tab walkthrough --out work/<id>/page.html`. It opens on the Walkthrough tab.
-5. Report the path of `page.html` only. Never publish it as an artifact: the page stays on the owner's disk.
-   With no item (a prompt), there is no page: report the path of `walkthrough.md`.
+4. Return the path to `/view`. It builds the page.
 
 ## The six parts, in short
 ```

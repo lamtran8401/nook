@@ -168,7 +168,7 @@ The owner moves are also denied to the model in `templates/settings.json`: `Bash
 The role of an agent comes from the hook input: no `agent_type` and no `agent_id` is the lead; an `agent_type` that ends in `builder` is a builder; any other is a reader. `KIT_ACTOR` is the agent type plus the last 4 characters of `agent_id`.
 
 ## 10. Skills
-Stage skills, typed by the owner (`disable-model-invocation: true`): `/intake`, `/spec`, `/recipe`, `/cook`, `/check`, `/walkthrough`, `/close`, `/quick`, `/auto`, `/guesses`, `/handoff`, `/pickup`.
+Stage skills, typed by the owner (`disable-model-invocation: true`): `/intake`, `/spec`, `/recipe`, `/cook`, `/check`, `/view`, `/close`, `/quick`, `/auto`, `/guesses`, `/handoff`, `/pickup`.
 Craft skills, started by the model: `triage`, `find-repos`, `write-spec`, `spec-check`, `write-plan`, `challenge`, `slice-tasks`, `plan-check`, `contract-check`, `adr`, `tdd`, `test-design`, `clean-code`, `diagnose`, `verify`, `code-review`.
 Each `SKILL.md` is a hub of at most 500 words: the goal, the constraints, the order of the steps, a `## Gotchas` section, and which side file to read when. The detail goes to side files. A description is at most 250 characters and says when to use the skill and, for a near pair, what it is not for.
 Every skill uses only the commands of section 7. A skill never runs an owner move. The writing standard and the question rule live in the core rules; a skill does not repeat them.

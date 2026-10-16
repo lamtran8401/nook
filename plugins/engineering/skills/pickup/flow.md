@@ -20,7 +20,7 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | Framing | framing | `/spec` | `agree` | lead, after the owner confirms the spec |
 | Planning | planning | `/recipe` | `approve` | owner, with `/gate` |
 | Cooking | ready, cooking | `/cook` | `begin`, then `submit` | lead |
-| Checking | checking | `/check`, `/walkthrough` | `accept` | owner, with `/gate` |
+| Checking | checking | `/check`, `/view` | `accept` | owner, with `/gate` |
 | Close | done | `/close` | none | lead |
 
 ## The gates
@@ -79,7 +79,7 @@ Never ask "shall I proceed" or "do you approve": the gates have their own comman
 - Line 1: what waits for the owner, or "Nothing waits for you".
 - Then: what changed, with paths; the guesses of the stage; what was not checked.
 - Last: the next command to type, and the one or two others that make sense now.
-  When the spec or the plan exists, one of them is `/item-view <id>`: the three files as one page with diagrams. Make the page only when the owner asks.
+  When the spec or the plan exists, one of them is `/view <id>`: the local page of the item, open on the tab of its state. Make the page only when the owner asks.
   Check it with `kit eng next <id>`; when they differ, the tool is right.
 
 ## Going back

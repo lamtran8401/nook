@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 
-import { itemPage } from '../src/report/item-page.ts'
-import { LEAD, makeHome, SPEC, type TestHome, writeDoc } from './helpers.ts'
+import { docPage, itemPage } from '../src/report/item-page.ts'
+import { itemAt, LEAD, makeHome, SPEC, type TestHome, writeDoc } from './helpers.ts'
 
 let t: TestHome
 beforeEach(() => {
@@ -166,16 +166,16 @@ describe('itemPage', () => {
     expect(html).not.toContain('<script>alert')
   })
 
-  test('the first tab is selected and the other panels are hidden, each tied to its tab', () => {
+  test('with no tab named, an item in planning opens on its plan, and the other panels are hidden', () => {
     const html = planned()
     expect([...html.matchAll(/<button type="button" class="bn-tabs__tab" role="tab" id="tab-(\w+)" data-doc="\w+" aria-controls="panel-\w+" aria-selected="(\w+)"/g)].map(m => [m[1], m[2]])).toEqual([
-      ['spec', 'true'],
-      ['plan', 'false'],
+      ['spec', 'false'],
+      ['plan', 'true'],
       ['tasks', 'false'],
     ])
     expect([...html.matchAll(/<div class="bn-tabs__panel" role="tabpanel" id="panel-(\w+)" aria-labelledby="tab-\w+"( hidden)?>/g)].map(m => [m[1], Boolean(m[2])])).toEqual([
-      ['spec', false],
-      ['plan', true],
+      ['spec', true],
+      ['plan', false],
       ['tasks', true],
     ])
   })
@@ -204,6 +204,15 @@ describe('itemPage', () => {
     expect(html).not.toContain('id="panel-walkthrough" aria-labelledby="tab-walkthrough" hidden>')
   })
 
+  test('with no tab named, an item in checking opens on its walkthrough, or on its spec while it has none', () => {
+    itemAt(t, 'cooking')
+    t.kit(LEAD).ledger.run("UPDATE item SET state = 'checking' WHERE id = 'SHOP-1'")
+    const selected = () => /id="tab-(\w+)" data-doc="\w+" aria-controls="panel-\w+" aria-selected="true"/.exec(itemPage(t.kit(LEAD), 'SHOP-1'))?.[1]
+    expect(selected()).toBe('spec')
+    writeDoc(t, 'SHOP-1', 'walkthrough.md', '---\nid: SHOP-1\ncreated: 2026-10-18\nupdated: 2026-10-18\n---\n\n# SHOP-1: the walkthrough\n')
+    expect(selected()).toBe('walkthrough')
+  })
+
   test('a tab that the item does not have is refused with the tabs it has', () => {
     planned()
     expect(() => itemPage(t.kit(LEAD), 'SHOP-7', 'walkthrough')).toThrow('SHOP-7 has no walkthrough tab; its tabs: spec, plan, tasks')
@@ -221,5 +230,23 @@ describe('itemPage', () => {
     expect(html).toContain('<button type="button" class="bn-tabs__tab" role="tab" id="tab-walkthrough" data-doc="walkthrough" aria-controls="panel-walkthrough" aria-selected="false" tabindex="-1">Walkthrough</button>')
     expect(panelOf(html, 'walkthrough')).toContain('<h2 class="kd-sec__title">The verdict</h2>')
     expect(html).toContain('id="panel-walkthrough" aria-labelledby="tab-walkthrough" hidden>')
+  })
+})
+
+describe('docPage', () => {
+  const RETRY = '---\ncreated: 2026-10-18\nupdated: 2026-10-18\n---\n\n# How the export job retries\n\n> In short: a failed export runs again <twice>.\n\n## What changed\n\n```tree\napi/\n  export.ts  changed  the retry\n```\n'
+
+  test('one document with no item is a whole page with its path, its title and its components', () => {
+    const html = docPage('work/2026-10-18-export-retry/walkthrough.md', RETRY)
+    expect(html.startsWith('<!doctype html>\n<html lang="en">\n<head>')).toBe(true)
+    expect(html).toContain('<title>How the export job retries</title>')
+    expect(html).toContain('<span class="kd-eyebrow">work/2026-10-18-export-retry/walkthrough.md</span><h1 class="bn-page-head__title">How the export job retries</h1>')
+    expect(html).toContain('<div class="bn-tree kd-tree">')
+    expect(html).toContain('a failed export runs again &lt;twice&gt;.')
+    expect(html).not.toContain('role="tablist"')
+  })
+
+  test('a document with no title is named by its path', () => {
+    expect(docPage('work/x/notes.md', 'plain text\n')).toContain('<title>work/x/notes.md</title>')
   })
 })
