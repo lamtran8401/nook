@@ -1,6 +1,6 @@
 ---
 name: close
-description: "Close an accepted item in done: accept its ADRs, keep the knowledge, open the follow-ups, ask about the commits, archive the ticket. Use when the owner says close, wrap up, finish or commit an accepted item."
+description: "Close an accepted item in done: accept its ADRs, keep the knowledge, send its own loose ends back into it, ask about the commits, archive the ticket. Use when the owner says close, wrap up, finish or commit an accepted item."
 argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git log *), Read, Glob, Grep, Write, Edit
@@ -15,26 +15,28 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 2. Read what to keep: the Design section of `plan.md` (the decisions), `kit eng adr list` (the ADRs of the item with status `proposed`), `kit eng item ac list <id>` (the tags), `kit eng guesses <id> --open` (the guesses that nobody decided).
 3. ADRs and guesses: ask the owner once, in one round. Ask accept or drop for each proposed ADR of the item, and accept or flip for each open guess.
    Run `kit eng adr accept <n>` for an accepted ADR. A decision that replaces an old one: `kit eng adr supersede <old> --by <new>`. Never edit the status line by hand.
-   Run `kit eng guess accept <id> <G>` or `kit eng guess flip <id> <G> --answer "<answer>"`. On a done item a flip resets no slice, so a flip becomes a follow-up in step 5.
+   Run `kit eng guess accept <id> <G>` or `kit eng guess flip <id> <G> --answer "<answer>"`. A flip changes the work of this item: stop the close and send the item back, as step 5 says.
 4. Knowledge: each `ADD` or `CHANGE` criterion changes a page. When the wiki pack is on:
    - Find the page of each topic in `resources/INDEX.md` of the wiki. A topic with no page gets a new page, `type: system`.
    - Draft each change: how the system works now, the pitfalls that remain, one History line `<date>: <id>`.
    - Show the drafts in the question round of step 3, with yes or no for each. Write the accepted ones, then run `kit wiki index --fix` and `kit wiki links`.
    With no wiki pack, list the pages that the owner must write.
    A `NONE` or `REMOVE` tag changes a page only when it removes a behavior that a page states.
-5. Follow-ups: one backlog item for each follow-up the item left and each guess flipped in step 3: `kit eng item new <id> "<title>" --backlog --source <this item>`.
+5. Loose ends of this item: a nit, a gap in its own behavior, or a flipped guess is work of this item, never a new item.
+   Stop the close. Send the item back: `kit eng item reopen <id> --reason "<the loose ends>"`, then `kit eng item reframe <id> --reason` when a criterion must change. The owner runs the item again; close runs at the end.
+   A new idea outside the scope is the only follow-up. Ask the owner in the round of step 3; with a yes, `kit eng item new "<title>" --backlog --source <this item>`.
 6. Commits: ask in chat, "commit now?". The answer yes is the request. Then `kit eng item commit <id>` prints the plan, one commit for each done slice; `kit eng item commit <id> --run` makes them. Never push.
 7. Hand-over: when work stays open, write `handoff.md` as `/handoff` says. Else skip it.
 8. Archive: `kit eng item archive <id>` moves the ticket folder to `backlog/archive/`. `kit eng doctor` at the end. Report.
 
-Kind `investigate`: no commit; a follow-up for each Follow-up line. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
+Kind `investigate`: no commit; a follow-up for each Follow-up line that the owner says yes to. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
 
 ## The report
 ```
 Waits for you: commit now? 2 commits planned (kit eng item commit SHOP-12 prints them).
-Closed SHOP-12. ADR 0007 accepted (filter in the query). ADR 0008 dropped. Guesses: G1 accepted, G2 flipped (follow-up SHOP-20).
+Closed SHOP-12. ADR 0007 accepted (filter in the query). ADR 0008 dropped. Guesses: G1 and G2 accepted.
 Knowledge: shipments/shipment-list changed (2 examples), terms/tracking-status new.
-Follow-ups in the backlog: SHOP-19 (saved filters), SHOP-20 (G2). Ticket archived: backlog/archive/SHOP-12/.
+Follow-up in the backlog, with your yes: SHOP-19 (saved filters, outside the scope). Ticket archived: backlog/archive/SHOP-12/.
 Next: /pickup for the next item.
 ```
 
@@ -44,4 +46,5 @@ Next: /pickup for the next item.
 - `item commit` needs the files of each slice. A slice with no files recorded is reported; tell the owner, do not guess the files.
 - Slices that share a file join one commit. Read the plan that `item commit` prints before `--run`.
 - Never open a pull request. Offer PR text only when the owner asks.
-- A follow-up that nobody wrote down is lost. Open the item now, with one line of source.
+- Never open an item for the loose ends of this item. The owner reads an item as one piece of work: its nits and gaps finish inside it.
+- A new idea that nobody wrote down is lost. Ask the owner about it in the round of step 3.

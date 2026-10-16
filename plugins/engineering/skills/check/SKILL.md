@@ -24,7 +24,8 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
 5. An AC not met, or a blocking finding: `kit eng item reject <id> --reason "<AC n or file:line: what>"`. Stop. Next: `/cook <id>`.
 6. Every AC met: report with the weakest evidence first, the nits, what was not confirmed, and the manual checks.
    An AC with several cases shows one evidence line for each case, so the owner sees that no case rests on another's test.
-   With nits: ask the owner once, clean them in this item now, or leave them. To clean them, the lead runs `kit eng item reject <id> --reason "nits: <list>"`.
+   With nits: clean them in this item before the accept, always. Run `kit eng item reject <id> --reason "nits: <list>"`, then `/cook <id>` fixes them and `/check` runs again. Never leave a nit for a later item.
+   A finding about the behavior of this item that no AC covers, such as an error text that the page hides: ask the owner once. Fix it in this item with `kit eng item reframe <id> --reason`, or record it as out of scope in the report. Never open a new item for it on your own.
    Say: accept: type `/gate accept <id>`. Offer `/view <id>`: the page with the walkthrough. Stop. Next: `/close <id>`.
 
 Kind `investigate`: the reviewer checks `findings.md`. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
@@ -36,5 +37,6 @@ Kind `investigate`: the reviewer checks `findings.md`. Read `${CLAUDE_PLUGIN_ROO
 - A test that passes on the base (`proof: weak`) proves nothing. An AC that rests on it is not met.
 - Code that no AC asks for is a blocking finding even when it works. Read the diff for it.
 - A clean `git status` in an area that the plan changes means the work is missing.
-- Nits never send the item back. Two reject cycles on the same item is a plan problem: offer `kit eng item replan <id> --reason`.
+- A nit never makes an AC "not met", but it is cleaned before the accept. A reject for nits does not count as a cycle of a failed AC.
+- Two reject cycles for failed ACs on the same item is a plan problem: offer `kit eng item replan <id> --reason`.
 - Never run the accept. The owner types it; the model is denied.

@@ -10,7 +10,7 @@ Everything else follows the standard flow.
 | recipe | No slices and no builders. `plan.md` is short: Today names where to look; Approach has one row for each question, with how it gets its answer; Impact is one line, "None: the item changes no code"; Proof names the evidence each answer needs; Risks names what the code cannot answer. `tasks.md` stays empty. No skeptic. |
 | cook | No branch and no builders. `begin`, then the lead and the read-only agents do the research. Write `findings.md`, then `submit`. |
 | check | The reviewer checks `findings.md`, not criteria. Each question needs an answer with evidence. |
-| close | No commit. A follow-up item for each Follow-up line. A wiki page when the answers matter again. |
+| close | No commit. A follow-up item for each Follow-up line that the owner says yes to. A wiki page when the answers matter again. |
 
 ## The spec
 ```markdown
