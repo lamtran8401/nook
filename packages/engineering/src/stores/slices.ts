@@ -37,6 +37,9 @@ const byNumber = (a: { id: string }, b: { id: string }) => Number(a.id.slice(1))
 /** `proof: none (reason)` in tasks.md marks a slice whose proof is skipped. */
 export const skipsProof = (spec: SliceSpec) => spec.proof !== null && /^none\b/i.test(spec.proof)
 
+/** The proof line of a todo slice as the file sets it; a started slice owns its proof, so the file no longer sets it. */
+const skipNote = (slice: Slice) => (slice.proof === 'skipped' ? slice.proof_note : null)
+
 /** True when the ledger slice equals the file slice in every field that the file holds. */
 export function sameAsSpec(slice: Slice, spec: SliceSpec): boolean {
   return (
@@ -44,7 +47,8 @@ export function sameAsSpec(slice: Slice, spec: SliceSpec): boolean {
     slice.area === spec.area &&
     slice.size === spec.size &&
     JSON.stringify(slice.depends) === JSON.stringify(spec.depends) &&
-    JSON.stringify(slice.acs) === JSON.stringify(spec.acs)
+    JSON.stringify(slice.acs) === JSON.stringify(spec.acs) &&
+    (slice.state !== 'todo' || skipNote(slice) === (skipsProof(spec) ? spec.proof : null))
   )
 }
 

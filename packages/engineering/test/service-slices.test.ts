@@ -53,6 +53,17 @@ describe('Engineering.importTasks', () => {
     expect(lead.stores.slices.list('SHOP-1').find(s => s.id === 'T1')!.area).toBe('bff')
   })
 
+  test('a proof line added to a todo slice reaches the ledger at the next import', () => {
+    itemAt(t, 'planning')
+    const lead = t.kit(LEAD)
+    writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }]))
+    lead.importTasks('SHOP-1')
+    writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1', proof: 'none (a test-only slice)' }]))
+    expect(lead.importTasks('SHOP-1').updated).toEqual(['T1'])
+    const t1 = lead.stores.slices.list('SHOP-1').find(s => s.id === 'T1')!
+    expect([t1.proof, t1.proof_note]).toEqual(['skipped', 'none (a test-only slice)'])
+  })
+
   test('refuses a file with problems, and refuses from ready on with exit 3', () => {
     itemAt(t, 'planning')
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1', area: '' }]))
