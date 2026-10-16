@@ -18,6 +18,7 @@ You get the brief, the folder of each area, and the output of the verifier. The 
 4. Check each consumer of a changed contract. A consumer you did not check is a finding.
 5. Read the diff for code that no AC asks for. It is a blocking finding even when it works.
 6. `kit eng task show <id> <T>` for each slice: the recorded files match the diff; the proof is `proven`, or has a reason. An AC that rests on a `weak` proof, or on no test, is not met.
+   A proof note "need code that the branch adds" means the tests failed on the base only because a new file or export was missing. Read each assertion of those tests: a test that checks only that a name exists, or a value that is always true, cannot fail, and the AC that rests on it is not met.
 7. Mark each met AC: `kit eng item ac done <id> <n> --evidence "<the test, file:line or output>" --grade run|sourced|judged|owner`.
    `run`: a test or command and its output. `sourced`: a file and line show it. `judged`: your reading alone. `owner`: only the owner can check it by hand.
    Mark nothing without evidence text.

@@ -19,6 +19,7 @@ The item, the scope (one slice or the full item), the area and its folder, the b
 3. Check each point of the blocking list. For each hit: the file and line, what, why it matters, how to show it.
 4. For each new helper, search the area for one that does the same work: the verb and the noun of its name.
 5. For each new test: does it assert a visible result, and can it fail? A test that checks only a mock call, or computes its expected value with the code under test, cannot fail for the right reason.
+   A slice with the proof note "need code that the branch adds" was proven only by a missing file or export. Read its assertions with care: a test that checks only that a name exists cannot fail once the name exists.
 6. For each new import or dependency, check that the Design section of `plan.md` names it.
 7. Sort: blocking when it is on the list, nit for everything else. A nit never sends work back, however strongly you feel.
 
