@@ -65,6 +65,8 @@ export type Move = {
   copiesSpec?: boolean
   /** Stores the fingerprints of the three documents. */
   approves?: boolean
+  /** Sets the mode back to normal: an auto run ends at the accept, and only the owner starts the next one. */
+  endsAuto?: boolean
   /** The documents that the move writes from their templates. */
   scaffolds?: WorkDoc[]
 }
@@ -100,7 +102,7 @@ export const MOVES: Record<MoveName, Move> = {
     reason: true,
     back: true,
   },
-  reopen: { from: ['done'], to: 'cooking', action: 'move', reason: true, back: true },
+  reopen: { from: ['done'], to: 'cooking', action: 'move', reason: true, back: true, endsAuto: true },
   block: { from: OPEN_NOT_BLOCKED, to: 'blocked', action: 'move', reason: true },
   unblock: { from: ['blocked'], to: 'blocked_from', action: 'move' },
   cancel: { from: OPEN_STATES, to: 'cancelled', action: 'move', reason: true },

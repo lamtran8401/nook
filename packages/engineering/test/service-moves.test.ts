@@ -377,3 +377,23 @@ describe('Engineering.archive', () => {
     expect(t.kit(LEAD).archive('SHOP-1')).toBeNull()
   })
 })
+
+describe('Engineering.moveItem: reopen ends an auto run', () => {
+  test('a reopened item is back in mode normal: the auto run ended at the accept', () => {
+    itemAt(t, 'cooking')
+    const lead = t.kit(LEAD)
+    t.kit(OWNER).setMode('SHOP-1', 'auto')
+    lead.ledger.run("UPDATE item SET state = 'done' WHERE id = 'SHOP-1'")
+    lead.moveItem('reopen', 'SHOP-1', { reason: 'a gap of the page' })
+    expect([lead.item('SHOP-1').state, lead.item('SHOP-1').mode]).toEqual(['cooking', 'normal'])
+  })
+
+  test('a reject inside an auto run keeps the mode auto', () => {
+    itemAt(t, 'cooking')
+    const lead = t.kit(LEAD)
+    t.kit(OWNER).setMode('SHOP-1', 'auto')
+    lead.ledger.run("UPDATE item SET state = 'checking' WHERE id = 'SHOP-1'")
+    lead.moveItem('reject', 'SHOP-1', { reason: 'AC 1 not met' })
+    expect(lead.item('SHOP-1').mode).toBe('auto')
+  })
+})

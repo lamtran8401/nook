@@ -48,13 +48,13 @@ function backgroundWorks(input: HookInput): boolean {
   return tasks.some(task => RUNNING.test(String(task.status ?? '')))
 }
 
-/** The holds before this one. A stuck lead is let go after MAX_HOLDS in a row, and the count starts again. */
+/** The holds before this one. A stuck lead is let go after MAX_HOLDS in a row, until a move of the item starts the count again. */
 function countHold(eng: Engineering, session: string, item: string): number {
   const sessions = eng.stores.sessions
   return eng.ledger.write(() => {
     sessions.ensure(session, item)
     const count = sessions.holds(session)
-    sessions.setHolds(session, count >= MAX_HOLDS ? 0 : count + 1)
+    if (count < MAX_HOLDS) sessions.setHolds(session, count + 1)
     return count
   })
 }

@@ -70,13 +70,17 @@ describe('stopDriver', () => {
     expect(stop().kind).toBe('pass')
   })
 
-  test('a stuck lead is let go after MAX_HOLDS holds, then the count starts again', () => {
+  test('a stuck lead is let go after MAX_HOLDS holds, and stays let go until it moves the item', () => {
     itemAt(t, 'framing')
     const lead = t.kit(LEAD)
     pickup(lead, 'SHOP-1')
     t.kit(OWNER).setMode('SHOP-1', 'auto')
     for (let i = 1; i <= MAX_HOLDS; i++) expect(reason(stop({ stop_hook_active: i > 1 }))).toContain(`hold ${i} of ${MAX_HOLDS}`)
     expect(stop({ stop_hook_active: true }).kind).toBe('pass')
+    expect(stop().kind).toBe('pass')
+    expect(stop().kind).toBe('pass')
+    writeDoc(t, 'SHOP-1', 'spec.md', SPEC())
+    lead.moveItem('agree', 'SHOP-1')
     expect(reason(stop())).toContain(`hold 1 of ${MAX_HOLDS}`)
   })
 

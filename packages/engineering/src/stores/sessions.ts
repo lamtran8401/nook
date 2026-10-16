@@ -8,11 +8,11 @@ export class SessionStore {
     private readonly who: Who,
   ) {}
 
-  /** The caller's session leads `item`; a session that moves to another item starts its hold count again. */
+  /** The caller's session leads `item`; a move is progress, so it starts the hold count again. */
   record(item: string): void {
     if (!this.who.session) return
     this.ledger.run(
-      'INSERT INTO session (id, item, role, holds, seen_at) VALUES (?, ?, ?, 0, ?) ON CONFLICT(id) DO UPDATE SET holds = CASE WHEN session.item = excluded.item THEN session.holds ELSE 0 END, item = excluded.item, role = excluded.role, seen_at = excluded.seen_at',
+      'INSERT INTO session (id, item, role, holds, seen_at) VALUES (?, ?, ?, 0, ?) ON CONFLICT(id) DO UPDATE SET holds = 0, item = excluded.item, role = excluded.role, seen_at = excluded.seen_at',
       this.who.session,
       item,
       this.who.role,

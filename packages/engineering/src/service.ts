@@ -299,6 +299,7 @@ export class Engineering {
       this.stores.approvals.clear(item.id)
       fields.evidence_from = this.stores.checks.lastId()
     }
+    if (move.endsAuto) fields.mode = 'normal'
     this.stores.items.update(item.id, fields)
     this.stores.events.record(item.id, name, { from: item.state, to: state, reason })
     if (this.who.role === 'lead') this.stores.sessions.record(item.id)
