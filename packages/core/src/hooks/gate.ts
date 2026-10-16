@@ -16,7 +16,8 @@ const EVENT = 'UserPromptExpansion'
 export function gateHook(input: HookInput, deps: GateDeps): HookResult {
   const name = String(input.command_name ?? '').replace(/^.*:/, '')
   if (name !== 'gate' && !deps.modules.some(m => m.commands?.includes(name))) return pass
-  if (input.agent_id || input.agent_type) return block(`/${name} runs only from the prompt of the owner, not inside an agent.`)
+  // only a subagent or a teammate has an agent id; a main session under an agent definition has only the type
+  if (input.agent_id) return block(`/${name} runs only from the prompt of the owner, not inside an agent.`)
   const nested = deps.startedByTool ?? (() => startedByTool(ancestorCommands()))
   if (nested()) return block(`/${name} runs only in a session that the owner started, not in a session that a tool started.`)
   const cwd = input.cwd ?? process.cwd()

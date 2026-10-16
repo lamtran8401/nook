@@ -60,6 +60,11 @@ describe('gateHook', () => {
     expect(calls).toEqual([])
   })
 
+  test('a main session that runs under an agent definition, as a background session, is the owner: its typed command runs', () => {
+    expect(contextOf(typed('kit-engineering:auto', 'IT-1', { agent_type: 'claude' }))).toBe('Kit auto: the owner typed /auto IT-1. It ran.\nIT-1 mode auto')
+    expect(calls).toEqual([['auto', 'IT-1']])
+  })
+
   test('a session that a tool started is blocked and runs nothing', () => {
     expect(run('approve IT-1', {}, [pack()], true)).toEqual({ kind: 'block', reason: '/gate runs only in a session that the owner started, not in a session that a tool started.' })
     expect(calls).toEqual([])
