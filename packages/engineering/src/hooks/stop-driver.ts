@@ -32,10 +32,19 @@ export function stopDriver(input: HookInput): HookResult {
     if (session) eng.ledger.write(() => eng.stores.sessions.resetHolds(session))
     return pass
   }
+  if (backgroundWorks(input) && !eng.stores.questions.openBlocking(item.id).length) return pass
   if (!session) return hold(`${item.id}: ${reasons.join('; ')}`)
   const holds = countHold(eng, session, item.id)
   if (holds >= MAX_HOLDS) return pass
   return hold(`${item.id}: ${reasons.join('; ')} (hold ${holds + 1} of ${MAX_HOLDS})`)
+}
+
+const ENDED = /^(completed|done|failed|killed|stopped|cancelled|error)/
+
+/** A background task that has not ended wakes the lead when it reports, so a hold now only repeats "still running". */
+function backgroundWorks(input: HookInput): boolean {
+  const tasks = Array.isArray(input.background_tasks) ? (input.background_tasks as { status?: unknown }[]) : []
+  return tasks.some(task => !ENDED.test(String(task.status ?? '')))
 }
 
 /** The holds before this one. A stuck lead is let go after MAX_HOLDS in a row, and the count starts again. */

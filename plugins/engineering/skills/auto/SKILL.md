@@ -31,10 +31,13 @@ Run `kit eng next <id>`: it names the stage. Read `${CLAUDE_PLUGIN_ROOT}/skills/
 The mode is the owner's instruction to run the next stage yourself; do not ask.
 The Stop hook holds the session while the next stage is yours; its reason names the file.
 Each guess, at once: `kit eng guess <id> "<question>" --took "<a>" --other "<b>" --impact low|med|high --slices T1,T2`. It must make sense with no context.
+A guess fills a gap in the ticket; it never cuts the ticket. An answer that drops or narrows a sentence of the ticket is a stop rule, not a guess.
+The Stop hook lets you wait while a background agent works; its report wakes you.
 
 ## Stop rules
 Stop, write `handoff.md` (`/handoff`), and report, when:
 - a slice failed three times and no other slice can run;
+- an answer would drop or narrow what the ticket asks for, as "the button shows but does not load the next page": register it with `kit eng ask <id> "<text>" --blocking --rec "<answer>"` and ask;
 - the spec has a gap that changes what the owner asked for (a gap in the plan needs only `kit eng item replan <id> --reason`, then a new `proceed`);
 - two reject cycles in checking did not meet every AC;
 - a step is hard to undo (a push, a migration, a deletion, a breaking contract change): register it with `kit eng ask <id> "<text>" --blocking --rec "<answer>"` and ask;

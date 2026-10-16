@@ -80,6 +80,24 @@ describe('stopDriver', () => {
     expect(reason(stop())).toContain(`hold 1 of ${MAX_HOLDS}`)
   })
 
+  test('an auto run lets the lead wait while a background agent works, and counts no hold', () => {
+    itemAt(t, 'framing')
+    pickup(t.kit(LEAD), 'SHOP-1')
+    t.kit(OWNER).setMode('SHOP-1', 'auto')
+    const agent = { id: 'a-1', type: 'subagent', status: 'running', agent_type: 'kit-engineering:reviewer' }
+    expect(stop({ background_tasks: [agent] }).kind).toBe('pass')
+    expect(stop({ background_tasks: [{ ...agent, status: 'completed' }] }).kind).toBe('json')
+    expect(reason(stop({ stop_hook_active: true }))).toContain(`hold 2 of ${MAX_HOLDS}`)
+  })
+
+  test('a blocking question holds the lead even while a background agent works', () => {
+    itemAt(t, 'framing')
+    const lead = t.kit(LEAD)
+    pickup(lead, 'SHOP-1')
+    lead.ask('SHOP-1', 'which zone?', true)
+    expect(reason(stop({ background_tasks: [{ id: 'a-1', type: 'subagent', status: 'running' }] }))).toContain('blocking question Q1 is open')
+  })
+
   test('the single item in an auto run is found with no session row', () => {
     itemAt(t, 'cooking')
     t.kit(OWNER).setMode('SHOP-1', 'auto')
