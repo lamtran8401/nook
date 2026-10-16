@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { mkdirSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { nextText } from '../src/format.ts'
 import { next } from '../src/report/next.ts'
@@ -47,5 +49,19 @@ describe('next', () => {
     lead.answer('SHOP-2', 'Q1', 'this')
     lead.moveItem('block', 'SHOP-2', { reason: 'waits' })
     expect(next(lead, 'SHOP-2')[0]!.skill).toContain('unblock SHOP-2')
+  })
+
+  test('a done item that was reopened after its close needs a new close', () => {
+    itemAt(t, 'cooking')
+    const lead = t.kit(LEAD)
+    const done = () => lead.ledger.run("UPDATE item SET state = 'done' WHERE id = 'SHOP-1'")
+    mkdirSync(join(t.root, 'backlog', 'SHOP-1'), { recursive: true })
+    done()
+    expect(next(lead, 'SHOP-1')[0]!.skill).toBe('/close SHOP-1')
+    lead.archive('SHOP-1')
+    expect(next(lead, 'SHOP-1')[0]!.skill).toBe('closed')
+    lead.moveItem('reopen', 'SHOP-1', { reason: 'a gap of the page' })
+    done()
+    expect(next(lead, 'SHOP-1')[0]!.skill).toBe('/close SHOP-1')
   })
 })

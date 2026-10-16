@@ -67,7 +67,12 @@ function cookingDetail(eng: Engineering, id: string): string {
   return `${done}/${live.length} slices done, ${running} running, ${eng.stores.slices.ready(id).length} ready`
 }
 
-const isArchived = (eng: Engineering, id: string) => eng.stores.events.last(id, 'archive') !== null
+/** Closed: the ticket was archived after the last reopen; an archive from before a reopen closed the old work only. */
+const isArchived = (eng: Engineering, id: string) => {
+  const archived = eng.stores.events.last(id, 'archive')
+  const reopened = eng.stores.events.last(id, 'reopen')
+  return archived !== null && (reopened === null || archived.id > reopened.id)
+}
 
 const ORDER: Record<State, number> = {
   checking: 0,
