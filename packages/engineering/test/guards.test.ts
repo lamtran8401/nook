@@ -189,6 +189,13 @@ describe('EveryAcInSlice', () => {
       { text: 'AC 2 is in no slice: [CHANGE] the error shows a reason', fix: `add 2 to the acs: line of a slice in ${doc('tasks.md')}, then kit eng task import SHOP-1` },
     ])
   })
+
+  test('a slice that names a criterion the spec no longer has is a gap', () => {
+    planned(TASKS([{ id: 'T1', acs: '1, 2' }, { id: 'T2', acs: '2, 9' }]))
+    expect(new EveryAcInSlice().check(ctx())).toEqual([
+      { text: 'T2 names AC 9, but the spec has 2 criteria', fix: `fix the acs: line of T2 in ${doc('tasks.md')}, then kit eng task import SHOP-1` },
+    ])
+  })
 })
 
 describe('the slice guards on an investigation', () => {

@@ -44,13 +44,24 @@ export class EveryAcInSlice implements Guard {
   check(ctx: GuardContext): Gap[] {
     const tasks = ctx.cleanTasks()
     if (ctx.investigates || !tasks) return []
-    return ctx.stores.criteria
-      .list(ctx.id)
+    const criteria = ctx.stores.criteria.list(ctx.id)
+    const missing = criteria
       .filter(c => !tasks.slices.some(s => s.acs.includes(c.n)))
       .map(c => ({
         text: `AC ${c.n} is in no slice: ${c.text}`,
         fix: fixWith(ctx, `add ${c.n} to the acs: line of a slice`),
       }))
+    // a reframe can renumber the criteria and leave a slice on a number that is gone
+    const known = new Set(criteria.map(c => c.n))
+    const stale = tasks.slices.flatMap(s =>
+      s.acs
+        .filter(n => !known.has(n))
+        .map(n => ({
+          text: `${s.id} names AC ${n}, but the spec has ${criteria.length} criteria`,
+          fix: fixWith(ctx, `fix the acs: line of ${s.id}`),
+        })),
+    )
+    return [...missing, ...stale]
   }
 }
 

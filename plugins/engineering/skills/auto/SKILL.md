@@ -14,6 +14,7 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 1. Read the lines that start with "Kit auto". A hook of the kit ran when the owner typed `/auto`: it named the item and set its mode `auto` as the owner.
    - "It was refused": show the lines, and stop. With several open items, ask with AskUserQuestion which one, and tell the owner to type `/auto <id>`.
    - No "Kit auto" line: the hook did not run. Run `kit doctor`, report each gap, and stop. Never set the mode yourself.
+   - A line "Kit session: background": this session can edit only inside a worktree, and the build of an area happens in place on the branch of the item. Tell the owner before the first stage, in plain words, and ask with AskUserQuestion: go on in a normal session (recommended), or run the spec and the plan here and stop before the build.
 2. Run `kit eng item show <id>`. The mode must be `auto`, set by the owner (`mode_by`).
 3. An item that the hook "made from the prompt": the words of the owner are the ticket. Write `backlog/<id>/ticket.md` from them, then run intake from its step 3.
 4. The words after an id are the owner's context; they win over the ticket, cited as `(owner)`.

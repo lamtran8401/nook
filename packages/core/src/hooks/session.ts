@@ -20,6 +20,11 @@ export function ancestorCommands(pid = process.ppid, limit = 40): string[] {
   return chain
 }
 
+/** True when Claude runs this session in the background: its spare and its pty host stand above the hook. */
+export function inBackground(chain: string[]): boolean {
+  return chain.some(command => CLAUDE.test(command) && /\sbg-(?:spare|pty-host)(\s|$)/.test(command))
+}
+
 /** True when a shell stands between the nearest Claude session and another Claude session above it. */
 export function startedByTool(chain: string[]): boolean {
   const first = chain.findIndex(c => CLAUDE.test(c) && !INFRA.test(c))

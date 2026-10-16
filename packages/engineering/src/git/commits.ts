@@ -18,8 +18,12 @@ export type CommitEntry = {
 }
 export type CommitPlan = { entries: CommitEntry[]; skipped: string[] }
 
+type Ready = { slice: Slice; area: string; repo: GitRepo; files: string[] }
+
+/** `done` holds the done slices in the order that they finished, the oldest first. */
 export function planCommits(home: Home, id: string, done: Slice[]): CommitPlan {
   const plan: CommitPlan = { entries: [], skipped: [] }
+  const ready: Ready[] = []
   for (const slice of done) {
     const area = home.areaNamed(slice.area)
     const repo = new GitRepo(home.areaDir(area))
@@ -33,17 +37,39 @@ export function planCommits(home: Home, id: string, done: Slice[]): CommitPlan {
       )
       continue
     }
-    const files = slice.files.map(f => home.fileInArea(area, f))
+    ready.push({ slice, area: area.name, repo, files: slice.files.map(f => home.fileInArea(area, f)) })
+  }
+  const owned = ownChangedFiles(ready)
+  for (const r of ready) {
+    const files = owned.get(r)!
+    if (!files.length) {
+      plan.skipped.push(`${r.slice.id}: nothing changed since its last commit`)
+      continue
+    }
     plan.entries.push({
-      slice: slice.id,
-      area: area.name,
-      dir: repo.dir,
-      branch: repo.branch(),
+      slice: r.slice.id,
+      area: r.area,
+      dir: r.repo.dir,
+      branch: r.repo.branch(),
       files,
-      message: `${id} ${slice.id}: ${slice.title}`,
+      message: `${id} ${r.slice.id}: ${r.slice.title}`,
     })
   }
   return plan
+}
+
+/** A file that changed since the last commit belongs to the slice that touched it last, so no commit takes the work of another slice. */
+function ownChangedFiles(ready: Ready[]): Map<Ready, string[]> {
+  const left = new Map<string, Set<string>>()
+  const owned = new Map<Ready, string[]>()
+  for (const r of [...ready].reverse()) {
+    const changed = left.get(r.repo.dir) ?? new Set(r.repo.changedSince('HEAD'))
+    left.set(r.repo.dir, changed)
+    const mine = r.files.filter(f => changed.has(f))
+    for (const f of mine) changed.delete(f)
+    owned.set(r, mine)
+  }
+  return owned
 }
 
 /** Makes the commits and sets the short hash of each entry; first refuses an area on a protected branch. */

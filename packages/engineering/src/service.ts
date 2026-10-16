@@ -764,11 +764,20 @@ export class Engineering {
         `${id} is ${item.state}: commits come from cooking, checking or done`,
         `kit eng next ${id}`,
       )
-    return planCommits(
-      this.home,
-      id,
-      this.stores.slices.live(id).filter(s => s.state === 'done'),
-    )
+    return planCommits(this.home, id, this.doneInOrder(id))
+  }
+
+  /** The done slices in the order that they last finished, from the task events that the kit writes as "<T> done". */
+  private doneInOrder(id: string): Slice[] {
+    const finished = new Map<string, number>()
+    for (const e of this.stores.events.history(id)) {
+      const slice = e.type === 'task' && e.to_state === 'done' ? /^(\S+) done\b/.exec(e.reason ?? '')?.[1] : undefined
+      if (slice) finished.set(slice, e.id)
+    }
+    return this.stores.slices
+      .live(id)
+      .filter(s => s.state === 'done')
+      .sort((a, b) => (finished.get(a.id) ?? 0) - (finished.get(b.id) ?? 0))
   }
 
   commit(id: string): CommitPlan {
