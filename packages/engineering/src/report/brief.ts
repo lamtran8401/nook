@@ -43,6 +43,12 @@ export function brief(eng: Engineering): BriefLine[] {
     if (item.state === 'cooking' && Date.now() - Date.parse(item.updated) > DAY_MS)
       line('today', id, `${id} is cooking with no activity for a day`, `/pickup ${id}`)
   }
+  // a done item keeps its knowledge, its commits and its ticket open until /close runs
+  for (const item of eng.stores.items.list().filter(i => i.state === 'done')) {
+    const step = nextFor(eng, item)
+    if (step.skill.startsWith('/close'))
+      line('today', item.id, `${item.id} is done and waits for its close: ${cut(item.title, 60)}`, step.skill)
+  }
   return lines
 }
 

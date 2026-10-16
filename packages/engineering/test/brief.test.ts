@@ -31,6 +31,19 @@ describe('brief', () => {
   })
 })
 
+describe('brief: a close that waits', () => {
+  test('a done item that is not closed waits for its /close; a closed one does not', () => {
+    itemAt(t, 'planning')
+    itemAt(t, 'planning', 'SHOP-2')
+    const lead = t.kit(LEAD)
+    lead.ledger.run("UPDATE item SET state = 'done' WHERE id IN ('SHOP-1', 'SHOP-2')")
+    lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-2', 'archive', NULL, NULL, 'lead', 'lead', '2026-10-16T10:00:00.000Z')")
+    expect(brief(lead).map(l => [l.urgency, l.ref, l.text, l.action])).toEqual([
+      ['today', 'SHOP-1', 'SHOP-1 is done and waits for its close: the export date is off', '/close SHOP-1'],
+    ])
+  })
+})
+
 describe('doneSince', () => {
   test('an item accepted since the time is done, and closed when its archive came after', () => {
     itemAt(t, 'planning')

@@ -161,6 +161,7 @@ describe('engineeringModule: the daily brief', () => {
     lead.newItem({ id: 'SHOP-3', title: 'the new export', areas: ['bff'] })
     expect(engineeringModule.brief!(t.root, new Date('2026-10-15T00:00:00.000Z'))).toEqual([
       { part: 'waits', urgent: true, text: 'SHOP-1 waits for your approve: the export date is off', action: '/gate approve SHOP-1' },
+      { part: 'waits', urgent: false, text: 'SHOP-2 is done and waits for its close: the export date is off', action: '/close SHOP-2' },
       { part: 'done', text: 'SHOP-2 accepted: the export date is off' },
       { part: 'runs', text: 'SHOP-3 backlog: the new export', action: '/spec SHOP-3' },
     ])
