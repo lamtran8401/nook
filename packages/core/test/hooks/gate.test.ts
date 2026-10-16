@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import type { GateResult, PackModule } from '@kit/env/env.ts'
 
 import { gateHook } from '../../src/hooks/gate.ts'
-import { startedByTool } from '../../src/hooks/session.ts'
+import { inBackground, startedByTool } from '../../src/hooks/session.ts'
 import { initIn, removeDir, tempDir } from '../helpers.ts'
 
 let root: string
@@ -29,8 +29,11 @@ const pack = (result: GateResult = { ok: true, lines: ['IT-1 is ready', 'next: /
   commands: ['auto'],
   command: (_dir, name, args) => (calls.push([name, args]), { ok: true, lines: ['IT-1 mode auto'] }),
 })
-const typed = (name: string, args: string, extra: Record<string, unknown> = {}) =>
-  gateHook({ cwd: root, session_id: 's-1', command_name: name, command_args: args, ...extra }, { modules: [pack()], startedByTool: () => false })
+const typed = (name: string, args: string, extra: Record<string, unknown> = {}, background = false) =>
+  gateHook(
+    { cwd: root, session_id: 's-1', command_name: name, command_args: args, ...extra },
+    { modules: [pack()], startedByTool: () => false, inBackground: () => background },
+  )
 const run = (args: string, extra: Record<string, unknown> = {}, modules = [pack()], nested = false) =>
   gateHook({ cwd: root, session_id: 's-1', command_name: 'kit:gate', command_args: args, ...extra }, { modules, startedByTool: () => nested })
 const contextOf = (r: ReturnType<typeof run>) => (r.kind === 'json' ? (r.value.hookSpecificOutput as { additionalContext: string }).additionalContext : '')
@@ -81,8 +84,24 @@ describe('gateHook', () => {
     expect(calls).toEqual([])
   })
 
+  test('a typed command in a background session says that the session edits only inside a worktree', () => {
+    expect(contextOf(typed('kit-engineering:auto', 'IT-1', {}, true))).toBe(
+      'Kit auto: the owner typed /auto IT-1. It ran.\nIT-1 mode auto\nKit session: background. Claude Code lets this session edit only inside a worktree, so the build of an area cannot run here.',
+    )
+  })
+
   test('another command passes untouched', () => {
     expect(gateHook({ cwd: root, command_name: 'kit-engineering:cook', command_args: 'IT-1' }, { modules: [pack()], startedByTool: () => false })).toEqual({ kind: 'pass' })
+  })
+})
+
+describe('inBackground', () => {
+  test('a background session has the spare and the pty host of Claude above it', () => {
+    expect(inBackground(['/bin/sh -c hook', 'claude bg-spare --bg-spare /tmp/x.sock', 'claude bg-pty-host --bg-pty-host /tmp/x.pty', '/Users/a/.local/bin/claude daemon run'])).toBe(true)
+  })
+
+  test('a session in a terminal is not in the background', () => {
+    expect(inBackground(['/bin/zsh', 'claude', '-zsh', 'login -pfl admin'])).toBe(false)
   })
 })
 

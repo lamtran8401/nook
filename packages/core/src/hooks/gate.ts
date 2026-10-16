@@ -1,7 +1,7 @@
 import { activePacks, type PackModule } from '@kit/env/env.ts'
 import { block, context, type HookInput, type HookResult, pass } from '@kit/shared/hook.ts'
 
-import { ancestorCommands, startedByTool } from './session.ts'
+import { ancestorCommands, inBackground, startedByTool } from './session.ts'
 
 /**
  * UserPromptExpansion of /gate and of the typed commands of a pack, as /auto: they run as the owner because the owner
@@ -9,9 +9,11 @@ import { ancestorCommands, startedByTool } from './session.ts'
  * calls; the hook also refuses an agent and a session that a tool started.
  */
 
-export type GateDeps = { modules: PackModule[]; startedByTool?: () => boolean }
+export type GateDeps = { modules: PackModule[]; startedByTool?: () => boolean; inBackground?: () => boolean }
 
 const EVENT = 'UserPromptExpansion'
+const BACKGROUND =
+  'Kit session: background. Claude Code lets this session edit only inside a worktree, so the build of an area cannot run here.'
 
 export function gateHook(input: HookInput, deps: GateDeps): HookResult {
   const name = String(input.command_name ?? '').replace(/^.*:/, '')
@@ -25,7 +27,10 @@ export function gateHook(input: HookInput, deps: GateDeps): HookResult {
   const modules = deps.modules.filter(m => active.some(p => p.name === m.name))
   const homeOf = (m: PackModule) => active.find(p => p.name === m.name)!.home.dir
   const args = String(input.command_args ?? '').trim()
-  if (name !== 'gate') return typedCommand(name, args, modules, homeOf, input.session_id ?? null)
+  if (name !== 'gate') {
+    const background = (deps.inBackground ?? (() => inBackground(ancestorCommands())))()
+    return typedCommand(name, args, modules, homeOf, input.session_id ?? null, background)
+  }
   const words = args.split(/\s+/).filter(Boolean)
   if (!words.length) return context(EVENT, waitingText(modules, homeOf))
   const owner = modules.find(m => m.gates?.includes(words[0]!))
@@ -38,12 +43,19 @@ export function gateHook(input: HookInput, deps: GateDeps): HookResult {
   return context(EVENT, [head, ...result.lines].join('\n'))
 }
 
-function typedCommand(name: string, args: string, modules: PackModule[], homeOf: (m: PackModule) => string, session: string | null): HookResult {
+function typedCommand(
+  name: string,
+  args: string,
+  modules: PackModule[],
+  homeOf: (m: PackModule) => string,
+  session: string | null,
+  background: boolean,
+): HookResult {
   const owner = modules.find(m => m.commands?.includes(name))
   if (!owner?.command) return pass
   const result = owner.command(homeOf(owner), name, args, session)
   const head = `Kit ${name}: the owner typed /${name}${args ? ` ${args}` : ''}. ${result.ok ? 'It ran.' : 'It was refused.'}`
-  return context(EVENT, [head, ...result.lines].join('\n'))
+  return context(EVENT, [head, ...result.lines, ...(background ? [BACKGROUND] : [])].join('\n'))
 }
 
 function waitingText(modules: PackModule[], homeOf: (m: PackModule) => string): string {
