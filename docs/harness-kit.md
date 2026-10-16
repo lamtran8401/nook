@@ -92,9 +92,11 @@ Each step starts with your expectations as scenarios in `docs/expect/v0.x.md`: w
 
 | Step | Parts | Checks |
 |---|---|---|
-| v0.1 work | first the scaffold (`kit init`, the templates, `/setup`), tried in your own boundaries; then core, engineering, the walkthrough page, jira | a session shows every layer; a real item goes from intake to close; the gates refuse the model; a test that cannot fail is caught |
+| v0.1 work | first the scaffold (`kit init`, the templates, `/setup`), tried in your own boundaries; then core, engineering, the local item page (`/view`) | a session shows every layer; a real item goes from intake to close; the gates refuse the model; a test that cannot fail is caught |
 | v0.2 grow and learn | wiki; learn as files; `/learn-setup`, `/learn-today`, `/learn-practice`; `/brief`, the first `/retro` | an item cites a wiki page; practice on 5 days; the top patterns show; you compare the scores with a real test once |
-| v0.3 answer and report | research, `/report week`, `/learn-progress`, the README, the first public release | a real question ends in a wiki page with sources; the week report needs no edit |
+| v0.3 answer and report | research, `/report week`, `/learn-progress`, the README, the first public release | a real question ends in a wiki page with sources; the week report needs no edit; E-25, the three levels of output on a large subject |
+
+Later, with no step yet: the jira pack, when an environment has a real tracker; the visual helpers deck and sketch; a worktree for each item, when two items share an area.
 
 After each step, measure: items on the full path against `/quick`; your minutes at the gates; items sent back and why; the context cost of wiki reads and craft skills.
 
