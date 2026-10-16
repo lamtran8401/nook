@@ -38,6 +38,21 @@ describe('Engineering.importTasks', () => {
     expect(lead.stores.slices.list('SHOP-1').find(s => s.id === 'T2')?.state).toBe('running')
   })
 
+  test('a done slice takes a new mapping to the criteria and keeps its work; a new area is not taken', () => {
+    itemAt(t, 'planning')
+    const lead = t.kit(LEAD)
+    writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1', acs: '1, 2, 3' }]))
+    lead.importTasks('SHOP-1')
+    lead.ledger.run("UPDATE slice SET state = 'done', assignee = 'lead', proof = 'proven' WHERE item = 'SHOP-1' AND id = 'T1'")
+    writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1', acs: '1', title: 'the export date, renumbered' }]))
+    expect(lead.importTasks('SHOP-1')).toEqual({ created: [], updated: ['T1'], cancelled: [], kept: [] })
+    const t1 = lead.stores.slices.list('SHOP-1').find(s => s.id === 'T1')!
+    expect([t1.state, t1.proof, t1.acs, t1.title]).toEqual(['done', 'proven', [1], 'the export date, renumbered'])
+    writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1', acs: '1', title: 'the export date, renumbered', area: 'web' }]))
+    expect(lead.importTasks('SHOP-1').kept).toEqual(['T1 (done)'])
+    expect(lead.stores.slices.list('SHOP-1').find(s => s.id === 'T1')!.area).toBe('bff')
+  })
+
   test('refuses a file with problems, and refuses from ready on with exit 3', () => {
     itemAt(t, 'planning')
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1', area: '' }]))

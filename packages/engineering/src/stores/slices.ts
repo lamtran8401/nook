@@ -124,6 +124,19 @@ export class SliceStore {
   }
 
   /** The slice follows the file again and goes back to todo. */
+  /** A started slice takes a new title, depends, criteria and size; its state, area, files and proof stay. */
+  describe(item: string, spec: SliceSpec): void {
+    this.ledger.run(
+      'UPDATE slice SET title = ?, depends = ?, acs = ?, size = ?, version = version + 1 WHERE item = ? AND id = ?',
+      spec.title,
+      JSON.stringify(spec.depends),
+      JSON.stringify(spec.acs),
+      spec.size,
+      item,
+      spec.id,
+    )
+  }
+
   replace(item: string, spec: SliceSpec): void {
     const skipped = skipsProof(spec)
     this.ledger.run(

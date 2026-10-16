@@ -494,7 +494,11 @@ export class Engineering {
       } else if (old.state === 'cancelled' || (old.state === 'todo' && !sameAsSpec(old, spec))) {
         slices.replace(id, spec)
         report.updated.push(spec.id)
-      } else if (old.state !== 'todo') report.kept.push(`${spec.id} (${old.state})`)
+      } else if (old.state !== 'todo' && old.area === spec.area && !sameAsSpec(old, spec)) {
+        // a reframe renumbers the criteria: the description of a started slice follows; its work stays
+        slices.describe(id, spec)
+        report.updated.push(spec.id)
+      } else if (old.state !== 'todo' && !sameAsSpec(old, spec)) report.kept.push(`${spec.id} (${old.state})`)
     }
     const inFile = new Set(tasks.slices.map(s => s.id))
     for (const old of have.values()) {
