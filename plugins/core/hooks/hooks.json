@@ -12,7 +12,7 @@
       { "matcher": "startup|resume|compact", "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/kit\" hook start", "timeout": 20 }] }
     ],
     "UserPromptExpansion": [
-      { "matcher": ".*gate", "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/kit\" hook gate", "timeout": 30 }] }
+      { "matcher": ".*(gate|auto)", "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/kit\" hook gate", "timeout": 30 }] }
     ]
   }
 }

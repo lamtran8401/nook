@@ -1,7 +1,7 @@
 ---
 name: auto
-description: "Run an item in mode auto from its state to the owner's accept: the lead runs the phases, records each guess, passes the plan gate with proceed, and stops at a stop rule. Use when the owner types /auto after /gate mode <id> auto."
-argument-hint: "[item id] [context for the lead]"
+description: "Run an item alone from its state to the owner's accept: the lead runs the phases, records each guess, passes the plan gate with proceed, and stops at a stop rule. Use when the owner types /auto with an id, a prompt, or nothing."
+argument-hint: "[item id | what to build] [context for the lead]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Edit, Write
 ---
@@ -11,8 +11,12 @@ The gain is time; the cost is guesses, so each one is small and recorded.
 The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 
 ## Start
-1. Run `kit eng item show <id>`. The mode must be `auto`, set by the owner (`mode_by`). Else say: type `/gate mode <id> auto` in the prompt, and stop. Never set it yourself.
-2. The words after the id are the owner's context; they win over the ticket, cited as `(owner)`.
+1. Read the lines that start with "Kit auto". A hook of the kit ran when the owner typed `/auto`: it named the item and set its mode `auto` as the owner.
+   - "It was refused": show the lines, and stop. With several open items, ask with AskUserQuestion which one, and tell the owner to type `/auto <id>`.
+   - No "Kit auto" line: the hook did not run. Run `kit doctor`, report each gap, and stop. Never set the mode yourself.
+2. Run `kit eng item show <id>`. The mode must be `auto`, set by the owner (`mode_by`).
+3. An item that the hook "made from the prompt": the words of the owner are the ticket. Write `backlog/<id>/ticket.md` from them, then run intake from its step 3.
+4. The words after an id are the owner's context; they win over the ticket, cited as `(owner)`.
 
 ## The stages
 Run `kit eng next <id>`: it names the stage. Read `${CLAUDE_PLUGIN_ROOT}/skills/<stage>/SKILL.md` and follow it from step 1, with these changes:

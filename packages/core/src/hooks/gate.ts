@@ -4,26 +4,28 @@ import { block, context, type HookInput, type HookResult, pass } from '@kit/shar
 import { ancestorCommands, startedByTool } from './session.ts'
 
 /**
- * UserPromptExpansion of /gate: an owner move that runs because the owner typed it. Claude Code fires this event only
- * for a command that a person types, never for a skill that the model calls; the hook also refuses an agent and a
- * session that a tool started.
+ * UserPromptExpansion of /gate and of the typed commands of a pack, as /auto: they run as the owner because the owner
+ * typed them. Claude Code fires this event only for a command that a person types, never for a skill that the model
+ * calls; the hook also refuses an agent and a session that a tool started.
  */
 
 export type GateDeps = { modules: PackModule[]; startedByTool?: () => boolean }
 
 const EVENT = 'UserPromptExpansion'
-const IS_GATE = /(^|:)gate$/
 
 export function gateHook(input: HookInput, deps: GateDeps): HookResult {
-  if (!IS_GATE.test(String(input.command_name ?? ''))) return pass
-  if (input.agent_id || input.agent_type) return block('/gate runs only from the prompt of the owner, not inside an agent.')
+  const name = String(input.command_name ?? '').replace(/^.*:/, '')
+  if (name !== 'gate' && !deps.modules.some(m => m.commands?.includes(name))) return pass
+  if (input.agent_id || input.agent_type) return block(`/${name} runs only from the prompt of the owner, not inside an agent.`)
   const nested = deps.startedByTool ?? (() => startedByTool(ancestorCommands()))
-  if (nested()) return block('/gate runs only in a session that the owner started, not in a session that a tool started.')
+  if (nested()) return block(`/${name} runs only in a session that the owner started, not in a session that a tool started.`)
   const cwd = input.cwd ?? process.cwd()
   const active = activePacks(cwd)
   const modules = deps.modules.filter(m => active.some(p => p.name === m.name))
   const homeOf = (m: PackModule) => active.find(p => p.name === m.name)!.home.dir
-  const words = String(input.command_args ?? '').trim().split(/\s+/).filter(Boolean)
+  const args = String(input.command_args ?? '').trim()
+  if (name !== 'gate') return typedCommand(name, args, modules, homeOf, input.session_id ?? null)
+  const words = args.split(/\s+/).filter(Boolean)
   if (!words.length) return context(EVENT, waitingText(modules, homeOf))
   const owner = modules.find(m => m.gates?.includes(words[0]!))
   if (!owner?.gate) {
@@ -32,6 +34,14 @@ export function gateHook(input: HookInput, deps: GateDeps): HookResult {
   }
   const result = owner.gate(homeOf(owner), words, input.session_id ?? null)
   const head = `Kit gate: the owner typed /gate ${words.join(' ')}. ${result.ok ? 'The move ran.' : 'The move was refused.'}`
+  return context(EVENT, [head, ...result.lines].join('\n'))
+}
+
+function typedCommand(name: string, args: string, modules: PackModule[], homeOf: (m: PackModule) => string, session: string | null): HookResult {
+  const owner = modules.find(m => m.commands?.includes(name))
+  if (!owner?.command) return pass
+  const result = owner.command(homeOf(owner), name, args, session)
+  const head = `Kit ${name}: the owner typed /${name}${args ? ` ${args}` : ''}. ${result.ok ? 'It ran.' : 'It was refused.'}`
   return context(EVENT, [head, ...result.lines].join('\n'))
 }
 

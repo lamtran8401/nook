@@ -26,7 +26,11 @@ const pack = (result: GateResult = { ok: true, lines: ['IT-1 is ready', 'next: /
   gates: ['approve', 'accept', 'mode'],
   gate: (_dir, words) => (calls.push(words), result),
   waiting: () => [{ words: 'approve IT-1', why: 'IT-1 is planning, no gap' }],
+  commands: ['auto'],
+  command: (_dir, name, args) => (calls.push([name, args]), { ok: true, lines: ['IT-1 mode auto'] }),
 })
+const typed = (name: string, args: string, extra: Record<string, unknown> = {}) =>
+  gateHook({ cwd: root, session_id: 's-1', command_name: name, command_args: args, ...extra }, { modules: [pack()], startedByTool: () => false })
 const run = (args: string, extra: Record<string, unknown> = {}, modules = [pack()], nested = false) =>
   gateHook({ cwd: root, session_id: 's-1', command_name: 'kit:gate', command_args: args, ...extra }, { modules, startedByTool: () => nested })
 const contextOf = (r: ReturnType<typeof run>) => (r.kind === 'json' ? (r.value.hookSpecificOutput as { additionalContext: string }).additionalContext : '')
@@ -58,6 +62,17 @@ describe('gateHook', () => {
 
   test('a session that a tool started is blocked and runs nothing', () => {
     expect(run('approve IT-1', {}, [pack()], true)).toEqual({ kind: 'block', reason: '/gate runs only in a session that the owner started, not in a session that a tool started.' })
+    expect(calls).toEqual([])
+  })
+
+  test('a typed command that a pack names runs as the owner and gives its lines as context', () => {
+    const r = typed('kit-engineering:auto', 'IT-1 keep the old export')
+    expect(contextOf(r)).toBe('Kit auto: the owner typed /auto IT-1 keep the old export. It ran.\nIT-1 mode auto')
+    expect(calls).toEqual([['auto', 'IT-1 keep the old export']])
+  })
+
+  test('a typed command of a pack inside an agent is blocked and runs nothing', () => {
+    expect(typed('kit-engineering:auto', 'IT-1', { agent_id: 'a-1', agent_type: 'general-purpose' })).toEqual({ kind: 'block', reason: '/auto runs only from the prompt of the owner, not inside an agent.' })
     expect(calls).toEqual([])
   })
 

@@ -6,6 +6,7 @@ import { EvError } from '@kit/shared/errors.ts'
 
 import { Home } from './home.ts'
 import { Ledger } from './ledger.ts'
+import { isOpen } from './machine.ts'
 import { OWNER_STEP } from './owner-step.ts'
 import { doctor } from './report/doctor.ts'
 import { next } from './report/next.ts'
@@ -71,6 +72,39 @@ export const engineeringModule: PackModule = {
       .filter(n => n.skill.startsWith(OWNER_STEP))
       .map(n => ({ words: n.skill.slice(OWNER_STEP.length), why: `${n.id} is ${n.state}, no gap` }))
   },
+
+  commands: ['auto'],
+
+  command(dir, _name, args, session) {
+    const home = Home.find(dir)
+    if (!home) return { ok: false, lines: ['the engineering pack is not on here'] }
+    const eng = Engineering.open(home, new Who('owner', 'owner via /auto', session))
+    return refusedAsLines(() => {
+      const target = autoTarget(eng, args)
+      if ('ok' in target) return target
+      const item = eng.setMode(target.id, 'auto')
+      const after = next(eng, target.id)[0]
+      return { ok: true, lines: [...target.lines, `${item.id} mode ${item.mode}`, ...(after ? [`next: ${after.skill}`] : [])] }
+    })
+  },
+}
+
+const KEY = /^[A-Z][A-Z0-9]*-\d+$/
+
+/** The item of a typed /auto: the item that the owner named, a new item from the prompt, or the one open item. */
+function autoTarget(eng: Engineering, args: string): { id: string; lines: string[] } | GateResult {
+  const first = args.split(/\s+/)[0] ?? ''
+  const named = first && eng.stores.items.find(first)
+  if (named) return isOpen(named.state) ? { id: named.id, lines: [] } : { ok: false, lines: [`${named.id} is ${named.state}: /auto runs an open item`] }
+  if (args) {
+    const rest = args.slice(first.length).trim()
+    const made = eng.newItem(KEY.test(first) ? { id: first, title: rest || first } : { title: args })
+    return { id: made.id, lines: [`${made.id} made from the prompt`] }
+  }
+  const open = eng.stores.items.open()
+  if (open.length === 1) return { id: open[0]!.id, lines: [] }
+  if (!open.length) return { ok: false, lines: ['no open item: type /auto <id>, or /auto and what to build'] }
+  return { ok: false, lines: [`several open items: type /auto with one of ${open.map(i => i.id).join(', ')}`] }
 }
 
 /** A refusal of the tool becomes lines for the owner: the reason, then its fix. */
