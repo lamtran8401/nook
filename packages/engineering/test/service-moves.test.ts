@@ -376,6 +376,19 @@ describe('Engineering.archive', () => {
     itemAt(t, 'backlog')
     expect(t.kit(LEAD).archive('SHOP-1')).toBeNull()
   })
+
+  test('reopen brings the archived ticket folder back, so the spec reads the ticket again', () => {
+    itemAt(t, 'cooking')
+    const lead = t.kit(LEAD)
+    mkdirSync(join(t.root, 'backlog', 'SHOP-1'), { recursive: true })
+    writeFileSync(join(t.root, 'backlog', 'SHOP-1', 'ticket.md'), '# SHOP-1\n')
+    lead.archive('SHOP-1')
+    lead.ledger.run("UPDATE item SET state = 'done' WHERE id = 'SHOP-1'")
+    const result = lead.moveItem('reopen', 'SHOP-1', { reason: 'a gap of the page' })
+    expect(readFileSync(join(t.root, 'backlog', 'SHOP-1', 'ticket.md'), 'utf8')).toBe('# SHOP-1\n')
+    expect(existsSync(join(t.root, 'backlog', 'archive', 'SHOP-1'))).toBe(false)
+    expect(result.notes).toContain('the ticket is back in backlog/SHOP-1/')
+  })
 })
 
 describe('Engineering.moveItem: reopen ends an auto run', () => {

@@ -231,13 +231,26 @@ export class Engineering {
     return this.item(id)
   }
 
+  private archivedDir(id: string): string {
+    return join(this.home.backlogRoot, 'archive', id)
+  }
+
+  /** The archived ticket folder goes back to the backlog; nothing moves when it is not archived or a folder is in the way. */
+  private unarchive(id: string): string[] {
+    const from = this.archivedDir(id)
+    const to = this.home.backlogDir(id)
+    if (!existsSync(from) || existsSync(to)) return []
+    renameSync(from, to)
+    return [`the ticket is back in ${this.home.config.backlog}/${id}/`]
+  }
+
   /** Moves the ticket folder to `backlog/archive/<id>/`; null when the item has none, as a quick fix with no ticket. */
   archive(id: string): string | null {
     this.permissions.assert('item archive')
     this.item(id)
     const from = this.home.backlogDir(id)
     if (!existsSync(from)) return null
-    const to = join(dirname(from), 'archive', id)
+    const to = this.archivedDir(id)
     if (existsSync(to)) throw refused(`${to} exists`, 'remove or rename the old archive folder first')
     mkdirSync(dirname(to), { recursive: true })
     renameSync(from, to)
@@ -300,6 +313,7 @@ export class Engineering {
       fields.evidence_from = this.stores.checks.lastId()
     }
     if (move.endsAuto) fields.mode = 'normal'
+    if (move.unarchives) notes.push(...this.unarchive(item.id))
     this.stores.items.update(item.id, fields)
     this.stores.events.record(item.id, name, { from: item.state, to: state, reason })
     if (this.who.role === 'lead') this.stores.sessions.record(item.id)

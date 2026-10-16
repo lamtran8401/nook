@@ -62,7 +62,7 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | unblock, restore | lead, owner | none |
 
 Rules:
-- A move back (`reject`, `replan`, `reframe`, `reopen`, `restore`) clears the approval and sets `item.evidence_from` to the id of the last check run, so a verify counts only after it. `reopen` also sets the mode back to `normal`: an auto run ends at the accept, and only the owner starts the next one with `/auto`.
+- A move back (`reject`, `replan`, `reframe`, `reopen`, `restore`) clears the approval and sets `item.evidence_from` to the id of the last check run, so a verify counts only after it. `reopen` also sets the mode back to `normal`: an auto run ends at the accept, and only the owner starts the next one with `/auto`. `reopen` and `restore` bring an archived ticket folder back to `backlog/<id>/`, so the stages read the ticket again.
 - A change to the slices or the ACs of an item in `ready` or later is refused with exit 3 and the fix `kit eng item replan <id>`. Nothing voids an approval in silence.
 - `quick <id|title> --area <a>` makes an item in `cooking` with one running slice for the lead, with no spec and no plan. Its accept needs at least one AC (`item ac add`) and a passing verify.
 - Kind `investigate`: Questions in the spec instead of ACs; no slices; `cooking` writes `findings.md`; `accept` needs an answer with evidence for every question.

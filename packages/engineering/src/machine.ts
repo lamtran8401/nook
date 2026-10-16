@@ -67,6 +67,8 @@ export type Move = {
   approves?: boolean
   /** Sets the mode back to normal: an auto run ends at the accept, and only the owner starts the next one. */
   endsAuto?: boolean
+  /** Brings an archived ticket folder back to the backlog: the item is open again and its stages read the ticket. */
+  unarchives?: boolean
   /** The documents that the move writes from their templates. */
   scaffolds?: WorkDoc[]
 }
@@ -102,11 +104,11 @@ export const MOVES: Record<MoveName, Move> = {
     reason: true,
     back: true,
   },
-  reopen: { from: ['done'], to: 'cooking', action: 'move', reason: true, back: true, endsAuto: true },
+  reopen: { from: ['done'], to: 'cooking', action: 'move', reason: true, back: true, endsAuto: true, unarchives: true },
   block: { from: OPEN_NOT_BLOCKED, to: 'blocked', action: 'move', reason: true },
   unblock: { from: ['blocked'], to: 'blocked_from', action: 'move' },
   cancel: { from: OPEN_STATES, to: 'cancelled', action: 'move', reason: true },
-  restore: { from: ['cancelled'], to: 'backlog', action: 'move', back: true },
+  restore: { from: ['cancelled'], to: 'backlog', action: 'move', back: true, unarchives: true },
 }
 
 export function moveNamed(name: string): MoveName {
