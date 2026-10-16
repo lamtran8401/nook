@@ -23,7 +23,7 @@ Write facts about the state, not a diary.
 # Hand-over: SHOP-12
 ## State      the state, the mode, the slices by state; the stop reason when an auto run stopped
 ## Done       what changed since the last note, with the file paths; not the story of how
-## Next       one command and one slice; at a gate, the command the owner types in a terminal
+## Next       one command and one slice; at a gate, the `/gate` command that the owner types
 ## Open       each open question (kit eng questions <id> --open) and each failed slice, with the reason and what you tried
 ## Guesses    each open guess (kit eng guesses <id> --open) as question, taken, other; it makes sense with no context
 ## Watch      drift, dirty files, a flaky test, an area on another branch, the files the next session reads first

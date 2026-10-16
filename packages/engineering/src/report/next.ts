@@ -2,6 +2,7 @@ import { match } from 'ts-pattern'
 
 import type { Gap } from '../guards/guard.ts'
 import type { State } from '../machine.ts'
+import { ownerStep } from '../owner-step.ts'
 import type { Engineering } from '../service.ts'
 import type { Item } from '../stores/items.ts'
 
@@ -24,7 +25,7 @@ export function nextFor(eng: Engineering, item: Item): Next {
     .with('framing', () => ({ ...base, skill: `/spec ${id}`, detail: 'continue the spec' }))
     .with('planning', () => {
       const found = eng.gaps(item, 'approve')
-      if (!found.length) return { ...base, skill: `owner: kit eng item approve ${id}`, owner: true }
+      if (!found.length) return { ...base, skill: ownerStep(`approve ${id}`), owner: true }
       return {
         ...base,
         skill: `/recipe ${id}`,
@@ -41,7 +42,7 @@ export function nextFor(eng: Engineering, item: Item): Next {
     }))
     .with('checking', () => {
       const found = eng.gaps(item, 'accept')
-      if (!found.length) return { ...base, skill: `owner: kit eng item accept ${id}`, owner: true }
+      if (!found.length) return { ...base, skill: ownerStep(`accept ${id}`), owner: true }
       return {
         ...base,
         skill: `/check ${id}`,

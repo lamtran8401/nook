@@ -28,11 +28,11 @@ low risk      a wrong fix is easy to see and to undo
 6. Run `kit eng task prove <id> <T> --files <the test files>`, then `verify`. A proof `weak` means the test did not catch the bug: fix the test first.
 7. Run `kit eng task done <id> <T> --files <changed files>`, then `kit eng item submit <id>`.
 8. No reviewer runs here: mark the AC with the proof as evidence, `kit eng item ac done <id> 1 --evidence "<test>: fails on the base, passes on the branch" --grade run`.
-   Report. Say: accept in your terminal: `kit eng item accept <id>`. The owner's accept is the review.
+   Report. Say: accept: type `/gate accept <id>`. The owner's accept is the review.
 
 ## The report
 ```
-Waits for you: accept in your terminal: kit eng item accept SHOP-30
+Waits for you: accept: type /gate accept SHOP-30
 SHOP-30 fixed in bff, branch kit/SHOP-30-export-date. AC1: the export date equals the shipment date in the list.
 Test: export.test.ts "uses the shipment date" failed before the fix (proof proven) and passes now.
 Files: src/export/date.ts, src/export/date.test.ts. Verify: bff pass (213 tests).

@@ -6,6 +6,7 @@ import { EvError } from '@kit/shared/errors.ts'
 
 import { Home } from './home.ts'
 import { Ledger } from './ledger.ts'
+import { OWNER_STEP } from './owner-step.ts'
 import { doctor } from './report/doctor.ts'
 import { next } from './report/next.ts'
 import { Engineering } from './service.ts'
@@ -18,7 +19,6 @@ const homeAt = (dir: string): Home | null => {
 }
 
 const GATES = ['approve', 'accept', 'mode'] as const
-const OWNER_STEP = 'owner: kit eng item '
 
 export const engineeringModule: PackModule = {
   name: 'engineering',

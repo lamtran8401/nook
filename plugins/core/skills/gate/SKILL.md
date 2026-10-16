@@ -13,7 +13,7 @@ Its result is in the context, in the lines that start with "Kit gate".
 2. The move ran: report it in two or three lines: what moved, the new state, and the next step from its `next:` line.
 3. The move was refused: show each gap with its fix, as the lines say. Do not fix a gap that is a decision of the owner.
 4. No arguments: show the moves that wait, as a list of the commands to type.
-5. No "Kit gate" line at all: say that the hook of the kit did not run, and that the move did not happen. Give the command for a terminal: `kit eng item <move> <id>`.
+5. No "Kit gate" line at all: say that the hook of the kit did not run, and that the move did not happen. Run `kit doctor` and report each gap with its fix.
 
 ## Gotchas
 - Never run an owner move yourself, and never type `/gate` for the owner. The model is denied both.

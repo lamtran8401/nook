@@ -29,6 +29,7 @@ describe('bashGuard: the owner moves and the plain name of the tool', () => {
       expect(reason(result)).toMatch(/owner's move/)
     }
     expect(bash('kit eng item approve SHOP-1', BUILDER_AGENT).kind).toBe('block')
+    expect(reason(bash('kit eng item accept SHOP-1'))).toBe("accept is the owner's move: tell the owner to type `/gate accept <id>` in the prompt.")
     expect(bash('kit eng item show SHOP-1').kind).not.toBe('block')
     expect(bash('kit eng item check SHOP-1').kind).not.toBe('block')
   })

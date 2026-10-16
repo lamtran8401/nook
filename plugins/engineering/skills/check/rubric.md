@@ -35,7 +35,7 @@ One for each AC: an input or a state that the AC must refuse or leave unchanged.
 
 ## The report
 ```
-Waits for you: accept in your terminal: kit eng item accept SHOP-12
+Waits for you: accept: type /gate accept SHOP-12
 Verdict: accept. Weakest evidence first:
 - AC4 owner: the banner on the page. Check: pick a status with the API down; the list stays and the banner reads "Unable to filter".
 - AC5 sourced: export.ts:31 passes the status. No test measures the exported rows.

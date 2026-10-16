@@ -220,7 +220,7 @@ describe('AutoByOwner', () => {
   test('an item in mode normal is a gap whose fix is an owner command', () => {
     itemAt(t, 'planning')
     expect(new AutoByOwner().check(ctx())).toEqual([
-      { text: 'SHOP-1 is not in an auto run that the owner started (mode normal)', fix: 'owner: kit eng item mode SHOP-1 auto, or owner: kit eng item approve SHOP-1' },
+      { text: 'SHOP-1 is not in an auto run that the owner started (mode normal)', fix: 'owner: /gate mode SHOP-1 auto, or owner: /gate approve SHOP-1' },
     ])
   })
 

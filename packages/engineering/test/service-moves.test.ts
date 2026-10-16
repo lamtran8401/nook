@@ -351,7 +351,7 @@ describe('Engineering.moveItem: proceed', () => {
     writeDoc(t, 'SHOP-1', 'plan.md', PLAN)
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }]))
     lead.importTasks('SHOP-1')
-    fails(() => lead.moveItem('proceed', 'SHOP-1'), Exit.refused, 'SHOP-1 is not in an auto run that the owner started (mode normal)', 'owner: kit eng item mode SHOP-1 auto')
+    fails(() => lead.moveItem('proceed', 'SHOP-1'), Exit.refused, 'SHOP-1 is not in an auto run that the owner started (mode normal)', 'owner: /gate mode SHOP-1 auto')
     fails(() => owner.moveItem('proceed', 'SHOP-1'), Exit.denied, 'proceed: only the lead can do this (you are owner)')
     owner.setMode('SHOP-1', 'auto')
     // a mode event by another role does not count, even with the mode column at auto

@@ -30,7 +30,7 @@ export function bashGuard(input: HookInput): HookResult {
   return changed === command ? pass : rewrite({ ...(input.tool_input ?? {}), command: changed })
 }
 
-const OWNER_TEXT = (move: string) => `${move} is the owner's move: tell the owner to run \`kit eng item ${move} <id>\` in a terminal.`
+const OWNER_TEXT = (move: string) => `${move} is the owner's move: tell the owner to type \`/gate ${move} <id>\` in the prompt.`
 const WRAP_TEXT = 'run `kit eng` by its plain name: no env, exec, xargs, eval or sh -c around the tool.'
 const CODE_TEXT = 'run `kit eng` by its plain name, not by a path to its code.'
 const ROLE_TEXT = 'the role of an agent is set by the kit, not by a command.'

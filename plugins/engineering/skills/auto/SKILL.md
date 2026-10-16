@@ -1,6 +1,6 @@
 ---
 name: auto
-description: "Run an item in mode auto from its state to the owner's accept: the lead runs the phases, records each guess, passes the plan gate with proceed, and stops at a stop rule. Use when the owner types /auto after kit eng item mode <id> auto."
+description: "Run an item in mode auto from its state to the owner's accept: the lead runs the phases, records each guess, passes the plan gate with proceed, and stops at a stop rule. Use when the owner types /auto after /gate mode <id> auto."
 argument-hint: "<item id> [context for the lead]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Edit, Write
@@ -11,7 +11,7 @@ The gain is time; the cost is guesses, so each one is small and recorded.
 The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 
 ## Start
-1. Run `kit eng item show <id>`. The mode must be `auto`, set by the owner (`mode_by`). Else say: run `kit eng item mode <id> auto` in your terminal, and stop. Never set it yourself.
+1. Run `kit eng item show <id>`. The mode must be `auto`, set by the owner (`mode_by`). Else say: type `/gate mode <id> auto` in the prompt, and stop. Never set it yourself.
 2. The words after the id are the owner's context; they win over the ticket, cited as `(owner)`.
 
 ## The stages
@@ -34,7 +34,7 @@ Stop, write `handoff.md` (`/handoff`), and report, when:
 - the spec has a gap that changes what the owner asked for (a gap in the plan needs only `kit eng item replan <id> --reason`, then a new `proceed`);
 - two reject cycles in checking did not meet every AC;
 - a step is hard to undo (a push, a migration, a deletion, a breaking contract change): register it with `kit eng ask <id> "<text>" --blocking --rec "<answer>"` and ask;
-- the accept: say "accept in your terminal: `kit eng item accept <id>`"; offer `/guesses <id>` and `/walkthrough <id>`.
+- the accept: say "accept: type `/gate accept <id>`"; offer `/guesses <id>` and `/walkthrough <id>`.
 
 ## Gotchas
 - An auto run that the model started is a breach: check `mode_by` first.

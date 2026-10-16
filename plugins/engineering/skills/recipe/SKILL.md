@@ -22,13 +22,13 @@ The flow, the question round and the confirm question: `${CLAUDE_PLUGIN_ROOT}/sk
 7. For each decision that outlives the item, run `adr`.
 8. Run `kit eng item check <id>`: no gap for `approve`.
 9. Show the plan and the slices, with the objections and your answer to each, and ask the confirm question for both.
-   On "Looks right", report and say: approve in your terminal: `kit eng item approve <id>`. Then stop. Next: `/cook <id>`. Offer the page of the item: `/item-view <id>`.
+   On "Looks right", report and say: approve: type `/gate approve <id>`. Then stop. Next: `/cook <id>`. Offer the page of the item: `/item-view <id>`.
 
 Kind `investigate`: a short plan and no slices. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
 
 ## The report
 ```
-Waits for you: approve in your terminal: kit eng item approve SHOP-12
+Waits for you: approve: type /gate approve SHOP-12
 Plan: work/SHOP-12/plan.md. Challenge: one pass, 2 objections, 1 changed the plan (an index on status).
 Slices: T1 bff (S), T2 frontend (S, after T1). ACs covered: 1 to 5. item check: no gap.
 ADR proposed: 0007 filter in the query. Guesses: G1 (low) status order.
@@ -42,6 +42,6 @@ Next: /cook SHOP-12 after the approve.
 - Today holds facts at the level of parts, not lines. A choice belongs in Approach.
 - The spec is agreed. Edit it only for a real gap, tell the owner, and run `spec-check` again. A changed goal needs `kit eng item reframe`.
 - The agents start with no history. Give each one the brief (`kit eng item brief <id>`) and the one question it answers.
-- Never run the approve. The owner types it in a terminal; the model is denied.
+- Never run the approve. The owner types `/gate approve <id>` in the prompt; the model is denied.
 
 A full `plan.md` and `tasks.md` for SHOP-12: `example.md` (this folder).

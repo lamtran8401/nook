@@ -1,3 +1,4 @@
+import { ownerStep } from '../owner-step.ts'
 import type { Stores } from '../stores/index.ts'
 import type { Item } from '../stores/items.ts'
 import type { Gap, Guard, GuardContext } from './guard.ts'
@@ -14,7 +15,7 @@ export class AutoByOwner implements Guard {
     return [
       {
         text: `${ctx.id} is not in an auto run that the owner started (mode ${ctx.item.mode})`,
-        fix: `owner: kit eng item mode ${ctx.id} auto, or owner: kit eng item approve ${ctx.id}`,
+        fix: `${ownerStep(`mode ${ctx.id} auto`)}, or ${ownerStep(`approve ${ctx.id}`)}`,
       },
     ]
   }

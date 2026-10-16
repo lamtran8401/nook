@@ -5,7 +5,7 @@ These rules hold in every folder of this environment. Hooks enforce the moves of
 ## The flow
 
 - One item moves through `backlog → framing → planning → ready → cooking → checking → done`. `kit eng next` names the step and the skill to type.
-- Only the owner runs `kit eng item approve`, `accept` and `mode`. An agent never runs them. Tell the owner the command to run in a terminal.
+- Only the owner runs `approve`, `accept` and `mode`. An agent never runs them. Tell the owner to type `/gate <move> <id>` in the prompt.
 - Never change `spec.md`, `plan.md` or `tasks.md` after the approve. Run `kit eng item replan <id>` first.
 - A guard lists each gap with its fix. Fix the gap; never work around a guard.
 - Record a guess with `kit eng guess`. Ask a blocking question with `kit eng ask --blocking`.

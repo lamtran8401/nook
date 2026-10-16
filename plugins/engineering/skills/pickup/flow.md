@@ -18,14 +18,14 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 |---|---|---|---|---|
 | Intake | backlog | `/intake` | `start` | lead |
 | Framing | framing | `/spec` | `agree` | lead, after the owner confirms the spec |
-| Planning | planning | `/recipe` | `approve` | owner, in a terminal |
+| Planning | planning | `/recipe` | `approve` | owner, with `/gate` |
 | Cooking | ready, cooking | `/cook` | `begin`, then `submit` | lead |
-| Checking | checking | `/check`, `/walkthrough` | `accept` | owner, in a terminal |
+| Checking | checking | `/check`, `/walkthrough` | `accept` | owner, with `/gate` |
 | Close | done | `/close` | none | lead |
 
 ## The gates
 - `approve` and `accept` are the owner's.
-  A skill says "approve in your terminal: `kit eng item approve <id>`" and stops.
+  A skill says "approve: type `/gate approve <id>`" and stops. The owner types it in the prompt, never in a terminal.
   The deny rule and the hook refuse the same command from the model.
 - `approve` stores a hash of `spec.md`, `plan.md` and `tasks.md`.
   A change to one of them after the approve blocks `begin`; the fix is `kit eng item replan <id>`.

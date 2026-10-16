@@ -27,6 +27,6 @@ describe('brief', () => {
     writeDoc(t, 'SHOP-3', 'plan.md', PLAN)
     writeDoc(t, 'SHOP-3', 'tasks.md', TASKS([{ id: 'T1' }]))
     lead.importTasks('SHOP-3')
-    expect(brief(lead).find(l => l.ref === 'SHOP-3')).toMatchObject({ urgency: 'now', action: 'kit eng item approve SHOP-3' })
+    expect(brief(lead).find(l => l.ref === 'SHOP-3')).toMatchObject({ urgency: 'now', action: '/gate approve SHOP-3' })
   })
 })
