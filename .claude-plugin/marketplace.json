@@ -16,6 +16,11 @@
       "name": "kit-engineering",
       "source": "./plugins/engineering",
       "description": "The item flow from intake to the owner's accept, the ledger and its gates, builders and reviewers."
+    },
+    {
+      "name": "kit-wiki",
+      "source": "./plugins/wiki",
+      "description": "The wiki of the environment: the shelves and their indexes, the references, /wiki-ask, /wiki-add and /wiki-tidy, and a librarian agent."
     }
   ]
 }

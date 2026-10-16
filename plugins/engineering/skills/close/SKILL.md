@@ -15,7 +15,11 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 2. Read what to keep: the Design section of `plan.md` (the decisions), `kit eng adr list` (the ADRs of the item with status `proposed`), `kit eng item ac list <id>` (the tags), `kit eng guesses <id>` (the guesses that stand).
 3. ADRs: ask the owner once, accept or drop for each proposed ADR of the item. Run `kit eng adr accept <n>` for an accepted one.
    A decision that replaces an old one: `kit eng adr supersede <old> --by <new>`. Never edit the status line by hand.
-4. Knowledge: each `ADD` or `CHANGE` criterion changes a page. When the wiki pack is on, add or change the page with its skill; else list the pages the owner must write.
+4. Knowledge: each `ADD` or `CHANGE` criterion changes a page. When the wiki pack is on:
+   - Find the page of each topic in `resources/INDEX.md` of the wiki. A topic with no page gets a new page, `type: system`.
+   - Draft each change: how the system works now, the pitfalls that remain, one History line `<date>: <id>`.
+   - Show the drafts in the question round of step 3, with yes or no for each. Write the accepted ones, then run `kit wiki index --fix` and `kit wiki links`.
+   With no wiki pack, list the pages that the owner must write.
    A `NONE` or `REMOVE` tag changes a page only when it removes a behavior that a page states.
 5. Follow-ups: one backlog item for each follow-up the item left: `kit eng item new <id> "<title>" --backlog --source <this item>`.
 6. Commits: ask in chat, "commit now?". The answer yes is the request. Then `kit eng item commit <id>` prints the plan, one commit for each done slice; `kit eng item commit <id> --run` makes them. Never push.

@@ -1,0 +1,33 @@
+#!/bin/sh
+# The hooks of this plugin call the kit binary through this file. A plugin holds no code.
+# The kit project that holds this plugin comes first, then KIT_PROJECT, then `kit` on the PATH.
+self=$(readlink -f "$0")
+project=$(cd "$(dirname "$self")/../../.." 2>/dev/null && pwd)
+guard=no
+case "$*" in
+  "hook read"|"hook bash"|"hook edit"|"eng hook bash"|"eng hook edit") guard=yes ;;
+esac
+
+# 0 and 2 are the answers of a hook; any other code means that the kit itself failed
+run() {
+  "$@"
+  code=$?
+  case $code in 0|2) exit $code ;; esac
+  root=$(cd "$(dirname "$(readlink -f "$1")")/../../.." 2>/dev/null && pwd)
+  if [ "$guard" = yes ]; then
+    echo "kit: the kit itself failed (exit $code), so this guard blocks the call. The owner repairs the kit with a ! command, for example: ! git -C $root status, then ! git -C $root checkout -- <the broken file>" >&2
+    exit 2
+  fi
+  echo "kit: the kit itself failed (exit $code); this hook lets the session go on" >&2
+  exit 0
+}
+
+for kit in "$project/apps/kit/bin/kit" "${KIT_PROJECT:+$KIT_PROJECT/apps/kit/bin/kit}"; do
+  [ -n "$kit" ] && [ -x "$kit" ] && run "$kit" "$@"
+done
+found=$(command -v kit 2>/dev/null || true)
+if [ -n "$found" ] && [ "$(readlink -f "$found")" != "$self" ]; then run "$found" "$@"; fi
+echo "kit: cannot find the kit binary. Link it: ln -s <harness-kit>/apps/kit/bin/kit ~/.local/bin/kit (or set KIT_PROJECT)" >&2
+# a guard that cannot run blocks the call (exit 2); any other hook lets it pass
+[ "$guard" = yes ] && exit 2
+exit 1

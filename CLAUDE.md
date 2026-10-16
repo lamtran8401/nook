@@ -9,10 +9,11 @@ packages/shared/       the CLI router, the exit codes, the hook input and output
 packages/env/          environments, kit.yml, the pack manifests, the plugin folders
 packages/core/         init, doctor, the writing check, the core hooks
 packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks
+packages/wiki/         the shelves of the wiki, their indexes, the link check
 plugins/<pack>/        one Claude Code plugin each: pack.json, .claude-plugin/, bin/kit (a shim), hooks/, skills/, agents/, templates/. No code.
 docs/                  the plan, the guide, the contract of engineering (`engineering.md`), the expectations
 ```
-v0.1 has the packs core and engineering. `kit eng …` runs the commands of engineering.
+The packs are core, engineering and wiki. `kit eng …` runs the commands of engineering, `kit wiki …` those of the wiki.
 
 ## Checks
 - `bun run check`: `tsc --noEmit` and `bun test`. Commit only when it passes.

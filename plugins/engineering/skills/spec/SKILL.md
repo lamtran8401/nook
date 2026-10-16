@@ -14,7 +14,7 @@ The flow, the question round and the confirm question: `${CLAUDE_PLUGIN_ROOT}/sk
 1. Run `kit eng pickup <id>`. The state must be `backlog` or `framing`; else say so and stop.
    In `backlog`, run `kit eng item start <id>`: it scaffolds `spec.md`.
 2. Run `triage`: kind, size, areas, contract flag, risk. Show the result.
-3. Read the knowledge first. When the wiki pack is on, read its index and open a page only when a line matches the item.
+3. Read the knowledge first. When the wiki pack is on, read its index and open a page only when a line matches the item. Name each page that the spec uses, as `(wiki: resources/<page>.md)`.
    Run `find-repos` for the areas, with the proof for each. Skip it when `triage` ran it.
 4. Write your reading in five lines or fewer, so the owner corrects a wrong reading before the questions.
 5. The question round, once: collect every blocking question, register each with `kit eng ask <id> "<text>" --blocking --rec "<answer>"`, ask them in one call, record the answers with `kit eng answer`.
