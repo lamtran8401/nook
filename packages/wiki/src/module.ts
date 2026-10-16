@@ -43,6 +43,8 @@ export const wikiModule: PackModule = {
 
   doctor(dir) {
     const wiki = wikiAt(dir)
-    return wiki && !wiki.config.missing ? wiki.check() : []
+    if (!wiki) return []
+    if (wiki.config.missing) return [{ level: 'warn', where: 'wiki', text: 'kit.yml has no wiki section with the shelves', fix: 'write it with /setup' }]
+    return wiki.check()
   },
 }

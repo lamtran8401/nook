@@ -14,9 +14,10 @@ afterEach(() => rmSync(root, { recursive: true, force: true }))
 const SECTION = 'wiki:\n  shelves:\n    - { name: ideas, use: "An idea." }\n    - { name: daily, use: "A day.", index: false }\n'
 
 describe('wikiModule', () => {
-  test('with no wiki section, the pack is not configured and the doctor adds no wiki gap', () => {
+  test('with no wiki section, the pack is not configured and the doctor names the fix', () => {
     writeFileSync(join(root, 'kit.yml'), 'packs: [wiki]\n')
-    expect([wikiModule.configured(root), wikiModule.doctor(root)]).toEqual([false, []])
+    expect(wikiModule.configured(root)).toBe(false)
+    expect(wikiModule.doctor(root).map(f => [f.text, f.fix])).toEqual([['kit.yml has no wiki section with the shelves', 'write it with /setup']])
   })
 
   test('setup makes the wiki, the references and each shelf that is missing', () => {
