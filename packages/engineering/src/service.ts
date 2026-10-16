@@ -589,6 +589,23 @@ export class Engineering {
   }
 
   /** accept keeps the work; flip sends the slices of the guess back to todo and leaves the others. */
+  /** The slices that an open guess shapes, named after the slicing; a flip resets them. */
+  setGuessSlices(id: string, gid: string, slices: string[]): Guess {
+    this.permissions.assert('guess')
+    this.item(id)
+    const guess = this.stores.guesses.find(id, gid.toUpperCase())
+    if (!guess) throw usage(`${id} has no guess ${gid}`, `kit eng guesses ${id}`)
+    if (guess.status !== 'open') throw refused(`${guess.id} is ${guess.status}`, 'only an open guess changes its slices')
+    const known = this.stores.slices.ids(id)
+    for (const slice of slices)
+      if (!known.has(slice)) throw usage(`${id} has no slice ${slice}`, `kit eng task list ${id}`)
+    this.ledger.write(() => {
+      this.stores.guesses.setSlices(id, guess.id, slices)
+      this.stores.events.record(id, 'guess', { reason: `${guess.id} shapes ${slices.join(', ') || 'no slice'}` })
+    })
+    return this.stores.guesses.find(id, guess.id)!
+  }
+
   decideGuess(
     id: string,
     gid: string,

@@ -40,7 +40,7 @@ A full `tasks.md` for SHOP-12: `${CLAUDE_PLUGIN_ROOT}/skills/recipe/example.md`.
 3. Write each slice. The title says what it does ("Add the status parameter"), not where ("bff work").
 4. Set `depends` from the Rollout row, `acs` from the criteria the slice proves, `size` as the effort for one builder, and `files` as the main files the builder starts from, with no line numbers.
 5. Run `kit eng task import <id>`, then `kit eng item check <id>`. Fix each gap it lists: a cycle, an AC with no slice, a slice with two areas.
-6. Name the slices of each open guess with `--slices T1,T2` when you record it, so a flip resets the right ones.
+6. Name the slices of each open guess, so a flip resets the right ones: `--slices T1,T2` on a new guess, `kit eng guess slices <id> <G> --slices T1,T2` on a guess from `/spec`.
 
 ## Gotchas
 - `task import` refuses a cycle or an AC that no slice covers. Never drop the AC.

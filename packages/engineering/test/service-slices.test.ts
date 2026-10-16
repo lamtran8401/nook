@@ -130,6 +130,19 @@ describe('Engineering.addGuess and decideGuess', () => {
     expect(lead.decideGuess('SHOP-1', second.id, 'accept').status).toBe('accepted')
   })
 
+  test('the slices of an open guess can be named after the slicing, and a flip then resets them', () => {
+    itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }, { id: 'T2' }]))
+    const lead = t.kit(LEAD)
+    lead.addGuess('SHOP-1', { question: 'which zone?', took: 'UTC', other: 'local', impact: 'low', slices: [] })
+    expect(lead.setGuessSlices('SHOP-1', 'g1', ['T2']).slices).toEqual(['T2'])
+    expect(code(() => lead.setGuessSlices('SHOP-1', 'G1', ['T9']))).toBe(Exit.usage)
+    for (const id of ['T1', 'T2']) {
+      lead.moveSlice('start', 'SHOP-1', id)
+      lead.moveSlice('done', 'SHOP-1', id, { files: [`${id}.ts`] })
+    }
+    expect(lead.decideGuess('SHOP-1', 'G1', 'flip').reset).toEqual(['T2'])
+  })
+
   test('a flip on a done item records the answer and resets no slice', () => {
     itemAt(t, 'cooking')
     const lead = t.kit(LEAD)

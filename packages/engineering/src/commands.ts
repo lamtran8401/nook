@@ -97,6 +97,17 @@ const guessDecisions: Command[] = (['accept', 'flip'] as const).map(decision => 
   },
 }))
 
+const guessSlices: Command = {
+  path: ['guess', 'slices'],
+  summary: 'name the slices that an open guess shapes, so a flip resets them',
+  usage: '<id> <G> --slices T1,T2',
+  flags: { slices: { type: 'string', list: true, help: 'the slices; none clears them' } },
+  run(c) {
+    const guess = eng().setGuessSlices(arg(c, 0, 'item id'), arg(c, 1, 'guess id'), list(c, 'slices'))
+    c.out(guess, g => `${g.id} shapes ${g.slices.join(', ') || 'no slice'}`)
+  },
+}
+
 const itemCommands: Command[] = [
   {
     path: ['item', 'new'],
@@ -445,6 +456,7 @@ const questionCommands: Command[] = [
     },
   },
   ...guessDecisions,
+  guessSlices,
 ]
 
 const dayCommands: Command[] = [

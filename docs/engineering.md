@@ -116,7 +116,7 @@ Every read command takes `--json`. Exit codes: 0 ok, 1 error, 2 usage, 3 refused
 | checks | `item verify <id> [--area a] [--last]`, `item branch <id>`, `item commit <id> [--run]` |
 | slices | `task import <id>`, `task list <id> [--ready\|--state s]`, `task show <id> <T>`, `task brief <id> <T>`, `task start\|done\|wait\|resume\|fail\|retry\|reopen\|cancel <id> <T> [--reason r] [--files f...]`, `task prove <id> <T> --files <f...>` |
 | questions | `ask <id> <text> [--blocking] [--rec <answer>]`, `answer <id> <Q> <text>`, `questions [<id>] [--open]` |
-| guesses | `guess <id> <question> --took <a> --other <b> --impact low\|med\|high [--slices T1,T2]`, `guesses [<id>] [--open]`, `guess accept\|flip <id> <G> [--answer <text>]` |
+| guesses | `guess <id> <question> --took <a> --other <b> --impact low\|med\|high [--slices T1,T2]`, `guesses [<id>] [--open]`, `guess accept\|flip <id> <G> [--answer <text>]`, `guess slices <id> <G> --slices T1,T2` (the slices of an open guess) |
 | the day | `next [<id>]` (what to do now, and the skill to type), `pickup <id>` (records the lead session; prints the brief and the last handoff), `quick <id\|title> --area <a>` (a title gets the next `IT-NNN`), `note add <id> <text>`, `notes <id>` |
 | knowledge | `adr new <title> [--item id]`, `adr list`, `adr accept <n>`, `adr supersede <n> --by <m>` |
 | areas | `area list`, `area status` (folder, kind, branch, dirty files, the item that uses it) |

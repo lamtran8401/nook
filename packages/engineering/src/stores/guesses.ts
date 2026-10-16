@@ -57,6 +57,10 @@ export class GuessStore {
     )
   }
 
+  setSlices(item: string, id: string, slices: string[]): void {
+    this.ledger.run('UPDATE guess SET slices = ? WHERE item = ? AND id = ?', JSON.stringify(slices), item, id)
+  }
+
   decide(item: string, id: string, status: GuessStatus, answer: string | null): void {
     this.ledger.run(
       'UPDATE guess SET status = ?, answer = ? WHERE item = ? AND id = ?',
