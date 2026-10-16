@@ -120,10 +120,11 @@ const panelOf = (html: string, name: string) => {
 }
 
 describe('itemPage', () => {
-  test('starts with the title and the style, with no doctype and no html or body tag', () => {
+  test('is a whole document that a browser opens from the disk: doctype, head with the title, body', () => {
     const html = planned()
-    expect(html.startsWith('<title>SHOP-7: Reserve &lt;stock&gt; &amp; hold</title>\n<meta name="claude:viewport-fit-sides" content="cover">')).toBe(true)
-    expect(/<!doctype|<html|<body/i.test(html)).toBe(false)
+    expect(html.startsWith('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>SHOP-7: Reserve &lt;stock&gt; &amp; hold</title>')).toBe(true)
+    expect(html).toContain('</style>\n</head>\n<body>\n<div class="bn-root kd-page">')
+    expect(html.endsWith('</script>\n</body>\n</html>')).toBe(true)
   })
 
   test('the page has no overview mindmap', () => {
@@ -191,6 +192,21 @@ describe('itemPage', () => {
 
   test('a slice card shows its files line', () => {
     expect(panelOf(planned(), 'tasks')).toContain('<dt>Files</dt><dd>the cart page, its tests</dd>')
+  })
+
+  test('a page asked for the walkthrough tab opens on it', () => {
+    planned()
+    writeDoc(t, 'SHOP-7', 'walkthrough.md', '---\nid: SHOP-7\ncreated: 2026-10-18\nupdated: 2026-10-18\n---\n\n# SHOP-7: the walkthrough\n')
+    const html = itemPage(t.kit(LEAD), 'SHOP-7', 'walkthrough')
+    expect(html).toContain('id="tab-spec" data-doc="spec" aria-controls="panel-spec" aria-selected="false" tabindex="-1">')
+    expect(html).toContain('id="tab-walkthrough" data-doc="walkthrough" aria-controls="panel-walkthrough" aria-selected="true" tabindex="0">')
+    expect(html).toContain('id="panel-spec" aria-labelledby="tab-spec" hidden>')
+    expect(html).not.toContain('id="panel-walkthrough" aria-labelledby="tab-walkthrough" hidden>')
+  })
+
+  test('a tab that the item does not have is refused with the tabs it has', () => {
+    planned()
+    expect(() => itemPage(t.kit(LEAD), 'SHOP-7', 'walkthrough')).toThrow('SHOP-7 has no walkthrough tab; its tabs: spec, plan, tasks')
   })
 
   test('an item with no walkthrough.md has no Walkthrough tab', () => {

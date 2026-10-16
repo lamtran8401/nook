@@ -1,4 +1,5 @@
 import { uiKit } from '@kit/env/env.ts'
+import { usage } from '@kit/shared/errors.ts'
 
 import { dateOf, frontMatter } from '../documents/markdown.ts'
 import { TasksDocument } from '../documents/tasks.ts'
@@ -10,7 +11,7 @@ import { lanesFigure } from './diagrams.ts'
 import { PAGE_LAYOUT, PAGE_SCRIPT } from './page-layout.ts'
 import { docTitle, escape, type PageDoc, renderDocument } from './page-markdown.ts'
 
-/** `item page`: one HTML page of an item from its three documents and the ledger, built with the UI kit, for the artifact viewer. */
+/** `item page`: one HTML document of an item from its documents and the ledger, built with the UI kit, to open from the disk. */
 
 export type PageSlice = { id: string; title: string; area: string; depends: string[]; acs: number[]; size?: string | null }
 
@@ -25,26 +26,37 @@ const TABS: Tab[] = [
 ]
 const AUDIT_MOVES = ['start', 'agree', 'approve', 'begin', 'submit', 'accept']
 
-export function itemPage(eng: Engineering, id: string): string {
+/** The page of an item, open on `open` (a tab name such as `walkthrough`), else on its first tab. */
+export function itemPage(eng: Engineering, id: string, open?: string): string {
   const item = eng.item(id)
   const folder = eng.folder(id)
   const texts = new Map(TABS.map(tab => [tab.file, folder.read(tab.file)]))
   const tabs = TABS.filter(tab => !tab.optional || texts.get(tab.file) !== null)
+  const shown = open === undefined ? tabs[0]! : tabs.find(tab => tab.doc === open)
+  if (!shown) throw usage(`${item.id} has no ${open} tab; its tabs: ${tabs.map(tab => tab.doc).join(', ')}`)
   const slices = slicesOf(eng, id, texts.get('tasks.md') ?? null)
   const kit = uiKit()
   return [
+    '<!doctype html>',
+    '<html lang="en">',
+    '<head>',
+    '<meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1">',
     `<title>${escape(`${item.id}: ${item.title}`)}</title>`,
-    '<meta name="claude:viewport-fit-sides" content="cover">',
     `<style>${kit.css}\n${PAGE_LAYOUT}</style>`,
+    '</head>',
+    '<body>',
     '<div class="bn-root kd-page">',
     header(item, eng.stores.events.history(id), texts),
     '<div class="bn-tabs" data-bn-tabs>',
-    tabList(tabs),
-    ...tabs.map((tab, i) => panel(item, tab, texts.get(tab.file) ?? null, slices, i === 0)),
+    tabList(tabs, shown),
+    ...tabs.map(tab => panel(item, tab, texts.get(tab.file) ?? null, slices, tab === shown)),
     '</div>',
     '</div>',
     `<script>${kit.js}</script>`,
     `<script>${PAGE_SCRIPT}</script>`,
+    '</body>',
+    '</html>',
   ].join('\n')
 }
 
@@ -118,10 +130,10 @@ function header(item: Item, events: Event[], texts: Map<ItemDoc, string | null>)
   ].join('')
 }
 
-const tabList = (tabs: Tab[]) =>
+const tabList = (tabs: Tab[], shown: Tab) =>
   `<div class="bn-tabs__list" role="tablist" aria-label="Documents of the item">${tabs.map(
-    (tab, i) =>
-      `<button type="button" class="bn-tabs__tab" role="tab" id="tab-${tab.doc}" data-doc="${tab.doc}" aria-controls="panel-${tab.doc}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}">${tab.name}</button>`,
+    tab =>
+      `<button type="button" class="bn-tabs__tab" role="tab" id="tab-${tab.doc}" data-doc="${tab.doc}" aria-controls="panel-${tab.doc}" aria-selected="${tab === shown}" tabindex="${tab === shown ? 0 : -1}">${tab.name}</button>`,
   ).join('')}</div>`
 
 function panel(item: Item, tab: Tab, text: string | null, slices: PageSlice[], shown: boolean): string {

@@ -175,12 +175,15 @@ const itemCommands: Command[] = [
   },
   {
     path: ['item', 'page'],
-    summary: 'one HTML page of the item: the spec, the plan, the slices, an overview and the lanes',
-    usage: '<id> [--out <file>]',
-    flags: { out: { type: 'string', help: 'write the page to this file and print its path' } },
+    summary: 'one HTML page of the item to open from the disk: the spec, the plan, the slices, the walkthrough',
+    usage: '<id> [--out <file>] [--tab spec|plan|tasks|walkthrough]',
+    flags: {
+      out: { type: 'string', help: 'write the page to this file and print its path' },
+      tab: { type: 'string', help: 'the tab that the page opens on' },
+    },
     run(c) {
       const id = arg(c, 0, 'item id')
-      const html = itemPage(eng(), id)
+      const html = itemPage(eng(), id, text(c, 'tab'))
       const out = text(c, 'out')
       if (!out) {
         c.out({ id, html }, r => r.html)

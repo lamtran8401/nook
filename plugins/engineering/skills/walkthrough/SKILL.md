@@ -1,9 +1,9 @@
 ---
 name: walkthrough
-description: "Write the report of work that is done, for the owner: what was built, the changed files as a tree, how it works, which requirements it meets, how to try it. As a Markdown file or as a tab of the item page. Use when the owner says walk me through."
+description: "Write the report of work that is done, for the owner: what was built, the changed files as a tree, how it works, which requirements it meets, how to try it. The owner reads it as the Walkthrough tab of the local item page. Use when the owner says walk me through."
 argument-hint: "[item id] or a question about the code"
 disable-model-invocation: true
-allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Write, Edit, AskUserQuestion
+allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Write, Edit
 ---
 
 Goal: a short report of the finished work that the owner reads in minutes: what was built, how it works, what it meets.
@@ -11,14 +11,15 @@ The owner reads the diff for the lines. The walkthrough gives the shape of the c
 The parts in full, and the path with no item: `parts.md` (this folder).
 
 ## Order
-1. Ask the owner one question with AskUserQuestion: a Markdown file, or a page. Make only the one the owner picks.
-2. Decide the subject:
+1. Decide the subject:
    - an item id: `kit eng item brief <id>`, `kit eng item ac list <id>`, `kit eng guesses <id>`.
    - a prompt (`/walkthrough how does the export job retry?`): no item. Find the code with `kit eng area status` and a search.
-3. Read the work itself: the diff of each area on the branch (`git -C <folder> diff <base>`), or the code that the prompt names.
+2. Read the work itself: the diff of each area on the branch (`git -C <folder> diff <base>`), or the code that the prompt names.
    Explain the code that exists, not the plan.
-4. Write `walkthrough.md` with the six parts of `parts.md`. 80 lines or fewer.
-5. A Markdown file: report the path. A page: run `kit eng item page <id>` (skill `item-view`); the file shows in the Walkthrough tab.
+3. Write `walkthrough.md` with the six parts of `parts.md`. 80 lines or fewer. It is the source of the page, as `spec.md` is the source of the Spec tab.
+4. Build the page: `kit eng item page <id> --tab walkthrough --out work/<id>/page.html`. It opens on the Walkthrough tab.
+5. Report the path of `page.html` only. Never publish it as an artifact: the page stays on the owner's disk.
+   With no item (a prompt), there is no page: report the path of `walkthrough.md`.
 
 ## The six parts, in short
 ```

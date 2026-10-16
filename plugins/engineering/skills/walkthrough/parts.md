@@ -49,7 +49,7 @@ A limit of the change, a side effect on another feature, a choice that the owner
 A `Need to know:` quote stays in How it works, under its step; Heads up holds the rest.
 
 ## The page
-`kit eng item page <id>` shows `walkthrough.md` in its own tab, next to Spec, Plan and Tasks. The tree and the flowchart render as components of the UI kit.
+`kit eng item page <id> --tab walkthrough --out work/<id>/page.html` shows `walkthrough.md` in its own tab, next to Spec, Plan and Tasks, and opens on it. The tree and the flowchart render as components of the UI kit. The page is a local file, never an artifact.
 
 ## Deep dives
 When the owner asks for a deep dive, explain that topic in full: the code, the reason for each choice, an example run.

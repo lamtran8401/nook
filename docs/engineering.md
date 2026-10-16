@@ -123,7 +123,7 @@ Every read command takes `--json`. Exit codes: 0 ok, 1 error, 2 usage, 3 refused
 | contract | `brief --json` (BriefLine: items that wait for the owner = urgency now; open blocking questions; failed slices; items in cooking with no activity for a day), `doctor --json` (unknown areas, a missing `checks`, drift after approve, cooking with no slices, waiting or failed slices, two items in one area, a blocking question open for more than a day), `init` (the same folders that `kit init` makes through the pack module), `hook <name>` |
 
 A kit-made id is `IT-` and one more than the highest IT number of the ledger, with three digits at least: `IT-001`, `IT-042`, `IT-1000`.
-`item page` builds one HTML page from `spec.md`, `plan.md`, `tasks.md` and the ledger, for the artifact viewer. It has no doctype and no `html` or `body` tag. It uses the Bench UI kit of `plugins/core/ui/bench/`: the tokens, the `bn-*` components and their script go inline into the page. The page holds:
+`item page` builds one HTML document from `spec.md`, `plan.md`, `tasks.md`, `walkthrough.md` and the ledger, to open from the disk. The skills write it to `work/<id>/page.html` and never publish it. `--tab` names the tab that it opens on. It uses the Bench UI kit of `plugins/core/ui/bench/`: the tokens, the `bn-*` components and their script go inline into the page. The page holds:
 | Part | What it shows |
 |---|---|
 | header | the id, the title, badges for the state, the kind, the size and the areas; an audit line with the date of each move and the `updated` date of each document |
