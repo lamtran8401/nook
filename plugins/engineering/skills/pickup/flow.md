@@ -51,6 +51,10 @@ Kind `investigate` follows the standard path with Questions in place of criteria
 | teammate | a builder for an area with two or more slices, or an item of size M or L, alive from `begin` to `submit` | the Agent tool with `name: <area>-builder`; see `../cook/brief.md` |
 
 A lone slice goes to a background subagent; a quick item the lead builds itself.
+A reviewer, a code-reviewer or the contract designer can get a second job on the same item: a second round, or the review after the plan check.
+- Record the id of each one when it starts: `kit eng note add <id> "<agent type>: <agent id>"`. The note survives a compaction.
+- Send the second job with SendMessage to that id, with what changed since the first job. It resumes with the first job in its context.
+- Start a new one only when no note holds its id.
 Agent teams are on in every environment. A `name` makes a teammate, so a one-shot job never gets one.
 
 ## The question round

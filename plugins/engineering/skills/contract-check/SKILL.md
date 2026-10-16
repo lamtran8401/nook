@@ -15,6 +15,7 @@ A contract is shared by areas that deploy apart, so an unchecked consumer is a f
 
 ## Order
 1. Start the Agent tool with `subagent_type: kit-engineering:contract-designer`, the brief (`kit eng item brief <id>`), the folders of the areas, where the change is, and one job: "plan check" or "review check".
+   A review check after a plan check goes to the same contract designer: SendMessage to the id in `kit eng notes <id>`, with the diff to check.
 2. Read its table. For each consumer: none, needs a change, or breaks, with the file and line. For each change: additive or breaking.
 3. Check the order it gives: the contract, then the provider, then the consumers. Which consumers can ship before the provider.
 4. A breaking change needs a migration path and the owner's explicit word. Say so and stop there: nobody approves it for the owner.

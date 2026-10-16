@@ -209,3 +209,8 @@ The lead, the main session, directs the work. The rule of the kit (the core comp
 
 A teammate costs many times the tokens of a subagent, so it is given only where its context is reused. Agent teams are on in every environment: the core settings set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and `teammateMode: auto`. While teams are on, every Agent call with a `name` makes a teammate, so a one-shot job never gets a `name`. When teams are off (a headless run), the same call makes a background subagent and the flow still works: the SubagentStop hook takes the place of TeammateIdle.
 A teammate does not see the lead's conversation and does not preload skills: the brief from `task brief` is all it knows, and the body of its agent file stands alone. A teammate does not survive `/resume` or a compaction of the lead: `task list --state running` names the slices to give to a new teammate with the same brief.
+
+A subagent with a second job on the same item resumes; it does not become a teammate. Examples: a second review round, or the contract review after the plan check.
+- A finished subagent keeps its transcript. SendMessage to its id starts a new run with the first job in its context, in the background, at the cost of a subagent.
+- A teammate stays a live session and talks to other agents. A reviewer uses neither, so a teammate adds cost and no gain.
+- The lead records each id with `kit eng note add <id> "<agent type>: <agent id>"`. The note survives a compaction; with no note, the lead starts a new subagent.

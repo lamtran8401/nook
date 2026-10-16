@@ -16,7 +16,7 @@ The reviewer of `/check` judges the criteria. This review judges the code.
 ```
 An S or M item gets the review in `/check` only.
 One code-reviewer agent reads every area of the item in one run. Never start one agent for each area.
-A second round of `/check` reviews only the files that changed since the last review.
+A second round of `/check` reviews only the files that changed since the last review. Send it to the code-reviewer of the first round, as `pickup/flow.md` says under "Who does the work".
 
 ## Order
 1. Take the scope: the files of the slice, or the full diff of each area.

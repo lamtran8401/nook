@@ -19,6 +19,7 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
    - then `kit-engineering:reviewer`: it reads the spec and the diff, finds one negative case for each AC, and marks each met AC itself with `kit eng item ac done <id> <n> --evidence "<text>" --grade run|sourced|judged|owner`.
    For a contract change, add `contract-check`. Start no other agent.
    A second round after a reject: review only what changed, and give the reviewer only the ACs that the change touches.
+   Send the second round to the code-reviewer and the reviewer of the first round, with SendMessage to the ids in `kit eng notes <id>`.
 4. Read `kit eng item ac list <id>`. Check each mark: the evidence names a test, a file and line, or output. A mark with no evidence text is a gap: `kit eng item ac undo <id> <n>`.
 5. An AC not met, or a blocking finding: `kit eng item reject <id> --reason "<AC n or file:line: what>"`. Stop. Next: `/cook <id>`.
 6. Every AC met: report with the weakest evidence first, the nits, what was not confirmed, and the manual checks.
