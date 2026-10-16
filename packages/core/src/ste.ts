@@ -18,23 +18,48 @@ const WORD = /[A-Za-z0-9][A-Za-z0-9'’_-]*/g
 // A period ends a sentence when a space and a capital, a digit, a quote or a bracket follow.
 const SPLIT = /(?<=[.!?:;])\s+(?=[A-Z0-9`"'([])/
 
+const clean = (raw: string) =>
+  raw
+    .replace(/^\s*(?:[-*+]|\d+[.)])\s+/, '')
+    .replace(/^\s*>\s?/, '')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/`[^`]*`/g, 'X')
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/[*_]{1,3}/g, '')
+    .trim()
+
+/** A table cell with fewer words is a label, such as `low` or `run`, not a sentence. */
+const CELL_WORDS = 4
+
+/** The cells of a body row that hold a sentence. */
+const tableCells = (row: string) =>
+  row
+    .trim()
+    .replace(/^\||\|$/g, '')
+    .split('|')
+    .map(cell => clean(cell))
+    .filter(cell => (cell.match(WORD)?.length ?? 0) >= CELL_WORDS)
+
 function lines(text: string): string[] {
   const kept: string[] = []
   let fenced = false
+  let inTable = false
   for (const raw of text.replace(FRONT_MATTER, '').replace(COMMENT, '').split(/\r?\n/)) {
     if (FENCE.test(raw)) {
       fenced = !fenced
       continue
     }
-    if (fenced || raw.trimStart().startsWith('|') || /^\s*#{1,6}\s/.test(raw) || /^\s*(-{3,}|\*{3,})\s*$/.test(raw)) continue
-    const line = raw
-      .replace(/^\s*(?:[-*+]|\d+[.)])\s+/, '')
-      .replace(/^\s*>\s?/, '')
-      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-      .replace(/`[^`]*`/g, 'X')
-      .replace(/https?:\/\/\S+/g, '')
-      .replace(/[*_]{1,3}/g, '')
-      .trim()
+    if (fenced) continue
+    if (raw.trimStart().startsWith('|')) {
+      // the first row of a table is its header, the next its separator
+      const body = inTable && !/^\s*\|[\s:|-]+\|?\s*$/.test(raw)
+      inTable = true
+      if (body) kept.push(...tableCells(raw))
+      continue
+    }
+    inTable = false
+    if (/^\s*#{1,6}\s/.test(raw) || /^\s*(-{3,}|\*{3,})\s*$/.test(raw)) continue
+    const line = clean(raw)
     if (line) kept.push(line)
   }
   return kept

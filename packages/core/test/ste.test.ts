@@ -23,9 +23,19 @@ describe('problems', () => {
 })
 
 describe('sentences', () => {
-  test('code blocks, tables, headings and front matter are not sentences', () => {
-    const text = '---\nid: A\n---\n# Title\n\n| a | b |\n\n```\nyou should not see this\n```\nOne. Two.\n'
+  test('code blocks, headings and front matter are not sentences', () => {
+    const text = '---\nid: A\n---\n# Title\n\n```\nyou should not see this\n```\nOne. Two.\n'
     expect(sentences(text)).toEqual(['One.', 'Two.'])
+  })
+
+  test('a table cell of four words or more is a sentence; the header row and the short cells are not', () => {
+    const text = '| Risk | Likelihood | What we do |\n|---|---|---|\n| the page ships before the API | low | T4 waits for T2 in the ledger |\n'
+    expect(sentences(text)).toEqual(['the page ships before the API', 'T4 waits for T2 in the ledger'])
+  })
+
+  test('a long table cell fails like a long sentence', () => {
+    const cell = Array.from({ length: 30 }, (_, i) => `w${i}`).join(' ')
+    expect(score(`| A | B |\n|---|---|\n| ${cell} | ok |\n`).failures[0]?.why).toEqual(['30 words (max 25)'])
   })
 
   test('inline code counts as one word', () => {

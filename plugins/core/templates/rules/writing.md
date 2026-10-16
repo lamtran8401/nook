@@ -10,5 +10,6 @@ Documents follow Simplified Technical English (ASD-STE100). A hook runs `kit ste
 - A paragraph has one topic and 6 sentences or fewer. State facts, not a story.
 - Put the answer first, then the reason. Use tables and lists for steps, options and comparisons.
 - Write paths, commands and field names as code. Put long examples in fenced blocks; the check skips them.
+- A table cell of four words or more counts as a sentence. Keep each cell short.
 
 Chat is free. The standard holds for files.
