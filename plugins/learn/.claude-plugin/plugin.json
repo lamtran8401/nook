@@ -1,0 +1,7 @@
+{
+  "name": "kit-learn",
+  "version": "0.1.0",
+  "description": "Harness Kit learn: courses with a roadmap, cards in boxes, a mistake log and scores on a ruler; /learn-setup, /learn-today, /learn-practice, /study, and a coach agent.",
+  "author": { "name": "Lam" },
+  "license": "MIT"
+}
