@@ -1,5 +1,6 @@
 import type { RetroFact } from '@kit/env/env.ts'
 
+import { cut } from '../format.ts'
 import type { Engineering } from '../service.ts'
 import type { Event } from '../stores/events.ts'
 
@@ -13,8 +14,22 @@ function kindOf(e: Event): string | null {
   if (MOVES_BACK[e.type]) return MOVES_BACK[e.type]!
   if (e.type === 'guess' && /^G\d+ flipped\b/.test(reason)) return 'guess flipped'
   if (e.type === 'task' && e.to_state === 'failed') return 'slice failed'
-  if (e.type === 'prove' && /^\S+ (none|weak):/.test(reason)) return 'weak proof'
   return null
+}
+
+const TEXT_MAX = 160
+const SLOW_MS = 30 * 60_000
+
+/** The last proof of each slice, when it is weak or none and falls in the span: a later good proof clears an earlier one. */
+function weakProofs(item: string, events: Event[], since: number): RetroFact[] {
+  const last = new Map<string, Event>()
+  for (const e of events) {
+    const slice = e.type === 'prove' ? /^(\S+) (?:proven|weak|none|skipped)\b/.exec(e.reason ?? '')?.[1] : undefined
+    if (slice) last.set(slice, e)
+  }
+  return [...last.values()]
+    .filter(e => /^\S+ (?:none|weak):/.test(e.reason ?? '') && Date.parse(e.at) >= since)
+    .map(e => ({ item, kind: 'weak proof', text: cut(e.reason ?? '', TEXT_MAX), at: e.at }))
 }
 
 const duration = (ms: number): string => {
@@ -25,15 +40,17 @@ const duration = (ms: number): string => {
   return `${Math.floor(minutes / 60)} h${rest ? ` ${rest} min` : ''}`
 }
 
-/** Each blocking question of the span: how long it waited for the owner, or that it still waits. */
-function questionWaits(item: string, events: Event[], since: number): RetroFact[] {
+/** Each slow blocking question of the span: it waited 30 min or more for the owner, or it still waits. */
+function slowQuestions(item: string, events: Event[], since: number): RetroFact[] {
   return events.flatMap(asked => {
     const m = asked.type === 'question' ? /^(Q\d+) asked \(blocking\): (.*)$/.exec(asked.reason ?? '') : null
     if (!m || Date.parse(asked.at) < since) return []
     const [, q, text] = m
     const answered = events.find(e => e.type === 'question' && e.reason?.startsWith(`${q} answered:`))
-    const wait = answered ? `waited ${duration(Date.parse(answered.at) - Date.parse(asked.at))} for you` : 'still waits for you'
-    return [{ item, kind: 'question wait', text: `${q} ${wait}: ${text}`, at: asked.at }]
+    const waited = answered ? Date.parse(answered.at) - Date.parse(asked.at) : null
+    if (waited !== null && waited < SLOW_MS) return []
+    const wait = waited === null ? 'still waits for you' : `waited ${duration(waited)} for you`
+    return [{ item, kind: 'slow question', text: cut(`${q} ${wait}: ${text}`, TEXT_MAX), at: asked.at }]
   })
 }
 
@@ -45,9 +62,9 @@ export function retroFacts(eng: Engineering, since: Date): RetroFact[] {
       const events = eng.stores.events.history(item.id)
       const moves = events.flatMap(e => {
         const kind = kindOf(e)
-        return kind && Date.parse(e.at) >= from ? [{ item: item.id, kind, text: e.reason ?? '', at: e.at }] : []
+        return kind && Date.parse(e.at) >= from ? [{ item: item.id, kind, text: cut(e.reason ?? '', TEXT_MAX), at: e.at }] : []
       })
-      return [...moves, ...questionWaits(item.id, events, from)]
+      return [...moves, ...weakProofs(item.id, events, from), ...slowQuestions(item.id, events, from)]
     })
     .sort((a, b) => a.at.localeCompare(b.at) || a.item.localeCompare(b.item))
 }
