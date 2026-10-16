@@ -44,4 +44,5 @@ The packs are core, engineering and wiki. `kit eng …` runs the commands of eng
 - A test must be able to fail. Write the expected value by hand; never compute it with the code under test. A test that asserts only a mock call, a constant, `toBeDefined` or `not.toThrow` proves nothing.
 - Break the rule in the code once and see the test fail before you trust it.
 - Never weaken, skip or comment out a test to make it pass. Change a test only when the behavior changed.
-- Commit only when the owner asks. One commit for each part, with a message that says what changed and why.
+- Work in a worktree branch, never on `main`. Commit each part there once `bun run check` passes; the owner merges it. Never merge and never push.
+- One commit for each part, with a message that says what changed and why.
