@@ -19,7 +19,8 @@
       "@kit/env/*": ["./packages/env/src/*"],
       "@kit/core/*": ["./packages/core/src/*"],
       "@kit/engineering/*": ["./packages/engineering/src/*"],
-      "@kit/wiki/*": ["./packages/wiki/src/*"]
+      "@kit/wiki/*": ["./packages/wiki/src/*"],
+      "@kit/learn/*": ["./packages/learn/src/*"]
     }
   },
   "include": ["apps/*/src", "packages/*/src", "packages/*/test"]
