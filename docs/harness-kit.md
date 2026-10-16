@@ -63,7 +63,7 @@ One piece of work is an **item**. Its id is the key of the tracker (`SHOP-12`) o
 | Framing | framing | `/spec` | triage, find-repos, write-spec, spec-check | scout | you confirm `spec.md` |
 | Planning | planning | `/recipe` | write-plan, challenge, slice-tasks, plan-check, contract-check, adr | skeptic, system-designer, contract-designer, data-modeler | you approve: `/gate approve <id>` |
 | Cooking | cooking | `/cook` | tdd, test-design, clean-code, diagnose, verify | backend-builder, frontend-builder, verifier | all slices done and checked |
-| Checking | checking | `/check`, `/view` | code-review, verify | reviewer, code-reviewer | you accept: `/gate accept <id>` |
+| Checking | checking | `/quality-check`, `/view` | code-review, verify | reviewer, code-reviewer | you accept: `/gate accept <id>` |
 | Close | done | `/close` | adr, wiki-add | | done |
 
 - The skill name `/recipe` pairs with `/cook`. Under it, the document is `plan.md`, the state is `planning`, the craft skills are `write-plan` and `plan-check`.

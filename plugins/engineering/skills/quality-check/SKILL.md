@@ -1,5 +1,5 @@
 ---
-name: check
+name: quality-check
 description: "Review a submitted item in checking: the reviewer marks each criterion with evidence and a grade, the code reviewer reads the diff, then the item waits for the owner's accept or goes back. Use when the owner says check, review or 'is it done'."
 argument-hint: "[item id]"
 disable-model-invocation: true
@@ -24,7 +24,7 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
 5. An AC not met, or a blocking finding: `kit eng item reject <id> --reason "<AC n or file:line: what>"`. Stop. Next: `/cook <id>`.
 6. Every AC met: report with the weakest evidence first, the nits, what was not confirmed, and the manual checks.
    An AC with several cases shows one evidence line for each case, so the owner sees that no case rests on another's test.
-   With nits: clean them in this item before the accept, always. Run `kit eng item reject <id> --reason "nits: <list>"`, then `/cook <id>` fixes them and `/check` runs again. Never leave a nit for a later item.
+   With nits: clean them in this item before the accept, always. Run `kit eng item reject <id> --reason "nits: <list>"`, then `/cook <id>` fixes them and `/quality-check` runs again. Never leave a nit for a later item.
    A finding about the behavior of this item that no AC covers, such as an error text that the page hides: ask the owner once. Fix it in this item with `kit eng item reframe <id> --reason`, or record it as out of scope in the report. Never open a new item for it on your own.
    Say: accept: type `/gate accept <id>`. Offer `/view <id>`: the page with the walkthrough. Stop. Next: `/close <id>`.
 

@@ -1,6 +1,6 @@
 # An investigate item
 
-Read this file from `/spec`, `/recipe`, `/cook`, `/check` and `/close` when the kind of the item is `investigate`.
+Read this file from `/spec`, `/recipe`, `/cook`, `/quality-check` and `/close` when the kind of the item is `investigate`.
 The item asks questions and changes no code.
 Everything else follows the standard flow.
 

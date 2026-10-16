@@ -101,7 +101,7 @@ function autoStage(eng: Engineering, item: Item): Stage | null {
     .with('checking', () =>
       eng.stores.events.count(item.id, 'reject') >= MAX_REJECTS || !eng.gaps(item, 'accept').length
         ? null
-        : plain('check'),
+        : plain('quality-check'),
     )
     .with('done', 'blocked', 'cancelled', () => null)
     .exhaustive()

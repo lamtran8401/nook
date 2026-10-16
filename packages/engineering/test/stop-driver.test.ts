@@ -61,7 +61,7 @@ describe('stopDriver', () => {
     lead.verify('SHOP-1')
     expect(reason(stop({ stop_hook_active: true }))).toContain('skills/cook/SKILL.md')
     lead.moveItem('submit', 'SHOP-1')
-    expect(reason(stop({ stop_hook_active: true }))).toContain('skills/check/SKILL.md')
+    expect(reason(stop({ stop_hook_active: true }))).toContain('skills/quality-check/SKILL.md')
     lead.markCriterion('SHOP-1', 1, 'x', 'run')
     lead.markCriterion('SHOP-1', 2, 'y', 'run')
     expect(stop({ stop_hook_active: true }).kind).toBe('pass')

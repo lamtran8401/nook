@@ -20,7 +20,7 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | Framing | framing | `/spec` | `agree` | lead, after the owner confirms the spec |
 | Planning | planning | `/recipe` | `approve` | owner, with `/gate` |
 | Cooking | ready, cooking | `/cook` | `begin`, then `submit` | lead |
-| Checking | checking | `/check`, `/view` | `accept` | owner, with `/gate` |
+| Checking | checking | `/quality-check`, `/view` | `accept` | owner, with `/gate` |
 | Close | done | `/close` | none | lead |
 
 ## The gates

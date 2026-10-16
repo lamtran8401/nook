@@ -45,7 +45,7 @@ export function nextFor(eng: Engineering, item: Item): Next {
       if (!found.length) return { ...base, skill: ownerStep(`accept ${id}`), owner: true }
       return {
         ...base,
-        skill: `/check ${id}`,
+        skill: `/quality-check ${id}`,
         gaps: found,
         detail: `${plural(found.length, 'gap')} before the accept`,
       }

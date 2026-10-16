@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: "Runs the checks of every area of an item and the proof of each done slice, and reports what the commands printed: counts, the first error lines, each proof. Use proactively before submit and in /check."
+description: "Runs the checks of every area of an item and the proof of each done slice, and reports what the commands printed: counts, the first error lines, each proof. Use proactively before submit and in /quality-check."
 model: sonnet
 tools: Read, Grep, Glob, Bash
 maxTurns: 30

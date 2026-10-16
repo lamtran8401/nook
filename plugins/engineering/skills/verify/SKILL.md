@@ -1,6 +1,6 @@
 ---
 name: verify
-description: "Run the checks of every area of an item and the proof of each done slice through the verifier agent; report the true result with counts and the first error lines. Use before submit, in /check, or when the owner asks if it passes. Not the bundled one."
+description: "Run the checks of every area of an item and the proof of each done slice through the verifier agent; report the true result with counts and the first error lines. Use before submit, in /quality-check, or when the owner asks if it passes. Not the bundled one."
 argument-hint: "<item id> [--area <a>]"
 allowed-tools: Bash(kit eng *), Read
 ---

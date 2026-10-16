@@ -1,6 +1,6 @@
 ---
 name: contract-check
-description: "List the impact of a contract change on each consumer (none, needs a change, breaks) and the order of change, through the read-only contract designer. Use in /recipe and /check when a shared schema changes, or when the owner asks who consumes it."
+description: "List the impact of a contract change on each consumer (none, needs a change, breaks) and the order of change, through the read-only contract designer. Use in /recipe and /quality-check when a shared schema changes, or when the owner asks who consumes it."
 argument-hint: "<item id>"
 allowed-tools: Bash(kit eng *), Read, Glob, Grep
 ---
@@ -19,7 +19,7 @@ A contract is shared by areas that deploy apart, so an unchecked consumer is a f
 2. Read its table. For each consumer: none, needs a change, or breaks, with the file and line. For each change: additive or breaking.
 3. Check the order it gives: the contract, then the provider, then the consumers. Which consumers can ship before the provider.
 4. A breaking change needs a migration path and the owner's explicit word. Say so and stop there: nobody approves it for the owner.
-5. In a review, each consumer has evidence: a test, a build against the new types, or a line read. A consumer with none is a finding for `/check`.
+5. In a review, each consumer has evidence: a test, a build against the new types, or a line read. A consumer with none is a finding for `/quality-check`.
 
 ```
 Contract change: ListShipmentsRequest.status (optional string, added). Additive: yes.

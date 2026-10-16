@@ -1,22 +1,22 @@
 ---
 name: code-review
-description: "Review a done slice or the full diff of an item with fresh eyes through the code-reviewer agent: a fixed blocking list sends work back, the rest are nits. Use in /cook (L) and /check. Not for your own diff: clean-code. Not the bundled one."
+description: "Review a done slice or the full diff of an item with fresh eyes through the code-reviewer agent: a fixed blocking list sends work back, the rest are nits. Use in /cook (L) and /quality-check. Not for your own diff: clean-code. Not the bundled one."
 argument-hint: "<item id> [<T>]"
 allowed-tools: Bash(kit eng *), Bash(git diff *), Read
 ---
 
 Goal: code that the next person changes safely: clear, in the style of its area, with no silent failure.
 A builder reads its own code with the eyes that wrote it. A second reader finds what the first cannot see.
-The reviewer of `/check` judges the criteria. This review judges the code.
+The reviewer of `/quality-check` judges the criteria. This review judges the code.
 
 ## When
 ```
 /cook    L item        each slice, after task done                the files of the slice (kit eng task show <id> <T>)
-/check   every item    once, one agent for every area             the full diff of each area against its base
+/quality-check   every item    once, one agent for every area             the full diff of each area against its base
 ```
-An S or M item gets the review in `/check` only.
+An S or M item gets the review in `/quality-check` only.
 One code-reviewer agent reads every area of the item in one run. Never start one agent for each area.
-A second round of `/check` reviews only the files that changed since the last review. Send it to the code-reviewer of the first round, as `pickup/flow.md` says under "Who does the work".
+A second round of `/quality-check` reviews only the files that changed since the last review. Send it to the code-reviewer of the first round, as `pickup/flow.md` says under "Who does the work".
 
 ## Order
 1. Take the scope: the files of the slice, or the full diff of each area.
@@ -29,7 +29,7 @@ A second round of `/check` reviews only the files that changed since the last re
 3. Read the verdict. The blocking list lives in the agent file; only a finding on it sends work back. A pass with nits: keep the nits for the report of the stage.
 4. A blocking finding in `/cook`: `kit eng task reopen <id> <T> --reason "<file:line> <what>"`, and send the four parts (where, what, why, how to show it) to the builder of the slice. It fixes, runs the checks, and runs `task done` again with every file. Then review the slice again.
    The same finding after two rounds is a question for the owner.
-5. A blocking finding in `/check`: it sends the item back. Name it in the reason of `kit eng item reject`.
+5. A blocking finding in `/quality-check`: it sends the item back. Name it in the reason of `kit eng item reject`.
 
 ```
 Code review: T1 pass (2 nits). T2 send back, then pass: list.ts:42 swallowed the query error (fixed).
