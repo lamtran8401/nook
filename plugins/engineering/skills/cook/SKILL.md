@@ -1,7 +1,7 @@
 ---
 name: cook
 description: "Build an approved item in ready or cooking: a branch, one builder teammate for each area, proofs, the checks, then submit. Use when the owner says cook, build, implement or start coding. Pairs with /recipe."
-argument-hint: "<item id>"
+argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep
 ---

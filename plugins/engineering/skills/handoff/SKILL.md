@@ -1,7 +1,7 @@
 ---
 name: handoff
 description: "End a session: write work/<id>/handoff.md, at most 40 lines, with State, Done, Next, Open, Guesses and Watch. Use when the owner says handoff, wrap up the session, save state or stop for today, or when an auto run stops."
-argument-hint: "<item id>"
+argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Read, Write, Edit
 ---

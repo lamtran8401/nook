@@ -1,7 +1,7 @@
 ---
 name: auto
 description: "Run an item in mode auto from its state to the owner's accept: the lead runs the phases, records each guess, passes the plan gate with proceed, and stops at a stop rule. Use when the owner types /auto after /gate mode <id> auto."
-argument-hint: "<item id> [context for the lead]"
+argument-hint: "[item id] [context for the lead]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Edit, Write
 ---

@@ -1,7 +1,7 @@
 ---
 name: guesses
 description: "Review the guesses of an item, high impact first: the owner accepts each one or flips it; a flip returns its slices to todo. Use when the owner says guesses, assumptions, or comes back after an auto run."
-argument-hint: "<item id>"
+argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Read
 ---

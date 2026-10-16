@@ -1,7 +1,7 @@
 ---
 name: walkthrough
 description: "Write the report of work that is done, for the owner: what was built, the changed files as a tree, how it works, which requirements it meets, how to try it. As a Markdown file or as a tab of the item page. Use when the owner says walk me through."
-argument-hint: "<item id> or a question about the code"
+argument-hint: "[item id] or a question about the code"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Write, Edit, AskUserQuestion
 ---

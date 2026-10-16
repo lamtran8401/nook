@@ -1,7 +1,7 @@
 ---
 name: close
 description: "Close an accepted item in done: accept its ADRs, keep the knowledge, open the follow-ups, ask about the commits, archive the ticket. Use when the owner says close, wrap up, finish or commit an accepted item."
-argument-hint: "<item id>"
+argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git log *), Read, Glob, Grep, Write, Edit
 ---

@@ -11,6 +11,7 @@ Every later stage reads only `backlog/<KEY>/ticket.md` and `attachments/`, never
 The flow and the report shape: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 
 ## Order
+No arguments: ask the owner with AskUserQuestion which ticket to pull. Give the forms as options: paste the text, a folder in `backlog/`, or a key when a tracker pack is on. Never pick a ticket from the chat.
 For each key in the arguments:
 1. Look at what exists: `kit eng item list --state backlog` and `ls backlog/`. Reuse a folder or an item that is there.
 2. Get the ticket onto disk, into `backlog/<KEY>/ticket.md` and `attachments/`. With no key, make the item first (step 5 with no key) and use its `IT-NNN`:

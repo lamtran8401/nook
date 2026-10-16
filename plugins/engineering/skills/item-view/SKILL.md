@@ -1,7 +1,7 @@
 ---
 name: item-view
 description: "Show the spec, plan, tasks and walkthrough of an item as one page in the Bench UI kit: the diagrams of the plan, the lanes of the slices, the audit dates. Use only when the owner asks for a page, a view or a diagram of an item."
-argument-hint: "<item id>"
+argument-hint: "[item id]"
 allowed-tools: Bash(kit eng *), Read
 ---
 

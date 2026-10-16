@@ -1,7 +1,7 @@
 ---
 name: recipe
 description: "Plan an item in planning: work/<id>/plan.md and the slices in tasks.md, challenged by the skeptic, checked, then stopped at the owner's approve. Use when the owner says recipe, plan, design, approach or slices. Pairs with /cook."
-argument-hint: "<item id>"
+argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git log *), Read, Glob, Grep, Edit, Write
 ---

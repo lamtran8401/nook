@@ -5,6 +5,7 @@ These rules hold in every folder of this environment. Hooks enforce the moves of
 ## The flow
 
 - One item moves through `backlog → framing → planning → ready → cooking → checking → done`. `kit eng next` names the step and the skill to type.
+- A stage skill with no item id takes the one open item that `kit eng next` sends to that skill. With none or several, ask with AskUserQuestion, with the items as options.
 - Only the owner runs `approve`, `accept` and `mode`. An agent never runs them. Tell the owner to type `/gate <move> <id>` in the prompt.
 - Never change `spec.md`, `plan.md` or `tasks.md` after the approve. Run `kit eng item replan <id>` first.
 - A guard lists each gap with its fix. Fix the gap; never work around a guard.

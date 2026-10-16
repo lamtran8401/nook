@@ -1,7 +1,7 @@
 ---
 name: spec
 description: "Frame an item: one round of questions, then work/<id>/spec.md with intent, areas and checkable acceptance criteria; the owner confirms and the item moves to planning. Use when the owner says spec, frame, requirements or 'what does done mean'."
-argument-hint: "<item id>"
+argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(ls *), Read, Glob, Grep, Edit, Write
 ---
