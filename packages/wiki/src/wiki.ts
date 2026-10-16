@@ -13,6 +13,7 @@ const INDEX = 'INDEX.md'
 const TABLE = '| Page | Type | Summary |\n|---|---|---|'
 const TOP_TABLE = '| Shelf | Use |\n|---|---|'
 const FIX = 'kit wiki index --fix'
+const DRAFTS = 'drafts'
 
 /** The type of a page with no `type:` in its front matter. */
 const SHELF_TYPES: Record<string, string> = { ideas: 'idea', areas: 'area', resources: 'resource' }
@@ -27,6 +28,21 @@ export class Wiki {
 
   get dir(): string {
     return join(this.home, this.config.dir)
+  }
+
+  /** The folder of the drafts that wait for the yes of the owner. A draft is not a page yet. */
+  get draftsDir(): string {
+    return join(this.dir, DRAFTS)
+  }
+
+  /** The drafts, relative to their folder. */
+  drafts(): string[] {
+    return markdownIn(this.draftsDir)
+  }
+
+  /** Every page of the wiki, relative to it; the drafts are left out. */
+  private allPages(): string[] {
+    return markdownIn(this.dir).filter(page => !page.startsWith(`${DRAFTS}/`))
   }
 
   /** The pages of a shelf, relative to the shelf, its index left out. */
@@ -85,7 +101,7 @@ export class Wiki {
 
   /** Each `[[name]]` with no page of that name, and each relative Markdown link to a file that does not exist. */
   brokenLinks(): BrokenLink[] {
-    const all = markdownIn(this.dir)
+    const all = this.allPages()
     const names = new Set(all.map(page => basename(page, '.md')))
     const broken: BrokenLink[] = []
     for (const page of all) {
@@ -121,7 +137,7 @@ export class Wiki {
     }
     const names = new Set(pages.map(page => basename(page, '.md')))
     const files = new Set(pages.map(page => normalize(page)))
-    for (const page of markdownIn(this.dir)) {
+    for (const page of this.allPages()) {
       const file = join(this.dir, page)
       const text = readFileSync(file, 'utf8')
       const linked = text

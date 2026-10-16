@@ -149,3 +149,20 @@ describe('engineeringModule: a typed /auto', () => {
     expect(auto('SHOP-1')).toEqual({ ok: false, lines: ['SHOP-1 is cancelled: /auto runs an open item'] })
   })
 })
+
+describe('engineeringModule: the daily brief', () => {
+  test('gives the waits of the owner first, what is done since the time, and what runs', () => {
+    t = makeHome()
+    readyToApprove(t)
+    itemAt(t, 'planning', 'SHOP-2')
+    const lead = t.kit(LEAD)
+    lead.ledger.run("UPDATE item SET state = 'done' WHERE id = 'SHOP-2'")
+    lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-2', 'accept', 'checking', 'done', 'owner', 'owner', '2026-10-16T09:00:00.000Z')")
+    lead.newItem({ id: 'SHOP-3', title: 'the new export', areas: ['bff'] })
+    expect(engineeringModule.brief!(t.root, new Date('2026-10-15T00:00:00.000Z'))).toEqual([
+      { part: 'waits', urgent: true, text: 'SHOP-1 waits for your approve: the export date is off', action: '/gate approve SHOP-1' },
+      { part: 'done', text: 'SHOP-2 accepted: the export date is off' },
+      { part: 'runs', text: 'SHOP-3 backlog: the new export', action: '/spec SHOP-3' },
+    ])
+  })
+})

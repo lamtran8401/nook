@@ -47,4 +47,15 @@ export const wikiModule: PackModule = {
     if (wiki.config.missing) return [{ level: 'warn', where: 'wiki', text: 'kit.yml has no wiki section with the shelves', fix: 'write it with /setup' }]
     return wiki.check()
   },
+
+  brief(dir) {
+    const wiki = wikiAt(dir)
+    if (!wiki) return []
+    const drafts = relative(dir, wiki.draftsDir)
+    return wiki.drafts().map(draft => ({
+      part: 'waits' as const,
+      text: `a wiki draft waits for your yes: ${draft}`,
+      action: `read ${drafts}/${draft}, then say yes or no to the companion`,
+    }))
+  },
 }

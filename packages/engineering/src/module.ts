@@ -8,6 +8,7 @@ import { Home } from './home.ts'
 import { Ledger } from './ledger.ts'
 import { isOpen } from './machine.ts'
 import { OWNER_STEP } from './owner-step.ts'
+import { brief, doneSince, runs } from './report/brief.ts'
 import { doctor } from './report/doctor.ts'
 import { next } from './report/next.ts'
 import { Engineering } from './service.ts'
@@ -40,6 +41,17 @@ export const engineeringModule: PackModule = {
   doctor(dir) {
     const home = homeAt(dir)
     return home ? doctor(Engineering.open(home, Who.fromEnv())) : []
+  },
+
+  brief(dir, since) {
+    const home = homeAt(dir)
+    if (!home) return []
+    const eng = Engineering.open(home, Who.fromEnv())
+    return [
+      ...brief(eng).map(l => ({ part: 'waits' as const, urgent: l.urgency === 'now', text: l.text, action: l.action })),
+      ...doneSince(eng, since).map(l => ({ part: 'done' as const, text: l.text })),
+      ...runs(eng).map(l => ({ part: 'runs' as const, text: l.text, action: l.action })),
+    ]
   },
 
   gates: GATES,

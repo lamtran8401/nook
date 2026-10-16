@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -35,5 +35,17 @@ describe('wikiModule', () => {
   test('a folder that does not turn the wiki on gets no setup', () => {
     writeFileSync(join(root, 'kit.yml'), 'packs: []\n')
     expect(wikiModule.setup(root)).toEqual([])
+  })
+
+  test('the brief names each draft that waits for the yes of the owner, and the doctor reads no draft as a gap', () => {
+    writeFileSync(join(root, 'kit.yml'), `packs: [wiki]\n${SECTION}`)
+    wikiModule.setup(root)
+    const gapsBefore = wikiModule.doctor(root).map(f => f.text)
+    mkdirSync(join(root, 'docs/wiki/drafts/ideas'), { recursive: true })
+    writeFileSync(join(root, 'docs/wiki/drafts/ideas/export.md'), '# Export\n')
+    expect(wikiModule.brief!(root, new Date())).toEqual([
+      { part: 'waits', text: 'a wiki draft waits for your yes: ideas/export.md', action: 'read docs/wiki/drafts/ideas/export.md, then say yes or no to the companion' },
+    ])
+    expect(wikiModule.doctor(root).map(f => f.text)).toEqual(gapsBefore)
   })
 })

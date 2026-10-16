@@ -133,6 +133,21 @@ describe('Wiki.links', () => {
   })
 })
 
+describe('Wiki.drafts', () => {
+  test('lists the drafts that wait for the yes of the owner, and a link to a draft is not a page yet', () => {
+    write('docs/wiki/drafts/resources/shipments-page.md', '# Shipments page\n')
+    write('docs/wiki/drafts/ideas/export.md', '# Export\n')
+    write('docs/wiki/ideas/a.md', 'See [[shipments-page]].\n')
+    const wiki = new Wiki(root, WikiConfig.from(SECTION))
+    expect(wiki.drafts()).toEqual(['ideas/export.md', 'resources/shipments-page.md'])
+    expect(wiki.brokenLinks()).toEqual([{ page: 'ideas/a.md', link: '[[shipments-page]]' }])
+  })
+
+  test('a wiki with no drafts folder has no drafts', () => {
+    expect(new Wiki(root, WikiConfig.from(SECTION)).drafts()).toEqual([])
+  })
+})
+
 describe('Wiki.retire', () => {
   const setup = () => {
     write('docs/wiki/resources/INDEX.md', '# Resources\n\n| Page | Type | Summary |\n|---|---|---|\n| [cart.md](cart.md) | system | The cart. |\n| [pay.md](pay.md) | system | The payment. |\n| [checkout.md](checkout.md) | system | The whole checkout. |\n')

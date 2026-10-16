@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import type { PackModule } from '@kit/env/env.ts'
+import { EnvironmentList } from '@kit/env/environment-list.ts'
 
 import { init } from '../../src/init/initializer.ts'
 import { CORE_DIR, initIn, removeDir, tempDir } from '../helpers.ts'
@@ -90,6 +91,15 @@ describe('Initializer', () => {
     expect(readText('CLAUDE.md')).toContain('## My notes\n\nThe bff is the API.\n')
     expect(existsSync(join(root, '.claude', 'rules', 'my-style.md'))).toBe(true)
     expect([merged.permissions.allow.includes('Bash(make *)'), merged.theme]).toEqual([true, 'dark'])
+  })
+})
+
+describe('Initializer: the list of environments', () => {
+  test('init adds its folder to the list of the owner, once', () => {
+    const list = new EnvironmentList(join(root, 'home', '.config', 'kit', 'environments'))
+    init({ dir: root, packs: [], update: false, coreDir: CORE_DIR, list })
+    init({ dir: root, packs: [], update: true, coreDir: CORE_DIR, list })
+    expect(list.dirs()).toEqual([root])
   })
 })
 

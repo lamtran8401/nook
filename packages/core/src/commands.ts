@@ -1,11 +1,13 @@
 import { resolve } from 'node:path'
 
 import { arg, list, type Program } from '@kit/shared/cli.ts'
-import { activePacks, environmentsAbove, type PackModule, projectRoot } from '@kit/env/env.ts'
+import { activePacks, environmentsAbove, nearestEnvironment, type PackModule, projectRoot } from '@kit/env/env.ts'
+import { EnvironmentList } from '@kit/env/environment-list.ts'
 import { Exit } from '@kit/shared/errors.ts'
 import { readInput, runHook } from '@kit/shared/hook.ts'
 import { Catalog } from '@kit/env/pack.ts'
 
+import { collectBrief, formatBrief, startOfYesterday } from './brief/brief.ts'
 import { doctor } from './doctor/doctor.ts'
 import { formatDoctor } from './doctor/format.ts'
 import { gateHook } from './hooks/gate.ts'
@@ -14,6 +16,13 @@ import { init } from './init/initializer.ts'
 import { markdownFiles, scoreFile } from './ste.ts'
 
 const coreDir = () => Catalog.load().dirOf('core')
+
+/** The folders of the brief: the list of the owner, and the environment of `cwd` when the list lacks it. */
+const briefDirs = (cwd: string): string[] => {
+  const dirs = EnvironmentList.mine().dirs()
+  const here = nearestEnvironment(cwd)?.dir
+  return here && !dirs.includes(here) ? [...dirs, here] : dirs
+}
 
 /** The commands of the core. `modules` are the pack packages that `kit init` and `kit doctor` reach. */
 export const coreProgram = (modules: PackModule[] = []): Program => ({
@@ -26,7 +35,7 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
       usage: '[--pack a,b] [--update]',
       flags: { pack: { type: 'string', list: true, help: 'a pack to turn on here; repeat it, or join names with a comma' }, update: { type: 'boolean', help: 'replace what the kit owns; never a line of yours' } },
       run(c) {
-        const report = init({ dir: process.cwd(), packs: list(c, 'pack'), update: c.flags.update === true, coreDir: coreDir(), modules })
+        const report = init({ dir: process.cwd(), packs: list(c, 'pack'), update: c.flags.update === true, coreDir: coreDir(), modules, list: EnvironmentList.mine() })
         c.out(report, r => {
           const lines = [`packs on here: ${r.packs.join(', ')}`]
           if (r.wrote.length) lines.push(`wrote: ${r.wrote.join(', ')}`)
@@ -60,6 +69,20 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
           'shipped by this kit:',
           ...shipped.map(p => `  ${p.name.padEnd(12)} ${p.description}`),
         ].join('\n'))
+      },
+    },
+    {
+      path: ['brief'],
+      summary: 'what waits for you, what is done since yesterday and what runs, in every folder that you init',
+      run(c) {
+        const folders = collectBrief(briefDirs(process.cwd()), startOfYesterday(), {
+          gaps: dir => doctor(dir, { modules }).findings,
+          lines: (dir, since) =>
+            activePacks(dir)
+              .filter(p => p.home.dir === dir)
+              .flatMap(p => modules.find(m => m.name === p.name)?.brief?.(dir, since) ?? []),
+        })
+        c.out({ folders }, r => formatBrief(r.folders))
       },
     },
     {

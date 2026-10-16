@@ -45,3 +45,33 @@ export function brief(eng: Engineering): BriefLine[] {
   }
   return lines
 }
+
+export type DoneLine = { ref: string; text: string }
+
+/** The items accepted since `since`: closed when their archive came after the accept, else accepted. */
+export function doneSince(eng: Engineering, since: Date): DoneLine[] {
+  const { items, events } = eng.stores
+  return items.list().flatMap(item => {
+    const accepted = events.last(item.id, 'accept')
+    if (!accepted || Date.parse(accepted.at) < since.getTime()) return []
+    const archived = events.last(item.id, 'archive')
+    const word = archived && archived.id > accepted.id ? 'closed' : 'accepted'
+    return [{ ref: item.id, text: `${item.id} ${word}: ${cut(item.title, 60)}` }]
+  })
+}
+
+export type RunLine = { ref: string; text: string; action: string }
+
+/** The open items that wait for nobody: their state, their running slices and their next step. */
+export function runs(eng: Engineering): RunLine[] {
+  return eng.stores.items.open().flatMap(item => {
+    const step = nextFor(eng, item)
+    if (step.owner || eng.stores.questions.openBlocking(item.id).length) return []
+    const running = eng.stores.slices
+      .live(item.id)
+      .filter(s => s.state === 'running')
+      .map(s => `${s.id} runs in ${s.area}`)
+    const text = `${item.id} ${item.state}: ${cut(item.title, 60)}${running.length ? `; ${running.join(', ')}` : ''}`
+    return [{ ref: item.id, text, action: step.skill }]
+  })
+}

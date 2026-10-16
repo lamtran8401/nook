@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { basename, join } from 'node:path'
 
 import { Environment, KIT_FILE, KitConfig, type PackModule, STATE_DIR } from '@kit/env/env.ts'
+import type { EnvironmentList } from '@kit/env/environment-list.ts'
 import { Catalog, type Plugin } from '@kit/env/pack.ts'
 import { usage } from '@kit/shared/errors.ts'
 
@@ -13,7 +14,8 @@ const RULES_DIR = join('.claude', 'rules', 'kit')
 const STYLE_FILE = join('.claude', 'output-styles', 'kit-companion.md')
 const SETTINGS_FILE = join('.claude', 'settings.json')
 
-export type InitOptions = { dir: string; packs: string[]; update: boolean; coreDir: string; modules?: PackModule[] }
+/** `list`: the list of environments of the owner, which init adds the folder to; a test leaves it out. */
+export type InitOptions = { dir: string; packs: string[]; update: boolean; coreDir: string; modules?: PackModule[]; list?: EnvironmentList }
 /** `unset`: the packs on here whose section of kit.yml /setup has not written yet. */
 export type InitReport = { wrote: string[]; kept: string[]; packs: string[]; unset: string[] }
 
@@ -43,6 +45,7 @@ export class Initializer {
     this.writeStyle()
     this.writeSettings()
     this.setupPacks()
+    this.options.list?.add(this.options.dir)
     return this.report
   }
 

@@ -4,6 +4,9 @@ export type Finding = { level: 'error' | 'warn' | 'ok'; where: string; text: str
 /** The result of an owner move that the owner typed as /gate: whether it moved, and the lines to show. */
 export type GateResult = { ok: boolean; lines: string[] }
 
+/** One line of the daily brief: its part, what it says, the action for it, and for a wait whether it comes first. */
+export type BriefLine = { part: 'waits' | 'done' | 'runs'; text: string; action?: string; urgent?: boolean }
+
 /** An owner move that waits now: the words to type after /gate, and why it waits. */
 export type WaitingGate = { words: string; why: string }
 
@@ -18,6 +21,8 @@ export interface PackModule {
   /** False while kit.yml lacks the section that /setup writes for the pack. */
   configured(dir: string): boolean
   doctor(dir: string): Finding[]
+  /** The lines of the pack for the daily brief: what waits for the owner, what is done since `since`, what runs. */
+  brief?(dir: string, since: Date): BriefLine[]
   /** The owner moves of the pack, by their first word, for /gate. */
   readonly gates?: readonly string[]
   /** Runs one owner move; `words` are the words that the owner typed after /gate. */

@@ -20,6 +20,7 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
    - Find the page of each topic in `resources/INDEX.md` of the wiki. A topic with no page gets a new page, `type: system`.
    - Draft each change: how the system works now, the pitfalls that remain, one History line `<date>: <id>`.
    - Show the drafts in the question round of step 3, with yes or no for each. Write the accepted ones, then run `kit wiki index --fix` and `kit wiki links`.
+   - A draft that the owner keeps for later goes to `docs/wiki/drafts/<shelf>/<page>.md`, and `/brief` shows it until the owner decides.
    With no wiki pack, list the pages that the owner must write.
    A `NONE` or `REMOVE` tag changes a page only when it removes a behavior that a page states.
 5. Loose ends of this item: a nit, a gap in its own behavior, or a flipped guess is work of this item, never a new item.
