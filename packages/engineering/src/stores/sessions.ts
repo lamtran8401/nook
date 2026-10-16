@@ -39,8 +39,13 @@ export class SessionStore {
     return this.ledger.get<{ holds: number }>('SELECT holds FROM session WHERE id = ?', session)?.holds ?? 0
   }
 
+  /** The session that touched `item` last; a hold is not a touch, so a held session does not stay the lead. */
+  leaderOf(item: string): string | null {
+    return this.ledger.get<{ id: string }>('SELECT id FROM session WHERE item = ? ORDER BY seen_at DESC, rowid DESC LIMIT 1', item)?.id ?? null
+  }
+
   setHolds(session: string, holds: number): void {
-    this.ledger.run('UPDATE session SET holds = ?, seen_at = ? WHERE id = ?', holds, now(), session)
+    this.ledger.run('UPDATE session SET holds = ? WHERE id = ?', holds, session)
   }
 
   resetHolds(session: string): void {

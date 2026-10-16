@@ -98,10 +98,36 @@ describe('stopDriver', () => {
     expect(reason(stop({ background_tasks: [{ id: 'a-1', type: 'subagent', status: 'running' }] }))).toContain('blocking question Q1 is open')
   })
 
-  test('the single item in an auto run is found with no session row', () => {
+  test('the single item in an auto run that no session leads yet holds a session with no item', () => {
+    const owner = t.kit(OWNER)
+    owner.newItem({ id: 'SHOP-1', title: 'the export date is off' })
+    owner.setMode('SHOP-1', 'auto')
+    expect(reason(stop({ session_id: 'another' }))).toContain('skills/spec/SKILL.md')
+  })
+
+  test('a session that does not lead the auto item is not held', () => {
     itemAt(t, 'cooking')
     t.kit(OWNER).setMode('SHOP-1', 'auto')
-    expect(reason(stop({ session_id: 'another' }))).toContain('skills/cook/SKILL.md')
+    expect(stop({ session_id: 'another' }).kind).toBe('pass')
+    expect(reason(stop())).toContain('skills/cook/SKILL.md')
+  })
+
+  test('a session that the hook took on is let go once the lead of the item moves it', () => {
+    const owner = t.kit(OWNER)
+    owner.newItem({ id: 'SHOP-1', title: 'the export date is off' })
+    owner.setMode('SHOP-1', 'auto')
+    expect(stop({ session_id: 'stray' }).kind).toBe('json')
+    t.kit(LEAD).moveItem('start', 'SHOP-1')
+    expect(stop({ session_id: 'stray' }).kind).toBe('pass')
+    expect(reason(stop())).toContain('skills/spec/SKILL.md')
+  })
+
+  test('a background task whose status is not a known running word does not stop the push', () => {
+    itemAt(t, 'framing')
+    pickup(t.kit(LEAD), 'SHOP-1')
+    t.kit(OWNER).setMode('SHOP-1', 'auto')
+    expect(stop({ background_tasks: [{ id: 'a-1', type: 'subagent', status: 'finished' }] }).kind).toBe('json')
+    expect(stop({ background_tasks: [{ id: 'a-1', type: 'subagent' }] }).kind).toBe('json')
   })
 
   test('outside a home the Stop hook passes', () => {

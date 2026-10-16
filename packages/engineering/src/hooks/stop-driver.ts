@@ -39,12 +39,13 @@ export function stopDriver(input: HookInput): HookResult {
   return hold(`${item.id}: ${reasons.join('; ')} (hold ${holds + 1} of ${MAX_HOLDS})`)
 }
 
-const ENDED = /^(completed|done|failed|killed|stopped|cancelled|error)/
+// Only a known running word counts: an unknown word means one more hold, never a run that nobody pushes on.
+const RUNNING = /^(running|pending|queued|starting|in_progress)$/
 
-/** A background task that has not ended wakes the lead when it reports, so a hold now only repeats "still running". */
+/** A background task that still runs wakes the lead when it reports, so a hold now only repeats "still running". */
 function backgroundWorks(input: HookInput): boolean {
   const tasks = Array.isArray(input.background_tasks) ? (input.background_tasks as { status?: unknown }[]) : []
-  return tasks.some(task => !ENDED.test(String(task.status ?? '')))
+  return tasks.some(task => RUNNING.test(String(task.status ?? '')))
 }
 
 /** The holds before this one. A stuck lead is let go after MAX_HOLDS in a row, and the count starts again. */
@@ -58,12 +59,13 @@ function countHold(eng: Engineering, session: string, item: string): number {
   })
 }
 
-/** The item of a session: the recorded one, else the single item in an auto run. */
+/** The item that a session leads: its recorded item while it is the lead, else the single auto item that no session leads. */
 export function sessionItem(eng: Engineering, session?: string): Item | null {
-  const recordedId = session ? eng.stores.sessions.itemOf(session) : null
-  const recorded = recordedId ? eng.stores.items.find(recordedId) : null
-  if (recorded) return recorded
-  const auto = eng.stores.items.list().filter(i => i.mode === 'auto' && isOpen(i.state))
+  const { sessions, items } = eng.stores
+  const recordedId = session ? sessions.itemOf(session) : null
+  const recorded = recordedId ? items.find(recordedId) : null
+  if (recorded) return sessions.leaderOf(recorded.id) === session ? recorded : null
+  const auto = items.list().filter(i => i.mode === 'auto' && isOpen(i.state) && !sessions.leaderOf(i.id))
   return auto.length === 1 ? auto[0]! : null
 }
 
