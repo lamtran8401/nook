@@ -19,11 +19,11 @@ afterEach(() => removeDir(root))
 const report = (modules: PackModule[] = []) => doctor(root, { claudeDir, modules })
 const texts = (modules: PackModule[] = []) => report(modules).findings.map(f => f.text)
 
-/** A pack module that reports one gap, or none. */
-const fakePack = (gap: boolean): PackModule => ({
+/** A pack module that reports one gap, or none, and has its section of kit.yml, or not. */
+const fakePack = (gap: boolean, configured = true): PackModule => ({
   name: 'engineering',
   setup: () => [],
-  configured: () => !gap,
+  configured: () => configured,
   doctor: dir => [gap ? { level: 'warn', where: dir, text: 'work/ is missing', fix: 'kit init --update' } : { level: 'ok', where: dir, text: 'no gap' }],
 })
 
@@ -104,6 +104,14 @@ describe('Doctor: the gaps of a pack', () => {
     initIn(root)
     writeFileSync(join(root, 'kit.yml'), 'packs: [engineering]\n')
     expect(texts([fakePack(false)])).toEqual(['1 environment above, 2 packs on, no gap'])
+  })
+
+  test('a pack on here with no section of kit.yml is a gap with the fix to run /setup', () => {
+    initIn(root)
+    writeFileSync(join(root, 'kit.yml'), 'packs: [engineering]\n')
+    expect(report([fakePack(false, false)]).findings).toEqual([
+      { level: 'warn', where: root, text: 'engineering: kit.yml has no `engineering:` section', fix: 'in Claude Code, run /setup' },
+    ])
   })
 })
 

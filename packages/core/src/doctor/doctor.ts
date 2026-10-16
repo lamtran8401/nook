@@ -117,8 +117,8 @@ export class Doctor {
   private packGaps(pack: ActivePack): Finding[] {
     const module = this.modules.find(m => m.name === pack.name)
     if (!module) return []
-    return module
-      .doctor(pack.home.dir)
+    const unset = module.configured(pack.home.dir) ? [] : [warn(pack.home, `kit.yml has no \`${pack.name}:\` section`, 'in Claude Code, run /setup')]
+    return [...unset, ...module.doctor(pack.home.dir)]
       .filter(f => f.level !== 'ok')
       .map(f => ({ ...f, text: `${pack.name}: ${f.text}` }))
   }
