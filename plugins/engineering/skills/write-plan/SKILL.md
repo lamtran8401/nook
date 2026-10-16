@@ -23,6 +23,7 @@ Fill the file that `agree` scaffolded. The sections, their sizes, the diagrams a
 6. Flow, size L only: one sequence diagram of the hard path, at most 3 rules that must always be true, at most 4 failure cases.
 7. Proof: at most 6 rows, the criteria grouped, each with its layer, the exact check and its negative case.
    The spec says each criterion in plain words. The Proof holds what it leaves out: the call or the screen, the values, the codes and the names.
+   A criterion with several cases lists each case in its row, as "4a a missing page, 4b an empty one, 4c an unknown status". The reviewer needs a test for each.
 8. Risks: at most 3 rows with likelihood and what we do, and the guesses that the plan relies on (`kit eng guesses <id> --open`).
 9. Front matter: keep `created`, set `updated` to today, write `approach` in one line.
 

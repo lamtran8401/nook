@@ -28,14 +28,10 @@ A person who looks for the pending shipments reads the whole list today and pick
 
 ## Acceptance criteria
 
-- [ADD] A list asked for "pending" holds only the pending shipments, newest first. (Q1)
-- [ADD] A list asked for an empty status holds every shipment, the same as no status. (G3)
+- [ADD] A list asked for one status holds only its shipments, newest first. An empty status holds every shipment, the same as no status. (Q1, G3)
 - [ADD] A list asked for an unknown status, such as "lost", gets an error that names it and the valid ones: pending, shipped and delivered. (Q3)
-- [ADD] The page shows a status select with All, pending, shipped and delivered, in this order. (Q2)
-- [ADD] When the page opens, All is selected and every shipment shows. (Q2)
-- [ADD] A person who picks a status sees only the shipments of that status. (Q1)
-- [ADD] A person who picks All sees every shipment again. (Q2)
-- [ADD] When no shipment has the picked status, the page says so with the status in the text: "No pending shipments." (G1)
+- [ADD] The page shows a status select with All, pending, shipped and delivered, in this order, and opens on All with every shipment. (Q2)
+- [ADD] A person who picks a status sees only its shipments, and All shows every shipment again. With no match, the page names the status: "No pending shipments." (Q1, Q2, G1)
 - [CHANGE] When the list cannot load for a picked status, the page shows the error banner of today. (edge case)
 
 ## Decisions

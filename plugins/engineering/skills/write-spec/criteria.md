@@ -17,7 +17,10 @@ Do not copy the ticket. Think it through as the person who must build it.
 One line each, `- [TAG] text (source)`. No number: the n-th line is AC n.
 - The tag: `[ADD]` a new behavior, `[CHANGE]` a behavior that changes, `[REMOVE]` a behavior that goes away, `[NONE]` no lasting behavior (a speed target, a fix of a wrong result).
   `/close` turns each `ADD` and `CHANGE` into a page of the wiki.
-- One behavior and its observable result: a number, a text or a visible state.
+- One thing that the owner sees work, and its observable result: a number, a text or a visible state.
+- Fold its edge cases into the same line: "An empty one gives the first page." An edge case gets its own criterion only when it is a separate thing to see.
+- The proposed cap: the criteria of the ticket + 2, kept in the range of the size: S 1 to 3, M 3 to 6, L 5 to 10. A ticket with no criteria gets the top of the range.
+  A complex requirement can go over the cap. Then add a row to the Decisions table that says why. `agree` warns over the cap; it does not refuse.
 - Plain words, for the owner: what a person or a caller does, and what they get. "The status filter works on every page: 25 pending give 20, then 5."
 - No endpoint, query, status code, field, function or file name. The exact check of each criterion goes in the Proof of `plan.md`.
 - The source in brackets at the end: `(ticket AC2)`, `(Q3)`, `(G1)`, `(edge case)`. Write "ticket" before a number of the ticket; a bare `(AC2)` reads as a criterion of the spec.

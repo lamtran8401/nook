@@ -1,10 +1,11 @@
-import { existsSync, mkdirSync, renameSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
 import { match } from 'ts-pattern'
 
 import { conflict, EvError, Exit, refused, usage } from '@kit/shared/errors.ts'
 
+import { criteriaCap, ticketCriteria } from './documents/criteria-cap.ts'
 import { SpecDocument } from './documents/spec.ts'
 import { TasksDocument } from './documents/tasks.ts'
 import { Templates } from './documents/templates.ts'
@@ -274,7 +275,7 @@ export class Engineering {
       if (move.reason && !reason) throw usage(`${name} needs --reason "<why>"`)
       const found = this.gaps(item, moveName)
       if (found.length) throw refused(gapsHeading(name, id, found), found[0]!.fix)
-      const warnings = moveName === 'submit' ? this.proofWarnings(id) : []
+      const warnings = this.moveWarnings(moveName, item)
       const notes = this.applyMove(moveName, item, reason)
       // a document that cannot be written fails the move, so no item sits in a stage without its document
       for (const doc of move.scaffolds ?? [])
@@ -320,6 +321,28 @@ export class Engineering {
     if (spec.kind) fields.kind = spec.kind
     if (spec.size) fields.size = spec.size
     return fields
+  }
+
+  /** What a move that passed its guards still tells the lead: done slices with no proof at submit, criteria over the proposed cap at agree. */
+  private moveWarnings(name: MoveName, item: Item): string[] {
+    if (name === 'submit') return this.proofWarnings(item.id)
+    if (name === 'agree') return this.criteriaWarnings(item)
+    return []
+  }
+
+  /** The cap is a proposal: a complex requirement can hold more criteria, with a reason in the Decisions table. */
+  private criteriaWarnings(item: Item): string[] {
+    const text = this.folder(item.id).read('spec.md')
+    if (text === null) return []
+    const spec = SpecDocument.parse(text)
+    const size = isOneOf(SIZES, spec.size) ? spec.size : item.size
+    const ticketFile = join(this.home.backlogDir(item.id), 'ticket.md')
+    const ticket = existsSync(ticketFile) ? readFileSync(ticketFile, 'utf8') : null
+    const { cap, why } = criteriaCap(size, ticketCriteria(ticket))
+    if (spec.criteria.length <= cap) return []
+    return [
+      `spec.md has ${spec.criteria.length} acceptance criteria; the proposed cap is ${cap}: ${why}. Merge them, or keep them for a complex requirement and say why in the Decisions table.`,
+    ]
   }
 
   /** Done slices with no proof: a warning at submit, not a gap. */

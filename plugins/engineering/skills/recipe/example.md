@@ -64,10 +64,10 @@ None: Data, Cache, Consistency, Performance.
 
 | Criteria | Layer | Proof |
 |---|---|---|
-| 1, 2, 3 | bff, call | `pending` gives the two pending shipments, newest first; an empty status gives all four; `lost` and `Pending` give the 400 with the exact text. Negative: `shipped` never gives a pending one |
-| 4, 5, 7 | frontend, page | the select lists All first; opened with no status or with All, the URL is a bare `/shipments`. Negative: no option has the value `all` |
-| 6, 8 | frontend, page | called with `pending`, the URL has the status and the rows are what the bff returns; no match gives "No pending shipments.", with `<b>` escaped. Negative: with no status, the old text stays |
-| 9 | frontend, page | a 503 and an unreachable API give the banner text of today. Negative: the text holds no status |
+| 1, 2 | bff, call | 1a: `pending` gives the two pending shipments, newest first; 1b: an empty status gives all four; 2: `lost` and `Pending` give the 400 with the exact text. Negative: `shipped` never gives a pending one |
+| 3, 4 | frontend, page | the select lists All first; opened with no status or with All, the URL is a bare `/shipments`. Negative: no option has the value `all` |
+| 4 | frontend, page | called with `pending`, the URL has the status and the rows are what the bff returns; no match gives "No pending shipments.", with `<b>` escaped. Negative: with no status, the old text stays |
+| 5 | frontend, page | a 503 and an unreachable API give the banner text of today. Negative: the text holds no status |
 
 ## Risks
 
@@ -94,7 +94,7 @@ updated: 2026-10-15
 
 - area: bff
 - depends: none
-- acs: AC1, AC3
+- acs: AC1, AC2
 - size: S
 - files: src/shipments.ts, test/shipments.test.ts
 - done when: the filter gives the pending shipments, newest first; the 400 text comes from the list; the 4 tests of today stay green
@@ -103,7 +103,7 @@ updated: 2026-10-15
 
 - area: bff
 - depends: T1
-- acs: AC1, AC2, AC3
+- acs: AC1, AC2
 - size: S
 - files: src/handler.ts, test/handler.test.ts
 - done when: `pending`, an empty status, `lost` and `Pending` answer as the spec says; the 5 tests of today stay green
@@ -112,7 +112,7 @@ updated: 2026-10-15
 
 - area: frontend
 - depends: none
-- acs: AC6, AC7, AC8
+- acs: AC4
 - size: S
 - files: src/client.ts, src/shipment-list.ts, their two test files
 - done when: a fetcher that records its URL sees the status, and none for All; the empty text names the status, escaped; "No shipments yet." stays
@@ -121,10 +121,10 @@ updated: 2026-10-15
 
 - area: frontend
 - depends: T2, T3
-- acs: AC4, AC5, AC6, AC7, AC9
+- acs: AC3, AC4, AC5
 - size: S
 - files: src/page.ts (new), test/page.test.ts (new)
-- done when: the select and the page meet AC4 to AC9, with the exact banner text; `bun test` passes
+- done when: the select and the page meet AC3 to AC5, with the exact banner text; `bun test` passes
 ````
 
 ## SHOP-30: plan.md (size L)

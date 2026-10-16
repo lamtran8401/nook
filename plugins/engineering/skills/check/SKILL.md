@@ -23,6 +23,7 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
 4. Read `kit eng item ac list <id>`. Check each mark: the evidence names a test, a file and line, or output. A mark with no evidence text is a gap: `kit eng item ac undo <id> <n>`.
 5. An AC not met, or a blocking finding: `kit eng item reject <id> --reason "<AC n or file:line: what>"`. Stop. Next: `/cook <id>`.
 6. Every AC met: report with the weakest evidence first, the nits, what was not confirmed, and the manual checks.
+   An AC with several cases shows one evidence line for each case, so the owner sees that no case rests on another's test.
    With nits: ask the owner once, clean them in this item now, or leave them. To clean them, the lead runs `kit eng item reject <id> --reason "nits: <list>"`.
    Say: accept: type `/gate accept <id>`. Offer `/view <id>`: the page with the walkthrough. Stop. Next: `/close <id>`.
 

@@ -15,7 +15,8 @@ Read `work/<id>/spec.md`, the ticket and `kit eng item brief <id>`. Name each ga
 3. What changes: a reader who did not see the ticket understands what changes in each area.
 4. Decisions: each gap, edge case, conflict and impact has a row that says how it was resolved: `Q<n>`, `G<n>` or `open`.
 5. Criteria: at least one (investigate: one question). Each line starts with `[ADD]`, `[CHANGE]`, `[REMOVE]` or `[NONE]` and ends with its source. "ticket" stands before a number of the ticket.
-6. Each criterion is checkable: one behavior, one observable result, a yes or no from a person who did not write the code. Reject "works well", "is fast", "handles errors". Ask for a number or an example.
+6. Each criterion is checkable: one thing that the owner sees work, its observable result, a yes or no from a person who did not write the code. Reject "works well", "is fast", "handles errors". Ask for a number or an example.
+   The count: the proposed cap is the criteria of the ticket + 2, in the range of the size (S 1 to 3, M 3 to 6, L 5 to 10). Over the cap, merge the criteria of one thing to see. Keep more only for a complex requirement, with a Decisions row that says why; with no such row, it is a gap.
 7. Not copied: a criterion that repeats a vague line of the ticket word for word is a gap. Rewrite it as one behavior and one result.
    Plain words: a criterion with an endpoint, a query, a status code, a field, a function or a file name is a gap. Rewrite it as what a person or a caller gets; the exact check goes in the Proof of the plan.
 8. Coverage: every requirement of the ticket has a criterion or an Out of scope line. No criterion adds a behavior that nobody asked for.

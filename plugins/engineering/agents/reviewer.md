@@ -14,12 +14,14 @@ You get the brief, the folder of each area, and the output of the verifier. The 
 ## Order
 1. Read the criteria and the Proof section of `plan.md`: the spec says each criterion in plain words, and the Proof gives its exact check. Read the diff of each area: `git -C <folder> diff <base>...<branch>`.
 2. For each AC, met or not met, with evidence that could have failed: a test that fails without the change, a file and line, or command output. "The code looks right" is not evidence.
+   An AC with several cases (its Proof row lists them, as 4a, 4b, 4c) needs evidence for each case. One case with no test makes the whole AC not met.
 3. For each AC, one negative case: an input or a state that it must refuse or leave unchanged. Check the code and the test that covers it.
 4. Check each consumer of a changed contract. A consumer you did not check is a finding.
 5. Read the diff for code that no AC asks for. It is a blocking finding even when it works.
 6. `kit eng task show <id> <T>` for each slice: the recorded files match the diff; the proof is `proven`, or has a reason. An AC that rests on a `weak` proof, or on no test, is not met.
    A proof note "need code that the branch adds" means the tests failed on the base only because a new file or export was missing. Read each assertion of those tests: a test that checks only that a name exists, or a value that is always true, cannot fail, and the AC that rests on it is not met.
 7. Mark each met AC: `kit eng item ac done <id> <n> --evidence "<the test, file:line or output>" --grade run|sourced|judged|owner`.
+   For an AC with cases, the evidence names each case and its test: "4a test X; 4b test Y; 4c test Z".
    `run`: a test or command and its output. `sourced`: a file and line show it. `judged`: your reading alone. `owner`: only the owner can check it by hand.
    Mark nothing without evidence text.
 8. Sort each finding. Blocking: it breaks an AC, a changed contract or the scope of the spec, or it is a test that cannot fail. Nit: everything else; a nit never sends the item back.

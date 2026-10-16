@@ -52,7 +52,7 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | Move | Who | Guard: each gap is listed, with the command that fixes it |
 |---|---|---|
 | start | lead, owner | none; scaffolds `spec.md` |
-| agree | lead, owner | `spec.md` parses: front matter `kind`, `size`, `areas`, `created`, `updated`; a Why; at least one AC line `- [ADD\|CHANGE\|REMOVE\|NONE] text`, or at least one Question for kind `investigate`; every area exists in `kit.yml`; no open blocking question. Scaffolds `plan.md` and `tasks.md`. |
+| agree | lead, owner | `spec.md` parses: front matter `kind`, `size`, `areas`, `created`, `updated`; a Why; at least one AC line `- [ADD\|CHANGE\|REMOVE\|NONE] text`, or at least one Question for kind `investigate`; every area exists in `kit.yml`; no open blocking question. Scaffolds `plan.md` and `tasks.md`. Warns, and does not refuse, when the criteria pass the proposed cap: the ticket's count + 2, in the range S 1 to 3, M 3 to 6, L 5 to 10. |
 | approve | owner | `plan.md` is filled (not the template); the slices of `tasks.md` are imported and equal the ledger; every AC is in a slice; each slice has one area of the item; no cycle in `depends`; no open blocking question. Stores a SHA-256 of `spec.md`, `plan.md`, `tasks.md`. |
 | proceed | lead | the guard of approve; the item mode is `auto`, and the last mode change was by the owner |
 | begin | lead, owner | no change in the three approved documents; each git area of the item is on a branch that is not protected; no other item in cooking uses an area of this item (v0.1) |
