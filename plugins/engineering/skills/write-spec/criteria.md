@@ -18,6 +18,8 @@ One line each, `- [TAG] text (source)`. No number: the n-th line is AC n.
 - The tag: `[ADD]` a new behavior, `[CHANGE]` a behavior that changes, `[REMOVE]` a behavior that goes away, `[NONE]` no lasting behavior (a speed target, a fix of a wrong result).
   `/close` turns each `ADD` and `CHANGE` into a page of the wiki.
 - One behavior and its observable result: a number, a text or a visible state.
+- Plain words, for the owner: what a person or a caller does, and what they get. "The status filter works on every page: 25 pending give 20, then 5."
+- No endpoint, query, status code, field, function or file name. The exact check of each criterion goes in the Proof of `plan.md`.
 - The source in brackets at the end: `(ticket AC2)`, `(Q3)`, `(G1)`, `(edge case)`. Write "ticket" before a number of the ticket; a bare `(AC2)` reads as a criterion of the spec.
 - Every requirement of the ticket has a criterion or an Out of scope line. Every resolved finding that changes the behavior has a criterion.
 - A row of a Given, When, Then table is one criterion.
@@ -33,3 +35,5 @@ One line each, `- [TAG] text (source)`. No number: the n-th line is AC n.
 | Handle errors. | which error, which result | [ADD] When the status query fails, the list stays unchanged and a banner shows "Unable to filter". (edge case) |
 | Make the list fast. | no number | [NONE] A selected status shows the filtered list in under 1 second for 500 shipments. (Q3) |
 | Filter works for all statuses. | copied; "all" is wrong | [ADD] The filter lists the 5 public tracking statuses that the API returns. (ticket AC1, Q1) |
+| `GET /shipments?cursor=xyz` returns a 400: `unknown cursor xyz`. | says how, in code | [ADD] A request for a next page that does not exist gets an error that names it, and no shipments. (edge case) |
+| The last page has `next: null`. | a field name | [ADD] The last page says that no page comes after it. (ticket AC4) |

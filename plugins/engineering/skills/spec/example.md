@@ -28,15 +28,15 @@ A person who looks for the pending shipments reads the whole list today and pick
 
 ## Acceptance criteria
 
-- [ADD] `GET /shipments?status=pending` returns only the pending shipments, newest first. (Q1)
-- [ADD] `GET /shipments?status=` returns every shipment, as with no status. (G3)
-- [ADD] `GET /shipments?status=lost` returns a 400: "unknown status lost; use pending, shipped or delivered". (Q3)
-- [ADD] The page shows a select with All, pending, shipped and delivered, in this order. (Q2)
+- [ADD] A list asked for "pending" holds only the pending shipments, newest first. (Q1)
+- [ADD] A list asked for an empty status holds every shipment, the same as no status. (G3)
+- [ADD] A list asked for an unknown status, such as "lost", gets an error that names it and the valid ones: pending, shipped and delivered. (Q3)
+- [ADD] The page shows a status select with All, pending, shipped and delivered, in this order. (Q2)
 - [ADD] When the page opens, All is selected and every shipment shows. (Q2)
-- [ADD] Called with a status, the page asks for `/shipments?status=<status>` and shows what the API returns. (Q1)
-- [ADD] Called with All, the page asks for `/shipments` with no status. (Q2)
-- [ADD] When no shipment has the status, the page shows "No pending shipments.", with the status in the text. (G1)
-- [CHANGE] A failed call with a status shows the error banner of today. (edge case)
+- [ADD] A person who picks a status sees only the shipments of that status. (Q1)
+- [ADD] A person who picks All sees every shipment again. (Q2)
+- [ADD] When no shipment has the picked status, the page says so with the status in the text: "No pending shipments." (G1)
+- [CHANGE] When the list cannot load for a picked status, the page shows the error banner of today. (edge case)
 
 ## Decisions
 

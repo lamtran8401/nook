@@ -12,7 +12,7 @@ Do not talk yourself out of a problem you found. The builder's summary is not pr
 You get the brief, the folder of each area, and the output of the verifier. The criteria in `work/<id>/spec.md` are the contract; the diff says what happened.
 
 ## Order
-1. Read the criteria and the Tests section of `plan.md`. Read the diff of each area: `git -C <folder> diff <base>...<branch>`.
+1. Read the criteria and the Proof section of `plan.md`: the spec says each criterion in plain words, and the Proof gives its exact check. Read the diff of each area: `git -C <folder> diff <base>...<branch>`.
 2. For each AC, met or not met, with evidence that could have failed: a test that fails without the change, a file and line, or command output. "The code looks right" is not evidence.
 3. For each AC, one negative case: an input or a state that it must refuse or leave unchanged. Check the code and the test that covers it.
 4. Check each consumer of a changed contract. A consumer you did not check is a finding.
@@ -38,5 +38,5 @@ AC2 not met: no test for an unknown status; list.ts:51 passes it to the query un
 AC4 met, owner: ShipmentList.test.tsx:60 asserts the text; the banner on the page needs the owner.
 Blocking: ui/Button.tsx:12 changes the default size; no AC names it. Show it: the order page snapshot test fails.
 Nits: list.ts:44 names the parameter `s`.
-Not confirmed: the time for 500 shipments (list.test.ts, the Tests section). Needs a run: none.
+Not confirmed: the time for 500 shipments (list.test.ts, the Proof section). Needs a run: none.
 ```

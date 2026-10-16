@@ -17,6 +17,7 @@ Read `work/<id>/spec.md`, the ticket and `kit eng item brief <id>`. Name each ga
 5. Criteria: at least one (investigate: one question). Each line starts with `[ADD]`, `[CHANGE]`, `[REMOVE]` or `[NONE]` and ends with its source. "ticket" stands before a number of the ticket.
 6. Each criterion is checkable: one behavior, one observable result, a yes or no from a person who did not write the code. Reject "works well", "is fast", "handles errors". Ask for a number or an example.
 7. Not copied: a criterion that repeats a vague line of the ticket word for word is a gap. Rewrite it as one behavior and one result.
+   Plain words: a criterion with an endpoint, a query, a status code, a field, a function or a file name is a gap. Rewrite it as what a person or a caller gets; the exact check goes in the Proof of the plan.
 8. Coverage: every requirement of the ticket has a criterion or an Out of scope line. No criterion adds a behavior that nobody asked for.
 9. Out of scope has content and names what a reader could assume.
 10. Questions: `kit eng questions <id> --open` lists no blocking question.
