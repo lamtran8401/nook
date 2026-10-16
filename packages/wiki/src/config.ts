@@ -18,16 +18,18 @@ export class WikiConfig {
   private constructor(
     readonly dir: string,
     readonly references: string,
+    /** Where a page goes when a combined page replaces it, relative to the environment. */
+    readonly archive: string,
     readonly shelves: Shelf[],
     readonly missing: boolean,
   ) {}
 
   static from(section: unknown): WikiConfig {
-    if (section === undefined || section === null) return new WikiConfig('docs/wiki', 'docs/references', [], true)
+    if (section === undefined || section === null) return new WikiConfig('docs/wiki', 'docs/references', 'archive/wiki', [], true)
     if (typeof section !== 'object' || Array.isArray(section)) throw usage('kit.yml: wiki must be a map of keys')
     const raw = section as Raw
     const shelves = Array.isArray(raw.shelves) ? raw.shelves.map(shelfOf) : []
-    return new WikiConfig(text(raw.dir, 'docs/wiki'), text(raw.references, 'docs/references'), shelves, false)
+    return new WikiConfig(text(raw.dir, 'docs/wiki'), text(raw.references, 'docs/references'), text(raw.archive, 'archive/wiki'), shelves, false)
   }
 }
 

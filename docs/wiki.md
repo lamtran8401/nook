@@ -8,6 +8,7 @@
 wiki:
   dir: docs/wiki                # the default
   references: docs/references   # the default
+  archive: archive/wiki         # the default: where a merged page sends the old pages
   shelves:
     - { name: ideas, use: "An idea that has not started." }
     - { name: areas, use: "A responsibility with no end date." }
@@ -35,6 +36,7 @@ The kit adds rows after the last row of the table. It never removes a row and ne
 | `kit wiki index --fix` | makes each missing index and adds a row for each page with none; removes nothing |
 | `kit wiki links` | each `[[name]]` with no page of that name, and each relative Markdown link to a file that does not exist |
 | `kit wiki shelves` | the shelves and the use of each |
+| `kit wiki retire <page...> --into <page>` | after a merged page: moves the old pages to `archive/wiki/<date>/`, takes their rows out of the index, points each link at the merged page |
 
 `kit doctor` lists the gaps of the indexes under the wiki pack.
 
@@ -45,6 +47,7 @@ The kit adds rows after the last row of the table. It never removes a row and ne
 | `/wiki-ask` | the owner or a skill | the index first, then the pages whose line matches; an answer with a link to each page |
 | `/wiki-add` | the owner | the source into `docs/references/`, a draft page in `resources/`, written after the owner's yes |
 | `/wiki-tidy` | the owner | broken links, index gaps, two pages on one topic, no source, adjectives with no example |
+| `/wiki-merge` | the owner | related pages, such as the features of one epic, into one complete page; the old pages go to the archive |
 | `librarian` | a skill | reads the wiki for another agent, the index first, and reports the facts with their pages |
 
 `/spec` reads the index and names each page it uses. `/close` drafts one change for each `ADD` or `CHANGE` criterion on the page of its topic in `resources/`, and writes the ones that the owner accepts.

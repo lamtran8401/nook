@@ -45,3 +45,16 @@ export function addRows(text: string, rows: string[], header: string): string {
   const last = table.at(-1)!
   return `${[...lines.slice(0, last + 1), ...rows, ...lines.slice(last + 1)].join('\n')}\n`
 }
+
+/** The text with the rows of these pages taken out of its first table; every other line stays as it is. */
+export function removeRows(text: string, pages: string[]): string {
+  const lines = text.split('\n')
+  const table = new Set(tableRows(lines).slice(1))
+  return lines
+    .filter((line, i) => {
+      if (!table.has(i) || SEPARATOR.test(line)) return true
+      const page = cells(line)[0] ?? ''
+      return !pages.includes(LINK.exec(page)?.[1] ?? page)
+    })
+    .join('\n')
+}

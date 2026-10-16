@@ -47,6 +47,7 @@ describe('WikiConfig', () => {
     const config = WikiConfig.from({ dir: 'notes', ...SECTION })
     expect(config.dir).toBe('notes')
     expect(config.shelves.map(s => [s.name, s.index])).toEqual([['ideas', true], ['resources', true], ['daily', false]])
+    expect(config.archive).toBe('archive/wiki')
   })
 
   test('a shelf with no name is refused with its fix', () => {
@@ -92,7 +93,7 @@ describe('Wiki.fix', () => {
     write('docs/wiki/ideas/a.md', '# A\n')
     write('docs/wiki/ideas/c.md', '---\ntype: plan\n---\n# C\n\n> In short: a channel on AI tools. It starts in May.\n')
     const made = new Wiki(root, WikiConfig.from(SECTION)).fix()
-    expect(read('docs/wiki/ideas/INDEX.md')).toBe(`${IDEAS_INDEX}| [c.md](c.md) | plan | a channel on AI tools. |\n`)
+    expect(read('docs/wiki/ideas/INDEX.md')).toBe(`${IDEAS_INDEX}| [c.md](c.md) | plan | A channel on AI tools. |\n`)
     expect(made).toContain('ideas/INDEX.md: a line for c.md')
   })
 
@@ -129,5 +130,43 @@ describe('Wiki.links', () => {
       { page: 'ideas/a.md', link: '[[gone]]' },
       { page: 'ideas/a.md', link: 'missing.md' },
     ])
+  })
+})
+
+describe('Wiki.retire', () => {
+  const setup = () => {
+    write('docs/wiki/resources/INDEX.md', '# Resources\n\n| Page | Type | Summary |\n|---|---|---|\n| [cart.md](cart.md) | system | The cart. |\n| [pay.md](pay.md) | system | The payment. |\n| [checkout.md](checkout.md) | system | The whole checkout. |\n')
+    write('docs/wiki/resources/cart.md', '# Cart\n')
+    write('docs/wiki/resources/pay.md', '# Pay\n')
+    write('docs/wiki/resources/checkout.md', '# Checkout\n\nFrom [[cart]] to [[pay]].\n')
+    write('docs/wiki/ideas/next.md', 'See [the cart](../resources/cart.md) and [[pay]].\n')
+    return new Wiki(root, WikiConfig.from(SECTION))
+  }
+
+  test('moves the old pages into the archive under the date, and takes their rows out of the index', () => {
+    setup().retire(['resources/cart.md', 'resources/pay.md'], 'resources/checkout.md', '2026-10-16')
+    expect(existsSync(join(root, 'archive/wiki/2026-10-16/resources/cart.md'))).toBe(true)
+    expect(existsSync(join(root, 'docs/wiki/resources/pay.md'))).toBe(false)
+    expect(read('docs/wiki/resources/INDEX.md')).toBe('# Resources\n\n| Page | Type | Summary |\n|---|---|---|\n| [checkout.md](checkout.md) | system | The whole checkout. |\n')
+  })
+
+  test('points each link to an old page at the combined page', () => {
+    setup().retire(['resources/cart.md', 'resources/pay.md'], 'resources/checkout.md', '2026-10-16')
+    expect(read('docs/wiki/ideas/next.md')).toBe('See [the cart](../resources/checkout.md) and [[checkout]].\n')
+    expect(read('docs/wiki/resources/checkout.md')).toBe('# Checkout\n\nFrom [[checkout]] to [[checkout]].\n')
+  })
+
+  test('a page in a folder of a shelf leaves the index of its shelf', () => {
+    write('docs/wiki/resources/INDEX.md', '| Page | Type | Summary |\n|---|---|---|\n| [systems/old.md](systems/old.md) | system | Old. |\n| [all.md](all.md) | system | All. |\n')
+    write('docs/wiki/resources/systems/old.md', '# Old\n')
+    write('docs/wiki/resources/all.md', '# All\n')
+    new Wiki(root, WikiConfig.from(SECTION)).retire(['resources/systems/old.md'], 'resources/all.md', '2026-10-16')
+    expect(read('docs/wiki/resources/INDEX.md')).toBe('| Page | Type | Summary |\n|---|---|---|\n| [all.md](all.md) | system | All. |\n')
+  })
+
+  test('refuses a combined page that does not exist yet, and moves nothing', () => {
+    const wiki = setup()
+    expect(() => wiki.retire(['resources/cart.md'], 'resources/order.md', '2026-10-16')).toThrow('resources/order.md does not exist')
+    expect(existsSync(join(root, 'docs/wiki/resources/cart.md'))).toBe(true)
   })
 })

@@ -1,5 +1,5 @@
-import type { Program } from '@kit/shared/cli.ts'
-import { Exit } from '@kit/shared/errors.ts'
+import { type Program, text } from '@kit/shared/cli.ts'
+import { Exit, usage } from '@kit/shared/errors.ts'
 
 import { requireWiki } from './module.ts'
 
@@ -31,6 +31,21 @@ export const wikiProgram: Program = {
         const broken = requireWiki().brokenLinks()
         c.out(broken, b => (b.length ? b.map(x => `✗ ${x.page}: ${x.link}`).join('\n') : '✓ every link names a page'))
         return broken.length ? Exit.error : Exit.ok
+      },
+    },
+    {
+      path: ['retire'],
+      summary: 'after a combined page: move the old pages to the archive, take their index rows out, point their links at it',
+      usage: '<page...> --into <page> [--date YYYY-MM-DD]',
+      flags: {
+        into: { type: 'string', help: 'the combined page, such as resources/checkout.md; it must exist' },
+        date: { type: 'string', help: 'the folder of the archive; today by default' },
+      },
+      run(c) {
+        const into = text(c, 'into')
+        if (!into || !c.args.length) throw usage('give the old pages and --into <the combined page>')
+        const done = requireWiki().retire(c.args, into, text(c, 'date') ?? new Date().toISOString().slice(0, 10))
+        c.out({ done }, d => d.done.join('\n'))
       },
     },
     {

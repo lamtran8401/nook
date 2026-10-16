@@ -1,10 +1,11 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join, normalize, relative } from 'node:path'
 
 import type { Finding } from '@kit/env/env.ts'
+import { usage } from '@kit/shared/errors.ts'
 
 import type { Shelf, WikiConfig } from './config.ts'
-import { addRows, type IndexLine, indexRow, parseIndex } from './index-file.ts'
+import { addRows, type IndexLine, indexRow, parseIndex, removeRows } from './index-file.ts'
 
 /** The wiki of one environment: its shelves, their pages and their indexes. The kit adds lines; it never removes one. */
 
@@ -100,6 +101,42 @@ export class Wiki {
     return broken
   }
 
+  /**
+   * After a combined page replaces `pages` (paths in the wiki, such as `resources/cart.md`): each one moves to
+   * `<archive>/<date>/`, leaves its index, and each link to it points at `into`. Returns what it did.
+   */
+  retire(pages: string[], into: string, date: string): string[] {
+    for (const page of [into, ...pages])
+      if (!existsSync(join(this.dir, page))) throw usage(`${page} does not exist`, 'write the combined page first, then retire the old ones')
+    const done: string[] = []
+    for (const page of pages) {
+      const to = join(this.home, this.config.archive, date, page)
+      mkdirSync(dirname(to), { recursive: true })
+      renameSync(join(this.dir, page), to)
+      // the index of the shelf names the page relative to the shelf, also inside a folder of it
+      const [shelf = '', ...rest] = normalize(page).split('/')
+      const index = join(this.dir, shelf, INDEX)
+      if (existsSync(index)) writeFileSync(index, removeRows(readFileSync(index, 'utf8'), [rest.join('/')]))
+      done.push(`${page} → ${relative(this.home, to)}`)
+    }
+    const names = new Set(pages.map(page => basename(page, '.md')))
+    const files = new Set(pages.map(page => normalize(page)))
+    for (const page of markdownIn(this.dir)) {
+      const file = join(this.dir, page)
+      const text = readFileSync(file, 'utf8')
+      const linked = text
+        .replace(/\[\[([^\]|#]+)((?:[|#][^\]]*)?)\]\]/g, (all, name: string, rest: string) => (names.has(name.trim()) ? `[[${basename(into, '.md')}${rest}]]` : all))
+        .replace(/\]\(([^)\s]+\.md)\)/g, (all, target: string) =>
+          files.has(normalize(join(dirname(page), target))) ? `](${relative(dirname(page), into) || basename(into)})` : all,
+        )
+      if (linked !== text) {
+        writeFileSync(file, linked)
+        done.push(`${page}: links point at ${into}`)
+      }
+    }
+    return done
+  }
+
   private lineFor(shelf: Shelf, page: string): IndexLine {
     const text = readFileSync(join(this.dir, shelf.name, page), 'utf8')
     const type = /^---\n[\s\S]*?^type:\s*(.+)$[\s\S]*?^---$/m.exec(text)?.[1]?.trim()
@@ -113,7 +150,9 @@ const title = (name: string) => name.charAt(0).toUpperCase() + name.slice(1)
 
 const shelfRow = (shelf: Shelf) => (shelf.index ? `| [${shelf.name}](${shelf.name}/${INDEX}) | ${shelf.use} |` : `| ${shelf.name} | ${shelf.use} |`)
 
-const firstSentence = (text: string) => /^(.+?[.!?])(?:\s|$)/.exec(text.trim())?.[1] ?? text.trim().slice(0, 120)
+const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
+
+const firstSentence = (text: string) => capital(/^(.+?[.!?])(?:\s|$)/.exec(text.trim())?.[1] ?? text.trim().slice(0, 120))
 
 /** The first sentence of the In short line, or of the first paragraph. */
 function summaryOf(text: string): string {
