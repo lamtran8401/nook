@@ -1,6 +1,6 @@
 # Harness Kit
 
-Status: v0.1 in progress, 2026-10-15; the scaffold of the core pack exists. The full guide is `harness-guide.html` (published at <https://claude.ai/artifact/17Dr7beapRMnecSZJ1QeTp>). This file is the short form.
+Status: v0.1 near its end, 2026-10-16. The packs core, engineering and wiki are on in a real environment, and three items of the sandbox ran the flow. `docs/expect/v0.1.md` lists what passed and what is still open. The jira pack waits for a real tracker. The full guide is `harness-guide.html` (published at <https://claude.ai/artifact/17Dr7beapRMnecSZJ1QeTp>). This file is the short form.
 The old plans and the code sketch are in `~/Workspaces/personal/archive/projects/` (stackspace, harness-code-sketch, ideas-everything).
 
 ## 1. In one line
