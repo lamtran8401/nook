@@ -230,12 +230,12 @@ export class Engineering {
     return this.item(id)
   }
 
-  /** Moves the ticket folder to `backlog/archive/<id>/`. */
-  archive(id: string): string {
+  /** Moves the ticket folder to `backlog/archive/<id>/`; null when the item has none, as a quick fix with no ticket. */
+  archive(id: string): string | null {
     this.permissions.assert('item archive')
     this.item(id)
     const from = this.home.backlogDir(id)
-    if (!existsSync(from)) throw refused(`no ticket folder ${from}`, 'nothing to archive')
+    if (!existsSync(from)) return null
     const to = join(dirname(from), 'archive', id)
     if (existsSync(to)) throw refused(`${to} exists`, 'remove or rename the old archive folder first')
     mkdirSync(dirname(to), { recursive: true })

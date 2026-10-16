@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { EvError, Exit } from '@kit/shared/errors.ts'
@@ -360,5 +360,20 @@ describe('Engineering.moveItem: proceed', () => {
     owner.setMode('SHOP-1', 'auto')
     expect(lead.moveItem('proceed', 'SHOP-1').item.state).toBe('ready')
     expect(lead.stores.approvals.hashes('SHOP-1').size).toBe(3)
+  })
+})
+
+describe('Engineering.archive', () => {
+  test('moves the ticket folder to backlog/archive/', () => {
+    itemAt(t, 'backlog')
+    mkdirSync(join(t.root, 'backlog', 'SHOP-1'), { recursive: true })
+    writeFileSync(join(t.root, 'backlog', 'SHOP-1', 'ticket.md'), '# SHOP-1\n')
+    expect(t.kit(LEAD).archive('SHOP-1')).toBe(join(t.root, 'backlog', 'archive', 'SHOP-1'))
+    expect(existsSync(join(t.root, 'backlog', 'archive', 'SHOP-1', 'ticket.md'))).toBe(true)
+  })
+
+  test('an item with no ticket folder, as a quick fix, has nothing to archive and is not refused', () => {
+    itemAt(t, 'backlog')
+    expect(t.kit(LEAD).archive('SHOP-1')).toBeNull()
   })
 })

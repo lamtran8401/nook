@@ -212,7 +212,7 @@ const itemCommands: Command[] = [
     summary: 'move the ticket folder to backlog/archive/',
     usage: '<id>',
     run(c) {
-      c.out({ archived: eng().archive(arg(c, 0, 'item id')) }, r => `archived to ${r.archived}`)
+      c.out({ archived: eng().archive(arg(c, 0, 'item id')) }, r => (r.archived ? `archived to ${r.archived}` : 'no ticket folder: nothing to archive'))
     },
   },
   ...moveCommands,
