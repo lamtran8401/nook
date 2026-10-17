@@ -23,6 +23,10 @@
 
 /* ---------- Highlight + inline code ---------- */
 .bn-mark { background: var(--accent); color: var(--accent-fg); border-radius: var(--radius-xs); padding: 0 4px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+/* the pen: a lime stroke under the lower half of a key word, one place on a screen, as in a page title */
+.bn-mark[data-variant="pen"] { background: linear-gradient(transparent 58%, var(--accent) 58%); color: inherit; border-radius: 0; padding: 0 3px; }
+[data-theme="dark"] .bn-mark[data-variant="pen"] { background: var(--accent); color: var(--accent-fg); border-radius: var(--radius-xs); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .bn-mark[data-variant="pen"] { background: var(--accent); color: var(--accent-fg); border-radius: var(--radius-xs); } }
 .bn-kbd, .bn-inline-code { font: 500 0.875em/1 var(--font-mono); background: var(--bg-muted); border: var(--stroke-1) solid var(--border); border-radius: var(--radius-xs); padding: 2px 6px; }
 
 /* ---------- Callout ---------- */
