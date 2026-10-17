@@ -345,7 +345,7 @@ export class Engineering {
     return []
   }
 
-  /** The cap is a proposal: a complex requirement can hold more criteria, with a reason in the Decisions table. */
+  /** The cap is a proposal: a complex requirement can hold more criteria, with a reason in Details. */
   private criteriaWarnings(item: Item): string[] {
     const text = this.folder(item.id).read('spec.md')
     if (text === null) return []
@@ -356,7 +356,7 @@ export class Engineering {
     const { cap, why } = criteriaCap(size, ticketCriteria(ticket))
     if (spec.criteria.length <= cap) return []
     return [
-      `spec.md has ${spec.criteria.length} acceptance criteria; the proposed cap is ${cap}: ${why}. Merge them, or keep them for a complex requirement and say why in the Decisions table.`,
+      `spec.md has ${spec.criteria.length} acceptance criteria; the proposed cap is ${cap}: ${why}. Merge them, or keep them for a complex requirement and say why in Details.`,
     ]
   }
 

@@ -40,12 +40,12 @@ describe('Templates.scaffold', () => {
   test('spec.md has the front matter with both dates, the In short guidance and the new sections', () => {
     const spec = scaffold('spec.md')
     expect(spec.startsWith('---\nid: SHOP-12\nkind: feature\nsize: M\nareas: [bff, web]\ncreated: 2026-10-15\nupdated: 2026-10-15\n---\n\n# SHOP-12: Filter by status\n')).toBe(true)
-    expect(spec.match(/^## .*$/gm)).toEqual(['## Why', '## What changes', '## Acceptance criteria', '## Decisions', '## Out of scope'])
+    expect(spec.match(/^## .*$/gm)).toEqual(['## Why', '## What changes', '## Acceptance criteria', '## Details', '## Out of scope'])
   })
 
   test('the spec of an investigation has Questions in place of the criteria', () => {
     const spec = scaffold('spec.md', { ...ITEM, kind: 'investigate' })
-    expect(spec.match(/^## .*$/gm)).toEqual(['## Why', '## What changes', '## Questions', '## Decisions', '## Out of scope'])
+    expect(spec.match(/^## .*$/gm)).toEqual(['## Why', '## What changes', '## Questions', '## Details', '## Out of scope'])
   })
 
   test('plan.md of size M has both dates and no Flow', () => {

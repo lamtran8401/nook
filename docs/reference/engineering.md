@@ -187,7 +187,7 @@ Each write is one transaction. `--if-version <n>` on a write of an item or a sli
 `spec.md`:
 - Front matter `id`, `kind`, `size`, `areas`, `created`, `updated`.
 - `# <id>: <title>`, then one `> In short:` line.
-- `## Why`, `## What changes`, `## Acceptance criteria`, `## Decisions` (a table: Point, Answer, From), `## Out of scope`.
+- `## Why`, `## What changes`, `## Acceptance criteria` (an answer or a guess rewrites the criterion it touches, with its source), `## Details` (one line for each rule, with an example and its source: `Q1`, `G2, med` or `open`), `## Out of scope` (the parts that stay as they are first).
 - One AC line is `- [TAG] text (source)`. The n-th line is AC n.
 - Kind `investigate`: `## Questions` in place of the criteria.
 

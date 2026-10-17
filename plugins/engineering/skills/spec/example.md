@@ -24,7 +24,6 @@ A person who looks for the pending shipments reads the whole list today and pick
 
 - **bff:** `GET /shipments` takes an optional `status`. A known status returns only its shipments. An unknown status returns a 400 that names the valid ones.
 - **frontend:** the page gets a status select with All and the three statuses. Called with a status, it asks the API for that status only.
-- **Stays as it is:** one shipment by id, the sort order, the columns, the error banner text.
 
 ## Acceptance criteria
 
@@ -34,20 +33,18 @@ A person who looks for the pending shipments reads the whole list today and pick
 - [ADD] A person who picks a status sees only its shipments, and All shows every shipment again. With no match, the page names the status: "No pending shipments." (Q1, Q2, G1)
 - [CHANGE] When the list cannot load for a picked status, the page shows the error banner of today. (edge case)
 
-## Decisions
+## Details
 
-| Point | Answer | From |
-|---|---|---|
-| Where the filter lives | in the API; the page passes the status | Q1 |
-| How the user picks | a select, All first | Q2 |
-| An unknown status | a 400 that names the valid ones | Q3 |
-| How many statuses | one for each request | Q4 |
-| The text when nothing matches | it names the status | G1, low |
-| The status type of the frontend | a string | G2, low |
-| An empty `status=` | the same as no status | G3, low |
+- **Where the filter lives:** in the API; the page passes the status, such as `?status=pending`. (Q1)
+- **How the user picks:** a select with All first, then pending, shipped and delivered. (Q2)
+- **An unknown status:** an error that names it and the valid ones, such as "lost" is not a status. (Q3)
+- **Statuses in one request:** one; `?status=pending,shipped` is an unknown status. (Q4)
+- **The text with no match:** it names the status, such as "No pending shipments." (G1, low)
+- **An empty status:** the same as no status, so `?status=` shows every shipment. (G3, low)
 
 ## Out of scope
 
+- One shipment by id, the sort order, the columns and the error banner text: they stay as they are.
 - The DOM entry of the page and the wiring of the select. (owner, at /recipe)
 - Several statuses in one request.
 - The status in the page address.
