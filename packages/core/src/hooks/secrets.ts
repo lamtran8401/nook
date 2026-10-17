@@ -2,10 +2,14 @@ import { basename, relative, resolve, sep } from 'node:path'
 
 import { secretsAbove } from '@nook/desk/desks.ts'
 
-const SECRET_NAMES = [/^\.env(\..+)?$/, /^\.npmrc$/]
+const ENV_FILE = /^(?:\.env(?:\.[\w.-]+)?|[\w-][\w.-]*\.env)$/
+const CODE_ENV = /^(?:process|Bun|Deno|import\.meta)\.env$/
 const SECRET_DIRS = ['.ssh', '.aws']
 
-/** The secret files: `.env` files except `.env.example`, `.npmrc`, `~/.ssh`, `~/.aws`, and the `secrets` of nook.yml. */
+/** `.env`, `.env.local`, `prod.env`; not `.env.example`, and not `process.env`, which is code. */
+export const isEnvFile = (name: string): boolean => ENV_FILE.test(name) && !CODE_ENV.test(name) && !name.endsWith('.env.example')
+
+/** The secret files: env files except `.env.example`, `.npmrc`, `~/.ssh`, `~/.aws`, and the `secrets` of nook.yml. */
 export class SecretPolicy {
   private readonly listed: string[]
 
@@ -15,15 +19,14 @@ export class SecretPolicy {
 
   isSecretPath(path: string): boolean {
     const name = basename(path)
-    if (name === '.env.example') return false
-    if (SECRET_NAMES.some(re => re.test(name))) return true
+    if (isEnvFile(name) || name === '.npmrc') return true
     const full = resolve(this.cwd, path.replace(/^~(?=\/|$)/, process.env.HOME ?? '~'))
     if (SECRET_DIRS.some(dir => full.split(sep).includes(dir))) return true
     return this.listed.some(secret => full === secret || full.startsWith(`${secret}${sep}`))
   }
 
   wordProblem(word: string): string | null {
-    if (/^(?:[~.\w-]*\/)*\.env(?:\.[\w.-]+)?$/.test(word) && !word.endsWith('.env.example')) return `the command names ${word}: Nook does not read or write secrets.`
+    if (/^(?:[~.\w-]*\/)*[\w.-]+$/.test(word) && isEnvFile(basename(word))) return `the command names ${word}: Nook does not read or write secrets.`
     if (/(^|\/)\.npmrc$/.test(word) || /(^|\/)\.(ssh|aws)(\/|$)/.test(word)) return `the command touches ${word}: Nook does not read secrets.`
     if (/(^|\/)\.nook\/.*\.db/.test(word) || /^sqlite3?$/.test(word)) return 'the state databases are not for the shell: use the nook commands.'
     return null

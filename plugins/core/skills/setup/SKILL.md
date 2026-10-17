@@ -6,7 +6,7 @@ disable-model-invocation: true
 allowed-tools: Bash(nook *), Bash(git *), Bash(ls *), Bash(cat *), Read, Glob, Grep, Edit, Write
 ---
 
-Goal: this folder becomes a desk that an agent can work in with no guess, for every pack that is on. `nook init` wrote `nook.yml`, the Nook block, the rules and the folders of each pack. You write the rest with the owner.
+Goal: this folder becomes a desk that an agent can work in with no guess, for every pack that is on. `nook init` wrote `nook.yml`, the Nook block and the rules. You write the rest with the owner; step 8 makes the folders of each pack.
 Run it again after a pack is turned on: `nook init` then says which pack needs its section.
 
 ## Order

@@ -6,7 +6,7 @@ import { nearestDesk, STATE_DIR } from '@nook/desk/desks.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 import { ROLE_VAR } from '@nook/shared/names.ts'
 
-import { SecretPolicy } from './secrets.ts'
+import { isEnvFile, SecretPolicy } from './secrets.ts'
 import { plainWords } from './shell.ts'
 
 /** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside a desk they do nothing. */
@@ -46,7 +46,7 @@ type EditTarget = 'secret' | 'state' | 'settings' | 'free'
 function editTarget(full: string): EditTarget {
   const name = basename(full)
   const parts = full.split(sep)
-  if (/^\.env(\..+)?$/.test(name)) return 'secret'
+  if (isEnvFile(name)) return 'secret'
   if (parts.includes(STATE_DIR)) return 'state'
   if (/^settings(\.local)?\.json$/.test(name) && parts.includes('.claude')) return 'settings'
   return 'free'

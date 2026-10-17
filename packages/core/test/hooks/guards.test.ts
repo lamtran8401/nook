@@ -18,7 +18,7 @@ const bash = (command: string, cwd = root) => bashGuard({ cwd, tool_name: 'Bash'
 const edit = (file_path: string) => editGuard({ cwd: root, tool_name: 'Edit', tool_input: { file_path } }).kind
 
 describe('readGuard', () => {
-  test.each(['.env', 'app/.env.local', '.npmrc', '~/.ssh/id_rsa', 'config/infra.local.yaml'])('blocks a read of %s', file => {
+  test.each(['.env', 'app/.env.local', 'prod.env', 'config/app.env', '.npmrc', '~/.ssh/id_rsa', 'config/infra.local.yaml'])('blocks a read of %s', file => {
     expect(read(file)).toBe('block')
   })
 
@@ -38,12 +38,12 @@ describe('readGuard', () => {
 })
 
 describe('bashGuard', () => {
-  test.each(['cat .env', "cat '.env'", 'cat ./app/.env.local', 'cat ~/.aws/credentials', 'cat config/infra.local.yaml'])(
+  test.each(['cat .env', "cat '.env'", 'cat ./app/.env.local', 'cat prod.env', 'cat config/app.env', 'cat ~/.aws/credentials', 'cat config/infra.local.yaml'])(
     'blocks a command that reaches a secret: %s',
     command => expect(bash(command)).toBe('block'),
   )
 
-  test.each(['grep -n process.env src', "sed -i '' 's/...env.packs/...desk.packs/' f.ts", 'cat app.env.ts'])(
+  test.each(['grep -n process.env src', 'grep -rn Bun.env src', "sed -i '' 's/...env.packs/...desk.packs/' f.ts", 'cat app.env.ts'])(
     'lets a word that only contains .env pass: %s',
     command => expect(bash(command)).toBe('pass'),
   )
@@ -89,7 +89,7 @@ describe('bashGuard', () => {
 })
 
 describe('editGuard', () => {
-  test.each(['.env', '.nook/state.json','.claude/settings.json', '.claude/settings.local.json'])('blocks an edit of %s', file => {
+  test.each(['.env', 'prod.env', '.nook/state.json', '.claude/settings.json', '.claude/settings.local.json'])('blocks an edit of %s', file => {
     expect(edit(file)).toBe('block')
   })
 
