@@ -48,24 +48,32 @@ export function tree(text: string): string {
 const node = (id: string, title: string, caption = '', cls = '', style = '') =>
   `<div class="dg-node shape ${cls}" data-id="${id}" style="${style}"><span class="dg-title">${title}</span>${caption ? `<span class="dg-cap">${caption}</span>` : ''}</div>`
 const diagram = (cls: string, inner: string, edges: Edge[], caption: string) =>
-  `<figure class="fig wide"><div class="scroll-x"><div class="dg ${cls}" data-edges='${JSON.stringify(edges)}'><svg class="dg-edges" aria-hidden="true"></svg>${inner}</div></div><figcaption>${caption}</figcaption></figure>`
+  `<figure class="fig"><div class="scroll-x"><div class="dg ${cls}" data-edges='${JSON.stringify(edges)}'><svg class="dg-edges" aria-hidden="true"></svg>${inner}</div></div><figcaption>${caption}</figcaption></figure>`
 
 function flowDiagram(): string {
-  const states: [string, string, number, number][] = [
-    ['backlog', '/intake', 1, 1], ['framing', '/spec', 2, 1], ['planning', '/recipe', 3, 1], ['ready', 'approved', 4, 1],
-    ['cooking', '/cook', 2, 2], ['review', '/deep-review', 3, 2], ['done', '/close', 4, 2],
+  const states: [string, string, string, number, number][] = [
+    ['backlog', '/intake', 'tone-core', 1, 1], ['framing', '/spec', 'tone-plan', 2, 1], ['planning', '/recipe', 'tone-plan', 3, 1], ['ready', 'approved', 'tone-plan', 4, 1],
+    ['cooking', '/cook', 'tone-build', 2, 2], ['review', '/deep-review', 'tone-check', 3, 2], ['done', '/close', 'tone-done', 4, 2],
   ]
-  const inner = states.map(([s, cap, c, r]) => node(s, s, cap, 'tone-eng', `grid-column:${c};grid-row:${r}`)).join('')
+  const inner = states.map(([s, cap, tone, c, r]) => node(s, s, cap, tone, `grid-column:${c};grid-row:${r}`)).join('')
+  const legend = [['tone-core', 'waiting'], ['tone-plan', 'frame and plan'], ['tone-build', 'build'], ['tone-check', 'check'], ['tone-done', 'done']]
+    .map(([tone, text]) => `<span class="legend-item"><span class="legend-dot chip ${tone}"></span>${text}</span>`)
+    .join('')
   const edges: Edge[] = [
     ['backlog', 'framing', 'start'], ['framing', 'planning', 'agree'], ['planning', 'ready', '★ approve'],
     ['ready', 'cooking', 'begin'], ['cooking', 'review', 'submit'], ['review', 'done', '★ accept'],
     ['ready', 'planning', 'replan', 'n', 34], ['review', 'cooking', 'reject', 'u', 36], ['done', 'cooking', 'reopen', 'u', 80],
   ]
-  return diagram('dg-flow', inner, edges, 'The states of an item. ★ marks a gate: only you take it, with <code>/gate</code>. Under each state: the command that works on it.')
+  return diagram('dg-flow', inner, edges, `<span class="legend">${legend}</span>The states of an item. ★ marks a gate: only you take it, with <code>/gate</code>. Under each state: the command that works on it.`)
 }
 
 function pathsDiagram(): string {
-  const step = (s: string) => `<span class="step shape${s.startsWith('★') ? ' is-gate' : ''}">${s}</span>`
+  const PHASE: Record<string, string> = {
+    '/intake': 'core', '/spec': 'plan', '/recipe': 'plan', 'one criterion': 'plan', spec: 'plan', plan: 'plan', proceed: 'plan',
+    '/cook': 'build', '/quick': 'build', 'test first': 'build', build: 'build',
+    '/deep-review': 'check', proof: 'check', review: 'check', '/guesses': 'check', '/close': 'done', '/auto': 'core',
+  }
+  const step = (s: string) => `<span class="step shape${s.startsWith('★') ? ' is-gate' : ` tone-${PHASE[s] ?? 'core'}`}">${s}</span>`
   const lane = (title: string, note: string, steps: string[]) =>
     `<div class="lane frame"><div class="frame-title">${title}<span class="frame-note">${note}</span></div><div class="lane-row">${steps.map(step).join('<span class="arr" aria-hidden="true"></span>')}</div></div>`
   const lanes = [
@@ -73,13 +81,13 @@ function pathsDiagram(): string {
     lane('Quick', 'one area, size S, low risk', ['/quick', 'one criterion', 'test first', 'proof', '★ accept', '/close']),
     lane('Auto', 'the companion runs it alone', ['/auto', 'spec', 'plan', 'proceed', 'build', 'review', '★ accept', '/guesses']),
   ]
-  return `<figure class="fig wide"><div class="scroll-x"><div class="lanes">${lanes.join('')}</div></div><figcaption>Three paths for one item. Each one ends at your accept.</figcaption></figure>`
+  return `<figure class="fig"><div class="scroll-x"><div class="lanes">${lanes.join('')}</div></div><figcaption>Three paths for one item, in the colours of the flow above. Each one ends at your accept.</figcaption></figure>`
 }
 
 function deskDiagram(): string {
   const packs = (names: string[]) => `<div class="chips">${names.map(n => packChip(n)).join('')}</div>`
   const title = (name: string, kind: string) => `<div class="frame-title"><code>${name}</code>${chip(kind, '', 'chip-quiet')}</div>`
-  return `<figure class="fig wide"><div class="desks">
+  return `<figure class="fig"><div class="desks">
   <div class="desk-top frame">${title('company/', 'top desk')}${packs(['engineering', 'wiki'])}
     <div class="desk-kids">
       <div class="frame desk-child">${title('shop/', 'child desk')}<div class="chips">${packChip('learn', '+ ')}${chip('− wiki', '', 'off')}</div><p class="desk-note">Packs here: engineering, learn.</p></div>
@@ -141,6 +149,9 @@ function polish(html: string, links: LinkMap): string {
     .replace(/<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g, (_all, lang: string, code: string) => `<pre class="code" data-lang="${lang}"><code>${code}</code></pre>`)
     .replace(/<blockquote>\s*<p>In short: ([\s\S]*?)<\/p>\s*<\/blockquote>/, (_all, text: string) =>
       `<div class="inshort card"><span class="label">In short</span><p>${text.charAt(0).toUpperCase()}${text.slice(1)}</p></div>`)
+    // code in a table cell breaks only between its words, never at a hyphen inside one
+    .replace(/<td>([\s\S]*?)<\/td>/g, (_all, cell: string) =>
+      `<td>${cell.replace(/<code>([^<]*)<\/code>/g, (_c, text: string) => `<code>${text.split(' ').map(w => `<span class="nw">${w}</span>`).join(' ')}</code>`)}</td>`)
     .replace(/<table>/g, '<div class="tbl card"><div class="scroll-x"><table>')
     .replace(/<\/table>/g, '</table></div></div>')
     .replace(/<a href="([^"]+)">([\s\S]*?)<\/a>/g, (_all, href: string, text: string) =>

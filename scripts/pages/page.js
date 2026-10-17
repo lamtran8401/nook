@@ -66,8 +66,10 @@
         at = point(c, 0.5)
         d = `M${c[0]} C${c[1]} ${c[2]} ${base}`
       }
+      const gate = Boolean(label && label.startsWith('★'))
       const path = document.createElementNS(NS, 'path')
       path.setAttribute('d', d)
+      if (gate) path.setAttribute('class', 'is-gate')
       svg.append(path)
       // lines into one point share one arrowhead
       const key = tip.map(Math.round).join(',')
@@ -77,7 +79,7 @@
         const nx = -(tip[1] - base[1]) / len * 4, ny = (tip[0] - base[0]) / len * 4
         const head = document.createElementNS(NS, 'path')
         head.setAttribute('d', `M${tip} L${base[0] + nx},${base[1] + ny} L${base[0] - nx},${base[1] - ny} Z`)
-        head.setAttribute('class', 'arrowhead')
+        head.setAttribute('class', gate ? 'arrowhead is-gate' : 'arrowhead')
         svg.append(head)
       }
       if (label) {
