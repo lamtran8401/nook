@@ -28,8 +28,8 @@ engineering: { ... }                # one section for each pack, read by that pa
 | Key | Type | Default | Rule |
 |---|---|---|---|
 | `packs` | a list, or a map with `on` and `off` | none | The packs of a folder are the union of each `nook.yml` above it, less each `off`. |
-| `rules.off` | a list of rule names | none | `nook init` does not write these rules. |
-| `secrets` | a list of paths | none | The guards treat each path as an env file. |
+| `rules.off` | a list of rule names | none | `nook init` does not write these rules; `nook init --update` removes their files. |
+| `secrets` | a list of paths | none | The read guard and the shell guard block each path. |
 | `<pack>` | a map | the defaults of the pack | Each pack reads its own section; see its reference. |
 
 A fault stops the command and names the key: `packs.on must be a list of strings`.
@@ -49,7 +49,7 @@ A fault stops the command and names the key: `packs.on must be a list of strings
 
 Each pack adds its commands under its name: `nook eng …`, `nook wiki …`, `nook learn …`. `nook --help` lists all 90 commands.
 
-The exit codes hold for every command:
+The exit codes hold for every command except the hooks. A hook exits 0 to let a call go and 2 to block it, as Claude Code reads them.
 
 | Exit | Meaning |
 |---|---|
@@ -93,12 +93,12 @@ The file is `plugins/core/hooks/hooks.json`. Each hook runs `nook hook <name>` a
 |---|---|---|---|
 | PreToolUse Read, Grep, Glob | `read` | blocks a secret file | blocks |
 | PreToolUse Bash | `bash` | blocks a secret in a command, a state database, a role set by a command, a nested session that types `/gate` | blocks |
-| PreToolUse Edit, Write | `edit` | blocks a secret file, the state folder, `.claude/settings*.json` | blocks |
+| PreToolUse Edit, Write | `edit` | blocks an env file, the state folder, `.claude/settings*.json` | blocks |
 | PostToolUse Edit, Write | `style` | scores a Markdown file under `docs/`, `work/` or `backlog/` of the desk; sends back the failing sentences | lets go |
 | SessionStart | `start` | the desk, its packs and the hint `nook doctor`, as context | lets go |
 | UserPromptExpansion `/gate`, `/auto` | `gate` | runs the owner move that the owner typed | lets go |
 
-The secret files:
+The secret files of the read guard and the shell guard. The edit guard blocks the env files only.
 
 - `.env`, `.env.local`, `.env.<name>` and `<name>.env`; `.env.example` passes.
 - `.npmrc`, each file under `~/.ssh` and `~/.aws`.
@@ -154,13 +154,13 @@ Only the owner starts these skills.
 | Name | Use |
 |---|---|
 | `nook` | the command; hooks and agents run it by this name only |
-| `nk` | the short form for the owner; the guard blocks it for an agent |
+| `nk` | the short form for the owner; the engineering guard blocks it in each shell call of Claude Code |
 | `NOOK_ROLE`, `NOOK_ACTOR`, `NOOK_SESSION` | set by the hooks only; a command that sets one is blocked |
 | `NOOK_PROJECT` | the Nook repo, for a shim that cannot find it |
 | `.nook/` | the state folder of a desk |
 | `.claude/rules/nook/` | the base rules of a desk |
 
-The names live in `packages/shared/src/names.ts`.
+`nook`, `nk` and the role variables live in `packages/shared/src/names.ts`. `.nook/` lives in `packages/desk/src/desks.ts`. `NOOK_PROJECT` lives in the shims `plugins/*/bin/nook`.
 
 ## 11. The UI kit
 
@@ -178,7 +178,7 @@ nook/
 │   ├── engineering/      the ledger, the item machine, the guards, the documents, git, the hooks
 │   ├── wiki/             the shelves, their indexes, the link check
 │   └── learn/            the courses: roadmap, cards, mistakes, scores, the study log
-├── plugins/<pack>/       pack.json, .claude-plugin/, bin/nook, hooks/, skills/, agents/, templates/; no code
+├── plugins/<pack>/       pack.json, .claude-plugin/, bin/nook, skills/, templates/, and agents/, hooks/ or ui/ where a pack has them; no code
 ├── docs/                 the guide book, the reference, the report, the expectation
 └── .claude-plugin/       the marketplace
 ```

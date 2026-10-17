@@ -52,7 +52,7 @@ The command writes these files. Each other line in the folder stays yours.
 | `.claude/settings.json` | the Nook keys: permissions, the output style, agent teams |
 | `.nook/` | the state, such as the ledger of engineering |
 
-A pack also makes its folders: `work/`, `backlog/` and `docs/adr/` for engineering, `docs/wiki/` for the wiki.
+A pack also makes its folders: `work/`, `backlog/` and `docs/adr/` for engineering, `docs/wiki/` and `docs/references/` for the wiki, `learn/` for learn.
 
 ## Set up the desk
 
@@ -81,11 +81,11 @@ A gap comes with its fix. Example:
 
 ```
 Gaps:
-  ! area api has no checks: verify fails until set
+  ! engineering: area api has no checks: verify fails until set
       fix: add checks: [<command>] to the area in nook.yml, or checks: [] for none
 ```
 
-Do the fix, then run `nook doctor` again.
+Do the fix, then run `nook doctor` again. `nook doctor` exits 1 while an error gap is left, so a script can check it.
 
 ## Next
 

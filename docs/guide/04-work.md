@@ -76,8 +76,9 @@ Approve with `/gate approve SHOP-12`. The approve freezes `spec.md`, `plan.md` a
 | Proof | Meaning |
 |---|---|
 | `proven` | The test fails on the base and passes on the branch. |
-| `weak` | The test passes on the base too. It cannot fail, so the slice goes back. |
+| `weak` | The test passes on the base too. It cannot fail. The companion sends the slice back; `submit` only warns. |
 | `none` | The test does not run on the base for another reason. |
+| `skipped` | `tasks.md` marks the slice `proof: none`, such as a slice of docs only. |
 
 A verifier agent runs the checks of each area. Then the item moves to `review`.
 
@@ -100,14 +101,14 @@ A criterion that is not met, or a blocking finding, sends the item back to `cook
 
 - It asks you to accept or drop each proposed ADR in `docs/adr/`.
 - For each `ADD` or `CHANGE` criterion, it drafts the change of a wiki page. You say yes or no to each draft.
-- It asks "commit now?". On yes, `nook eng item commit SHOP-12 --run` makes one commit for each slice. It never pushes.
+- It asks "commit now?". On yes, `nook eng item commit SHOP-12 --run` makes one commit for each done slice, from the files that the slice recorded. Slices that share a file join one commit. It never pushes.
 - It moves the ticket to `backlog/archive/`.
 
 ## Questions and guesses
 
 | | When | How you see it |
 |---|---|---|
-| blocking question | a wrong guess costs real work | a choice box; the Stop hook holds the session until you answer |
+| blocking question | a wrong guess costs real work | a choice box; the Stop hook holds the session, up to six times in a row, until you answer |
 | guess | the companion took an answer in place of a question | `/guesses SHOP-12`, high impact first |
 
 In `/guesses`, you accept each guess or flip it. A flip sends the slices of that guess back to `todo`; the other slices stay done.
@@ -119,6 +120,7 @@ In `/guesses`, you accept each guess or flip it. A flip sends the slices of that
 It stops and asks when:
 
 - an answer would drop or narrow what the ticket asks for;
+- the spec has a gap that changes what you asked for;
 - a step is hard to undo: a push, a migration, a deletion, a breaking contract change;
 - a slice failed three times and no other slice can run;
 - two review rounds did not meet each criterion;
@@ -152,7 +154,13 @@ The ledger in `.nook/engineering.db` is the memory. After a restart or a compact
 - No agent builds on `main`, `master` or `develop`.
 - A file of an area changes only while a slice of that area runs.
 - `spec.md` opens only in `framing`, `plan.md` and `tasks.md` only in `planning`.
-- No agent pushes, and no agent commits unless you ask.
-- At most four builders run at once, one for each area.
+- At most four agents run at once, one builder for each area.
+
+## What the rules hold
+
+These are rules for the companion, not guards. A hook does not block them.
+
+- The companion commits only when you ask, with `nook eng item commit`.
+- The companion never pushes. A `git push` asks you first, and a forced push is denied.
 
 The full contract is in [the engineering reference](../reference/engineering.md).

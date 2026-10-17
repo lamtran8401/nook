@@ -16,10 +16,11 @@
 | `… is in the state folder: the nook commands write it, not an edit.` | `.nook/` holds the ledger | Use a `nook` command. |
 | `… holds the permissions: the owner edits it, or nook init --update.` | `.claude/settings*.json` changes only by you or by Nook | Edit it yourself, or run `nook init --update`. |
 | a block on an owner move | approve, accept and mode are yours | Type `/gate <move> <id>` in the prompt. |
-| a block on `nk` | the short form is for you; an agent runs `nook` | The agent runs `nook`. |
+| a block on `nk` | the engineering guard blocks the short form in each shell call of Claude Code | Claude Code runs `nook`. Type `nk` only in your own terminal. |
 | `a reader never writes a file.` | read-only agents report; they do not edit | The lead or a builder makes the change. |
 | a block on `spec.md`, `plan.md` or `tasks.md` | a document opens only in its state, and the approve freezes it | `nook eng item replan <id>` or `reframe <id>` with a reason. |
 | a block on a file of an area | an area changes only while one of its slices runs | Start the slice through `/cook` or `/quick`. |
+| `the plugin … of the pack … is off` (from `nook doctor`) | the plugin of a pack is not installed or not on, so its hooks and skills do not run | Run the fix on the line, such as `claude plugin install nk-eng@nook`, then start a new session. |
 | `… % of … sentences pass the writing standard` | a Markdown file under `docs/`, `work/` or `backlog/` scored 80% or less | Rewrite the listed sentences: 25 words or fewer, no should, may or might. |
 
 ## The session does not stop

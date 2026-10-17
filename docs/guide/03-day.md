@@ -10,6 +10,8 @@ Type `/brief` in Claude Code, or run `nook brief` in a terminal. The brief reads
 Waits for you
 - SHOP-12 waits for your accept: Filter shipments by status → /gate accept SHOP-12
 - SHOP-9 is done and waits for its close: Show the carrier name → /close SHOP-9
+- a wiki draft waits for your yes: resources/payment-retries.md → read docs/wiki/drafts/resources/payment-retries.md, then say yes or no to the companion
+- english: 3 cards due, no practice yet today → /learn-today english
 
 Done since yesterday
 - SHOP-7 closed: List shipments page by page
@@ -18,7 +20,7 @@ Runs
 - SHOP-14 cooking: Retry a failed payment; T2 runs in api → /cook SHOP-14
 ```
 
-With two desks or more, each line names its desk. Each line names its action. The brief writes no file and runs no action: each line is your choice.
+Each gap of `nook doctor` shows on top of the waits. With two desks or more, each line names its desk. Each line names its action. The brief writes no file and runs no action: each line is your choice.
 
 ## Work with the companion
 
@@ -60,11 +62,11 @@ An agent never runs these moves. The guard blocks a gate move by the model, insi
 
 | When | Type | It does |
 |---|---|---|
-| something feels wrong, or after an update | `/checkup` | runs `nook doctor`, fixes the gaps that are the agent's, and lists the gaps that are yours |
+| something feels wrong, or after an update | `/checkup` | runs `nook doctor`, fixes the gaps that are the agent's, lists the gaps that are yours, and tries to read a test secret to prove that the guards run |
 | a new repo, or a changed check | `/setup <what changed>` | changes only that part of `nook.yml` |
 | the end of a week | `/retro` | finds the items sent back, the guesses flipped, the slow questions and the weak proofs; you pick the change that stops each cause |
 
-`/retro` writes `docs/retro/<date>.md`. `nook retro` prints the same facts with no file.
+`/retro` writes `docs/retro/<date>.md`. `nook retro` prints the same facts with no file. The first retro of a desk covers the last 7 days.
 
 ## Think a big decision through
 

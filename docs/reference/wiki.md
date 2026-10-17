@@ -79,7 +79,7 @@ The gaps of `nook wiki index`:
 | `librarian` | a skill or the lead | reads the wiki for another agent and reports the facts with their pages, in 30 lines at most |
 
 - `/wiki-ask`: it reads the index first, then the pages whose line matches. It answers in a few lines with a link to each page.
-- `/wiki-add`: it puts the source into `docs/references/` and drafts a page in `resources/`. It writes the page after the owner's yes; "later" keeps a draft.
+- `/wiki-add`: it writes a reference note in `docs/references/<date>-<slug>.md`, in its own words, and drafts a page in `resources/`. It writes the page after the owner's yes; "later" keeps a draft.
 - `/wiki-tidy`: it runs the two checks and looks for two pages on one topic, a page with no source, and an adjective with no example. It fixes the mechanical part after one yes.
 - `/wiki-merge`: it merges related pages, such as the features of one epic, into one page. After the yes, `nook wiki retire` moves the old pages.
 
