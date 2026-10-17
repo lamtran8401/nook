@@ -96,7 +96,7 @@ The file is `plugins/core/hooks/hooks.json`. Each hook runs `nook hook <name>` a
 | PreToolUse Read, Grep, Glob | `read` | blocks a secret file | blocks |
 | PreToolUse Bash | `bash` | blocks a secret in a command, a state database, a role set by a command, a nested session that types `/gate` | blocks |
 | PreToolUse Edit, Write | `edit` | blocks a secret file, the state folder, `.claude/settings*.json` | blocks |
-| PostToolUse Edit, Write | `style` | scores a Markdown file under `docs/`, `work/` or `backlog/` of the desk; sends back the failing sentences | lets go |
+| PostToolUse Edit, Write | `style` | scores a Markdown file under `docs/` of the desk, or under a folder that a pack names as its record, such as `works/` and `backlog/` of engineering; sends back the failing sentences | lets go |
 | SessionStart | `start` | the desk, its packs and the hint `nook doctor`, as context | lets go |
 | UserPromptExpansion `/gate`, `/yolo` | `gate` | runs the owner move that the owner typed | lets go |
 

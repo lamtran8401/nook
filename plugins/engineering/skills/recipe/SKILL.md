@@ -1,6 +1,6 @@
 ---
 name: recipe
-description: "Plan an item in planning: work/<id>/plan.md and the slices in tasks.md, challenged by the skeptic, checked, then stopped at the owner's approve. Use when the owner says recipe, plan, design, approach or slices. Pairs with /cook."
+description: "Plan an item in planning: works/<id>/plan.md and the slices in tasks.md, challenged by the skeptic, checked, then stopped at the owner's approve. Use when the owner says recipe, plan, design, approach or slices. Pairs with /cook."
 argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(nook eng *), Bash(git status *), Bash(git log *), Read, Glob, Grep, Edit, Write
@@ -29,7 +29,7 @@ Kind `investigate`: a short plan and no slices. Read `${CLAUDE_PLUGIN_ROOT}/skil
 ## The report
 ```
 Waits for you: approve: type /gate approve SHOP-12
-Plan: work/SHOP-12/plan.md. Challenge: one pass, 2 objections, 1 changed the plan (an index on status).
+Plan: works/SHOP-12/plan.md. Challenge: one pass, 2 objections, 1 changed the plan (an index on status).
 Slices: T1 bff (S), T2 frontend (S, after T1). ACs covered: 1 to 5. item check: no gap.
 ADR proposed: 0007 filter in the query. Guesses: G1 (low) status order.
 Next: /cook SHOP-12 after the approve.

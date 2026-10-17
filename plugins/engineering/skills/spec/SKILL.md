@@ -1,6 +1,6 @@
 ---
 name: spec
-description: "Frame an item: one round of questions, then work/<id>/spec.md with intent, areas and checkable acceptance criteria; the owner confirms and the item moves to planning. Use when the owner says spec, frame, requirements or 'what does done mean'."
+description: "Frame an item: one round of questions, then works/<id>/spec.md with intent, areas and checkable acceptance criteria; the owner confirms and the item moves to planning. Use when the owner says spec, frame, requirements or 'what does done mean'."
 argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(nook eng *), Bash(ls *), Read, Glob, Grep, Edit, Write
@@ -19,7 +19,7 @@ The flow, the question round and the confirm question: `${CLAUDE_PLUGIN_ROOT}/sk
 4. Write your reading in five lines or fewer, so the owner corrects a wrong reading before the questions.
 5. The question round, once: collect every blocking question, register each with `nook eng ask <id> "<text>" --blocking --rec "<answer>"`, ask them in one call, record the answers with `nook eng answer`.
    A question that does not block becomes a guess with `nook eng guess`.
-6. Write `work/<id>/spec.md` with `write-spec`: the front matter with its dates, In short, Why, What changes, Acceptance criteria, Decisions, Out of scope.
+6. Write `works/<id>/spec.md` with `write-spec`: the front matter with its dates, In short, Why, What changes, Acceptance criteria, Decisions, Out of scope.
 7. Run `spec-check`. Fix each gap. Then `nook eng item check <id>` must list no gap for `agree`.
 8. Show the spec and ask the confirm question. On "Looks right", run `nook eng item agree <id>` and report.
 

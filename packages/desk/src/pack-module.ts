@@ -24,6 +24,8 @@ export interface PackModule {
   /** False while nook.yml lacks the section that /setup writes for the pack. */
   configured(dir: string): boolean
   doctor(dir: string): Finding[]
+  /** The folders of the record of the pack, as absolute paths, that the writing check reads. */
+  records?(dir: string): string[]
   /** The lines of the pack for the daily brief: what waits for the owner, what is done since `since`, what runs. `now` is the time of the brief. */
   brief?(dir: string, since: Date, now?: Date): BriefLine[]
   /** The facts of the pack for a retro: what went wrong or cost time since `since`, each from its event. */

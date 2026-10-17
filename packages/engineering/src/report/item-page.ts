@@ -76,7 +76,7 @@ export function itemPage(eng: Engineering, id: string, open?: string): string {
     header(item, eng.stores.events.history(id), texts),
     '<div class="bn-tabs" data-bn-tabs>',
     tabList(tabs, shown),
-    ...tabs.map(tab => panel(item, tab, texts.get(tab.file) ?? null, slices, tab === shown)),
+    ...tabs.map(tab => panel(eng.home.config.dir, item, tab, texts.get(tab.file) ?? null, slices, tab === shown)),
     '</div>',
   ])
 }
@@ -166,10 +166,10 @@ const tabList = (tabs: Tab[], shown: Tab) =>
       `<button type="button" class="bn-tabs__tab" role="tab" id="tab-${tab.doc}" data-doc="${tab.doc}" aria-controls="panel-${tab.doc}" aria-selected="${tab === shown}" tabindex="${tab === shown ? 0 : -1}">${tab.name}</button>`,
   ).join('')}</div>`
 
-function panel(item: Item, tab: Tab, text: string | null, slices: PageSlice[], shown: boolean): string {
+function panel(dir: string, item: Item, tab: Tab, text: string | null, slices: PageSlice[], shown: boolean): string {
   const front = text === null ? {} : frontMatter(text)
   const meta = [
-    `work/${item.id}/${tab.file}`,
+    `${dir}/${item.id}/${tab.file}`,
     ...Object.entries(front)
       .filter(([key]) => key !== 'id')
       .map(([key, value]) => `${key} ${metaValue(value)}`),

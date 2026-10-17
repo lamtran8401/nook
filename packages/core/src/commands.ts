@@ -12,6 +12,7 @@ import { doctor } from './doctor/doctor.ts'
 import { formatFacts, retroFile, retroSince } from './retro/retro.ts'
 import { formatDoctor } from './doctor/format.ts'
 import { gateHook } from './hooks/gate.ts'
+import { styleCheck } from './hooks/style.ts'
 import { CORE_HOOKS, type CoreHook } from './hooks/table.ts'
 import { init } from './init/initializer.ts'
 import { markdownFiles, scoreFile } from './ste.ts'
@@ -137,7 +138,11 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
       usage: '<name>',
       async run(c) {
         const name = arg(c, 0, 'hook name')
-        const hooks: Record<string, CoreHook> = { ...CORE_HOOKS, gate: { handler: input => gateHook(input, { modules }), closed: true } }
+        const hooks: Record<string, CoreHook> = {
+          ...CORE_HOOKS,
+          gate: { handler: input => gateHook(input, { modules }), closed: true },
+          style: { handler: input => styleCheck(input, { modules }), closed: false },
+        }
         const hook = hooks[name]
         if (!hook) {
           c.say(`no hook is named ${name}`)

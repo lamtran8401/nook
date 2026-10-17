@@ -1,6 +1,6 @@
 ---
 name: slice-tasks
-description: "Cut a plan into slices in work/<id>/tasks.md, one area each with depends, acs, size and done when, then import them into the ledger. Use in /recipe or when the owner says slice, split into tasks or break down the plan. Not for the plan: write-plan."
+description: "Cut a plan into slices in works/<id>/tasks.md, one area each with depends, acs, size and done when, then import them into the ledger. Use in /recipe or when the owner says slice, split into tasks or break down the plan. Not for the plan: write-plan."
 argument-hint: "<item id>"
 allowed-tools: Bash(nook eng *), Read, Edit, Write
 ---

@@ -1,7 +1,7 @@
 import { isOneOf, ITEM_KINDS, SIZES, type Tag } from '../vocabulary.ts'
 import { body, frontMatter, hasFrontMatter, inShort, listOf, sections } from './markdown.ts'
 
-/** `work/<id>/spec.md`: the front matter, the In short line, the Why, the AC lines and the questions. */
+/** `works/<id>/spec.md`: the front matter, the In short line, the Why, the AC lines and the questions. */
 
 export type SpecCriterion = { n: number; tag: Tag; text: string }
 

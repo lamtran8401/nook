@@ -1,7 +1,7 @@
 import { isOneOf, SIZES, type Size } from '../vocabulary.ts'
 import { bodyLines, FENCE } from './markdown.ts'
 
-/** `work/<id>/tasks.md`: one `## T<n>: title` section for each slice, then `key: value` lines. */
+/** `works/<id>/tasks.md`: one `## T<n>: title` section for each slice, then `key: value` lines. */
 /** The front matter, the `> In short:` line and every fenced block are not slices. */
 
 export type SliceSpec = {

@@ -1,9 +1,10 @@
-import { existsSync, mkdirSync } from 'node:fs'
-import { relative } from 'node:path'
+import { existsSync, mkdirSync, renameSync } from 'node:fs'
+import { join, relative } from 'node:path'
 
 import type { GateResult, PackModule } from '@nook/desk/desks.ts'
 import { EvError } from '@nook/shared/errors.ts'
 
+import { DEFAULTS, LEGACY_DIR } from './config.ts'
 import { Home } from './home.ts'
 import { Ledger } from './ledger.ts'
 import { isOpen } from './machine.ts'
@@ -21,6 +22,14 @@ const homeAt = (dir: string): Home | null => {
   return home && home.dir === dir ? home : null
 }
 
+/** A home that keeps the default item folder gets its old work/ moved to works/, once. */
+function moveLegacyWork(home: Home): string[] {
+  const legacy = join(home.dir, LEGACY_DIR)
+  if (home.config.dir !== DEFAULTS.dir || existsSync(home.workRoot) || !existsSync(legacy)) return []
+  renameSync(legacy, home.workRoot)
+  return [`${LEGACY_DIR}/ → ${DEFAULTS.dir}/`]
+}
+
 const GATES = ['approve', 'accept', 'mode'] as const
 
 export const engineeringModule: PackModule = {
@@ -29,10 +38,16 @@ export const engineeringModule: PackModule = {
   setup(dir) {
     const home = homeAt(dir)
     if (!home) return []
+    const moved = moveLegacyWork(home)
     const made = [home.workRoot, home.backlogRoot, home.adrDir].filter(folder => !existsSync(folder))
     for (const folder of made) mkdirSync(folder, { recursive: true })
     Ledger.open(home.dbFile).close()
-    return made.map(folder => `${relative(dir, folder)}/`)
+    return [...moved, ...made.map(folder => `${relative(dir, folder)}/`)]
+  },
+
+  records(dir) {
+    const home = Home.find(dir)
+    return home ? [home.workRoot, home.backlogRoot] : []
   },
 
   configured(dir) {

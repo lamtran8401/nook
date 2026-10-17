@@ -25,7 +25,9 @@ export type Area = {
   git: boolean
 }
 
-export const DEFAULTS = { dir: 'work', backlog: 'backlog', protected: ['main', 'master', 'develop'] }
+export const DEFAULTS = { dir: 'works', backlog: 'backlog', protected: ['main', 'master', 'develop'] }
+/** The item folder before Nook named it works/; setup moves it when nook.yml keeps the default. */
+export const LEGACY_DIR = 'work'
 
 type Raw = Record<string, unknown>
 

@@ -40,7 +40,7 @@ const buildAll = (id = 'SHOP-1') => {
 describe('Engineering.moveItem: start, agree and approve', () => {
   test('start scaffolds spec.md from the template with the front matter of the item', () => {
     itemAt(t, 'framing')
-    const spec = readFileSync(join(t.root, 'work', 'SHOP-1', 'spec.md'), 'utf8')
+    const spec = readFileSync(join(t.root, 'works', 'SHOP-1', 'spec.md'), 'utf8')
     expect(spec).toContain('id: SHOP-1')
     expect(spec).toContain('kind: feature')
     expect(spec).toContain('areas: [bff]')
@@ -49,7 +49,7 @@ describe('Engineering.moveItem: start, agree and approve', () => {
 
   test('start writes the date of today as created and updated of spec.md', () => {
     itemAt(t, 'framing')
-    const spec = readFileSync(join(t.root, 'work', 'SHOP-1', 'spec.md'), 'utf8')
+    const spec = readFileSync(join(t.root, 'works', 'SHOP-1', 'spec.md'), 'utf8')
     const today = new Date().toISOString().slice(0, 10)
     expect(spec).toContain(`created: ${today}\nupdated: ${today}\n`)
   })
@@ -58,7 +58,7 @@ describe('Engineering.moveItem: start, agree and approve', () => {
     itemAt(t, 'framing')
     writeDoc(t, 'SHOP-1', 'spec.md', SPEC({ size: 'L' }))
     t.eng(LEAD).moveItem('agree', 'SHOP-1')
-    expect(readFileSync(join(t.root, 'work', 'SHOP-1', 'plan.md'), 'utf8')).toContain('\n## Flow\n')
+    expect(readFileSync(join(t.root, 'works', 'SHOP-1', 'plan.md'), 'utf8')).toContain('\n## Flow\n')
   })
 
   test('agree refuses a spec with no updated date and names the fix', () => {
@@ -86,8 +86,8 @@ describe('Engineering.moveItem: start, agree and approve', () => {
     expect(item.areas).toEqual(['bff', 'web'])
     expect(item.size).toBe('M')
     expect(lead.stores.criteria.list('SHOP-1').map(c => c.text)).toEqual(['[ADD] the export has the right date', '[CHANGE] the error shows a reason'])
-    expect(existsSync(join(t.root, 'work', 'SHOP-1', 'plan.md'))).toBe(true)
-    expect(existsSync(join(t.root, 'work', 'SHOP-1', 'tasks.md'))).toBe(true)
+    expect(existsSync(join(t.root, 'works', 'SHOP-1', 'plan.md'))).toBe(true)
+    expect(existsSync(join(t.root, 'works', 'SHOP-1', 'tasks.md'))).toBe(true)
   })
 
   test('approve lists each gap of the plan and the slices, then stores the fingerprints of the three documents', () => {
@@ -105,7 +105,7 @@ describe('Engineering.moveItem: start, agree and approve', () => {
     expect(second.message).toContain('AC 2 is in no slice')
     expect(second.message).toContain('T2: area web is not an area of SHOP-1')
     expect(second.message).toContain('depends has a cycle: T1 → T2 → T1')
-    expect(second.fix).toContain('work/SHOP-1/plan.md')
+    expect(second.fix).toContain('works/SHOP-1/plan.md')
     writeDoc(t, 'SHOP-1', 'plan.md', PLAN)
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }]))
     lead.importTasks('SHOP-1')
@@ -149,7 +149,7 @@ describe('Engineering.moveItem: start, agree and approve', () => {
 describe('Engineering.moveItem: begin and submit', () => {
   test('begin refuses a plan that changed after the approve, and replan clears the approval', () => {
     itemAt(t, 'ready')
-    const plan = join(t.root, 'work', 'SHOP-1', 'plan.md')
+    const plan = join(t.root, 'works', 'SHOP-1', 'plan.md')
     writeFileSync(plan, `${readFileSync(plan, 'utf8')}\nmore\n`)
     t.git('bff', 'switch', '-q', '-c', 'nook/SHOP-1-work')
     const error = fails(() => t.eng(LEAD).moveItem('begin', 'SHOP-1'), Exit.refused, 'plan.md changed after the approve', 'nook eng item replan SHOP-1')
@@ -323,7 +323,7 @@ describe('Engineering.moveItem on an investigation', () => {
     const owner = t.eng(OWNER)
     lead.newItem({ id: 'SHOP-5', title: 'why does the job retry?', kind: 'investigate', areas: ['bff'] })
     lead.moveItem('start', 'SHOP-5')
-    expect(readFileSync(join(t.root, 'work', 'SHOP-5', 'spec.md'), 'utf8')).toContain('## Questions')
+    expect(readFileSync(join(t.root, 'works', 'SHOP-5', 'spec.md'), 'utf8')).toContain('## Questions')
     writeDoc(t, 'SHOP-5', 'spec.md', SPEC({ kind: 'investigate', questions: [] }).replace('## Questions\n\n\n', '## Questions\n\n'))
     fails(() => lead.moveItem('agree', 'SHOP-5'), Exit.refused, /at least one question/)
     writeDoc(t, 'SHOP-5', 'spec.md', SPEC({ kind: 'investigate', questions: ['why does it retry?', 'how often?'] }).replaceAll('SHOP-1', 'SHOP-5'))
@@ -333,7 +333,7 @@ describe('Engineering.moveItem on an investigation', () => {
     owner.moveItem('approve', 'SHOP-5')
     t.git('bff', 'switch', '-q', '-c', 'nook/SHOP-5-why')
     lead.moveItem('begin', 'SHOP-5')
-    fails(() => lead.moveItem('submit', 'SHOP-5'), Exit.refused, 'findings.md is not filled', /work\/SHOP-5\/findings.md/)
+    fails(() => lead.moveItem('submit', 'SHOP-5'), Exit.refused, 'findings.md is not filled', /works\/SHOP-5\/findings.md/)
     writeDoc(t, 'SHOP-5', 'findings.md', '# findings\n\n## Q1\n\n- Answer: a backoff in job.ts:12\n- Evidence: job.ts line 12\n- Open: none\n\n## Q2\n\n- Answer: three times\n- Evidence: \n')
     lead.moveItem('submit', 'SHOP-5')
     fails(() => owner.moveItem('accept', 'SHOP-5'), Exit.refused, 'Q2 has no answer with evidence in findings.md')

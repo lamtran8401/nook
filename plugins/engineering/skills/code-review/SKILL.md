@@ -24,7 +24,7 @@ A second round of `/deep-review` reviews only the files that changed since the l
    ```
    Item: <id>. Scope: slice <T> | the full item.
    Areas: <area> folder <path> base <branch>, one line for each area. Files: <list> | the full diff.
-   Plan: work/<id>/plan.md (the dependencies it names).
+   Plan: works/<id>/plan.md (the dependencies it names).
    ```
 3. Read the verdict. The blocking list lives in the agent file; only a finding on it sends work back. A pass with nits: keep the nits for the report of the stage.
 4. A blocking finding in `/cook`: `nook eng task reopen <id> <T> --reason "<file:line> <what>"`, and send the four parts (where, what, why, how to show it) to the builder of the slice. It fixes, runs the checks, and runs `task done` again with every file. Then review the slice again.

@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 
 import type { Finding } from '@nook/desk/desks.ts'
 
+import { DEFAULTS, LEGACY_DIR } from '../config.ts'
 import { cut } from '../format.ts'
 import { FingerprintsUnchanged } from '../guards/fingerprints.ts'
 import { GuardContext } from '../guards/guard.ts'
@@ -58,6 +59,13 @@ function configFindings(eng: Engineering): Finding[] {
         fix: 'add checks: [<command>] to the area in nook.yml, or checks: [] for none',
       })
   }
+  if (config.dir === DEFAULTS.dir && existsSync(`${home}/${LEGACY_DIR}`) && existsSync(`${home}/${config.dir}`))
+    found.push({
+      level: 'warn',
+      where: home,
+      text: `${LEGACY_DIR}/ and ${config.dir}/ both exist: the items live in ${config.dir}/`,
+      fix: `move each folder of ${LEGACY_DIR}/ into ${config.dir}/, then delete ${LEGACY_DIR}/`,
+    })
   for (const folder of [config.dir, config.backlog, 'docs/adr']) {
     if (!existsSync(`${home}/${folder}`))
       found.push({ level: 'warn', where: home, text: `${folder}/ is missing`, fix: 'nook init --update' })

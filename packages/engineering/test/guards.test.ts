@@ -27,7 +27,7 @@ const ctx = (id = 'SHOP-1') => {
   const eng = t.eng(LEAD)
   return new GuardContext(t.home, eng.stores, eng.item(id))
 }
-const doc = (name: string, id = 'SHOP-1') => join(t.root, 'work', id, name)
+const doc = (name: string, id = 'SHOP-1') => join(t.root, 'works', id, name)
 
 /** An item in planning with a filled plan and the slices of `tasks` imported. */
 const planned = (tasks = TASKS([{ id: 'T1' }])) => {

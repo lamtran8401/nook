@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: "End a session: write work/<id>/handoff.md, at most 40 lines, with State, Done, Next, Open, Guesses and Watch. Use when the owner says handoff, wrap up the session, save state or stop for today, or when a yolo run stops."
+description: "End a session: write works/<id>/handoff.md, at most 40 lines, with State, Done, Next, Open, Guesses and Watch. Use when the owner says handoff, wrap up the session, save state or stop for today, or when a yolo run stops."
 argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(nook eng *), Bash(git status *), Read, Write, Edit
@@ -13,9 +13,9 @@ Write facts about the state, not a diary.
 ## Order
 1. Run `nook eng pickup <id>` and `nook eng next <id>`. The ledger is the truth for the state and the slices; the note adds what the ledger does not hold.
 2. Run `nook eng item history <id>`: what changed since the last note.
-3. Read the old `work/<id>/handoff.md` when there is one. You replace it; keep what is still true.
+3. Read the old `works/<id>/handoff.md` when there is one. You replace it; keep what is still true.
 4. Run `nook eng doctor` and `nook eng area status`: drift, dirty files, an area on another branch.
-5. Write `work/<id>/handoff.md`, 40 lines or fewer, with the six sections below. Replace the old note.
+5. Write `works/<id>/handoff.md`, 40 lines or fewer, with the six sections below. Replace the old note.
 6. Report the path and the Next section. The next command is `/pickup <id>` in a new session. Do not start new work.
 
 ## The six sections

@@ -186,7 +186,7 @@ describe('itemPage', () => {
 
   test('each panel names its file and its front matter above the title of the document', () => {
     expect(panelOf(planned(), 'plan')).toContain(
-      '<div class="kd-doc-head"><p class="kd-doc-meta">work/SHOP-7/plan.md · approach hold the stock in one table · created 2026-10-14 · updated 2026-10-16</p><h2 class="kd-doc-title">SHOP-7: the plan</h2></div>',
+      '<div class="kd-doc-head"><p class="kd-doc-meta">works/SHOP-7/plan.md · approach hold the stock in one table · created 2026-10-14 · updated 2026-10-16</p><h2 class="kd-doc-title">SHOP-7: the plan</h2></div>',
     )
   })
 
@@ -237,16 +237,16 @@ describe('docPage', () => {
   const RETRY = '---\ncreated: 2026-10-18\nupdated: 2026-10-18\n---\n\n# How the export job retries\n\n> In short: a failed export runs again <twice>.\n\n## What changed\n\n```tree\napi/\n  export.ts  changed  the retry\n```\n'
 
   test('one document with no item is a whole page with its path, its title and its components', () => {
-    const html = docPage('work/2026-10-18-export-retry/walkthrough.md', RETRY)
+    const html = docPage('works/2026-10-18-export-retry/walkthrough.md', RETRY)
     expect(html.startsWith('<!doctype html>\n<html lang="en">\n<head>')).toBe(true)
     expect(html).toContain('<title>How the export job retries</title>')
-    expect(html).toContain('<span class="kd-eyebrow">work/2026-10-18-export-retry/walkthrough.md</span><h1 class="bn-page-head__title">How the export job retries</h1>')
+    expect(html).toContain('<span class="kd-eyebrow">works/2026-10-18-export-retry/walkthrough.md</span><h1 class="bn-page-head__title">How the export job retries</h1>')
     expect(html).toContain('<div class="bn-tree kd-tree">')
     expect(html).toContain('a failed export runs again &lt;twice&gt;.')
     expect(html).not.toContain('role="tablist"')
   })
 
   test('a document with no title is named by its path', () => {
-    expect(docPage('work/x/notes.md', 'plain text\n')).toContain('<title>work/x/notes.md</title>')
+    expect(docPage('works/x/notes.md', 'plain text\n')).toContain('<title>works/x/notes.md</title>')
   })
 })

@@ -1,6 +1,6 @@
 ---
 name: write-spec
-description: "Write work/<id>/spec.md from the ticket and the answers: front matter with dates, In short, Why, What changes, checkable criteria, Decisions, Out of scope. Use in /spec or when the owner says draft the spec. Not for checking it: spec-check."
+description: "Write works/<id>/spec.md from the ticket and the answers: front matter with dates, In short, Why, What changes, checkable criteria, Decisions, Out of scope. Use in /spec or when the owner says draft the spec. Not for checking it: spec-check."
 argument-hint: "<item id>"
 allowed-tools: Bash(nook eng *), Read, Glob, Grep, Edit, Write
 ---

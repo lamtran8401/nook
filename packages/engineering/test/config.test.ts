@@ -51,7 +51,7 @@ describe('EngineeringConfig', () => {
       expect(error?.fix).toBeTruthy()
     }
     writeFileSync(file, 'packs: [engineering]\n')
-    expect(EngineeringConfig.read(t.root)).toMatchObject({ missing: true, areas: [], dir: 'work' })
+    expect(EngineeringConfig.read(t.root)).toMatchObject({ missing: true, areas: [], dir: 'works' })
   })
 
   test('an area with no git key is a git area, and checks stay missing when the key is missing', () => {

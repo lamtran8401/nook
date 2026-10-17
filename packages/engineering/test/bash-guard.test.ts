@@ -178,8 +178,8 @@ describe('bashGuard: a reader and the item page', () => {
   })
 
   test('a reader may print the page of a Markdown file, but not write it', () => {
-    expect(rewritten(bash('nook eng doc page work/q.md', SCOUT))).toBe('nook eng --as reader --actor scout-0001 --session sess-1 doc page work/q.md')
-    expect(reason(bash('nook eng doc page work/q.md --out q.html', SCOUT))).toBe('a reader is read-only: `doc page` prints the page; --out writes a file.')
+    expect(rewritten(bash('nook eng doc page works/q.md', SCOUT))).toBe('nook eng --as reader --actor scout-0001 --session sess-1 doc page works/q.md')
+    expect(reason(bash('nook eng doc page works/q.md --out q.html', SCOUT))).toBe('a reader is read-only: `doc page` prints the page; --out writes a file.')
   })
 })
 

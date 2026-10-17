@@ -109,7 +109,7 @@ describe('Initializer: the packs on here', () => {
   const calls: string[] = []
   const pack = (configured: boolean): PackModule => ({
     name: 'engineering',
-    setup: dir => (calls.push(dir), ['work/']),
+    setup: dir => (calls.push(dir), ['works/']),
     configured: () => configured,
     doctor: () => [],
   })
@@ -117,7 +117,7 @@ describe('Initializer: the packs on here', () => {
 
   test('runs the setup of each pack on here and reports what it made', () => {
     calls.length = 0
-    expect(initWith(pack(true), ['engineering']).wrote.at(-1)).toBe('work/')
+    expect(initWith(pack(true), ['engineering']).wrote.at(-1)).toBe('works/')
     expect(calls).toEqual([root])
   })
 

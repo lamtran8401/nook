@@ -34,6 +34,6 @@ The parts in full, and the path with no item: `parts.md` (this folder).
 - Give no line numbers. Name a file only in the tree; the owner reads the diff for the rest.
 - Use the components: the tree for the files, a mermaid flowchart for the flow. A table only where a list cannot hold it.
 - Pick one request that touches most of the change. A walk through every path is a second diff.
-- Write the file under `work/`, never in `/tmp` or in an area folder.
+- Write the file under `works/`, never in `/tmp` or in an area folder.
 - The walkthrough does not decide. The verdict stays with the reviewer and the owner.
 - A prompt with no item: do not invent a mechanism that the code does not have. "Not found" is an answer.
