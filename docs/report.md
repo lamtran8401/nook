@@ -80,8 +80,8 @@ The other checks:
 | Limit | Effect | Way around |
 |---|---|---|
 | macOS only tested | Linux and Windows are not tested | none yet |
-| no tracker pull | `tracker: jira` and `github` pass the config check, but no pack pulls a ticket | write or paste the ticket into `backlog/<KEY>/ticket.md`; the step tracker fixes it |
-| `install` of an area is not run | `nook.yml` holds the install command of an area, but no command runs it; the checks and the proofs need the dependencies in place | run the install by hand until the step area install |
+| no tracker pull | `tracker: jira` and `github` pass the config check, but no pack pulls a ticket | write or paste the ticket into `backlog/<KEY>/ticket.md` until v0.3 |
+| `install` of an area is not run | `nook.yml` holds the install command of an area, but no command runs it; the checks and the proofs need the dependencies in place | run the install by hand until v0.3 |
 | one lead for each item | a second session that runs `pickup` takes the lead | one session for each item |
 | four builders at most | one for each area | none needed |
 | teammates do not survive a restart | a `/resume` or a compaction ends them | `/cook` starts new builders from `task list --state running` |
@@ -93,9 +93,8 @@ Each step starts with its expectation file in `docs/expect/`, before code.
 
 | Step | What it gives | State |
 |---|---|---|
-| v0.3 tracker | pull a Jira ticket into `backlog/<KEY>/`, read only; GitHub Issues follows | planned, next |
-| area install | run the install of an area before its checks or a proof, only when its dependencies are missing or older than the lockfile | planned |
-| v0.4 the viewer | `nook view`: one Next.js server on `127.0.0.1` for one desk; it reads each pack through a read module; you approve, accept and answer in the browser | planned |
+| v0.3 | one release: pull a Jira ticket into `backlog/<KEY>/` through Teamwork Graph, read only; install the dependencies of an area when they are missing; `nook view`, the desk in the browser, with your gates there | planned, next |
+| GitHub Issues | pull an issue into the backlog, as v0.3 does for Jira | planned |
 | research | `/research`: analysts in parallel, each finding with a source, a fact-checker | planned |
 | visual | the page of every pack: diagrams, decks, sketches | planned |
 | `/learn-progress` | a level for each skill of a course, and the plan of the next month | planned |
