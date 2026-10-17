@@ -176,4 +176,15 @@ describe('bashGuard: a reader and the item page', () => {
     const result = bash('nook eng item page SHOP-1 --out page.html', SCOUT)
     expect(reason(result)).toBe('a reader is read-only: `item page` prints the page; --out writes a file.')
   })
+
+  test('a reader may print the page of a Markdown file, but not write it', () => {
+    expect(rewritten(bash('nook eng doc page work/q.md', SCOUT))).toBe('nook eng --as reader --actor scout-0001 --session sess-1 doc page work/q.md')
+    expect(reason(bash('nook eng doc page work/q.md --out q.html', SCOUT))).toBe('a reader is read-only: `doc page` prints the page; --out writes a file.')
+  })
+})
+
+describe('bashGuard: a reader and the core commands', () => {
+  test('the block names each read command of the core', () => {
+    expect(reason(bash('nook init', SCOUT))).toBe('a reader may run only the read commands of nook (doctor, packs, where, ste, help).')
+  })
 })

@@ -38,6 +38,7 @@ const READ_CALLS = [
   ['item', 'brief'],
   ['item', 'check'],
   ['item', 'page'],
+  ['doc', 'page'],
   ['item', 'ac', 'list'],
   ['task', 'list'],
   ['task', 'show'],
@@ -103,10 +104,10 @@ function nookDenial(tokens: string[], kind: CallerKind, who: string): string | n
   if (!inPack)
     return !rest[0] || CORE_READ.has(rest[0])
       ? null
-      : `${who} may run only the read commands of nook (doctor, packs, where).`
+      : `${who} may run only the read commands of nook (doctor, packs, where, ste, help).`
   const path = rest.slice(1)
-  if (path[0] === 'item' && path[1] === 'page' && tokens.some(t => t.startsWith('--out')))
-    return `${who} is read-only: \`item page\` prints the page; --out writes a file.`
+  if ((path[0] === 'item' || path[0] === 'doc') && path[1] === 'page' && tokens.some(t => t.startsWith('--out')))
+    return `${who} is read-only: \`${path[0]} page\` prints the page; --out writes a file.`
   const extra = extraCalls(kind)
   if (!path.length || [...READ_CALLS, ...extra].some(call => call.every((w, i) => path[i] === w))) return null
   const plus = extra.length ? `, plus ${extra.map(c => c.join(' ')).join(' and ')}` : ''
