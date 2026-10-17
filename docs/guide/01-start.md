@@ -15,7 +15,7 @@ Do these steps once, in a terminal:
 ```
 git clone <the nook repo> nook && cd nook && bun install
 ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nook
-ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nk
+ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nk        # optional
 claude plugin marketplace add "$PWD"
 claude plugin install nook@nook
 claude plugin install nk-eng@nook
@@ -26,8 +26,8 @@ claude plugin install nk-learn@nook
 | Line | Why |
 |---|---|
 | `bun install` | The hooks run the Nook code. Without its packages, every hook fails. |
-| `nook` | The hooks and the agents run this command. |
-| `nk` | A short form for you. An agent never runs it. |
+| `nook` | The hooks and the agents run this command. The guards watch for this name. |
+| `nk` | Optional. A short form for you to type in your own terminal. Claude Code cannot run it: the guard blocks it. |
 | `nook@nook` | The core plugin. Install it always. |
 | `nk-eng`, `nk-wiki`, `nk-learn` | One plugin for each pack. Install only the packs that you use. |
 

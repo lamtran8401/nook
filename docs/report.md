@@ -79,11 +79,9 @@ The other checks:
 
 | Limit | Effect | Way around |
 |---|---|---|
-| Bun only | the code uses `bun:sqlite` and `Bun.spawn` | install Bun |
 | macOS only tested | Linux and Windows are not tested | none yet |
-| no tracker pull | `tracker: jira` and `github` pass the config check, but no pack pulls a ticket | write or paste the ticket into `backlog/<KEY>/ticket.md` |
-| `install` of an area | read from `nook.yml`, not used | run the install by hand |
-| static pages | `/view` writes a local `page.html`; it does not refresh | run `/view` again after a change |
+| no tracker pull | `tracker: jira` and `github` pass the config check, but no pack pulls a ticket | write or paste the ticket into `backlog/<KEY>/ticket.md`; the step tracker fixes it |
+| `install` of an area is not run | `nook.yml` holds the install command of an area, but no command runs it; the checks and the proofs need the dependencies in place | run the install of the area once after a clone or a change of its lockfile |
 | one lead for each item | a second session that runs `pickup` takes the lead | one session for each item |
 | four builders at most | one for each area | none needed |
 | teammates do not survive a restart | a `/resume` or a compaction ends them | `/cook` starts new builders from `task list --state running` |
@@ -98,7 +96,7 @@ Each step starts with its expectation file in `docs/expect/`, before code.
 | v0.3 the viewer | `nook view`: one Next.js server on `127.0.0.1` for one desk; it reads each pack through a read module; you approve, accept and answer in the browser | planned |
 | research | `/research`: analysts in parallel, each finding with a source, a fact-checker | planned |
 | visual | the page of every pack: diagrams, decks, sketches | planned |
-| jira | pull a ticket, read only, when a desk has a real tracker | planned |
+| tracker | pull a ticket from Jira or GitHub into `backlog/<KEY>/`, read only | planned |
 | `/learn-progress` | a level for each skill of a course, and the plan of the next month | planned |
 
 After each step, measure: the items on the full path against `/quick`, your minutes at the gates, the items sent back and why, and the context cost of the wiki reads.
