@@ -1164,7 +1164,7 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 .tl[data-time="right"] .tl-ev { grid-template-columns: 36px 1fr; }
 .tl-time { font: 600 12.5px/36px var(--font-mono); color: var(--fg); text-align: right; }
 .tl[data-time="right"] .tl-time { grid-column: 2; grid-row: 1; justify-self: end; z-index: 1; margin: 11px 14px 0 0; padding: 0 8px; border-radius: 6px; background: var(--t-subtle); color: var(--t); line-height: 20px; font-size: 12px; }
-.tl-ico { width: 36px; height: 36px; border-radius: var(--r-tile); corner-shape: superellipse(1.4); display: grid; place-items: center; background: var(--t-subtle); color: var(--t); box-shadow: 0 0 0 1px color-mix(in oklab, var(--t) 28%, transparent), 0 0 0 5px var(--dg-bg, var(--bg)); }
+.tl-ico { width: 36px; height: 36px; border-radius: var(--r-tile); corner-shape: superellipse(1.4); display: grid; place-items: center; background: var(--t-subtle); color: var(--t); box-shadow: 0 0 0 4px color-mix(in oklab, var(--t-subtle) 55%, var(--dg-bg, var(--bg))); }
 .tl[data-time="right"] .tl-ico { grid-column: 1; grid-row: 1; }
 .tl[data-time="right"] .tl-card { grid-column: 2; grid-row: 1; }
 .tl-ico .dg-i { width: 17px; height: 17px; }
