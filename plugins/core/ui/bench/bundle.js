@@ -1028,7 +1028,7 @@
     var html = cols.map(function (col) {
       var cards = col.cards || []
       var body = cards.length ? cards.map(cardHtml).join('') : '<p class="bd-empty">' + icon('archive') + esc(spec.emptyText || 'No items') + '</p>'
-      return '<div class="bd-col"' + tone(col.tone) + '><div class="bd-col__head"><span class="bd-dot"></span>' + esc(col.title) + '<span class="bd-count">' + cards.length + '</span></div>' + body + '</div>'
+      return '<div class="bd-col"' + tone(col.tone) + '><div class="bd-col__head"><span class="bd-dot"></span>' + esc(col.title) + '<span class="bd-count">' + cards.length + '</span></div><div class="bd-col__body">' + body + '</div></div>'
     }).join('')
     if (rest.length) {
       html += '<div class="bd-rest"><div class="bd-rest__head">' + esc(spec.restTitle || 'No items') + '</div><ul>' + rest.map(function (r) {
@@ -1037,8 +1037,41 @@
     }
     var board = h('div', 'bd', html)
     board.style.gridTemplateColumns = 'repeat(' + cols.length + ', minmax(' + (spec.colWidth || 250) + 'px, 1fr))' + (rest.length ? ' 170px' : '')
+    board.style.setProperty('--bd-col-h', (spec.colHeight || 560) + 'px')
+    var density = spec.density === 'full' ? 'full' : 'compact'
+    board.setAttribute('data-density', density)
+    /* a compact card shows its id and its title on one line; a click opens the rest of it */
+    board.addEventListener('click', function (e) {
+      if (board.getAttribute('data-density') !== 'compact') return
+      var card = e.target.closest('.bd-card')
+      if (!card || e.target.closest('a, button')) return
+      if (card.hasAttribute('data-open')) card.removeAttribute('data-open'); else card.setAttribute('data-open', '')
+      card.setAttribute('aria-expanded', card.hasAttribute('data-open') ? 'true' : 'false')
+      delete card.dataset.r0
+      fitCorners(board)
+    })
+    board.querySelectorAll('.bd-card').forEach(function (c) { c.tabIndex = 0; c.setAttribute('aria-expanded', 'false') })
+    board.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('bd-card')) { e.preventDefault(); e.target.click() }
+    })
+    var tools = h('div', 'bd-tools', '<span class="bd-tools__label">Cards</span><span class="bd-switch" role="group" aria-label="Card density">' +
+      '<button type="button" data-density="compact">Compact</button><button type="button" data-density="full">Full</button></span>')
+    var sync = function () {
+      var d = board.getAttribute('data-density')
+      tools.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-density') === d ? 'true' : 'false') })
+    }
+    tools.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-density]')
+      if (!b) return
+      board.setAttribute('data-density', b.getAttribute('data-density'))
+      board.querySelectorAll('.bd-card').forEach(function (c) { delete c.dataset.r0 })
+      sync()
+      fitCorners(board)
+    })
+    sync()
     var scroll = h('div', 'dg-scroll')
     scroll.appendChild(board)
+    el.appendChild(tools)
     el.appendChild(scroll)
   }
 
@@ -1416,6 +1449,111 @@
     })
   }
 
+  /* ---------- expand: a button opens the diagram in an overlay, where the wheel or a pinch zooms at the pointer and a drag pans ---------- */
+  var EXPAND_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>'
+  function ensureExpand(el, spec) {
+    if (el.closest('.dg-overlay') || el.querySelector(':scope > .dg-expand')) return
+    var btn = h('button', 'dg-expand', EXPAND_ICON)
+    btn.type = 'button'
+    btn.setAttribute('aria-label', 'Open the diagram large')
+    btn.setAttribute('data-tip', 'Open large · zoom and pan')
+    btn.addEventListener('click', function () { openOverlay(el, spec, btn) })
+    el.appendChild(btn)
+  }
+  function openOverlay(source, spec, opener) {
+    var natural = source.querySelector('.dg-scroll')
+    var width = Math.max(source.clientWidth, natural ? natural.scrollWidth : 0)
+    var overlay = h('div', 'dg-overlay', '<div class="dg-overlay__stage"></div>' +
+      '<div class="dg-overlay__bar" role="toolbar" aria-label="Zoom">' +
+      '<button type="button" data-z="out" aria-label="Zoom out">−</button><output class="dg-overlay__pct">100%</output>' +
+      '<button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit">Fit</button>' +
+      '<button type="button" data-z="close" aria-label="Close">✕</button></div>')
+    overlay.setAttribute('role', 'dialog')
+    overlay.setAttribute('aria-modal', 'true')
+    overlay.setAttribute('aria-label', 'Diagram, large')
+    var stage = overlay.querySelector('.dg-overlay__stage'), pct = overlay.querySelector('.dg-overlay__pct')
+    var copy = h('div', 'dg-overlay__copy')
+    copy.style.width = width + 'px'
+    stage.appendChild(copy)
+    document.body.appendChild(overlay)
+    var lock = document.documentElement.style.overflow
+    document.documentElement.style.overflow = 'hidden'
+    render(copy, spec)
+    var s = 1, x = 0, y = 0
+    var apply = function () { copy.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')'; pct.textContent = Math.round(s * 100) + '%' }
+    var fit = function () {
+      var sw = stage.clientWidth, sh = stage.clientHeight, cw = copy.offsetWidth, ch = copy.offsetHeight
+      s = Math.min(1.6, Math.max(0.1, Math.min((sw - 48) / cw, (sh - 48) / ch)))
+      x = (sw - cw * s) / 2; y = (sh - ch * s) / 2
+      apply()
+    }
+    /* keep the point under (px, py) in place while the scale changes */
+    var zoomAt = function (next, px, py) {
+      next = Math.min(6, Math.max(0.1, next))
+      x = px - (px - x) * (next / s); y = py - (py - y) * (next / s); s = next
+      apply()
+    }
+    var centre = function () { return [stage.clientWidth / 2, stage.clientHeight / 2] }
+    requestAnimationFrame(function () { requestAnimationFrame(fit) })
+    stage.addEventListener('wheel', function (e) {
+      e.preventDefault()
+      var r = stage.getBoundingClientRect()
+      zoomAt(s * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)), e.clientX - r.left, e.clientY - r.top)
+    }, { passive: false })
+    var points = {}, pinch = null, drag = null
+    stage.addEventListener('pointerdown', function (e) {
+      stage.setPointerCapture(e.pointerId)
+      points[e.pointerId] = [e.clientX, e.clientY]
+      var ids = Object.keys(points)
+      if (ids.length === 2) {
+        var a = points[ids[0]], b = points[ids[1]]
+        pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: s }
+        drag = null
+      } else drag = { x: e.clientX - x, y: e.clientY - y }
+      stage.classList.add('is-grab')
+    })
+    stage.addEventListener('pointermove', function (e) {
+      if (!points[e.pointerId]) return
+      points[e.pointerId] = [e.clientX, e.clientY]
+      var ids = Object.keys(points)
+      if (pinch && ids.length === 2) {
+        var a = points[ids[0]], b = points[ids[1]], r = stage.getBoundingClientRect()
+        zoomAt(pinch.s * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d, (a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top)
+      } else if (drag) { x = e.clientX - drag.x; y = e.clientY - drag.y; apply() }
+    })
+    var up = function (e) {
+      delete points[e.pointerId]
+      if (Object.keys(points).length < 2) pinch = null
+      if (!Object.keys(points).length) { drag = null; stage.classList.remove('is-grab') }
+    }
+    stage.addEventListener('pointerup', up)
+    stage.addEventListener('pointercancel', up)
+    stage.addEventListener('dblclick', fit)
+    var close = function () {
+      if (copy._bnDiagram) copy._bnDiagram.stop()
+      overlay.remove()
+      document.documentElement.style.overflow = lock
+      document.removeEventListener('keydown', onKey)
+      if (opener) opener.focus()
+    }
+    var onKey = function (e) {
+      if (e.key === 'Escape') close()
+      else if (e.key === '+' || e.key === '=') zoomAt(s * 1.25, centre()[0], centre()[1])
+      else if (e.key === '-') zoomAt(s / 1.25, centre()[0], centre()[1])
+      else if (e.key === '0') fit()
+    }
+    document.addEventListener('keydown', onKey)
+    overlay.querySelector('.dg-overlay__bar').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-z]')
+      if (!b) return
+      var z = b.getAttribute('data-z')
+      if (z === 'close') close()
+      else if (z === 'fit') fit()
+      else zoomAt(s * (z === 'in' ? 1.25 : 0.8), centre()[0], centre()[1])
+    })
+    overlay.querySelector('[data-z="close"]').focus()
+  }
+
   /* ---------- render: draw when visible, again on resize and when fonts arrive ---------- */
   /* a fixed type draws once; a sized type draws again when its width changes */
   var FIXED = { tree: renderTree, timeline: renderTimeline, board: renderBoard }
@@ -1436,11 +1574,13 @@
         if (!redraw) redraw = renderGraph(el, spec)
         fitCorners(el)
         redraw()
+        ensureExpand(el, spec)
         return
       }
       if (FIXED[type]) {
         if (!built) { FIXED[type](el, spec); built = true }
         fitCorners(el)
+        ensureExpand(el, spec)
         return
       }
       if (w === last && !force) return
@@ -1448,6 +1588,7 @@
       el.innerHTML = ''
       SIZED[type](el, spec, w)
       fitCorners(el)
+      ensureExpand(el, spec)
     }
     var observer = window.ResizeObserver ? new ResizeObserver(function () { run() }) : null
     var restyle = function () { run(true) }

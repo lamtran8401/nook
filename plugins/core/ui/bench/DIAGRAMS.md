@@ -31,6 +31,20 @@ The bundle mounts each diagram when the page loads. A diagram draws when its ele
 - When a spec fails, `mount` writes the error in the element and in the console. The other diagrams still draw.
 - `window.BenchDiagrams` is the same object as `Bench.diagram`.
 
+## Open large
+
+Each diagram has a button in its top right corner. It shows when the pointer is on the diagram, and always on a touch screen. The button opens the diagram at its full width in an overlay.
+
+| In the overlay | Action |
+|---|---|
+| The wheel, or a pinch | Zoom at the pointer |
+| A drag | Move the diagram |
+| A double click, `0` or Fit | Fit the diagram in the screen |
+| `+`, `-`, or the buttons | Zoom at the middle |
+| `Escape` or ✕ | Close the overlay |
+
+A diagram does not shrink to fit a column. It takes the width it needs, and its box scrolls. The overlay shows all of it.
+
 ## Shared values
 
 | Value | Allowed |
@@ -295,7 +309,7 @@ A timeline shows moments in order. It has three styles.
 
 ## board
 
-A board shows many things in a few states. Each state that holds items gets a column. The empty states go in a small panel at the end.
+A board shows many things in a few states. Each state that holds items gets a column. The empty states go in a small panel at the end. A switch above the board changes the density of the cards.
 
 | Field | Default | Meaning |
 |---|---|---|
@@ -305,6 +319,8 @@ A board shows many things in a few states. Each state that holds items gets a co
 | `restTitle` | `No items` | The heading of the panel of empty states. |
 | `emptyText` | `No items` | The text of a column with no cards. |
 | `colWidth` | `250` | The smallest width of a column, in px. |
+| `colHeight` | `560` | The largest height of the cards of a column, in px. A longer column scrolls inside itself. |
+| `density` | `compact` | `compact` shows the id and the title of a card on one line, and a click opens the rest. `full` shows each card whole. |
 
 | Card field | Meaning |
 |---|---|

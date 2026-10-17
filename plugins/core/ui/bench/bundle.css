@@ -1307,3 +1307,34 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 .dg-donut li i { width: 10px; height: 10px; border-radius: 3px; }
 .dg-donut li em { font: 600 12.5px/18px var(--font-mono); font-style: normal; }
 .dg-donut li small { font: 500 12px/18px var(--font-mono); color: var(--fg-muted); min-width: 38px; text-align: right; }
+
+/* ---------- board: a column scrolls inside itself past --bd-col-h; compact cards show one line until a click ---------- */
+.bd-col__body { display: flex; flex-direction: column; gap: 10px; max-height: var(--bd-col-h, 560px); overflow-y: auto; padding: 3px; margin: -3px; scrollbar-width: thin; overscroll-behavior: contain; }
+.bd[data-density="compact"] .bd-col__body { gap: 8px; }
+.bd[data-density="compact"] .bd-card { cursor: pointer; gap: 6px; padding: 10px 12px; }
+.bd[data-density="compact"] .bd-card:not([data-open]) > :not(.bd-top):not(h4) { display: none; }
+.bd[data-density="compact"] .bd-card:not([data-open]) h4 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bd-card:focus-visible { outline: var(--stroke-3) solid var(--focus-ring); outline-offset: 2px; }
+.bd-tools { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 0 0 10px; font: 500 12px/16px var(--font-sans); color: var(--fg-muted); }
+.bd-switch { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-full); background: var(--bg-muted); }
+.bd-switch button { all: unset; cursor: pointer; padding: 4px 12px; border-radius: var(--radius-full); font: 500 12px/16px var(--font-sans); color: var(--fg-muted); }
+.bd-switch button[aria-pressed="true"] { background: var(--surface-raised); color: var(--fg); box-shadow: var(--shadow-1); }
+.bd-switch button:focus-visible { outline: var(--stroke-3) solid var(--focus-ring); outline-offset: 1px; }
+
+/* ---------- expand: a glass button on each diagram, and the zoom overlay ---------- */
+.dg { position: relative; }
+.dg-expand { all: unset; position: absolute; top: 6px; right: 6px; z-index: 3; width: 30px; height: 30px; display: grid; place-items: center; cursor: pointer; border-radius: var(--radius-full); color: var(--fg); background: var(--glass); -webkit-backdrop-filter: blur(var(--blur-sm)); backdrop-filter: blur(var(--blur-sm)); box-shadow: 0 0 0 1px var(--hairline), var(--shadow-1); opacity: 0; transition: opacity .15s; }
+.dg:hover > .dg-expand, .dg:focus-within > .dg-expand, .dg-expand:focus-visible { opacity: 1; }
+@media (hover: none) { .dg-expand { opacity: 1; } }
+.dg-expand:focus-visible { outline: var(--stroke-3) solid var(--focus-ring); outline-offset: 2px; }
+.dg-overlay { position: fixed; inset: 0; z-index: var(--z-modal); background: color-mix(in oklab, var(--bg) 88%, transparent); -webkit-backdrop-filter: blur(var(--blur-lg)); backdrop-filter: blur(var(--blur-lg)); --dg-bg: var(--bg); }
+.dg-overlay__stage { position: absolute; inset: 0; overflow: hidden; cursor: grab; touch-action: none; }
+.dg-overlay__stage.is-grab { cursor: grabbing; }
+.dg-overlay__copy { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.dg-overlay__copy .dg-scroll { overflow: visible; }
+.dg-overlay__bar { position: absolute; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: var(--radius-full); background: var(--glass-strong); -webkit-backdrop-filter: blur(var(--blur-md)); backdrop-filter: blur(var(--blur-md)); box-shadow: 0 0 0 1px var(--hairline), var(--shadow-2); }
+.dg-overlay__bar button { all: unset; cursor: pointer; min-width: 34px; height: 34px; padding: 0 10px; box-sizing: border-box; display: grid; place-items: center; border-radius: var(--radius-full); font: 600 14px/1 var(--font-sans); color: var(--fg); }
+.dg-overlay__bar button:hover { background: var(--bg-muted); }
+.dg-overlay__bar button:focus-visible { outline: var(--stroke-3) solid var(--focus-ring); outline-offset: 1px; }
+.dg-overlay__pct { min-width: 52px; text-align: center; font: 500 12px/1 var(--font-mono); color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+
