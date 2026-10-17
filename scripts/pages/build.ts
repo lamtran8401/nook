@@ -306,6 +306,7 @@ function reportPage(report: string, now: Date): string {
     .replace(/<td>(in daily use|in real use)([\s\S]*?)<\/td>/g, (_all, state: string, rest: string) => `<td><span class="chip tone-ok">${state}</span>${rest.replace(/^:\s*/, '<br>')}</td>`)
     .replace(/<td>built;([\s\S]*?)<\/td>/g, (_all, rest: string) => `<td><span class="chip">built</span><br>${rest.trim()}</td>`)
     .replace(/<td>planned<\/td>/g, '<td><span class="chip">planned</span></td>')
+    .replace(/<td>planned, next<\/td>/g, '<td><span class="chip tone-ok">next</span></td>')
   const short: Record<string, string> = { 'The parts and their state': 'Parts', 'How it is built': 'Architecture' }
   const tabs: Tab[] = [...html.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map(([, id = '', text = '']) => ({ id, label: short[stripTags(text)] ?? text }))
   const body = html
