@@ -1375,3 +1375,14 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 .dg-space__items[data-flow="row"] > * { flex: 1 1 160px; }
 .dg-space__items[data-flow="grid"] { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-5) var(--space-4); align-items: start; }
 .dg-space .dg-node { width: auto; min-width: 0; }
+
+/* compare: a scored table */
+.dg-score-table td, .dg-score-table th { text-align: center; }
+.dg-score-table td:first-child, .dg-score-table th:first-child { text-align: left; }
+.dg-score-table .is-pick { background: color-mix(in oklab, var(--success-subtle) 70%, transparent); }
+.dg-score-table th.is-pick { color: var(--success); }
+.dg-score { display: inline-flex; gap: 3px; }
+.dg-score i { width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
+.dg-score i.on { background: var(--success); }
+.dg-score__total td { font-weight: 700; font-variant-numeric: tabular-nums; }
+

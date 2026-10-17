@@ -45,7 +45,7 @@ A button in the top right corner opens a block large, in a dialog over the page.
 | `zoom` | a drawn diagram | Hand mode first, zoom, pan, Fit |
 | `view` | HTML: a table, code, a log, a board | normal scroll, the text can be chosen |
 
-A `graph`, `sequence`, `mind` or `links` diagram gets the `zoom` button. A board, a tree, a timeline, a space map and a chart scroll on their own and get no button. Set `"expand"` in the spec to change this: `"zoom"`, `"view"`, `true` (the default mode) or `false`.
+A `graph`, `sequence`, `mind` or `links` diagram gets the `zoom` button. A board, a tree, a timeline, a space map, a compare and a chart scroll on their own and get no button. Set `"expand"` in the spec to change this: `"zoom"`, `"view"`, `true` (the default mode) or `false`.
 
 Any other element gets the button with the attribute `data-bn-expand`. Its value is `view` (the default) or `zoom`. `data-bn-expand-title` gives the title of the dialog. With no title, the dialog uses the caption of the figure or the `aria-label`. From a script, call `Bench.expand(el, 'view')`.
 
@@ -330,6 +330,28 @@ A timeline shows moments in order. It has three styles.
     { "time": "10:56", "icon": "play", "tone": "primary", "title": "You typed /auto", "chips": ["mode auto"] },
     { "time": "11:25", "icon": "check", "tone": "success", "title": "Your accept", "meter": { "value": 6, "max": 6, "text": "6 of 6 criteria" } }
   ] }
+```
+
+## compare
+
+A compare shows the options before a decision. Two options read best side by side. Three or more read best as a scored table.
+
+| Field | Default | Meaning |
+|---|---|---|
+| `type` | required | `"compare"` |
+| `options` | required | Side by side: a list of `{ tag, name, tone, points }`. Scored: a list of option names. |
+| `rows` | none | With rows, the compare is a scored table. A row is `{ label, scores }`, one score for each option. |
+| `max` | `3` | The top score. A score shows as dots. |
+| `pick` | none | The index of the chosen option, from 0. Its column is green. |
+| `need` | `Need` | The head of the first column. |
+
+The last row of the table gives the total of each option.
+
+### Example
+
+```json
+{ "type": "compare", "options": ["A. Static pages", "B. One React file", "C. Next.js"], "pick": 2,
+  "rows": [{ "label": "A live board", "scores": [0, 1, 3] }, { "label": "Small install", "scores": [3, 2, 1] }] }
 ```
 
 ## space

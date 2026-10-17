@@ -939,6 +939,31 @@
     el.appendChild(h('div', 'bn-tree dg-tree', treeItems(spec.items)))
   }
 
+  /* ---------- compare: options side by side, or a scored table when there are rows ---------- */
+  function renderCompare(el, spec) {
+    el.appendChild(spec.rows ? compareTable(spec) : compareCards(spec))
+  }
+  function compareCards(spec) {
+    return h('div', 'bn-compare dg-compare', spec.options.map(function (o) {
+      return '<div class="bn-compare__col"' + tone(o.tone) + '><div class="bn-compare__head"><span class="bn-icon-dot">' + esc(o.tag || '') + '</span>' + esc(o.name) +
+        '</div><ul class="bn-compare__list">' + (o.points || []).map(function (pt) { return '<li>' + esc(pt) + '</li>' }).join('') + '</ul></div>'
+    }).join(''))
+  }
+  function compareTable(spec) {
+    var max = spec.max || 3
+    var pick = function (i) { return i === spec.pick ? ' class="is-pick"' : '' }
+    var dots = function (v) {
+      var out = ''
+      for (var k = 1; k <= max; k++) out += '<i' + (k <= v ? ' class="on"' : '') + '></i>'
+      return '<span class="dg-score" role="img" aria-label="' + v + ' of ' + max + '">' + out + '</span>'
+    }
+    var head = '<tr><th>' + esc(spec.need || 'Need') + '</th>' + spec.options.map(function (o, i) { return '<th' + pick(i) + '>' + esc(o) + '</th>' }).join('') + '</tr>'
+    var rows = spec.rows.map(function (r) { return '<tr><td>' + esc(r.label) + '</td>' + r.scores.map(function (v, i) { return '<td' + pick(i) + '>' + dots(v) + '</td>' }).join('') + '</tr>' }).join('')
+    var totals = spec.options.map(function (_, i) { return spec.rows.reduce(function (sum, r) { return sum + (r.scores[i] || 0) }, 0) })
+    var foot = '<tr class="dg-score__total"><td>Total of ' + spec.rows.length * max + '</td>' + totals.map(function (t, i) { return '<td' + pick(i) + '>' + t + '</td>' }).join('') + '</tr>'
+    return h('div', 'bn-table-wrap dg-compare', '<table class="bn-table dg-score-table"><thead>' + head + '</thead><tbody>' + rows + foot + '</tbody></table>')
+  }
+
   /* ---------- space: what lives inside what, as nested groups of nodes ---------- */
   function spaceNode(n) {
     var node = h('div', 'dg-node', nodeHtml(n))
@@ -1698,7 +1723,7 @@
 
   /* ---------- render: draw when visible, again on resize and when fonts arrive ---------- */
   /* a fixed type draws once; a sized type draws again when its width changes */
-  var FIXED = { tree: renderTree, timeline: renderTimeline, board: renderBoard, space: renderSpace }
+  var FIXED = { tree: renderTree, timeline: renderTimeline, board: renderBoard, space: renderSpace, compare: renderCompare }
   var SIZED = { sequence: renderSequence, mind: renderMind, links: renderForce, force: renderForce, chart: renderChart }
   function render(el, spec) {
     if (!el || !spec) throw new Error('BenchDiagrams.render needs an element and a spec')
