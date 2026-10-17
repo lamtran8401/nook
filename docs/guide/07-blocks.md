@@ -12,7 +12,7 @@
 
 | The guard says | Why | Fix |
 |---|---|---|
-| `… is a secret file: Nook does not read secrets.` | env files, `.npmrc`, `~/.ssh`, `~/.aws` and the `secrets` of `nook.yml` never reach the model | Give the value in chat, or point to `.env.example`. |
+| `… is a secret file: Nook does not read secrets.` or `… Nook never writes one.` | env files, `.npmrc`, `~/.ssh`, `~/.aws` and the `secrets` of `nook.yml` are never read or written by the model | Give the value in chat, or point to `.env.example`. |
 | `… is in the state folder: the nook commands write it, not an edit.` | `.nook/` holds the ledger | Use a `nook` command. |
 | `… holds the permissions: the owner edits it, or nook init --update.` | `.claude/settings*.json` changes only by you or by Nook | Edit it yourself, or run `nook init --update`. |
 | a block on an owner move | approve, accept and mode are yours | Type `/gate <move> <id>` in the prompt. |

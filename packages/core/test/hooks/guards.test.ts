@@ -93,6 +93,14 @@ describe('editGuard', () => {
     expect(edit(file)).toBe('block')
   })
 
+  test.each(['.npmrc', 'app/.npmrc', '~/.ssh/config', '~/.aws/credentials', 'config/infra.local.yaml'])('blocks an edit of the secret file %s', file => {
+    expect(edit(file)).toBe('block')
+  })
+
+  test('blocks an edit of a secret of nook.yml by its full path', () => {
+    expect(edit(join(root, 'config/infra.local.yaml'))).toBe('block')
+  })
+
   test.each(['CLAUDE.md', '.claude/rules/mine.md', '.env.example'])('lets an edit of %s pass', file => {
     expect(edit(file)).toBe('pass')
   })

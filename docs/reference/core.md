@@ -29,7 +29,7 @@ engineering: { ... }                # one section for each pack, read by that pa
 |---|---|---|---|
 | `packs` | a list, or a map with `on` and `off` | none | The packs of a folder are the union of each `nook.yml` above it, less each `off`. |
 | `rules.off` | a list of rule names | none | `nook init` does not write these rules; `nook init --update` removes their files. |
-| `secrets` | a list of paths | none | The read guard and the shell guard block each path. |
+| `secrets` | a list of paths | none | The guards block each path as a secret file. |
 | `<pack>` | a map | the defaults of the pack | Each pack reads its own section; see its reference. |
 
 A fault stops the command and names the key: `packs.on must be a list of strings`.
@@ -93,12 +93,12 @@ The file is `plugins/core/hooks/hooks.json`. Each hook runs `nook hook <name>` a
 |---|---|---|---|
 | PreToolUse Read, Grep, Glob | `read` | blocks a secret file | blocks |
 | PreToolUse Bash | `bash` | blocks a secret in a command, a state database, a role set by a command, a nested session that types `/gate` | blocks |
-| PreToolUse Edit, Write | `edit` | blocks an env file, the state folder, `.claude/settings*.json` | blocks |
+| PreToolUse Edit, Write | `edit` | blocks a secret file, the state folder, `.claude/settings*.json` | blocks |
 | PostToolUse Edit, Write | `style` | scores a Markdown file under `docs/`, `work/` or `backlog/` of the desk; sends back the failing sentences | lets go |
 | SessionStart | `start` | the desk, its packs and the hint `nook doctor`, as context | lets go |
 | UserPromptExpansion `/gate`, `/auto` | `gate` | runs the owner move that the owner typed | lets go |
 
-The secret files of the read guard and the shell guard. The edit guard blocks the env files only.
+The secret files, the same for the read, shell and edit guards:
 
 - `.env`, `.env.local`, `.env.<name>` and `<name>.env`; `.env.example` passes.
 - `.npmrc`, each file under `~/.ssh` and `~/.aws`.

@@ -54,7 +54,7 @@ learn: { dir: learn }
 ```
 
 - To drop a base rule, write its name in `rules.off`, then run `nook init --update`. The update removes the rule file. Do not write the opposite rule: Claude Code has no sure order between two rules.
-- The read guard and the shell guard block each path in `secrets`. Write the path only, never a value.
+- The guards block each path in `secrets` as a secret file: no read, no edit, no shell command. Write the path only, never a value.
 - Each pack reads its own section. The fields are in [the reference](../reference/).
 
 ## The desk list

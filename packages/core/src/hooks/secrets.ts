@@ -7,7 +7,7 @@ const CODE_ENV = /^(?:process|Bun|Deno|import\.meta)\.env$/
 const SECRET_DIRS = ['.ssh', '.aws']
 
 /** `.env`, `.env.local`, `prod.env`; not `.env.example`. */
-export const isEnvFile = (name: string): boolean => ENV_FILE.test(name) && !name.endsWith('.env.example')
+const isEnvFile = (name: string): boolean => ENV_FILE.test(name) && !name.endsWith('.env.example')
 
 /** In a command, `process.env` is code, not a file; `$HOME/.env` and `--env-file=.env` name the file. */
 const namesEnvFile = (word: string): boolean => {

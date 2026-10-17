@@ -6,7 +6,7 @@ import { nearestDesk, STATE_DIR } from '@nook/desk/desks.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 import { ROLE_VAR } from '@nook/shared/names.ts'
 
-import { isEnvFile, SecretPolicy } from './secrets.ts'
+import { SecretPolicy } from './secrets.ts'
 import { plainWords } from './shell.ts'
 
 /** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside a desk they do nothing. */
@@ -41,12 +41,11 @@ export function bashGuard(input: HookInput): HookResult {
   return pass
 }
 
-type EditTarget = 'secret' | 'state' | 'settings' | 'free'
+type EditTarget = 'state' | 'settings' | 'free'
 
 function editTarget(full: string): EditTarget {
   const name = basename(full)
   const parts = full.split(sep)
-  if (isEnvFile(name)) return 'secret'
   if (parts.includes(STATE_DIR)) return 'state'
   if (/^settings(\.local)?\.json$/.test(name) && parts.includes('.claude')) return 'settings'
   return 'free'
@@ -57,8 +56,8 @@ export function editGuard(input: HookInput): HookResult {
   if (!inDesk(input)) return pass
   const target = String(input.tool_input?.file_path ?? '')
   if (!target) return pass
+  if (new SecretPolicy(cwdOf(input)).isSecretPath(target)) return block(`${target} is a secret file: Nook never writes one.`)
   return match(editTarget(resolve(cwdOf(input), target)))
-    .with('secret', () => block(`${target} is a secret file: Nook never writes one.`))
     .with('state', () => block(`${target} is in the state folder: the nook commands write it, not an edit.`))
     .with('settings', () => block(`${target} holds the permissions: the owner edits it, or \`nook init --update\`.`))
     .with('free', () => pass)
