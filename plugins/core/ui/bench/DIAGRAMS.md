@@ -24,6 +24,7 @@ The bundle mounts each diagram when the page loads. A diagram draws when its ele
 | `Bench.diagram.render(el, spec)` | Draws one diagram of `spec.type` into `el`. |
 | `Bench.diagram.mount(root)` | Draws each `[data-bn-diagram]` in `root`. |
 | `Bench.init(root)` | Adds the behaviour of the components, then mounts the diagrams of `root`. |
+| `Bench.expand(el, mode)` | Adds the Open large button to any element. `mode` is `view` or `zoom`. |
 
 - `render` clears `el` and adds the class `dg`. A second call on the same element replaces the first diagram.
 - `render` throws an error when the type or the chart kind is unknown.
@@ -44,7 +45,7 @@ A button in the top right corner opens a block large, in a dialog over the page.
 | `zoom` | a drawn diagram | Hand mode first, zoom, pan, Fit |
 | `view` | HTML: a table, code, a log, a board | normal scroll, the text can be chosen |
 
-A `graph`, `sequence`, `mind` or `links` diagram gets the `zoom` button. A board, a tree, a timeline and a chart scroll on their own and get no button. Set `"expand"` in the spec to change this: `"zoom"`, `"view"`, `true` (the default mode) or `false`.
+A `graph`, `sequence`, `mind` or `links` diagram gets the `zoom` button. A board, a tree, a timeline, a space map and a chart scroll on their own and get no button. Set `"expand"` in the spec to change this: `"zoom"`, `"view"`, `true` (the default mode) or `false`.
 
 Any other element gets the button with the attribute `data-bn-expand`. Its value is `view` (the default) or `zoom`. `data-bn-expand-title` gives the title of the dialog. With no title, the dialog uses the caption of the figure or the `aria-label`. From a script, call `Bench.expand(el, 'view')`.
 
@@ -328,6 +329,42 @@ A timeline shows moments in order. It has three styles.
     { "day": "Thursday 16 Oct" },
     { "time": "10:56", "icon": "play", "tone": "primary", "title": "You typed /auto", "chips": ["mode auto"] },
     { "time": "11:25", "icon": "check", "tone": "success", "title": "Your accept", "meter": { "value": 6, "max": 6, "text": "6 of 6 criteria" } }
+  ] }
+```
+
+## space
+
+A space map shows what lives inside what: a desk, its folders, and the parts in each folder. Groups nest; a group holds nodes, rows and other groups.
+
+| Field | Default | Meaning |
+|---|---|---|
+| `type` | required | `"space"` |
+| `badges` | none | The chips at the top, such as the packs of a desk. |
+| `cols` | `2` | The columns of the top groups. |
+| `items` | required | The top groups. |
+
+| Item | Fields |
+|---|---|
+| group | `{ group, items, flow, cols, span, tone, badges }` |
+| node | the fields of a graph node: `icon`, `kicker`, `title`, `meta`, `tone`, `fill`, `line`, `status`, `statusText` |
+| row | `{ row: [nodes] }`: nodes side by side inside a group |
+
+- `flow` is `col` (one under the other), `row` (side by side, they wrap) or `grid` (with `cols`).
+- `span` makes a top group take more than one column.
+- A long group label ends in "…". Point at it to read it all.
+
+### Example
+
+```json
+{ "type": "space", "badges": ["core", "engineering"], "cols": 2,
+  "items": [
+    { "group": "projects", "items": [
+      { "icon": "git", "kicker": "tool", "title": "nook", "meta": "572 tests" },
+      { "group": "sandbox", "flow": "row", "items": [
+        { "icon": "server", "tone": "success", "kicker": "area · backend", "title": "api" },
+        { "icon": "monitor", "tone": "primary", "kicker": "area · frontend", "title": "web" } ] } ] },
+    { "group": "work", "items": [
+      { "tone": "success", "kicker": "SHOP-12 · fix S", "status": "done", "title": "Name the id in the 404" } ] }
   ] }
 ```
 

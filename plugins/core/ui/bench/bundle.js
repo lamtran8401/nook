@@ -939,6 +939,41 @@
     el.appendChild(h('div', 'bn-tree dg-tree', treeItems(spec.items)))
   }
 
+  /* ---------- space: what lives inside what, as nested groups of nodes ---------- */
+  function spaceNode(n) {
+    var node = h('div', 'dg-node', nodeHtml(n))
+    node.setAttribute('data-size', n.size || 'sm')
+    if (n.tone) node.setAttribute('data-tone', n.tone)
+    if (n.fill) node.setAttribute('data-fill', n.fill)
+    if (n.line) node.setAttribute('data-line', n.line)
+    return node
+  }
+  function spaceItem(it) {
+    if (it.group != null) return spaceGroup(it)
+    if (!it.row) return spaceNode(it)
+    var row = h('div', 'dg-space__items')
+    row.setAttribute('data-flow', 'row')
+    it.row.forEach(function (n) { row.appendChild(spaceNode(n)) })
+    return row
+  }
+  function spaceGroup(g) {
+    var box = h('div', 'bn-group dg-space__group', '<span class="bn-group__label dg-cut">' + esc(g.group) + '</span>')
+    if (g.tone) box.setAttribute('data-tone', g.tone)
+    if (g.span) box.style.gridColumn = 'span ' + g.span
+    if (g.badges) box.appendChild(h('div', 'dg-space__badges', g.badges.map(function (b) { return '<span class="bn-badge" data-variant="outline">' + esc(b) + '</span>' }).join('')))
+    var body = h('div', 'dg-space__items')
+    body.setAttribute('data-flow', g.flow || (g.cols ? 'grid' : 'col'))
+    if (g.cols) body.style.gridTemplateColumns = 'repeat(' + g.cols + ', minmax(0, 1fr))'
+    ;(g.items || []).forEach(function (it) { body.appendChild(spaceItem(it)) })
+    box.appendChild(body)
+    return box
+  }
+  function renderSpace(el, spec) {
+    var root = spaceGroup({ group: spec.label || '', badges: spec.badges, items: spec.items, cols: spec.cols || 2, flow: 'grid' })
+    root.classList.add('dg-space')
+    el.appendChild(root)
+  }
+
   /* ---------- timeline: events on a rail, milestones on a line, or a feed ---------- */
   function eventHtml(ev) {
     if (ev.day) return '<li class="tl-day">' + esc(ev.day) + '</li>'
@@ -1663,7 +1698,7 @@
 
   /* ---------- render: draw when visible, again on resize and when fonts arrive ---------- */
   /* a fixed type draws once; a sized type draws again when its width changes */
-  var FIXED = { tree: renderTree, timeline: renderTimeline, board: renderBoard }
+  var FIXED = { tree: renderTree, timeline: renderTimeline, board: renderBoard, space: renderSpace }
   var SIZED = { sequence: renderSequence, mind: renderMind, links: renderForce, force: renderForce, chart: renderChart }
   function render(el, spec) {
     if (!el || !spec) throw new Error('BenchDiagrams.render needs an element and a spec')

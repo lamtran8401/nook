@@ -1362,3 +1362,16 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 .bn-sbar > span:hover, .bn-sbar.is-drag > span { background: color-mix(in oklab, var(--fg) 52%, transparent); }
 .bn-sbar[hidden] { display: none; }
 
+/* space: nested groups of nodes */
+.dg-space { min-width: 0; border: 0; padding: 10px 0 0; }
+.dg-space > .bn-group__label { display: none; }
+.dg-space__group { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; border-radius: var(--r-frame, 22px); padding-top: var(--space-5); }
+.dg-space__group[data-tone] { border-color: color-mix(in oklab, var(--t) 45%, transparent); }
+.dg-space__group[data-tone] > .bn-group__label { color: var(--t); }
+.dg-space__group > .bn-group__label { left: 22px; max-width: calc(100% - 44px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--dg-bg, var(--bg)); cursor: default; }
+.dg-space__badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.dg-space__items { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.dg-space__items[data-flow="row"] { flex-direction: row; flex-wrap: wrap; }
+.dg-space__items[data-flow="row"] > * { flex: 1 1 160px; }
+.dg-space__items[data-flow="grid"] { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-5) var(--space-4); align-items: start; }
+.dg-space .dg-node { width: auto; min-width: 0; }
