@@ -9,5 +9,6 @@ The pages that Nook builds (`nook eng item page`) use this UI kit: its tokens an
 | `bundle.js` | `project/components/bundle.js` |
 
 - Source: the Bench design system artifact, https://claude.ai/artifact/MPiJahgbu6W6spQitGLAAn
-- Version: 1792082075-ea9f, tokens version 7, copied on 2026-10-15.
+- Version: bundle 6.1.0: Bench 6.0.0 with the diagram library of the Kit Diagram Catalog v30 (https://claude.ai/artifact/PWkmBq5wnApH5CVjeigUCs) at its end; tokens version 7; 2026-10-18.
+- `DIAGRAMS.md` states the spec of each diagram type.
 - To update Bench, copy the three files again from the artifact and run `bun run check`. Nook makes the CSS variables from `tokens.json` when it builds a page; it never edits these files.
