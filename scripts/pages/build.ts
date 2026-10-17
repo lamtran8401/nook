@@ -1,6 +1,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 
+import { uiKit } from '@nook/desk/ui-kit.ts'
+
 /**
  * The two pages of the docs, the guide book and the build report, built from the Markdown of `docs/`.
  * The Markdown is the source; a page is a view of it. The numbers of the report come from the tables of `report.md`.
@@ -8,12 +10,10 @@ import { join, resolve } from 'node:path'
 
 export type Pages = { guide: string; report: string }
 type Tab = { id: string; label: string }
-type Edge = [from: string, to: string, label?: string, kind?: 'u' | 'n', depth?: number]
 type LinkMap = (href: string, text: string) => string | null
 
 const HERE = import.meta.dir
 const GUIDE_FILES = ['README.md', '01-start.md', '02-desks.md', '03-day.md', '04-work.md', '05-wiki.md', '06-learn.md', '07-blocks.md']
-const PACK_TONE: Record<string, string> = { core: 'core', engineering: 'eng', wiki: 'wiki', learn: 'learn' }
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const unesc = (s: string) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&')
@@ -21,125 +21,165 @@ const slug = (s: string) => s.toLowerCase().replace(/<[^>]+>/g, '').replace(/&[a
 const stripTags = (s: string) => unesc(s.replace(/<[^>]+>/g, '')).trim()
 const md = (text: string) => Bun.markdown.html(text)
 
-const chip = (text: string, tone = '', extra = '') => `<span class="chip ${tone ? `tone-${tone}` : ''} ${extra}">${text}</span>`
-const packChip = (name: string, prefix = '') => chip(prefix + name, PACK_TONE[name] ?? '')
+type Spec = Record<string, unknown>
+type TreeItem = { name: string; note?: string; icon?: string; code?: boolean; children?: TreeItem[] }
 
-const ICON_FOLDER = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4.5A1.5 1.5 0 0 1 3.5 3h2.6l1.4 1.5h5A1.5 1.5 0 0 1 14 6v5.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 11.5z"/></svg>'
-const ICON_FILE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h4.6L12 4.9v7.6a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 3 12.5v-9A1.5 1.5 0 0 1 4.5 2z"/></svg>'
-const CHEVRON = '<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5"/></svg>'
+/** One diagram of the Bench bundle: the spec rides in the page, and `Bench.diagram` draws it. */
+const figure = (spec: Spec, caption = '') =>
+  `<figure class="fig"><div data-bn-diagram><script type="application/json">${JSON.stringify(spec).replace(/</g, '\\u003c')}</script></div>${caption ? `<figcaption>${caption}</figcaption>` : ''}</figure>`
+const legend = (items: [tone: string, text: string][]) =>
+  `<span class="bn-legend">${items.map(([tone, text]) => `<span data-tone="${tone}">${text}</span>`).join('')}</span>`
 
-/** An ASCII tree (├── └── │) as a folder tree. A row is a name, two spaces or more, then a note. */
-export function tree(text: string): string {
-  const rows = text.replace(/\n$/, '').split('\n').map(line => {
+/** An ASCII tree (├── └── │) as the spec of a Bench tree. A row is a name, two spaces or more, then a note. */
+export function treeSpec(text: string): { type: 'tree'; items: TreeItem[] } {
+  const root: TreeItem[] = []
+  const stack: { depth: number; items: TreeItem[] }[] = [{ depth: -1, items: root }]
+  for (const line of text.replace(/\n$/, '').split('\n')) {
     const [, indent = '', branch, rest = ''] = line.match(/^((?:│   |    )*)(├── |└── )?(.*)$/) ?? []
     const [name = '', ...note] = rest.split(/\s{2,}/)
-    return { depth: (branch ? 1 : 0) + [...indent].length / 4, name: name.trim(), note: note.join(' ').trim() }
-  })
-  const html = rows.map((row, i) => {
-    const hasKids = (rows[i + 1]?.depth ?? -1) > row.depth
-    const folder = row.name.endsWith('/') || hasKids
-    const icons = `${hasKids ? CHEVRON : '<span class="chev-gap"></span>'}${folder ? ICON_FOLDER : ICON_FILE}`
-    const note = row.note ? `<span class="tree-note">${esc(row.note)}</span>` : ''
-    return `<div class="tree-row" style="--d:${row.depth}"><span class="tree-ic">${icons}</span><code class="tree-name${folder ? ' is-folder' : ''}">${esc(row.name)}</code>${note}</div>`
-  })
-  return `<figure class="tree card">${html.join('')}</figure>`
+    const depth = (branch ? 1 : 0) + [...indent].length / 4
+    const item: TreeItem = { name: name.trim(), ...(note.length ? { note: note.join(' ').trim() } : {}) }
+    while (stack.at(-1)!.depth >= depth) stack.pop()
+    const parent = stack.at(-1)!.items
+    parent.push(item)
+    stack.push({ depth, items: (item.children = []) })
+  }
+  // a name that ends in / is a folder, also with nothing under it
+  const prune = (items: TreeItem[]): TreeItem[] =>
+    items.map(i =>
+      i.children?.length
+        ? { ...i, children: prune(i.children) }
+        : { name: i.name, ...(i.note ? { note: i.note } : {}), ...(i.name.endsWith('/') ? { icon: 'folder', code: false } : {}) })
+  return { type: 'tree', items: prune(root) }
 }
 
-const node = (id: string, title: string, caption = '', cls = '', style = '') =>
-  `<div class="dg-node shape ${cls}" data-id="${id}" style="${style}"><span class="dg-title">${title}</span>${caption ? `<span class="dg-cap">${caption}</span>` : ''}</div>`
-const diagram = (cls: string, inner: string, edges: Edge[], caption: string) =>
-  `<figure class="fig"><div class="scroll-x"><div class="dg ${cls}" data-edges='${JSON.stringify(edges)}'><svg class="dg-edges" aria-hidden="true"></svg>${inner}</div></div><figcaption>${caption}</figcaption></figure>`
+/** The tones of the phases of an item, the same in the flow and the paths. */
+const PHASE_TONE = { wait: 'neutral', plan: 'primary', build: 'warning', check: 'aqua', done: 'success' } as const
+const PHASE_LEGEND: [string, string][] = [['neutral', 'waiting'], ['primary', 'frame and plan'], ['warning', 'build'], ['aqua', 'check'], ['success', 'done']]
 
 function flowDiagram(): string {
-  const states: [string, string, string, number, number][] = [
-    ['backlog', '/intake', 'tone-core', 1, 1], ['framing', '/spec', 'tone-plan', 2, 1], ['planning', '/recipe', 'tone-plan', 3, 1], ['ready', 'approved', 'tone-plan', 4, 1],
-    ['cooking', '/cook', 'tone-build', 2, 2], ['review', '/deep-review', 'tone-check', 3, 2], ['done', '/close', 'tone-done', 4, 2],
-  ]
-  const inner = states.map(([s, cap, tone, c, r]) => node(s, s, cap, tone, `grid-column:${c};grid-row:${r}`)).join('')
-  const legend = [['tone-core', 'waiting'], ['tone-plan', 'frame and plan'], ['tone-build', 'build'], ['tone-check', 'check'], ['tone-done', 'done']]
-    .map(([tone, text]) => `<span class="legend-item"><span class="legend-dot chip ${tone}"></span>${text}</span>`)
-    .join('')
-  const edges: Edge[] = [
-    ['backlog', 'framing', 'start'], ['framing', 'planning', 'agree'], ['planning', 'ready', '★ approve'],
-    ['ready', 'cooking', 'begin'], ['cooking', 'review', 'submit'], ['review', 'done', '★ accept'],
-    ['ready', 'planning', 'replan', 'n', 34], ['review', 'cooking', 'reject', 'u', 36], ['done', 'cooking', 'reopen', 'u', 80],
-  ]
-  return diagram('dg-flow', inner, edges, `<span class="legend">${legend}</span>The states of an item. ★ marks a gate: only you take it, with <code>/gate</code>. Under each state: the command that works on it.`)
+  const state = (id: string, at: [number, number], meta: string, tone: string) => ({ id, at, title: id, meta, tone })
+  return figure(
+    {
+      type: 'graph', cols: 3, colGap: 52, rowGap: 40,
+      nodes: [
+        state('backlog', [1, 1], '/intake', PHASE_TONE.wait), state('framing', [1, 2], '/spec', PHASE_TONE.plan),
+        state('planning', [1, 3], '/recipe', PHASE_TONE.plan), state('ready', [2, 3], 'approved', PHASE_TONE.plan),
+        state('cooking', [2, 2], '/cook', PHASE_TONE.build), state('review', [3, 2], '/deep-review', PHASE_TONE.check),
+        state('done', [3, 3], '/close', PHASE_TONE.done),
+      ],
+      edges: [
+        { from: 'backlog', to: 'framing', label: 'start' }, { from: 'framing', to: 'planning', label: 'agree' },
+        { from: 'planning', to: 'ready', label: '★ approve', tone: 'primary', main: true },
+        { from: 'ready', to: 'cooking', label: 'begin' },
+        { from: 'cooking', to: 'review', label: 'submit' },
+        { from: 'review', to: 'done', label: '★ accept', tone: 'primary', main: true },
+        { from: 'ready', to: 'planning', label: 'replan', dash: true, a: 'r', b: 'r', bend: 18 },
+        { from: 'review', to: 'cooking', label: 'reject', dash: true, a: 'l', b: 'l', bend: 46 },
+        { from: 'done', to: 'cooking', label: 'reopen', dash: true },
+      ],
+    },
+    `${legend(PHASE_LEGEND)}The states of an item. ★ marks a gate: only you take it, with <code>/gate</code>. Under each state: the command that works on it.`,
+  )
 }
 
 function pathsDiagram(): string {
   const PHASE: Record<string, string> = {
-    '/intake': 'core', '/spec': 'plan', '/recipe': 'plan', 'one criterion': 'plan', spec: 'plan', plan: 'plan', proceed: 'plan',
-    '/cook': 'build', '/quick': 'build', 'test first': 'build', build: 'build',
-    '/deep-review': 'check', proof: 'check', review: 'check', '/guesses': 'check', '/close': 'done', '/yolo': 'core',
+    '/intake': 'wait', '/spec': 'plan', '/recipe': 'plan', 'one criterion': 'plan', spec: 'plan', plan: 'plan', proceed: 'plan',
+    '/cook': 'build', '/quick': 'build', 'test first': 'build', build: 'build', '/yolo': 'wait',
+    '/deep-review': 'check', proof: 'check', review: 'check', '/guesses': 'check', '/close': 'done',
   }
-  const step = (s: string) => `<span class="step shape${s.startsWith('★') ? ' is-gate' : ` tone-${PHASE[s] ?? 'core'}`}">${s}</span>`
-  const lane = (title: string, note: string, steps: string[]) =>
-    `<div class="lane frame"><div class="frame-title">${title}<span class="frame-note">${note}</span></div><div class="lane-row">${steps.map(step).join('<span class="arr" aria-hidden="true"></span>')}</div></div>`
-  const lanes = [
-    lane('Full', 'a feature, two areas, a contract', ['/intake', '/spec', '/recipe', '★ approve', '/cook', '/deep-review', '★ accept', '/close']),
-    lane('Quick', 'one area, size S, low risk', ['/quick', 'one criterion', 'test first', 'proof', '★ accept', '/close']),
-    lane('Yolo', 'the companion runs it alone', ['/yolo', 'spec', 'plan', 'proceed', 'build', 'review', '★ accept', '/guesses']),
+  const lanes: [string, string[]][] = [
+    ['Full: a feature or a contract', ['/intake', '/spec', '/recipe', '★ approve', '/cook', '/deep-review', '★ accept', '/close']],
+    ['Quick: one area, size S', ['/quick', 'one criterion', 'test first', 'proof', '★ accept', '/close']],
+    ['Yolo: it runs alone', ['/yolo', 'spec', 'plan', 'proceed', 'build', 'review', '★ accept', '/guesses']],
   ]
-  return `<figure class="fig"><div class="scroll-x"><div class="lanes">${lanes.join('')}</div></div><figcaption>Three paths for one item, in the colours of the flow above. Each one ends at your accept.</figcaption></figure>`
+  const nodes = lanes.flatMap(([, steps], c) =>
+    steps.map((step, r) => {
+      const gate = step.startsWith('★')
+      const tone = gate ? 'primary' : PHASE_TONE[(PHASE[step] ?? 'wait') as keyof typeof PHASE_TONE]
+      return { id: `${c}-${r}`, at: [r + 1, c + 1], shape: 'pill', size: 'sm', title: step, tone, ...(gate ? { hl: true } : {}) }
+    }),
+  )
+  const edges = lanes.flatMap(([, steps], c) => steps.slice(1).map((_, r) => ({ from: `${c}-${r}`, to: `${c}-${r + 1}`, a: 'b', b: 't' })))
+  const groups = lanes.map(([label, steps], c) => ({ at: [1, c + 1, steps.length, c + 1], label, pad: 12 }))
+  return figure({ type: 'graph', cols: 3, colGap: 40, rowGap: 14, nodes, edges, groups }, 'Three paths for one item, in the colours of the flow above. Each one ends at your accept.')
 }
 
 function deskDiagram(): string {
-  const packs = (names: string[]) => `<div class="chips">${names.map(n => packChip(n)).join('')}</div>`
-  const title = (name: string, kind: string) => `<div class="frame-title"><code>${name}</code>${chip(kind, '', 'chip-quiet')}</div>`
-  return `<figure class="fig"><div class="desks">
-  <div class="desk-top frame">${title('company/', 'top desk')}${packs(['engineering', 'wiki'])}
-    <div class="desk-kids">
-      <div class="frame desk-child">${title('shop/', 'child desk')}<div class="chips">${packChip('learn', '+ ')}${chip('− wiki', '', 'off')}</div><p class="desk-note">Packs here: engineering, learn.</p></div>
-      <div class="shape desk-folder"><span class="dg-title"><code>billing/</code></span><span class="dg-cap">no nook.yml</span><p class="desk-note">Packs here: engineering, wiki.</p></div>
-    </div>
-    <p class="desk-record">The record of each pack stays at <code>company/</code>: one ledger, one wiki for the tree.</p>
-  </div>
-  <div class="desk-top frame">${title('personal/', 'top desk')}${packs(['engineering', 'wiki', 'learn'])}<p class="desk-record">Its own ledger, wiki and courses. Nothing crosses to <code>company/</code>.</p></div>
-</div><figcaption>Packs flow down. A child desk adds a pack or turns one off. The folder that holds both top desks is not a desk.</figcaption></figure>`
+  return figure(
+    {
+      type: 'graph', cols: 3, colGap: 30, rowGap: 40,
+      groups: [{ at: [1, 1, 2, 2], label: 'company/ · one ledger, one wiki for the tree', icon: 'folder', pad: 14 }],
+      nodes: [
+        { id: 'company', at: [1, 1], span: [1, 2], icon: 'folder', kicker: 'top desk', title: 'company/', tags: ['engineering', 'wiki'], tone: 'primary' },
+        { id: 'shop', at: [2, 1], w: 200, icon: 'folder', kicker: 'child desk', title: 'shop/', tags: ['+ learn', '− wiki'], meta: 'packs here: engineering, learn' },
+        { id: 'billing', at: [2, 2], w: 200, icon: 'folder', title: 'billing/', meta: 'no nook.yml · packs here: engineering, wiki', line: 'dashed' },
+        { id: 'personal', at: [1, 3], span: [2, 1], w: 210, align: 'center', icon: 'folder', kicker: 'top desk', title: 'personal/', tags: ['engineering', 'wiki', 'learn'], meta: 'its own ledger, wiki and courses', tone: 'success' },
+      ],
+      edges: [
+        { from: 'company', to: 'shop', label: 'packs flow down', split: true, a: 'b' },
+        { from: 'company', to: 'billing', split: true, a: 'b' },
+      ],
+    },
+    'Packs flow down. A child desk adds a pack or turns one off. The folder that holds both top desks is not a desk.',
+  )
 }
 
 function learnLoopDiagram(): string {
-  const inner = [
-    node('cards', 'Cards due', 'about 3 minutes', 'tone-learn', 'grid-column:1;grid-row:1'),
-    node('lesson', 'Lesson', 'your top pattern', 'tone-learn', 'grid-column:2;grid-row:1'),
-    node('output', 'Your output', 'one short task', 'tone-learn', 'grid-column:3;grid-row:1'),
-    node('deck', '<code>cards/cards.md</code>', 'boxes 1 to 5', 'is-file', 'grid-column:1;grid-row:2'),
-    node('mistakes', '<code>mistakes.md</code>', 'your own words', 'is-file', 'grid-column:2;grid-row:2'),
-  ].join('')
-  const edges: Edge[] = [
-    ['cards', 'lesson'], ['lesson', 'output'], ['deck', 'cards', 'due today'], ['mistakes', 'lesson', 'top pattern'],
-    ['output', 'mistakes', 'each mistake'], ['output', 'deck', 'each new point', 'u', 40],
-  ]
-  return diagram('dg-loop', inner, edges, 'One day of a course. Your mistakes pick the lesson, and each new point comes back as a card.')
+  return figure(
+    {
+      type: 'graph', cols: 3, colGap: 70, rowGap: 56,
+      nodes: [
+        { id: 'cards', at: [1, 1], icon: 'card', title: 'Cards due', meta: 'about 3 minutes', tone: 'warning' },
+        { id: 'lesson', at: [1, 2], icon: 'book', title: 'Lesson', meta: 'your top pattern', tone: 'warning' },
+        { id: 'output', at: [1, 3], icon: 'pen', title: 'Your output', meta: 'one short task', tone: 'warning' },
+        { id: 'deck', at: [2, 1], icon: 'file', title: 'cards/cards.md', meta: 'each new point becomes a card' },
+        { id: 'mistakes', at: [2, 2], icon: 'file', title: 'mistakes.md', meta: 'your own words' },
+      ],
+      edges: [
+        { from: 'cards', to: 'lesson' }, { from: 'lesson', to: 'output' },
+        { from: 'deck', to: 'cards', label: 'due today' }, { from: 'mistakes', to: 'lesson', label: 'top pattern' },
+        { from: 'output', to: 'mistakes', label: 'each mistake', a: 'b', b: 'r' },
+      ],
+    },
+    'One day of a course. Your mistakes pick the lesson, and each new point comes back as a card.',
+  )
 }
 
 function archDiagram(): string {
-  const wide = (id: string, title: string, cap: string, row: number, cls = '') => node(id, title, cap, `dg-wide ${cls}`, `grid-column:1 / -1;grid-row:${row}`)
-  const pack = (id: string, title: string, cap: string, col: number) => node(id, title, cap, `tone-${PACK_TONE[title]}`, `grid-column:${col};grid-row:4`)
-  const inner = [
-    wide('session', 'Claude Code session', 'the companion, its agents', 1),
-    wide('plugins', '<code>plugins/&lt;pack&gt;/</code>', 'skills, agents, hooks, templates — no code', 2),
-    wide('app', '<code>apps/nook</code>', 'the one binary: joins the commands', 3),
-    pack('core', 'core', 'init, doctor, guards', 1), pack('eng', 'engineering', 'ledger, machine, git', 2),
-    pack('wiki', 'wiki', 'shelves, indexes', 3), pack('learn', 'learn', 'courses, cards', 4),
-    wide('base', '<code>shared</code> · <code>desk</code>', 'CLI router, hook I/O, desks, nook.yml', 5),
-    wide('disk', 'the desk on disk', 'nook.yml · .claude/ · .nook/engineering.db · work/ · docs/wiki/ · learn/', 6, 'is-file'),
-  ].join('')
+  const wide = (id: string, row: number, icon: string, title: string, meta: string, more: Spec = {}) =>
+    ({ id, at: [row, 1], span: [1, 4], w: 460, icon, title, meta, ...more })
+  const pack = (id: string, col: number, title: string, meta: string, tone: string) => ({ id, at: [4, col], title, meta, tone })
   const packs = ['core', 'eng', 'wiki', 'learn']
-  const edges: Edge[] = [
-    ['session', 'plugins', 'hooks, skills, agents'], ['plugins', 'app', 'bin/nook'],
-    ...packs.map((p): Edge => ['app', p]), ...packs.map((p): Edge => [p, 'base']), ['base', 'disk', 'reads and writes'],
-  ]
-  return diagram('dg-arch', inner, edges, 'The layers. A pack package imports only <code>shared</code> and <code>desk</code>; a plugin holds no code.')
+  return figure(
+    {
+      type: 'graph', cols: 4, colGap: 16, rowGap: 46,
+      nodes: [
+        wide('session', 1, 'bot', 'Claude Code session', 'the companion, its agents'),
+        wide('plugins', 2, 'layers', 'plugins/<pack>/', 'skills, agents, hooks, templates — no code'),
+        wide('app', 3, 'terminal', 'apps/nook', 'the one binary: joins the commands'),
+        pack('core', 1, 'core', 'init, doctor, guards', 'neutral'), pack('eng', 2, 'engineering', 'ledger, machine, git', 'primary'),
+        pack('wiki', 3, 'wiki', 'shelves, indexes', 'success'), pack('learn', 4, 'learn', 'courses, cards', 'warning'),
+        wide('base', 5, 'box', 'shared · desk', 'CLI router, hook I/O, desks, nook.yml'),
+        wide('disk', 6, 'folder', 'the desk on disk', 'nook.yml · .claude/ · .nook/engineering.db · work/ · docs/wiki/ · learn/', { fill: 'soft' }),
+      ],
+      edges: [
+        { from: 'session', to: 'plugins', label: 'hooks, skills, agents' }, { from: 'plugins', to: 'app', label: 'bin/nook' },
+        ...packs.map(p => ({ from: 'app', to: p, split: true })), ...packs.map(p => ({ from: p, to: 'base', merge: true })),
+        { from: 'base', to: 'disk', label: 'reads and writes' },
+      ],
+    },
+    'The layers. A pack package imports only <code>shared</code> and <code>desk</code>; a plugin holds no code.',
+  )
 }
 
-/** A text block whose first line names a diagram becomes that diagram; any other ASCII tree becomes a folder tree. `DRAWN` keeps each diagram in step with its doc text. */
+/** A text block whose first line names a diagram becomes that diagram; any other ASCII tree becomes a Bench tree. `DRAWN` keeps each diagram in step with its doc text. */
 function figureFor(text: string): string | null {
   if (text.startsWith('backlog ──/spec──▶')) return flowDiagram()
   if (text.startsWith('company/              a top desk')) return deskDiagram()
   if (text.startsWith('Claude Code session')) return archDiagram()
-  if (/[├└]── /.test(text)) return tree(text)
+  if (/[├└]── /.test(text)) return figure(treeSpec(text))
   return null
 }
 
@@ -222,20 +262,17 @@ function statTiles(report: string): string {
   const shown: Record<string, string> = { packs: 'packs', commands: 'commands', skills: 'skills', agents: 'agents', hooks: 'hooks', tests: 'tests pass' }
   const tiles = tableAfter(report, 'At a glance')
     .filter(([part = '']) => part in shown)
-    .map(([part = '', count = '', check = '']) => `<div class="tile card"><span class="tile-n">${firstNumber(count)}</span><span class="tile-l">${shown[part]}</span><code class="tile-c">${esc(check)}</code></div>`)
+    .map(([part = '', count = '', check = '']) =>
+      `<div class="bn-stat"><span class="bn-stat__label">${shown[part]}</span><span class="bn-stat__value">${firstNumber(count)}</span><span class="bn-stat__foot"><code>${esc(check)}</code></span></div>`)
   return `<div class="tiles">${tiles.join('')}</div>`
 }
 
 function testBars(report: string): string {
   const rows = tableAfter(report, 'Tests')
     .filter(([name]) => name !== 'total')
-    .map(([name = '', tests = '0', files = '0']) => ({ name, tests: Number(tests), files: Number(files) }))
-    .sort((a, b) => b.tests - a.tests)
-  const max = Math.max(...rows.map(r => r.tests))
-  const bars = rows.map(r =>
-    `<div class="bar-row" tabindex="0"><span class="bar-name">${r.name}</span><span class="bar-track"><span class="bar" style="width:${(r.tests / max) * 100}%"></span></span><span class="bar-val">${r.tests}</span><span class="bar-tip" role="tooltip">${r.name}: ${r.tests} tests in ${r.files} file${r.files === 1 ? '' : 's'}</span></div>`)
-  const label = rows.map(r => `${r.name} ${r.tests}`).join(', ')
-  return `<figure class="fig"><div class="bars card" role="img" aria-label="Tests for each package: ${label}">${bars.join('')}</div><figcaption>Tests for each package. The table below holds the same numbers.</figcaption></figure>`
+    .map(([label = '', tests = '0']) => ({ label, value: Number(tests) }))
+    .sort((a, b) => b.value - a.value)
+  return figure({ type: 'chart', kind: 'bars', label: 'Tests for each package', rows }, 'Tests for each package. The table below holds the same numbers.')
 }
 
 type Shell = { title: string; eyebrow: string; heading: string; lead: string; meta: string[]; tabs: Tab[]; body: string }
@@ -243,12 +280,10 @@ type Shell = { title: string; eyebrow: string; heading: string; lead: string; me
 function page(o: Shell): string {
   const css = readFileSync(join(HERE, 'page.css'), 'utf8')
   const js = readFileSync(join(HERE, 'page.js'), 'utf8')
+  const kit = uiKit()
   return `<title>${o.title}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
-<style>${css}</style>
+<style>${kit.css}\n${css}</style>
 <header class="hero"><div class="col">
   <p class="eyebrow">${o.eyebrow}</p>
   <h1>${o.heading}</h1>
@@ -259,7 +294,7 @@ function page(o: Shell): string {
 <nav class="tabbar" aria-label="Sections"><div class="tabbar-in">${o.tabs.map(t => `<a class="tab" href="#${t.id}">${t.label}</a>`).join('')}</div></nav>
 <main class="page">${o.body}</main>
 <footer class="foot"><div class="col">Built from the Markdown files in <code>docs/</code> of the Nook repo. The files are the source; this page is a view of them.</div></footer>
-<script>${js}</script>`
+<script>${kit.js}</script>\n<script>${js}</script>`
 }
 
 const dateText = (now: Date) => now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -283,7 +318,7 @@ function guidePage(docs: string, report: string, reportUrl: string, now: Date): 
     tabs.push({ id: `ch-${i}`, label: i === 0 ? 'About' : `<span class="tab-n">${i}</span>${title}` })
     const head = i === 0
       ? `<h2 class="ch-title">${title}</h2>`
-      : `<div class="ch-head"><span class="ch-num shape">${i}</span><div><p class="eyebrow">Chapter ${i}</p><h2 class="ch-title">${title}</h2></div></div>`
+      : `<div class="ch-head"><span class="ch-num">${i}</span><div><p class="eyebrow">Chapter ${i}</p><h2 class="ch-title">${title}</h2></div></div>`
     return `<section class="chapter" id="ch-${i}">${head}${html}</section>`
   })
   const packs = tableAfter(report, 'At a glance').find(([part]) => part === 'packs')?.[1] ?? ''

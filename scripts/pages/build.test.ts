@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { buildPages, DRAWN, sourceText, staleDiagrams, tableAfter, tree } from './build.ts'
+import { buildPages, DRAWN, sourceText, staleDiagrams, tableAfter, treeSpec } from './build.ts'
 
 const REPO_DOCS = join(import.meta.dir, '../../docs')
 /** The doc text of a drawn diagram, as the repo docs hold it, so a fixture passes the diagram check. */
@@ -42,13 +42,16 @@ beforeEach(() => {
 })
 afterEach(() => rmSync(docs, { recursive: true, force: true }))
 
-describe('tree', () => {
-  test('gives each row its depth, and marks a folder', () => {
-    const html = tree('docs/\n├── a.md      the first page\n└── sub/\n    └── b.md\n')
-    expect(html).toContain('style="--d:0"><span class="tree-ic">')
-    expect(html).toContain('<code class="tree-name is-folder">docs/</code>')
-    expect(html).toContain('style="--d:2"')
-    expect(html).toContain('<code class="tree-name">a.md</code><span class="tree-note">the first page</span>')
+describe('treeSpec', () => {
+  test('nests each row under the row above it, and keeps the note', () => {
+    expect(treeSpec('docs/\n├── a.md      the first page\n├── sub/\n│   └── b.md\n└── empty/\n')).toEqual({
+      type: 'tree',
+      items: [{ name: 'docs/', children: [{ name: 'a.md', note: 'the first page' }, { name: 'sub/', children: [{ name: 'b.md' }] }, { name: 'empty/', icon: 'folder', code: false }] }],
+    })
+  })
+
+  test('keeps two top entries apart', () => {
+    expect(treeSpec('docs/wiki/\n└── INDEX.md\ndocs/references/      the notes\n').items.map(i => i.name)).toEqual(['docs/wiki/', 'docs/references/'])
   })
 })
 
@@ -66,10 +69,10 @@ describe('tableAfter', () => {
 describe('buildPages', () => {
   test('takes the numbers of the report from its tables', () => {
     const { report } = buildPages(docs, '', new Date(2026, 9, 17))
-    expect(report).toContain('<span class="tile-n">560</span><span class="tile-l">tests pass</span>')
+    expect(report).toContain('<span class="bn-stat__label">tests pass</span><span class="bn-stat__value">560</span>')
     expect(report).toContain('<mark>560 of 560 tests pass</mark>')
-    expect(report).toContain('<span class="bar-val">158</span>')
-    expect(report).not.toContain('<span class="bar-name">total</span>')
+    expect(report).toContain('"rows":[{"label":"core","value":158},{"label":"wiki","value":21}]')
+    expect(report).not.toContain('"label":"total"')
     expect(report).toContain('As of 17 Oct 2026')
   })
 
