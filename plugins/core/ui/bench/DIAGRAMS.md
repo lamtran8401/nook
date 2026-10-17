@@ -37,12 +37,27 @@ A diagram sits in a raised card: the surface colour, a 1px ring and a soft shado
 
 ## Open large
 
-Each diagram has a button in its top right corner. It shows when the pointer is on the diagram, and always on a touch screen. The button opens the diagram at its full width in a dialog over the page. The dialog opens in Hand mode.
+A button in the top right corner opens a block large, in a dialog over the page. The dialog has two modes.
 
-| In the dialog | Action |
+| Mode | Use | In the dialog |
+|---|---|---|
+| `zoom` | a drawn diagram | Hand mode first, zoom, pan, Fit |
+| `view` | HTML: a table, code, a log, a board | normal scroll, the text can be chosen |
+
+A `graph`, `sequence`, `mind` or `links` diagram gets the `zoom` button. A board, a tree, a timeline and a chart scroll on their own and get no button. Set `"expand"` in the spec to change this: `"zoom"`, `"view"`, `true` (the default mode) or `false`.
+
+Any other element gets the button with the attribute `data-bn-expand`. Its value is `view` (the default) or `zoom`. `data-bn-expand-title` gives the title of the dialog. With no title, the dialog uses the caption of the figure or the `aria-label`. From a script, call `Bench.expand(el, 'view')`.
+
+```html
+<div class="bn-table-wrap" data-bn-expand data-bn-expand-title="Decisions"><table class="bn-table">…</table></div>
+```
+
+The button shows when the pointer is on the block, and always on a touch screen.
+
+| In the `zoom` dialog | Action |
 |---|---|
-| Select mode, `V` | Choose and copy the text. |
 | Hand mode, `H`, or hold `Space` | A drag moves the view. The text is not chosen. |
+| Select mode, `V` | Choose and copy the text. |
 | The wheel, or a pinch | Zoom at the pointer, by 10% or less for each step |
 | `+`, `-`, or the buttons | Zoom at the middle |
 | `0`, Fit, or a double click in Hand mode | Fit the diagram in the dialog |

@@ -1419,31 +1419,63 @@
 
   /* ---------- expand: a button opens the diagram in an overlay, where the wheel or a pinch zooms at the pointer and a drag pans ---------- */
   var EXPAND_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>'
+  // drawn diagrams gain from zoom; a board, tree, timeline or chart is HTML that scrolls on its own
+  var ZOOMABLE = { graph: 1, sequence: 1, mind: 1, links: 1 }
+  function expandMode(spec) {
+    if (spec.expand === 'zoom' || spec.expand === 'view') return spec.expand
+    if (spec.expand === false) return ''
+    if (ZOOMABLE[spec.type]) return 'zoom'
+    return spec.expand === true ? 'view' : ''
+  }
   function ensureExpand(el, spec) {
-    if (el.closest('.dg-overlay') || el.querySelector(':scope > .dg-expand')) return
+    if (el.closest('.dg-overlay')) return
+    addExpand(el, expandMode(spec), function (copy) { render(copy, Object.assign({}, spec, { frame: false })) }, spec.title)
+  }
+  function addExpand(el, mode, fill, title) {
+    var old = el.querySelector(':scope > .dg-expand')
+    if (!mode) { if (old) old.remove(); return }
+    if (old) return
     var btn = h('button', 'dg-expand', EXPAND_ICON)
     btn.type = 'button'
-    btn.setAttribute('aria-label', 'Open the diagram large')
-    btn.setAttribute('data-tip', 'Open large · zoom and pan')
-    btn.addEventListener('click', function () { openOverlay(el, spec, btn) })
+    btn.setAttribute('aria-label', 'Open large')
+    btn.setAttribute('data-tip', mode === 'zoom' ? 'Open large · zoom and pan' : 'Open large')
+    btn.addEventListener('click', function () { openOverlay(el, { mode: mode, fill: fill, title: title }, btn) })
     el.appendChild(btn)
+  }
+  /* any element with data-bn-expand gets the button; its copy opens in the dialog */
+  function cloneInto(el) {
+    return function (copy) {
+      var c = el.cloneNode(true)
+      c.removeAttribute('data-bn-expand')
+      c.classList.remove('bn-expandable')
+      c.querySelectorAll('.dg-expand, .bn-sbar').forEach(function (n) { n.remove() })
+      copy.appendChild(c)
+      enhanceScrolls(copy)
+    }
+  }
+  function mountExpand(root) {
+    root.querySelectorAll('[data-bn-expand]').forEach(function (el) {
+      if (el.closest('.dg-overlay')) return
+      el.classList.add('bn-expandable')
+      addExpand(el, el.getAttribute('data-bn-expand') === 'zoom' ? 'zoom' : 'view', cloneInto(el), el.getAttribute('data-bn-expand-title'))
+    })
   }
   var HAND_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4.5a1.5 1.5 0 0 1 3 0V10M14 10V6.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-6 6h-.5a6 6 0 0 1-4.6-2.2L3.6 14.7a1.5 1.5 0 0 1 2.3-1.9L8 15V8.5"/></svg>'
   var SELECT_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3l14 7-6 2-2 6z"/></svg>'
-  /* a dialog layer over the page; Select lets the text be chosen, Hand drags the view; Ctrl or ⌘ with the wheel, or a pinch, zooms at the pointer */
-  function openOverlay(source, spec, opener) {
+  function openOverlay(source, opts, opener) {
+    var zoomable = opts.mode === 'zoom'
     var natural = source.querySelector('.dg-scroll')
     var width = Math.max(source.clientWidth, natural ? natural.scrollWidth : 0)
     var fig = source.closest('figure'), cap = fig && fig.querySelector('figcaption')
-    var title = spec.title || (cap ? cap.textContent.replace(/\s+/g, ' ').trim() : '') || 'Diagram'
-    var overlay = h('div', 'dg-overlay', '<div class="dg-dialog" role="dialog" aria-modal="true">' +
-      '<div class="dg-dialog__head"><p class="dg-dialog__title"></p>' +
-      '<span class="dg-dialog__modes" role="group" aria-label="Mode">' +
+    var title = opts.title || (cap ? cap.textContent.replace(/\s+/g, ' ').trim() : '') || source.getAttribute('aria-label') || 'Details'
+    var tools = zoomable ? '<span class="dg-dialog__modes" role="group" aria-label="Mode">' +
       '<button type="button" data-mode="select" aria-label="Select text (V)" data-tip="Select · V">' + SELECT_ICON + '</button>' +
       '<button type="button" data-mode="hand" aria-label="Move the view (H, or hold Space)" data-tip="Hand · H or Space">' + HAND_ICON + '</button></span>' +
       '<span class="dg-dialog__zoom" role="group" aria-label="Zoom">' +
       '<button type="button" data-z="out" aria-label="Zoom out">−</button><output class="dg-dialog__pct">100%</output>' +
-      '<button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit">Fit</button></span>' +
+      '<button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit">Fit</button></span>' : ''
+    var overlay = h('div', 'dg-overlay', '<div class="dg-dialog" role="dialog" aria-modal="true" data-view="' + opts.mode + '">' +
+      '<div class="dg-dialog__head"><p class="dg-dialog__title"></p>' + tools +
       '<button type="button" class="dg-dialog__close" data-z="close" aria-label="Close">✕</button></div>' +
       '<div class="dg-dialog__stage"></div></div>')
     var dialog = overlay.querySelector('.dg-dialog')
@@ -1451,12 +1483,31 @@
     overlay.querySelector('.dg-dialog__title').textContent = title
     var stage = overlay.querySelector('.dg-dialog__stage'), pct = overlay.querySelector('.dg-dialog__pct')
     var copy = h('div', 'dg-dialog__copy')
-    copy.style.width = width + 'px'
+    if (zoomable) copy.style.width = width + 'px'
     stage.appendChild(copy)
     document.body.appendChild(overlay)
     var lock = document.documentElement.style.overflow
     document.documentElement.style.overflow = 'hidden'
-    render(copy, Object.assign({}, spec, { frame: false }))
+    opts.fill(copy)
+    var close = function () {
+      if (copy._bnDiagram) copy._bnDiagram.stop()
+      overlay.remove()
+      document.documentElement.style.overflow = lock
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('keyup', onKeyUp)
+      if (opener) opener.focus()
+    }
+    var onKey = function (e) { if (e.key === 'Escape') close() }
+    var onKeyUp = function () {}
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close() })
+    overlay.querySelector('.dg-dialog__close').addEventListener('click', close)
+    if (!zoomable) {
+      stage.setAttribute('data-mode', 'select')
+      enhanceScroll(stage)
+      document.addEventListener('keydown', onKey)
+      overlay.querySelector('.dg-dialog__close').focus()
+      return
+    }
     var s = 1, x = 0, y = 0, mode = 'select', held = false
     var apply = function () { copy.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')'; pct.textContent = Math.round(s * 100) + '%' }
     var setMode = function (m) {
@@ -1518,16 +1569,8 @@
     stage.addEventListener('pointerup', up)
     stage.addEventListener('pointercancel', up)
     stage.addEventListener('dblclick', function () { if (stage.getAttribute('data-mode') === 'hand') fit() })
-    var close = function () {
-      if (copy._bnDiagram) copy._bnDiagram.stop()
-      overlay.remove()
-      document.documentElement.style.overflow = lock
-      document.removeEventListener('keydown', onKey)
-      document.removeEventListener('keyup', onKeyUp)
-      if (opener) opener.focus()
-    }
     var typing = function (e) { return /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) }
-    var onKey = function (e) {
+    onKey = function (e) {
       if (e.key === 'Escape') return close()
       if (typing(e) || e.metaKey || e.ctrlKey) return
       if (e.key === ' ' && !held) { held = true; setMode(mode); e.preventDefault() }
@@ -1537,18 +1580,17 @@
       else if (e.key === '-') zoomAt(s / 1.25, centre()[0], centre()[1])
       else if (e.key === '0') fit()
     }
-    var onKeyUp = function (e) { if (e.key === ' ' && held) { held = false; setMode(mode) } }
+    onKeyUp = function (e) { if (e.key === ' ' && held) { held = false; setMode(mode) } }
     document.addEventListener('keydown', onKey)
     document.addEventListener('keyup', onKeyUp)
-    overlay.addEventListener('click', function (e) { if (e.target === overlay) close() })
     overlay.querySelector('.dg-dialog__head').addEventListener('click', function (e) {
       var m = e.target.closest('button[data-mode]')
       if (m) return setMode(m.getAttribute('data-mode'))
       var b = e.target.closest('button[data-z]')
       if (!b) return
       var z = b.getAttribute('data-z')
-      if (z === 'close') close()
-      else if (z === 'fit') fit()
+      if (z === 'close') return
+      if (z === 'fit') fit()
       else zoomAt(s * (z === 'in' ? 1.25 : 0.8), centre()[0], centre()[1])
     })
     overlay.querySelector('.dg-dialog__close').focus()
@@ -1673,6 +1715,7 @@
   function mount(root) {
     root = root || document
     enhanceScrolls(root)
+    mountExpand(root)
     root.querySelectorAll('[data-bn-diagram]').forEach(function (el) {
       if (el.hasAttribute('data-bn-drawn')) return
       var source = el.querySelector('script[type="application/json"]')
@@ -1688,7 +1731,7 @@
     })
   }
 
-  window.BenchDiagrams = { render: render, mount: mount, scrollbars: enhanceScrolls }
+  window.BenchDiagrams = { render: render, mount: mount, scrollbars: enhanceScrolls, expand: function (el, mode) { el.classList.add('bn-expandable'); addExpand(el, mode || 'view', cloneInto(el), el.getAttribute('data-bn-expand-title')) } }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { mount(document) })
   else mount(document)
 })();
@@ -1699,7 +1742,7 @@
   var B = window.Bench, D = window.BenchDiagrams;
   if (!B || !D) return;
   B.diagram = D;
-  B.scrollbars = D.scrollbars;
+  B.scrollbars = D.scrollbars; B.expand = D.expand;
   var init = B.init;
   B.init = function (root) { var r = init(root); D.mount(root || document); return r; };
 })();
