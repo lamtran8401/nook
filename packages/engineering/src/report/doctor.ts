@@ -76,7 +76,7 @@ function itemFindings(eng: Engineering, item: Item): Finding[] {
       fix: `kit eng item edit ${id} areas <a,b>, or add the area with /setup`,
     })
   }
-  if (['ready', 'cooking', 'checking'].includes(item.state)) {
+  if (['ready', 'cooking', 'review'].includes(item.state)) {
     for (const doc of drift.changed(new GuardContext(eng.home, eng.stores, item))) {
       found.push({
         level: 'warn',

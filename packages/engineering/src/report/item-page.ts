@@ -34,7 +34,7 @@ const STATE_TAB: Record<State, PageDoc> = {
   planning: 'plan',
   ready: 'plan',
   cooking: 'tasks',
-  checking: 'walkthrough',
+  review: 'walkthrough',
   done: 'walkthrough',
   blocked: 'spec',
   cancelled: 'spec',

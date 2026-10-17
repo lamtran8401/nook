@@ -6,7 +6,7 @@ disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Edit, Write
 ---
 
-Goal: the item goes from its state to `checking` with every AC met, and waits for the owner's accept.
+Goal: the item goes from its state to `review` with every AC met, and waits for the owner's accept.
 The gain is time; the cost is guesses, so each one is small and recorded.
 The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 
@@ -40,7 +40,7 @@ Stop, write `handoff.md` (`/handoff`), and report, when:
 - a slice failed three times and no other slice can run;
 - an answer would drop or narrow what the ticket asks for, as "the button shows but does not load the next page": register it with `kit eng ask <id> "<text>" --blocking --rec "<answer>"` and ask;
 - the spec has a gap that changes what the owner asked for (a gap in the plan needs only `kit eng item replan <id> --reason`, then a new `proceed`);
-- two reject cycles in checking did not meet every AC;
+- two reject cycles in review did not meet every AC;
 - a step is hard to undo (a push, a migration, a deletion, a breaking contract change): register it with `kit eng ask <id> "<text>" --blocking --rec "<answer>"` and ask;
 - the accept: say "accept: type `/gate accept <id>`"; offer `/guesses <id>` and `/view <id>`.
 

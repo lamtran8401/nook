@@ -15,7 +15,7 @@ A guess is cheap to take and costly to find late. High impact comes first: it ca
 3. For each high-impact guess, say which AC it touches.
 4. Ask the owner, four guesses in one call, accept recommended. Each question holds the guess, the answer taken, the other answer, the impact and the slices.
 5. Accepted: `kit eng guess accept <id> <G>`. Flipped: `kit eng guess flip <id> <G> --answer "<the owner's answer>"`. Read which slices went back to `todo`.
-6. The item is in `checking` and slices went back: `kit eng item reject <id> --reason "G<n> flipped"`, so the state follows the slices.
+6. The item is in `review` and slices went back: `kit eng item reject <id> --reason "G<n> flipped"`, so the state follows the slices.
 7. A flip that changes the plan (a high-impact guess often does): offer `kit eng item replan <id> --reason "G<n> flipped"` before the slices run again.
 8. Run `kit eng next <id>` and report.
 

@@ -6,7 +6,7 @@ import { afterMove, assigneeAfter, forwardMove, MOVES, moveNamed, SLICE_MOVES, s
 
 describe('the item machine', () => {
   test('the forward path runs backlog to done through the six forward moves', () => {
-    expect(['backlog', 'framing', 'planning', 'ready', 'cooking', 'checking'].map(s => forwardMove(s as State))).toEqual(['start', 'agree', 'approve', 'begin', 'submit', 'accept'])
+    expect(['backlog', 'framing', 'planning', 'ready', 'cooking', 'review'].map(s => forwardMove(s as State))).toEqual(['start', 'agree', 'approve', 'begin', 'submit', 'accept'])
   })
 
   test('done, blocked and cancelled have no forward move', () => {
@@ -36,8 +36,8 @@ describe('the item machine', () => {
   })
 
   test('cancel is open to every open state, block to every open state but blocked', () => {
-    expect(MOVES.cancel.from).toEqual(['backlog', 'framing', 'planning', 'ready', 'cooking', 'checking', 'blocked'])
-    expect(MOVES.block.from).toEqual(['backlog', 'framing', 'planning', 'ready', 'cooking', 'checking'])
+    expect(MOVES.cancel.from).toEqual(['backlog', 'framing', 'planning', 'ready', 'cooking', 'review', 'blocked'])
+    expect(MOVES.block.from).toEqual(['backlog', 'framing', 'planning', 'ready', 'cooking', 'review'])
   })
 
   test('an unknown move name exits 2 and lists the moves in order', () => {

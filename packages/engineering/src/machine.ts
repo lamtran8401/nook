@@ -13,7 +13,7 @@ export const STATES = [
   'planning',
   'ready',
   'cooking',
-  'checking',
+  'review',
   'done',
   'blocked',
   'cancelled',
@@ -25,11 +25,11 @@ export const OPEN_STATES: State[] = [
   'planning',
   'ready',
   'cooking',
-  'checking',
+  'review',
   'blocked',
 ]
 /** From `ready` on, the slices and the criteria are frozen. */
-export const FROZEN_STATES: State[] = ['ready', 'cooking', 'checking', 'done']
+export const FROZEN_STATES: State[] = ['ready', 'cooking', 'review', 'done']
 
 export const isOpen = (state: State) => OPEN_STATES.includes(state)
 export const isFrozen = (state: State) => FROZEN_STATES.includes(state)
@@ -87,18 +87,18 @@ export const MOVES: Record<MoveName, Move> = {
   approve: { from: ['planning'], to: 'ready', action: 'approve', copiesSpec: true, approves: true },
   proceed: { from: ['planning'], to: 'ready', action: 'proceed', copiesSpec: true, approves: true },
   begin: { from: ['ready'], to: 'cooking', action: 'move' },
-  submit: { from: ['cooking'], to: 'checking', action: 'move' },
-  accept: { from: ['checking'], to: 'done', action: 'accept' },
-  reject: { from: ['checking'], to: 'cooking', action: 'move', reason: true, back: true },
+  submit: { from: ['cooking'], to: 'review', action: 'move' },
+  accept: { from: ['review'], to: 'done', action: 'accept' },
+  reject: { from: ['review'], to: 'cooking', action: 'move', reason: true, back: true },
   replan: {
-    from: ['ready', 'cooking', 'checking'],
+    from: ['ready', 'cooking', 'review'],
     to: 'planning',
     action: 'move',
     reason: true,
     back: true,
   },
   reframe: {
-    from: ['planning', 'ready', 'cooking', 'checking'],
+    from: ['planning', 'ready', 'cooking', 'review'],
     to: 'framing',
     action: 'move',
     reason: true,
@@ -137,7 +137,7 @@ export function forwardMove(state: State): MoveName | undefined {
     .with('planning', () => 'approve' as const)
     .with('ready', () => 'begin' as const)
     .with('cooking', () => 'submit' as const)
-    .with('checking', () => 'accept' as const)
+    .with('review', () => 'accept' as const)
     .with('done', 'blocked', 'cancelled', () => undefined)
     .exhaustive()
 }

@@ -204,9 +204,9 @@ describe('itemPage', () => {
     expect(html).not.toContain('id="panel-walkthrough" aria-labelledby="tab-walkthrough" hidden>')
   })
 
-  test('with no tab named, an item in checking opens on its walkthrough, or on its spec while it has none', () => {
+  test('with no tab named, an item in review opens on its walkthrough, or on its spec while it has none', () => {
     itemAt(t, 'cooking')
-    t.kit(LEAD).ledger.run("UPDATE item SET state = 'checking' WHERE id = 'SHOP-1'")
+    t.kit(LEAD).ledger.run("UPDATE item SET state = 'review' WHERE id = 'SHOP-1'")
     const selected = () => /id="tab-(\w+)" data-doc="\w+" aria-controls="panel-\w+" aria-selected="true"/.exec(itemPage(t.kit(LEAD), 'SHOP-1'))?.[1]
     expect(selected()).toBe('spec')
     writeDoc(t, 'SHOP-1', 'walkthrough.md', '---\nid: SHOP-1\ncreated: 2026-10-18\nupdated: 2026-10-18\n---\n\n# SHOP-1: the walkthrough\n')

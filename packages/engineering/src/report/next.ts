@@ -40,7 +40,7 @@ export function nextFor(eng: Engineering, item: Item): Next {
       gaps: eng.gaps(item, 'submit'),
       detail: cookingDetail(eng, id),
     }))
-    .with('checking', () => {
+    .with('review', () => {
       const found = eng.gaps(item, 'accept')
       if (!found.length) return { ...base, skill: ownerStep(`accept ${id}`), owner: true }
       return {
@@ -75,7 +75,7 @@ const isArchived = (eng: Engineering, id: string) => {
 }
 
 const ORDER: Record<State, number> = {
-  checking: 0,
+  review: 0,
   cooking: 1,
   ready: 2,
   planning: 3,

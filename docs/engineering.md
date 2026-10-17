@@ -43,10 +43,10 @@ The hook blocks a command of the model that sets `KIT_ROLE`, unsets `CLAUDECODE`
 
 ## 4. States and moves
 ```
-backlog ─start→ framing ─agree→ planning ─approve★→ ready ─begin→ cooking ─submit→ checking ─accept★→ done
+backlog ─start→ framing ─agree→ planning ─approve★→ ready ─begin→ cooking ─submit→ review ─accept★→ done
                                  └──────proceed (auto run)────┘
-checking ─reject→ cooking      done ─reopen→ cooking      ready | cooking | checking ─replan→ planning
-planning | ready | cooking | checking ─reframe→ framing      any open ─block→ blocked ─unblock→ the state before
+review ─reject→ cooking      done ─reopen→ cooking      ready | cooking | review ─replan→ planning
+planning | ready | cooking | review ─reframe→ framing      any open ─block→ blocked ─unblock→ the state before
 any open ─cancel→ cancelled ─restore→ backlog                 ★ only the owner
 ```
 | Move | Who | Guard: each gap is listed, with the command that fixes it |

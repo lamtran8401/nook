@@ -6,7 +6,7 @@ disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep
 ---
 
-Goal: every slice done with a proof, every check green, the item in `checking`.
+Goal: every slice done with a proof, every check green, the item in `review`.
 The lead directs; a builder writes the code, one for each area. Who builds: `brief.md`. The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The builders: `brief.md` (this folder).
 
 ## Order
@@ -26,7 +26,7 @@ Kind `investigate`: no branch, no builders; the research writes `findings.md`. R
 ## The report
 ```
 Nothing waits for you.
-SHOP-12 built and submitted. State: checking.
+SHOP-12 built and submitted. State: review.
 T1 (bff): done, 4 files, proof proven. T2 (frontend): done, 3 files, proof weak: the banner test passes on the base.
 Verify: bff pass (212 tests), frontend pass (89 tests). Skipped tests: none.
 Guesses: G2 (med) status order. Manual check for the owner: the banner on the page.

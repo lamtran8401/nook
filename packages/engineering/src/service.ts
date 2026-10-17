@@ -759,9 +759,9 @@ export class Engineering {
   commitPlan(id: string): CommitPlan {
     this.permissions.assert('item commit')
     const item = this.item(id)
-    if (!['cooking', 'checking', 'done'].includes(item.state))
+    if (!['cooking', 'review', 'done'].includes(item.state))
       throw refused(
-        `${id} is ${item.state}: commits come from cooking, checking or done`,
+        `${id} is ${item.state}: commits come from cooking, review or done`,
         `kit eng next ${id}`,
       )
     return planCommits(this.home, id, this.doneInOrder(id))
@@ -792,8 +792,8 @@ export class Engineering {
     this.permissions.assert('task prove')
     const item = this.item(id)
     const slice = this.stores.slices.get(id, sliceId)
-    if (!['cooking', 'checking'].includes(item.state))
-      throw refused(`${id} is ${item.state}: a slice is proven in cooking or checking`, `kit eng next ${id}`)
+    if (!['cooking', 'review'].includes(item.state))
+      throw refused(`${id} is ${item.state}: a slice is proven in cooking or review`, `kit eng next ${id}`)
     const area = this.home.areaNamed(slice.area)
     const list = files.length ? files : slice.files
     if (!list.length)

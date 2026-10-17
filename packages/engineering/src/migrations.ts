@@ -48,4 +48,10 @@ export const MIGRATIONS: string[] = [
     id INTEGER PRIMARY KEY AUTOINCREMENT, item TEXT NOT NULL REFERENCES item(id), text TEXT NOT NULL, by TEXT NOT NULL, at TEXT NOT NULL
   );
   `,
+  `
+  UPDATE item SET state = 'review' WHERE state = 'checking';
+  UPDATE item SET blocked_from = 'review' WHERE blocked_from = 'checking';
+  UPDATE event SET from_state = 'review' WHERE from_state = 'checking';
+  UPDATE event SET to_state = 'review' WHERE to_state = 'checking';
+  `,
 ]

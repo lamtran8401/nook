@@ -7,10 +7,10 @@ The tool `kit eng` holds the ledger and refuses a move with a gap; each gap come
 
 ## States and moves
 ```
-backlog ─start→ framing ─agree→ planning ─approve★→ ready ─begin→ cooking ─submit→ checking ─accept★→ done
+backlog ─start→ framing ─agree→ planning ─approve★→ ready ─begin→ cooking ─submit→ review ─accept★→ done
                                  └──────proceed (auto run)────┘
-checking ─reject→ cooking      done ─reopen→ cooking      ready | cooking | checking ─replan→ planning
-planning | ready | cooking | checking ─reframe→ framing      any open ─block→ blocked ─unblock→ the state before
+review ─reject→ cooking      done ─reopen→ cooking      ready | cooking | review ─replan→ planning
+planning | ready | cooking | review ─reframe→ framing      any open ─block→ blocked ─unblock→ the state before
 any open ─cancel→ cancelled ─restore→ backlog                 ★ only the owner
 ```
 
@@ -20,7 +20,7 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | Framing | framing | `/spec` | `agree` | lead, after the owner confirms the spec |
 | Planning | planning | `/recipe` | `approve` | owner, with `/gate` |
 | Cooking | ready, cooking | `/cook` | `begin`, then `submit` | lead |
-| Checking | checking | `/quality-check`, `/view` | `accept` | owner, with `/gate` |
+| Review | review | `/quality-check`, `/view` | `accept` | owner, with `/gate` |
 | Close | done | `/close` | none | lead |
 
 ## The gates
@@ -85,7 +85,7 @@ Never ask "shall I proceed" or "do you approve": the gates have their own comman
 ## Going back
 | Case | Move |
 |---|---|
-| the result is not good enough | `reject --reason` (checking to cooking) |
+| the result is not good enough | `reject --reason` (review to cooking) |
 | the approach is wrong | `replan --reason`; done slices stay |
 | the requirements changed | `reframe --reason`; back to the spec |
 | a blocker outside the item | `block --reason`, later `unblock` |

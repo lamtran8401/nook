@@ -100,7 +100,7 @@ export const writeDoc = (t: TestHome, id: string, name: string, text: string) =>
 }
 
 /** An item taken to a state through the real moves, with one slice T1 in bff. */
-export function itemAt(t: TestHome, state: 'backlog' | 'framing' | 'planning' | 'ready' | 'cooking' | 'checking', id = 'SHOP-1', spec = SPEC(), tasks = TASKS([{ id: 'T1' }])) {
+export function itemAt(t: TestHome, state: 'backlog' | 'framing' | 'planning' | 'ready' | 'cooking' | 'review', id = 'SHOP-1', spec = SPEC(), tasks = TASKS([{ id: 'T1' }])) {
   const lead = t.kit(LEAD)
   const owner = t.kit(OWNER)
   lead.newItem({ id, title: 'the export date is off', kind: 'feature', size: 'S', areas: ['bff'] })
@@ -119,5 +119,5 @@ export function itemAt(t: TestHome, state: 'backlog' | 'framing' | 'planning' | 
   for (const area of areas) t.git(area, 'switch', '-q', '-c', `kit/${id}-work`)
   lead.moveItem('begin', id)
   if (state === 'cooking') return
-  throw new Error('itemAt: checking needs the slices done and a verify; do it in the test')
+  throw new Error('itemAt: review needs the slices done and a verify; do it in the test')
 }

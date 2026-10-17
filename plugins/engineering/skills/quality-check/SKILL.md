@@ -1,6 +1,6 @@
 ---
 name: quality-check
-description: "Review a submitted item in checking: the reviewer marks each criterion with evidence and a grade, the code reviewer reads the diff, then the item waits for the owner's accept or goes back. Use when the owner says check, review or 'is it done'."
+description: "Review a submitted item in the `review` state: the reviewer marks each criterion with evidence and a grade, the code reviewer reads the diff, then the item waits for the owner's accept or goes back. Use when the owner says check, review or 'is it done'."
 argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep
@@ -12,8 +12,8 @@ Nobody fixes code in a review.
 The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades and the report: `rubric.md` (this folder).
 
 ## Order
-1. Run `kit eng pickup <id>`. The state must be `checking`; else say so and stop.
-2. Read the last verify: `kit eng item verify <id> --last`. No code changes in checking, so it holds. When it is missing or failed, run `verify` first.
+1. Run `kit eng pickup <id>`. The state must be `review`; else say so and stop.
+2. Read the last verify: `kit eng item verify <id> --last`. No code changes in `review`, so it holds. When it is missing or failed, run `verify` first.
 3. Start two agents, one after the other, each with `kit eng item brief <id>`, the folder of each area and the verify output:
    - `code-review` first: one fresh reviewer on the full diff of every area. A blocking finding goes to step 5 before any AC is marked.
    - then `kit-engineering:reviewer`: it reads the spec and the diff, finds one negative case for each AC, and marks each met AC itself with `kit eng item ac done <id> <n> --evidence "<text>" --grade run|sourced|judged|owner`.

@@ -154,7 +154,7 @@ describe('engineeringModule: the retro', () => {
   test('gives the facts of the ledger since the time', () => {
     t = makeHome()
     itemAt(t, 'planning')
-    t.kit(LEAD).ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, reason, at) VALUES ('SHOP-1', 'reject', 'checking', 'cooking', 'lead', 'lead', 'AC 4 has no test', '2026-10-16T09:00:00.000Z')")
+    t.kit(LEAD).ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, reason, at) VALUES ('SHOP-1', 'reject', 'review', 'cooking', 'lead', 'lead', 'AC 4 has no test', '2026-10-16T09:00:00.000Z')")
     expect(engineeringModule.retro!(t.root, new Date('2026-10-15T00:00:00.000Z'))).toEqual([
       { item: 'SHOP-1', kind: 'sent back', text: 'AC 4 has no test', at: '2026-10-16T09:00:00.000Z' },
     ])
@@ -168,7 +168,7 @@ describe('engineeringModule: the daily brief', () => {
     itemAt(t, 'planning', 'SHOP-2')
     const lead = t.kit(LEAD)
     lead.ledger.run("UPDATE item SET state = 'done' WHERE id = 'SHOP-2'")
-    lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-2', 'accept', 'checking', 'done', 'owner', 'owner', '2026-10-16T09:00:00.000Z')")
+    lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-2', 'accept', 'review', 'done', 'owner', 'owner', '2026-10-16T09:00:00.000Z')")
     lead.newItem({ id: 'SHOP-3', title: 'the new export', areas: ['bff'] })
     expect(engineeringModule.brief!(t.root, new Date('2026-10-15T00:00:00.000Z'))).toEqual([
       { part: 'waits', urgent: true, text: 'SHOP-1 waits for your approve: the export date is off', action: '/gate approve SHOP-1' },

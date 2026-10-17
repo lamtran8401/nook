@@ -98,7 +98,7 @@ function autoStage(eng: Engineering, item: Item): Stage | null {
     )
     .with('ready', () => plain('cook'))
     .with('cooking', () => cookingStage(eng, item))
-    .with('checking', () =>
+    .with('review', () =>
       eng.stores.events.count(item.id, 'reject') >= MAX_REJECTS || !eng.gaps(item, 'accept').length
         ? null
         : plain('quality-check'),

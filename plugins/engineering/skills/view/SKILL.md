@@ -14,9 +14,9 @@ The Markdown files are the source, for the agents. The page is the view of them,
    - an item id, or no words: the item, as the core rule says for a command with no argument.
    - other words: a question about the code. Go to "A question" below.
 2. Run `kit eng item brief <id>`. The item needs at least `spec.md`.
-3. In `checking` or `done`, the page opens on the walkthrough. Write it with `write-walkthrough` when it is missing, or when the code changed after its `updated` date.
+3. In `review` or `done`, the page opens on the walkthrough. Write it with `write-walkthrough` when it is missing, or when the code changed after its `updated` date.
 4. Build the page: `kit eng item page <id> --out work/<id>/page.html`.
-   It opens on the tab of the state: Spec in framing, Plan in planning and ready, Tasks in cooking, Walkthrough in checking and done.
+   It opens on the tab of the state: Spec in framing, Plan in planning and ready, Tasks in cooking, Walkthrough in review and done.
    The owner named a tab, as "/view IT-3 plan": add `--tab plan`.
 5. Report in two lines: the path of `page.html`, and what it holds (the tabs, and the date of the last change of each file).
 
