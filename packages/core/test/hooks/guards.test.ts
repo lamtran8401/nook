@@ -38,7 +38,7 @@ describe('readGuard', () => {
 })
 
 describe('bashGuard', () => {
-  test.each(['cat .env', "cat '.env'", 'cat ./app/.env.local', 'cat prod.env', 'cat config/app.env', 'cat ~/.aws/credentials', 'cat config/infra.local.yaml'])(
+  test.each(['cat .env', "cat '.env'", 'cat .env.local', 'cat ./app/.env.local', 'cat prod.env', 'cat config/app.env', 'cat ~/.aws/credentials', 'cat config/infra.local.yaml'])(
     'blocks a command that reaches a secret: %s',
     command => expect(bash(command)).toBe('block'),
   )
@@ -89,11 +89,11 @@ describe('bashGuard', () => {
 })
 
 describe('editGuard', () => {
-  test.each(['.env', 'prod.env', '.nook/state.json', '.claude/settings.json', '.claude/settings.local.json'])('blocks an edit of %s', file => {
+  test.each(['.env', '.env.local', 'app/.env.production', 'prod.env', '.nook/state.json', '.claude/settings.json', '.claude/settings.local.json'])('blocks an edit of %s', file => {
     expect(edit(file)).toBe('block')
   })
 
-  test.each(['CLAUDE.md', '.claude/rules/mine.md'])('lets an edit of %s pass', file => {
+  test.each(['CLAUDE.md', '.claude/rules/mine.md', '.env.example'])('lets an edit of %s pass', file => {
     expect(edit(file)).toBe('pass')
   })
 })
