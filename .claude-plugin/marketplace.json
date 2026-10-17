@@ -20,7 +20,7 @@
     {
       "name": "nook-wiki",
       "source": "./plugins/wiki",
-      "description": "The wiki of the environment: the shelves and their indexes, the references, /wiki-ask, /wiki-add and /wiki-tidy, and a librarian agent."
+      "description": "The wiki of the environment: the shelves and their indexes, the references, /wiki-ask, /wiki-add, /wiki-merge and /wiki-tidy, and a librarian agent."
     },
     {
       "name": "nook-learn",

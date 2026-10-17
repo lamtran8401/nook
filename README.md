@@ -5,7 +5,7 @@ A base layer for Claude Code that you init into any folder.
 Nook gives Claude Code your standards: base rules, templates and packs for work, research, learning, knowledge and reports.
 You run `nook init` in a folder. Claude Code stacks the folders, and you add your own context on top.
 
-Status: v0.1 in progress. The core and the engineering pack work: `nook init`, `nook doctor`, `nook ste`, `nook eng`, the base rules, the persona, the guards, the writing check, `/setup`, and the item flow from `/intake` to the owner's accept. The other packs come in v0.2 and v0.3. Each part arrives when real use asks for it.
+Status: v0.1 and v0.2 work. The packs core, engineering, wiki and learn are built: `nook init`, `nook doctor`, `nook ste`, `nook eng`, `nook wiki`, `nook learn`, the base rules, the persona, the guards, the writing check, `/setup`, `/brief`, `/retro`, and the item flow from `/intake` to the owner's accept. Research, a viewer and reports come next. Each part arrives when real use asks for it.
 
 ## Install
 
@@ -14,9 +14,12 @@ You need [Bun](https://bun.sh) and Claude Code.
 ```
 git clone <this repo> nook && cd nook && bun install
 ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nook        # nook on your PATH; the hooks need it
+ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nk          # a short form for your own typing
 claude plugin marketplace add "$PWD"
 claude plugin install nook@nook                  # the core: always
 claude plugin install nook-engineering@nook      # one plugin for each pack that you use
+claude plugin install nook-wiki@nook
+claude plugin install nook-learn@nook
 ```
 
 Then, in each folder that you want as an environment:
@@ -48,12 +51,17 @@ nook doctor                        # every layer, every pack, every gap with its
 
 | Pack | What it gives |
 |---|---|
-| core | the persona, the base rules, the guards, `nook init`, `nook doctor`, `/setup` |
-| engineering | the item flow from intake to your accept, two gates, 28 skills, 10 agents |
-| research | `/research`: analysts in parallel, findings with sources, a fact-checker |
+| core | the persona, the base rules, the guards, `nook init`, `nook doctor`, `/setup`, `/checkup`, `/gate`, `/brief`, `/retro`, `/grill-me` |
+| engineering | the item flow from intake to your accept, two gates, 29 skills, 10 agents |
+| wiki | one knowledge base for you and the agents: `/wiki-add`, `/wiki-ask`, `/wiki-merge`, `/wiki-tidy` |
 | learn | a course in any subject against a standard, and `/study <topic>` for one topic |
-| wiki | one knowledge base for you and the agents: `/wiki-add`, `/wiki-ask`, `/wiki-tidy` |
-| visual | pages that explain, for every pack: the UI kit, diagrams, decks |
+
+Planned, not built yet:
+
+| Pack | What it gives |
+|---|---|
+| research | `/research`: analysts in parallel, findings with sources, a fact-checker |
+| visual | pages that explain, for every pack: diagrams, decks |
 | jira | pull a ticket, read only |
 
 ## Read the plan
@@ -61,6 +69,7 @@ nook doctor                        # every layer, every pack, every gap with its
 - [docs/nook.md](docs/nook.md): the short form.
 - [docs/nook-guide.html](docs/nook-guide.html): the full guide, 15 chapters with diagrams. Open it in a browser.
 - [docs/expect/](docs/expect/): what each step must do before it is done.
+- [docs/migrate-to-nook.md](docs/migrate-to-nook.md): move an environment from the old name `kit` to nook.
 
 ## Licence
 

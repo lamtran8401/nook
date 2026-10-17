@@ -7,13 +7,14 @@ This repo builds Nook itself. Read `docs/nook.md` for the plan and `docs/expect/
 apps/nook/              the one binary `nook`: it joins the commands of each package and runs them. No logic.
 packages/shared/       the CLI router, the exit codes, the hook input and output
 packages/env/          environments, nook.yml, the pack manifests, the plugin folders
-packages/core/         init, doctor, the writing check, the core hooks
+packages/core/         init and the move from the old names, doctor, the writing check, brief, retro, the core hooks
 packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks
 packages/wiki/         the shelves of the wiki, their indexes, the link check
+packages/learn/        the courses: roadmap, cards, mistakes, scores, the study log
 plugins/<pack>/        one Claude Code plugin each: pack.json, .claude-plugin/, bin/nook (a shim), hooks/, skills/, agents/, templates/. No code.
 docs/                  the plan, the guide, the contract of engineering (`engineering.md`), the expectations
 ```
-The packs are core, engineering and wiki. `nook eng …` runs the commands of engineering, `nook wiki …` those of the wiki.
+The packs are core, engineering, wiki and learn. `nook eng …` runs the commands of engineering, `nook wiki …` those of the wiki, `nook learn …` those of learn.
 
 ## Checks
 - `bun run check`: `tsc --noEmit` and `bun test`. Commit only when it passes.
@@ -26,9 +27,10 @@ The packs are core, engineering and wiki. `nook eng …` runs the commands of en
 - One job for each module. A class where state and its rules live together (the ledger, an item, a guard); a plain function for the rest. Branch on a union with `ts-pattern` and `.exhaustive()`.
 - Nook never names the owner's folders. Examples use `company/`, `personal/`, `shop`, `SHOP-12`.
 - A guard hook blocks when it cannot decide. A helper hook (style, context) lets the call pass when it fails.
-- `nook init` writes only what it marks: the nook block, `.claude/rules/nook/`, its settings keys, `.nook/`. Never a line of the owner.
+- An agent runs the tool as `nook` only; the guard blocks `nk` and the old names `kit` and `kit-eng`. The names live in `packages/shared/src/names.ts`.
+- `nook init` writes only what it marks: the Nook block, `.claude/rules/nook/`, its settings keys, `.nook/`. Never a line of the owner.
 - Write clear code: clear names, small functions, early returns.
-- Each edit of the nook code leaves `nook` runnable. The hooks run this code, so a broken nook blocks the guards of the session. Write a new function before the line that calls it, or write the whole file at once.
+- Each edit of the Nook code leaves `nook` runnable. The hooks run this code, so a broken `nook` binary blocks the guards of the session. Write a new function before the line that calls it, or write the whole file at once.
 
 ## Comments
 - Comment only hard logic, in one or two lines: what and why.

@@ -36,7 +36,7 @@ Nook adds rows after the last row of the table. It never removes a row and never
 | `nook wiki index --fix` | makes each missing index and adds a row for each page with none; removes nothing |
 | `nook wiki links` | each `[[name]]` with no page of that name, and each relative Markdown link to a file that does not exist |
 | `nook wiki shelves` | the shelves and the use of each |
-| `nook wiki retire <page...> --into <page>` | after a merged page: moves the old pages to `archive/wiki/<date>/`, takes their rows out of the index, points each link at the merged page |
+| `nook wiki retire <page...> --into <page> [--date YYYY-MM-DD]` | after a merged page: moves the old pages to a folder of that date in the archive folder (the `archive` key, `archive/wiki` by default), takes their rows out of the index, points each link at the merged page |
 
 `nook doctor` lists the gaps of the indexes under the wiki pack.
 
@@ -45,7 +45,7 @@ Nook adds rows after the last row of the table. It never removes a row and never
 | Name | Who starts it | What it does |
 |---|---|---|
 | `/wiki-ask` | the owner or a skill | the index first, then the pages whose line matches; an answer with a link to each page |
-| `/wiki-add` | the owner | the source into `docs/references/`, a draft page in `resources/`, written after the owner's yes |
+| `/wiki-add` | the owner | the source into `docs/references/`, a draft page in `resources/`, written after the owner's yes; a draft kept for later waits in `docs/wiki/drafts/`, and `/brief` shows it |
 | `/wiki-tidy` | the owner | broken links, index gaps, two pages on one topic, no source, adjectives with no example |
 | `/wiki-merge` | the owner | related pages, such as the features of one epic, into one complete page; the old pages go to the archive |
 | `librarian` | a skill | reads the wiki for another agent, the index first, and reports the facts with their pages |
