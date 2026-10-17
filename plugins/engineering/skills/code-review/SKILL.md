@@ -1,26 +1,26 @@
 ---
 name: code-review
-description: "Review a done slice or the full diff of an item with fresh eyes through the code-reviewer agent: a fixed blocking list sends work back, the rest are nits. Use in /cook (L) and /quality-check. Not for your own diff: clean-code. Not the bundled one."
+description: "Review a done slice or the full diff of an item with fresh eyes through the code-reviewer agent: a fixed blocking list sends work back, the rest are nits. Use in /cook (L) and /deep-review. Not for your own diff: clean-code. Not the bundled one."
 argument-hint: "<item id> [<T>]"
 allowed-tools: Bash(nook eng *), Bash(git diff *), Read
 ---
 
 Goal: code that the next person changes safely: clear, in the style of its area, with no silent failure.
 A builder reads its own code with the eyes that wrote it. A second reader finds what the first cannot see.
-The reviewer of `/quality-check` judges the criteria. This review judges the code.
+The reviewer of `/deep-review` judges the criteria. This review judges the code.
 
 ## When
 ```
 /cook    L item        each slice, after task done                the files of the slice (nook eng task show <id> <T>)
-/quality-check   every item    once, one agent for every area             the full diff of each area against its base
+/deep-review   every item    once, one agent for every area             the full diff of each area against its base
 ```
-An S or M item gets the review in `/quality-check` only.
+An S or M item gets the review in `/deep-review` only.
 One code-reviewer agent reads every area of the item in one run. Never start one agent for each area.
-A second round of `/quality-check` reviews only the files that changed since the last review. Send it to the code-reviewer of the first round, as `pickup/flow.md` says under "Who does the work".
+A second round of `/deep-review` reviews only the files that changed since the last review. Send it to the code-reviewer of the first round, as `pickup/flow.md` says under "Who does the work".
 
 ## Order
 1. Take the scope: the files of the slice, or the full diff of each area.
-2. Start the Agent tool (no `name`: a subagent) with `subagent_type: nook-engineering:code-reviewer` and this prompt:
+2. Start the Agent tool (no `name`: a subagent) with `subagent_type: nk-eng:code-reviewer` and this prompt:
    ```
    Item: <id>. Scope: slice <T> | the full item.
    Areas: <area> folder <path> base <branch>, one line for each area. Files: <list> | the full diff.
@@ -29,7 +29,7 @@ A second round of `/quality-check` reviews only the files that changed since the
 3. Read the verdict. The blocking list lives in the agent file; only a finding on it sends work back. A pass with nits: keep the nits for the report of the stage.
 4. A blocking finding in `/cook`: `nook eng task reopen <id> <T> --reason "<file:line> <what>"`, and send the four parts (where, what, why, how to show it) to the builder of the slice. It fixes, runs the checks, and runs `task done` again with every file. Then review the slice again.
    The same finding after two rounds is a question for the owner.
-5. A blocking finding in `/quality-check`: it sends the item back. Name it in the reason of `nook eng item reject`.
+5. A blocking finding in `/deep-review`: it sends the item back. Name it in the reason of `nook eng item reject`.
 
 ```
 Code review: T1 pass (2 nits). T2 send back, then pass: list.ts:42 swallowed the query error (fixed).

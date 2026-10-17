@@ -15,9 +15,9 @@ ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nook        # the hooks and the age
 ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nk          # a short form for you; an agent never runs it
 claude plugin marketplace add "$PWD"
 claude plugin install nook@nook                  # the core: always
-claude plugin install nook-engineering@nook      # one plugin for each pack that you use
-claude plugin install nook-wiki@nook
-claude plugin install nook-learn@nook
+claude plugin install nk-eng@nook      # one plugin for each pack that you use
+claude plugin install nk-wiki@nook
+claude plugin install nk-learn@nook
 ```
 
 Then, in each folder that you want as a desk:
@@ -52,9 +52,9 @@ Nook owns only what it marks: the Nook block of `CLAUDE.md`, `.claude/rules/nook
 | Pack | Plugin | What it gives |
 |---|---|---|
 | core | `nook` | the persona, the base rules, the guards, the writing check, `/setup`, `/checkup`, `/gate`, `/brief`, `/retro`, `/grill-me` |
-| engineering | `nook-engineering` | the item flow from intake to your accept: the ledger, two gates, 29 skills, 10 agents |
-| wiki | `nook-wiki` | one wiki for you and the agents: `/wiki-add`, `/wiki-ask`, `/wiki-merge`, `/wiki-tidy`, a librarian agent |
-| learn | `nook-learn` | a course against a standard, and one topic with `/study`: 6 skills, a coach agent |
+| engineering | `nk-eng` | the item flow from intake to your accept: the ledger, two gates, 29 skills, 10 agents |
+| wiki | `nk-wiki` | one wiki for you and the agents: `/wiki-add`, `/wiki-ask`, `/wiki-merge`, `/wiki-tidy`, a librarian agent |
+| learn | `nk-learn` | a course against a standard, and one topic with `/study`: 6 skills, a coach agent |
 
 The commands of a pack run under the tool: `nook eng …`, `nook wiki …`, `nook learn …`. Type `nook --help` for the full list.
 

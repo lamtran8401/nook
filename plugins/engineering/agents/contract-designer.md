@@ -1,6 +1,6 @@
 ---
 name: contract-designer
-description: "Finds the impact of a shared contract change on each consumer (none, needs a change, breaks), the order of change and the migration path for a breaking change. Started by contract-check in /recipe and /quality-check, and by a full challenge round."
+description: "Finds the impact of a shared contract change on each consumer (none, needs a change, breaks), the order of change and the migration path for a breaking change. Started by contract-check in /recipe and /deep-review, and by a full challenge round."
 model: inherit
 tools: Read, Grep, Glob, Bash
 maxTurns: 30

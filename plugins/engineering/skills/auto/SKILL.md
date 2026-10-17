@@ -27,7 +27,7 @@ Run `nook eng next <id>`: it names the stage. Read `${CLAUDE_PLUGIN_ROOT}/skills
 | spec | take the recommended answer of each blocking question and record it as a guess; no confirm question; run `agree` yourself |
 | recipe | take the recommended depth and the recommended option of each design choice, as guesses; no confirm question; pass the gate with `nook eng item proceed <id>` |
 | cook | answer a waiting slice from the documents, or take the most likely answer as a guess |
-| quality-check | run the agents as written; not met: `reject`, then cook again; at most two reject cycles; stop at the accept |
+| deep-review | run the agents as written; not met: `reject`, then cook again; at most two reject cycles; stop at the accept |
 
 The mode is the owner's instruction to run the next stage yourself; do not ask.
 The Stop hook holds the session while the next stage is yours; its reason names the file.

@@ -12,7 +12,7 @@ let root: string
 let claudeDir: string
 beforeEach(() => {
   root = tempDir()
-  claudeDir = claudeDirWith(root, ['nook@nook', 'nook-engineering@nook'])
+  claudeDir = claudeDirWith(root, ['nook@nook', 'nk-eng@nook'])
 })
 afterEach(() => removeDir(root))
 
@@ -78,7 +78,7 @@ describe('Doctor: the plugins of Claude Code', () => {
   test('the plugin of each pack on here is checked too', () => {
     initIn(root, ['engineering'])
     claudeDir = claudeDirWith(root, ['nook@nook'])
-    expect(texts()).toEqual(['the plugin nook-engineering@nook of the pack engineering is off: its hooks and skills do not run'])
+    expect(texts()).toEqual(['the plugin nk-eng@nook of the pack engineering is off: its hooks and skills do not run'])
   })
 
   test('a plugin that the settings of the desk turn on counts', () => {

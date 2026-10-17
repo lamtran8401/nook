@@ -13,6 +13,11 @@
 | `packages/env/`, `@nook/env/*` | `packages/desk/`, `@nook/desk/*` |
 | `~/.config/nook/environments` | `~/.config/nook/desks` |
 | `nook where` prints `env: <dir>` | `nook where` prints `desk: <dir>` |
+| plugins `nook-engineering`, `nook-wiki`, `nook-learn` | `nk-eng`, `nk-wiki`, `nk-learn` |
+| `/quality-check` | `/deep-review` |
+
+The plugin name is the prefix of each skill and agent, as `/nk-eng:cook`. The core plugin keeps the name `nook`.
+`/deep-review` has the word of the board state `review`. The name `/review` is a command of Claude Code.
 
 Desks can nest. `company/` is a top desk; `company/shop/` is a child desk inside it.
 "The environment" of a process, such as the env variables or the CI, keeps its word.
@@ -47,9 +52,10 @@ Desks can nest. `company/` is a top desk; `company/shop/` is a child desk inside
 
 ## After the merge
 
-1. Run `nook init --update` in each desk of the owner. It writes the new words into the block and the rules.
-2. Remove the old list `~/.config/nook/environments`.
-3. Start a new session. The hooks and the output style load at the start.
+1. Remove the plugins `nook-engineering`, `nook-wiki` and `nook-learn`. Install `nk-eng@nook`, `nk-wiki@nook` and `nk-learn@nook`.
+2. Run `nook init --update` in each desk of the owner. It writes the new words into the block and the rules.
+3. Remove the old list `~/.config/nook/environments`.
+4. Start a new session. The hooks and the output style load at the start.
 
 ## Out of scope
 

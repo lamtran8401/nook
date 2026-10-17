@@ -61,7 +61,7 @@ describe('stopDriver', () => {
     lead.verify('SHOP-1')
     expect(reason(stop({ stop_hook_active: true }))).toContain('skills/cook/SKILL.md')
     lead.moveItem('submit', 'SHOP-1')
-    expect(reason(stop({ stop_hook_active: true }))).toContain('skills/quality-check/SKILL.md')
+    expect(reason(stop({ stop_hook_active: true }))).toContain('skills/deep-review/SKILL.md')
     lead.markCriterion('SHOP-1', 1, 'x', 'run')
     lead.markCriterion('SHOP-1', 2, 'y', 'run')
     expect(stop({ stop_hook_active: true }).kind).toBe('pass')
@@ -88,7 +88,7 @@ describe('stopDriver', () => {
     itemAt(t, 'framing')
     pickup(t.eng(LEAD), 'SHOP-1')
     t.eng(OWNER).setMode('SHOP-1', 'auto')
-    const agent = { id: 'a-1', type: 'subagent', status: 'running', agent_type: 'nook-engineering:reviewer' }
+    const agent = { id: 'a-1', type: 'subagent', status: 'running', agent_type: 'nk-eng:reviewer' }
     expect(stop({ background_tasks: [agent] }).kind).toBe('pass')
     expect(stop({ background_tasks: [{ ...agent, status: 'completed' }] }).kind).toBe('json')
     expect(reason(stop({ stop_hook_active: true }))).toContain(`hold 2 of ${MAX_HOLDS}`)

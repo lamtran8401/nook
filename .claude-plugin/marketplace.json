@@ -13,17 +13,17 @@
       "description": "The core: the nook tool, the base rules, the persona, the secret guards and the writing check."
     },
     {
-      "name": "nook-engineering",
+      "name": "nk-eng",
       "source": "./plugins/engineering",
       "description": "The item flow from intake to the owner's accept, the ledger and its gates, builders and reviewers."
     },
     {
-      "name": "nook-wiki",
+      "name": "nk-wiki",
       "source": "./plugins/wiki",
       "description": "The wiki of the desk: the shelves and their indexes, the references, /wiki-ask, /wiki-add, /wiki-merge and /wiki-tidy, and a librarian agent."
     },
     {
-      "name": "nook-learn",
+      "name": "nk-learn",
       "source": "./plugins/learn",
       "description": "Courses against a standard and a ruler: the roadmap, cards in boxes, the mistake log and scores; /learn-setup, /learn-today, /learn-practice, /study, and a coach agent."
     }

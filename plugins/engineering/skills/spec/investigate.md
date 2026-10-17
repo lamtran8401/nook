@@ -1,6 +1,6 @@
 # An investigate item
 
-Read this file from `/spec`, `/recipe`, `/cook`, `/quality-check` and `/close` when the kind of the item is `investigate`.
+Read this file from `/spec`, `/recipe`, `/cook`, `/deep-review` and `/close` when the kind of the item is `investigate`.
 The item asks questions and changes no code.
 Everything else follows the standard flow.
 
@@ -39,7 +39,7 @@ The shipment list call takes 4 seconds at peak. Find the cause before anyone cha
 
 ## The research in cook
 1. Run `nook eng item begin <id>`.
-2. Start one read-only agent for each question, in the same turn: `nook-engineering:scout` for a question about facts, `nook-engineering:system-designer` for a question about how the parts connect.
+2. Start one read-only agent for each question, in the same turn: `nk-eng:scout` for a question about facts, `nk-eng:system-designer` for a question about how the parts connect.
    Give each the brief (`nook eng item brief <id>`) and its one question.
 3. Check each claim that matters: open the file and read the line.
 4. Write `work/<id>/findings.md`: one section `## Q<n>` for each question with the lines `Answer`, `Evidence`, `Open`, and `Follow-up` when there is one.

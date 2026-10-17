@@ -23,9 +23,9 @@ describe('Caller.from', () => {
   })
 
   test('the other read-only agents of the pack are plain readers', () => {
-    expect(Caller.from({ agent_type: 'nook-engineering:code-reviewer', agent_id: 'a' })).toMatchObject({ role: 'reader', kind: 'reader' })
+    expect(Caller.from({ agent_type: 'nk-eng:code-reviewer', agent_id: 'a' })).toMatchObject({ role: 'reader', kind: 'reader' })
     expect(Caller.from(SCOUT)).toMatchObject({ role: 'reader', kind: 'reader', actor: 'scout-0001' })
-    expect(Caller.from({ agent_type: 'nook-engineering:skeptic', agent_id: 'b' })).toMatchObject({ role: 'reader' })
+    expect(Caller.from({ agent_type: 'nk-eng:skeptic', agent_id: 'b' })).toMatchObject({ role: 'reader' })
   })
 
   test('an agent that is not of the pack works for the lead, so it gets the rules of the lead', () => {

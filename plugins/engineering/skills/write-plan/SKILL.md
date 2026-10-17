@@ -14,10 +14,10 @@ Fill the file that `agree` scaffolded. The sections, their sizes, the diagrams a
 - The live ADRs (`nook eng adr list`): follow each one, or say why this item must break it. With the wiki pack on, the pages that name the areas.
 
 ## Order
-1. Facts. Start `nook-engineering:scout` for each area with the brief and one question, in the same turn: where the behavior enters, which part holds it, which pattern the code uses. Open the file of each fact that the plan rests on.
+1. Facts. Start `nk-eng:scout` for each area with the brief and one question, in the same turn: where the behavior enters, which part holds it, which pattern the code uses. Open the file of each fact that the plan rests on.
 2. Today: one mermaid diagram of the parts and calls of today, and at most 3 facts.
-3. Options. Start `nook-engineering:system-designer` with the brief and the facts for two or three options with a recommendation.
-   A contract change adds `nook-engineering:contract-designer`; a data or schema change adds `nook-engineering:data-modeler`.
+3. Options. Start `nk-eng:system-designer` with the brief and the facts for two or three options with a recommendation.
+   A contract change adds `nk-eng:contract-designer`; a data or schema change adds `nk-eng:data-modeler`.
 4. Approach: one diagram after the change, a table of the key decisions with the reason of each (size L adds "If it fails"), and at most 3 options not taken. Name the ADR of a decision that outlives the item.
 5. Impact: one row for each kind that changes; one line "None: ..." for the rest. The Rollout row holds the order of shipping and the rollback.
 6. Flow, size L only: one sequence diagram of the hard path, at most 3 rules that must always be true, at most 4 failure cases.

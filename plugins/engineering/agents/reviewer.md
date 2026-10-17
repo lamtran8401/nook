@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: "Checks a submitted item against its acceptance criteria with fresh eyes, looks for the reason to send it back, and marks each met criterion with evidence and a grade. Started by /quality-check after the verifier ran."
+description: "Checks a submitted item against its acceptance criteria with fresh eyes, looks for the reason to send it back, and marks each met criterion with evidence and a grade. Started by /deep-review after the verifier ran."
 model: opus
 tools: Read, Grep, Glob, Bash
 maxTurns: 40

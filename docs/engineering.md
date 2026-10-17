@@ -344,7 +344,7 @@ Stage skills, which the owner types (`disable-model-invocation: true`):
 | `/spec` | framing |
 | `/recipe` | planning |
 | `/cook` | cooking |
-| `/quality-check`, `/view` | review |
+| `/deep-review`, `/view` | review |
 | `/close` | done |
 | `/quick`, `/auto`, `/guesses`, `/handoff`, `/pickup` | any |
 

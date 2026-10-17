@@ -1,5 +1,5 @@
 ---
-name: quality-check
+name: deep-review
 description: "Review a submitted item in the `review` state: the reviewer marks each criterion with evidence and a grade, the code reviewer reads the diff, then the item waits for the owner's accept or goes back. Use when the owner says check, review or 'is it done'."
 argument-hint: "[item id]"
 disable-model-invocation: true
@@ -16,7 +16,7 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
 2. Read the last verify: `nook eng item verify <id> --last`. No code changes in `review`, so it holds. When it is missing or failed, run `verify` first.
 3. Start two agents, one after the other, each with `nook eng item brief <id>`, the folder of each area and the verify output:
    - `code-review` first: one fresh reviewer on the full diff of every area. A blocking finding goes to step 5 before any AC is marked.
-   - then `nook-engineering:reviewer`: it reads the spec and the diff, finds one negative case for each AC, and marks each met AC itself with `nook eng item ac done <id> <n> --evidence "<text>" --grade run|sourced|judged|owner`.
+   - then `nk-eng:reviewer`: it reads the spec and the diff, finds one negative case for each AC, and marks each met AC itself with `nook eng item ac done <id> <n> --evidence "<text>" --grade run|sourced|judged|owner`.
    For a contract change, add `contract-check`. Start no other agent.
    A second round after a reject: review only what changed, and give the reviewer only the ACs that the change touches.
    Send the second round to the code-reviewer and the reviewer of the first round, with SendMessage to the ids in `nook eng notes <id>`.
@@ -24,7 +24,7 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
 5. An AC not met, or a blocking finding: `nook eng item reject <id> --reason "<AC n or file:line: what>"`. Stop. Next: `/cook <id>`.
 6. Every AC met: report with the weakest evidence first, the nits, what was not confirmed, and the manual checks.
    An AC with several cases shows one evidence line for each case, so the owner sees that no case rests on another's test.
-   With nits: clean them in this item before the accept, always. Run `nook eng item reject <id> --reason "nits: <list>"`, then `/cook <id>` fixes them and `/quality-check` runs again. Never leave a nit for a later item.
+   With nits: clean them in this item before the accept, always. Run `nook eng item reject <id> --reason "nits: <list>"`, then `/cook <id>` fixes them and `/deep-review` runs again. Never leave a nit for a later item.
    A finding about the behavior of this item that no AC covers, such as an error text that the page hides: ask the owner once. Fix it in this item with `nook eng item reframe <id> --reason`, or record it as out of scope in the report. Never open a new item for it on your own.
    Say: accept: type `/gate accept <id>`. Offer `/view <id>`: the page with the walkthrough. Stop. Next: `/close <id>`.
 

@@ -18,8 +18,8 @@ full   the skeptic, plus the objections of each consumer of a changed contract  
 
 ## Order
 - skip: write one line, "challenge skipped, depth skip", and stop.
-- one: start the Agent tool with `subagent_type: nook-engineering:skeptic`, the brief (`nook eng item brief <id>`), `spec.md`, the whole `plan.md`, and the question "Where does this plan fail?".
-- full: the same, plus `nook-engineering:contract-designer` once for each consumer area of a changed contract, with the contract change and the question "State the objections that the builder of this area would state, and what would change its mind." Start them in the same turn.
+- one: start the Agent tool with `subagent_type: nk-eng:skeptic`, the brief (`nook eng item brief <id>`), `spec.md`, the whole `plan.md`, and the question "Where does this plan fail?".
+- full: the same, plus `nk-eng:contract-designer` once for each consumer area of a changed contract, with the contract change and the question "State the objections that the builder of this area would state, and what would change its mind." Start them in the same turn.
 
 Then judge each objection, in order:
 1. Open the file that the objection names. An objection with no evidence is a question, not a finding.

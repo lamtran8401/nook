@@ -17,7 +17,7 @@ A teammate costs many times the tokens of a subagent. Give a `name` only in the 
 1. Run `nook eng task brief <id> <T>`. It prints the slice: the item, the area and its folder, the ACs, the `done when` line, the open guesses, and the commands the builder runs.
 2. Call the Agent tool:
    - `name`: `<area>-builder`, for example `bff-builder`. The name makes it a teammate, and the TeammateIdle hook holds it on its slice by this name.
-   - `subagent_type`: `nook-engineering:backend-builder` for an area of kind `backend`, `nook-engineering:frontend-builder` for `frontend`. Another kind (`docs`, `data`, `tool`) gets the backend builder.
+   - `subagent_type`: `nk-eng:backend-builder` for an area of kind `backend`, `nk-eng:frontend-builder` for `frontend`. Another kind (`docs`, `data`, `tool`) gets the backend builder.
    - no `run_in_background`.
    - `prompt`: the output of `task brief`, word for word. Add a line only when the brief lacks the folder of the area.
 3. The next slice of the same area: `nook eng task brief <id> <T2>`, then SendMessage to `<area>-builder` with the brief, word for word. A message is plain text; the builder runs the commands itself.

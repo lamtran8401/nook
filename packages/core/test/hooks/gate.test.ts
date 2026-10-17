@@ -64,7 +64,7 @@ describe('gateHook', () => {
   })
 
   test('a main session that runs under an agent definition, as a background session, is the owner: its typed command runs', () => {
-    expect(contextOf(typed('nook-engineering:auto', 'IT-1', { agent_type: 'claude' }))).toBe('Nook auto: the owner typed /auto IT-1. It ran.\nIT-1 mode auto')
+    expect(contextOf(typed('nk-eng:auto', 'IT-1', { agent_type: 'claude' }))).toBe('Nook auto: the owner typed /auto IT-1. It ran.\nIT-1 mode auto')
     expect(calls).toEqual([['auto', 'IT-1']])
   })
 
@@ -74,24 +74,24 @@ describe('gateHook', () => {
   })
 
   test('a typed command that a pack names runs as the owner and gives its lines as context', () => {
-    const r = typed('nook-engineering:auto', 'IT-1 keep the old export')
+    const r = typed('nk-eng:auto', 'IT-1 keep the old export')
     expect(contextOf(r)).toBe('Nook auto: the owner typed /auto IT-1 keep the old export. It ran.\nIT-1 mode auto')
     expect(calls).toEqual([['auto', 'IT-1 keep the old export']])
   })
 
   test('a typed command of a pack inside an agent is blocked and runs nothing', () => {
-    expect(typed('nook-engineering:auto', 'IT-1', { agent_id: 'a-1', agent_type: 'general-purpose' })).toEqual({ kind: 'block', reason: '/auto runs only from the prompt of the owner, not inside an agent.' })
+    expect(typed('nk-eng:auto', 'IT-1', { agent_id: 'a-1', agent_type: 'general-purpose' })).toEqual({ kind: 'block', reason: '/auto runs only from the prompt of the owner, not inside an agent.' })
     expect(calls).toEqual([])
   })
 
   test('a typed command in a background session says that the session edits only inside a worktree', () => {
-    expect(contextOf(typed('nook-engineering:auto', 'IT-1', {}, true))).toBe(
+    expect(contextOf(typed('nk-eng:auto', 'IT-1', {}, true))).toBe(
       'Nook auto: the owner typed /auto IT-1. It ran.\nIT-1 mode auto\nNook session: background. Claude Code lets this session edit only inside a worktree, so the build of an area cannot run here.',
     )
   })
 
   test('another command passes untouched', () => {
-    expect(gateHook({ cwd: root, command_name: 'nook-engineering:cook', command_args: 'IT-1' }, { modules: [pack()], startedByTool: () => false })).toEqual({ kind: 'pass' })
+    expect(gateHook({ cwd: root, command_name: 'nk-eng:cook', command_args: 'IT-1' }, { modules: [pack()], startedByTool: () => false })).toEqual({ kind: 'pass' })
   })
 })
 

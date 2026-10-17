@@ -5,7 +5,7 @@
 - send back: one AC is not met, a check fails, or a blocking finding remains.
 - A blocking finding breaks an AC, a changed contract or the scope of the spec, or it is a test that cannot fail.
   It has four parts: where (file and line), what, why it matters, how to show it fails.
-- The blocking list of `nook-engineering:code-reviewer` is in its agent file. Only that list sends work back from the code review.
+- The blocking list of `nk-eng:code-reviewer` is in its agent file. Only that list sends work back from the code review.
 - A nit does not change the behavior: a name, a comment, a style point. Nits go to the owner as a list. They never send the item back.
 - Not confirmed: what the agents could not check, and where they looked. The owner reads it before the accept.
 

@@ -20,7 +20,7 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | Framing | framing | `/spec` | `agree` (`/spec` runs `start` first) | lead, after the owner confirms the spec |
 | Planning | planning | `/recipe` | `approve` | owner, with `/gate` |
 | Cooking | ready, cooking | `/cook` | `begin`, then `submit` | lead |
-| Review | review | `/quality-check`, `/view` | `accept` | owner, with `/gate` |
+| Review | review | `/deep-review`, `/view` | `accept` | owner, with `/gate` |
 | Close | done | `/close` | none | lead |
 
 ## The gates
@@ -38,7 +38,7 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | Path | For | Stages |
 |---|---|---|
 | quick | a fix or chore in one area, size S, no contract change | `/quick`: one slice, no spec, no plan, test first, the owner accepts |
-| standard | everything else | intake, spec, recipe, cook, quality-check, close |
+| standard | everything else | intake, spec, recipe, cook, deep-review, close |
 | auto | a standard item in mode `auto` | `/auto`: the lead runs the phases, records each guess, passes the plan gate with `proceed`, stops at the accept |
 
 Kind `investigate` follows the standard path with Questions in place of criteria: `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.

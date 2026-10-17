@@ -37,7 +37,7 @@ describe('next', () => {
     lead.moveSlice('done', 'SHOP-1', 'T1', { files: ['a'] })
     lead.verify('SHOP-1')
     lead.moveItem('submit', 'SHOP-1')
-    expect(next(lead, 'SHOP-1')[0]!.skill).toBe('/quality-check SHOP-1')
+    expect(next(lead, 'SHOP-1')[0]!.skill).toBe('/deep-review SHOP-1')
     lead.markCriterion('SHOP-1', 1, 'x', 'run')
     lead.markCriterion('SHOP-1', 2, 'y', 'judged')
     expect(next(lead, 'SHOP-1')[0]!.skill).toBe('owner: /gate accept SHOP-1')

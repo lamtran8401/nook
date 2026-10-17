@@ -1,6 +1,6 @@
 ---
 name: contract-check
-description: "List the impact of a contract change on each consumer (none, needs a change, breaks) and the order of change, through the read-only contract designer. Use in /recipe and /quality-check when a shared schema changes, or when the owner asks who consumes it."
+description: "List the impact of a contract change on each consumer (none, needs a change, breaks) and the order of change, through the read-only contract designer. Use in /recipe and /deep-review when a shared schema changes, or when the owner asks who consumes it."
 argument-hint: "<item id>"
 allowed-tools: Bash(nook eng *), Read, Glob, Grep
 ---
@@ -14,12 +14,12 @@ A contract is shared by areas that deploy apart, so an unchecked consumer is a f
 - A contract file is any shared interface: a proto, a GraphQL or OpenAPI schema, an event schema. Find them with a search in the folders of `nook eng area status`.
 
 ## Order
-1. Start the Agent tool with `subagent_type: nook-engineering:contract-designer`, the brief (`nook eng item brief <id>`), the folders of the areas, where the change is, and one job: "plan check" or "review check".
+1. Start the Agent tool with `subagent_type: nk-eng:contract-designer`, the brief (`nook eng item brief <id>`), the folders of the areas, where the change is, and one job: "plan check" or "review check".
    A review check after a plan check goes to the same contract designer: SendMessage to the id in `nook eng notes <id>`, with the diff to check.
 2. Read its table. For each consumer: none, needs a change, or breaks, with the file and line. For each change: additive or breaking.
 3. Check the order it gives: the contract, then the provider, then the consumers. Which consumers can ship before the provider.
 4. A breaking change needs a migration path and the owner's explicit word. Say so and stop there: nobody approves it for the owner.
-5. In a review, each consumer has evidence: a test, a build against the new types, or a line read. A consumer with none is a finding for `/quality-check`.
+5. In a review, each consumer has evidence: a test, a build against the new types, or a line read. A consumer with none is a finding for `/deep-review`.
 
 ```
 Contract change: ListShipmentsRequest.status (optional string, added). Additive: yes.
