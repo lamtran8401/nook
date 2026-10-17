@@ -6,7 +6,6 @@ import { activePacks, type ActivePack, Environment, type Finding, NOOK_FILE, typ
 import { Catalog } from '@nook/env/pack.ts'
 
 import { hasBlock } from '../init/claude-block.ts'
-import { oldEnvironmentsAbove } from '../init/rename.ts'
 
 export type { Finding } from '@nook/env/env.ts'
 export type DoctorReport = {
@@ -72,14 +71,6 @@ export type DoctorOptions = {
 
 const CLAUDE_WHERE = 'Claude Code'
 
-/** The guards of nook do not run in a folder of the old name, so the move comes first, with no session open there. */
-const oldName = (dir: string): Finding => ({
-  level: 'error',
-  where: dir,
-  text: 'an environment of the old name kit: kit.yml is here, nook.yml is not',
-  fix: `close Claude Code here, then run \`nook init --update\` in ${dir}`,
-})
-
 export class Doctor {
   private readonly catalog: Catalog
   private readonly modules: PackModule[]
@@ -96,11 +87,9 @@ export class Doctor {
 
   run(): DoctorReport {
     const envs = Environment.above(this.from)
-    const old = oldEnvironmentsAbove(this.from).map(oldName)
-    if (!envs.length) return { environments: [], packs: [], findings: old.length ? old : [this.outside()] }
+    if (!envs.length) return { environments: [], packs: [], findings: [this.outside()] }
     const active = activePacks(this.from)
     const findings = [
-      ...old,
       ...envs.flatMap(env => CHECKS.flatMap(check => check(env, this.catalog))),
       ...this.pluginsOff(envs, active),
       ...active.flatMap(pack => this.packGaps(pack)),

@@ -6,17 +6,14 @@ import { dirname, join } from 'node:path'
 export class EnvironmentList {
   constructor(readonly file: string) {}
 
-  static pathFor(env: Record<string, string | undefined> = process.env, name = 'nook'): string {
+  static pathFor(env: Record<string, string | undefined> = process.env): string {
     const config = env.XDG_CONFIG_HOME || join(env.HOME || homedir(), '.config')
-    return join(config, name, 'environments')
+    return join(config, 'nook', 'environments')
   }
 
-  /** The list of the owner; the first time, it takes the folders of the list from before the rename (`~/.config/kit`). */
+  /** The list of the owner. */
   static mine(env: Record<string, string | undefined> = process.env): EnvironmentList {
-    const list = new EnvironmentList(EnvironmentList.pathFor(env))
-    const old = new EnvironmentList(EnvironmentList.pathFor(env, 'kit'))
-    if (!existsSync(list.file) && existsSync(old.file)) list.write(old.read())
-    return list
+    return new EnvironmentList(EnvironmentList.pathFor(env))
   }
 
   add(dir: string): void {

@@ -1,5 +1,5 @@
 import { block, type HookInput, type HookResult, pass, rewrite } from '@nook/shared/hook.ts'
-import { ANY_NAME, OTHER_NAMES, ROLE_VAR, TOOL } from '@nook/shared/names.ts'
+import { ANY_NAME, ROLE_VAR, SHORT_NAME, TOOL } from '@nook/shared/names.ts'
 
 import { Home } from '../home.ts'
 import { Caller } from './caller.ts'
@@ -8,15 +8,15 @@ import { callSpans, commands, commandWords, normalize, shellText, type Word } fr
 
 /** PreToolUse Bash: owner moves stay the owner's, the tool runs by its name, each call names its caller. */
 
-const OWNER_MOVE = /\b(?:(?:nook|nk|kit)\s+(?:eng|engineering)|kit-eng)\s+item\s+(approve|accept|mode)\b/
+const OWNER_MOVE = new RegExp(`\\b${ANY_NAME}\\s+(?:eng|engineering)\\s+item\\s+(approve|accept|mode)\\b`)
 const WRAPPER = new RegExp(
   `(?:^|[\\s;&|(\`])(?:env|exec|xargs|eval|command|nohup|time|sudo|timeout|nice|stdbuf)\\s+(?:\\S+\\s+)*${ANY_NAME}(?:\\s|$)`,
 )
 const SHELL_C = new RegExp(`\\b(?:sh|bash|zsh|dash)\\s+-[a-z]*c\\s+(?:\\S+\\s+)*${ANY_NAME}(?:\\s|$)`)
 const CODE_PATH =
-  /(?:^|[\s/])(?:bin\/(?:nook|nk|kit)(?:-eng)?|(?:apps|packages)\/\S+\/src\/\S+|src\/main\.ts)(?:\s|$)|\bbun\s+(?:run\s+)?\S*\.ts\b/
+  /(?:^|[\s/])(?:bin\/(?:nook|nk)|(?:apps|packages)\/\S+\/src\/\S+|src\/main\.ts)(?:\s|$)|\bbun\s+(?:run\s+)?\S*\.ts\b/
 const ROLE_ENV = new RegExp(`\\b${ROLE_VAR}\\s*=|env\\s+-u\\s+CLAUDECODE`)
-const OTHER_NAME = /(?:^|[\s;&|(`])(?:nk|kit-eng|kit)(?:\s|$)/
+const SHORT_CALL = /(?:^|[\s;&|(`])nk(?:\s|$)/
 
 const ROLE_FLAGS = /\s--(?:as|actor|session)(?:=\S+|\s+\S+)/g
 
@@ -37,13 +37,13 @@ const OWNER_TEXT = (move: string) => `${move} is the owner's move: tell the owne
 const WRAP_TEXT = 'run `nook eng` by its plain name: no env, exec, xargs, eval or sh -c around the tool.'
 const CODE_TEXT = 'run `nook eng` by its plain name, not by a path to its code.'
 const ROLE_TEXT = 'the role of an agent is set by nook, not by a command.'
-const NAME_TEXT = 'run the tool as `nook`: `nk` is the short form for the owner, and `kit` is its name before the rename.'
+const NAME_TEXT = 'run the tool as `nook`: `nk` is the short form for the owner.'
 
 const WRAPPERS = new Set(['env', 'exec', 'xargs', 'eval', 'command', 'nohup', 'time', 'sudo', 'timeout', 'nice', 'stdbuf'])
 const SHELLS = new Set(['sh', 'bash', 'zsh', 'dash'])
 const OWNER_MOVES = new Set(['approve', 'accept', 'mode'])
 const ROLE_SET = new RegExp(`^${ROLE_VAR}=`)
-const isTool = (word: string) => word === TOOL || OTHER_NAMES.includes(word)
+const isTool = (word: string) => word === TOOL || word === SHORT_NAME
 
 /** The reason to block a command line, or null. Only command words count: a quoted string is one argument. */
 function denial(command: string): string | null {
@@ -80,16 +80,15 @@ function commandDenial(all: Word[]): string | null {
   if (runsNookCode(head, rest)) return CODE_TEXT
   const move = ownerMove(head, rest)
   if (move) return OWNER_TEXT(move)
-  return OTHER_NAMES.includes(head) ? NAME_TEXT : null
+  return head === SHORT_NAME ? NAME_TEXT : null
 }
 
 const SHELL_TOOL = new RegExp(`(^|[\\s;&|(])${ANY_NAME}(\\s|$)`)
 
-/** `nook eng item approve`, `nk engineering item accept`, `kit-eng item mode`: under any name of the tool. */
+/** `nook eng item approve`, `nk engineering item accept`: under either name of the tool. */
 function ownerMove(head: string, rest: string[]): string | null {
-  const inPack = isTool(head) && head !== 'kit-eng' && (rest[0] === 'eng' || rest[0] === 'engineering')
-  const path = inPack ? rest.slice(1) : head === 'kit-eng' ? rest : null
-  const args = path?.filter(w => !w.startsWith('--')) ?? []
+  if (!isTool(head) || (rest[0] !== 'eng' && rest[0] !== 'engineering')) return null
+  const args = rest.slice(1).filter(w => !w.startsWith('--'))
   return args[0] === 'item' && OWNER_MOVES.has(args[1] ?? '') ? args[1]! : null
 }
 
@@ -104,7 +103,7 @@ const NOOK_SOURCE = /(^|\/)(apps|packages)\/\S+\.ts$|(^|\/)src\/main\.ts$/
 
 /** A run of the tool by a path to its launcher, or of its source through bun. */
 function runsNookCode(head: string, rest: string[]): boolean {
-  if (/(^|\/)bin\/(nook|nk|kit)(-eng)?$/.test(head) || NOOK_SOURCE.test(head)) return true
+  if (/(^|\/)bin\/(nook|nk)$/.test(head) || NOOK_SOURCE.test(head)) return true
   if (head !== 'bun') return false
   const script = rest.filter(w => !w.startsWith('-') && w !== 'run')[0] ?? ''
   return NOOK_SOURCE.test(script)
@@ -133,7 +132,7 @@ function strictDenial(plain: string): string | null {
   if (WRAPPER.test(plain) || SHELL_C.test(plain)) return WRAP_TEXT
   if (CODE_PATH.test(plain)) return CODE_TEXT
   if (ROLE_ENV.test(plain)) return ROLE_TEXT
-  if (OTHER_NAME.test(plain)) return NAME_TEXT
+  if (SHORT_CALL.test(plain)) return NAME_TEXT
   return null
 }
 

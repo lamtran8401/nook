@@ -53,25 +53,3 @@ describe('EnvironmentList', () => {
     expect(EnvironmentList.pathFor({ HOME: '/home/a', XDG_CONFIG_HOME: '/cfg' })).toBe('/cfg/nook/environments')
   })
 })
-
-describe('EnvironmentList.mine: the list from before the rename', () => {
-  const writeList = (name: string, dirs: string[]) => {
-    mkdirSync(join(root, name), { recursive: true })
-    writeFileSync(join(root, name, 'environments'), dirs.map(dir => `${dir}\n`).join(''))
-  }
-
-  test('the list of ~/.config/kit is carried to ~/.config/nook when nook has none yet', () => {
-    const personal = folder('personal')
-    writeList('kit', [personal])
-    const list = EnvironmentList.mine({ XDG_CONFIG_HOME: root })
-    expect(list.file).toBe(join(root, 'nook', 'environments'))
-    expect(list.dirs()).toEqual([personal])
-  })
-
-  test('a list of nook that exists is never replaced by the old one', () => {
-    writeList('kit', [folder('personal')])
-    const company = folder('company')
-    writeList('nook', [company])
-    expect(EnvironmentList.mine({ XDG_CONFIG_HOME: root }).dirs()).toEqual([company])
-  })
-})

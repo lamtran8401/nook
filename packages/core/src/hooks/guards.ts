@@ -2,9 +2,9 @@ import { basename, resolve, sep } from 'node:path'
 
 import { match } from 'ts-pattern'
 
-import { nearestEnvironment } from '@nook/env/env.ts'
+import { nearestEnvironment, STATE_DIR } from '@nook/env/env.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
-import { ROLE_VAR, STATE_DIRS } from '@nook/shared/names.ts'
+import { ROLE_VAR } from '@nook/shared/names.ts'
 
 import { SecretPolicy } from './secrets.ts'
 import { plainWords } from './shell.ts'
@@ -47,7 +47,7 @@ function editTarget(full: string): EditTarget {
   const name = basename(full)
   const parts = full.split(sep)
   if (/^\.env(\..+)?$/.test(name)) return 'secret'
-  if (STATE_DIRS.some(dir => parts.includes(dir))) return 'state'
+  if (parts.includes(STATE_DIR)) return 'state'
   if (/^settings(\.local)?\.json$/.test(name) && parts.includes('.claude')) return 'settings'
   return 'free'
 }

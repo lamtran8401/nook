@@ -43,11 +43,11 @@ describe('bashGuard', () => {
     command => expect(bash(command)).toBe('block'),
   )
 
-  test.each(['sqlite3 .nook/engineering.db', 'cat .nook/x.db', 'cat .kit/engineering.db'])('blocks a command on a state database: %s', command => {
+  test.each(['sqlite3 .nook/engineering.db', 'cat .nook/x.db'])('blocks a command on a state database: %s', command => {
     expect(bash(command)).toBe('block')
   })
 
-  test.each(['NOOK_ROLE=owner nook eng item approve A-1', 'KIT_ROLE=owner nook doctor', 'env -u CLAUDECODE nook doctor'])('blocks a command that sets a role: %s', command => {
+  test.each(['NOOK_ROLE=owner nook eng item approve A-1', 'NOOK_ACTOR=x nook doctor', 'env -u CLAUDECODE nook doctor'])('blocks a command that sets a role: %s', command => {
     expect(bash(command)).toBe('block')
   })
 
@@ -84,7 +84,7 @@ describe('bashGuard', () => {
 })
 
 describe('editGuard', () => {
-  test.each(['.env', '.nook/state.json', '.kit/state.json','.claude/settings.json', '.claude/settings.local.json'])('blocks an edit of %s', file => {
+  test.each(['.env', '.nook/state.json','.claude/settings.json', '.claude/settings.local.json'])('blocks an edit of %s', file => {
     expect(edit(file)).toBe('block')
   })
 

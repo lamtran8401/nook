@@ -19,9 +19,9 @@ afterEach(() => t.cleanup())
 const bash = (command: string, extra: Partial<HookInput> = {}) => bashGuard({ cwd: t.root, session_id: 'sess-1', tool_name: 'Bash', tool_input: { command }, ...extra })
 
 describe('bashGuard: the owner moves and the plain name of the tool', () => {
-  test('approve, accept and mode through nook eng, kit-eng, nook engineering, with quotes and backslashes', () => {
+  test('approve, accept and mode through nook eng and nook engineering, with quotes and backslashes', () => {
     for (const c of [
-      'nook eng item approve SHOP-1', 'kit-eng item accept SHOP-1', 'nook engineering item approve SHOP-1', 'nook eng item mode SHOP-1 auto',
+      'nook eng item approve SHOP-1', 'nook eng item accept SHOP-1', 'nook engineering item approve SHOP-1', 'nook eng item mode SHOP-1 auto',
       'nook eng "item" appr\\ove SHOP-1', "nook   eng item 'approve' SHOP-1", 'cd work && nook eng item approve SHOP-1', 'nook eng item accept SHOP-1 --json',
     ]) {
       const result = bash(c)
@@ -36,8 +36,8 @@ describe('bashGuard: the owner moves and the plain name of the tool', () => {
 
   test('wrappers, paths to the code and the role variables are blocked', () => {
     for (const c of [
-      'env NOOK_X=1 nook eng item show A', 'exec kit-eng item show A', 'echo x | xargs nook eng item show', 'eval nook eng item show A', 'sh -c "nook eng item show A"',
-      'bash -lc kit-eng next', 'bun packages/engineering/src/commands.ts item show A', '/x/apps/nook/bin/nook eng item show A', 'NOOK_ROLE=owner nook eng item approve A', 'env -u CLAUDECODE nook eng next',
+      'env NOOK_X=1 nook eng item show A', 'exec nook eng item show A', 'echo x | xargs nook eng item show', 'eval nook eng item show A', 'sh -c "nook eng item show A"',
+      'bash -lc "nook eng next"', 'bun packages/engineering/src/commands.ts item show A', '/x/apps/nook/bin/nook eng item show A', 'NOOK_ROLE=owner nook eng item approve A', 'env -u CLAUDECODE nook eng next',
     ]) {
       expect(bash(c).kind).toBe('block')
     }
@@ -45,23 +45,23 @@ describe('bashGuard: the owner moves and the plain name of the tool', () => {
     expect(bash("cat > note.md <<'EOF'\nexec nook eng item approve A\nEOF").kind).toBe('pass')
   })
 
-  test('an owner move under the short name or the old name is still the owner move', () => {
-    for (const c of ['nk eng item approve SHOP-1', 'kit eng item accept SHOP-1', 'nk engineering item mode SHOP-1 auto', 'echo $(nk eng item approve A)']) {
+  test('an owner move under the short name is still the owner move', () => {
+    for (const c of ['nk eng item approve SHOP-1', 'nk eng item accept SHOP-1', 'nk engineering item mode SHOP-1 auto', 'echo $(nk eng item approve A)']) {
       expect(reason(bash(c))).toMatch(/owner's move/)
     }
   })
 
-  test('an agent runs the tool as nook only: nk, kit and kit-eng are blocked', () => {
-    for (const c of ['nk eng next', 'kit eng item show A', 'kit-eng next', 'cd work && nk doctor', 'echo `kit eng next`', 'env nk eng next', '/x/apps/kit/bin/kit eng next']) {
+  test('an agent runs the tool as nook only: nk is blocked', () => {
+    for (const c of ['nk eng next', 'nk eng item show A', 'cd work && nk doctor', 'echo `nk eng next`', 'env nk eng next', '/x/apps/nook/bin/nk eng next']) {
       expect(bash(c).kind).toBe('block')
     }
-    expect(reason(bash('nk eng next'))).toBe('run the tool as `nook`: `nk` is the short form for the owner, and `kit` is its name before the rename.')
-    expect(bash('echo "nk and kit are other names"').kind).not.toBe('block')
+    expect(reason(bash('nk eng next'))).toBe('run the tool as `nook`: `nk` is the short form for the owner.')
+    expect(bash('echo "nk is the short name"').kind).not.toBe('block')
   })
 
-  test('the role variables under the old prefix are blocked too', () => {
-    for (const c of ['KIT_ROLE=owner nook eng item show A', 'echo $(KIT_ACTOR=x nook eng next)']) {
-      expect(bash(c).kind).toBe('block')
+  test('kit is not a name of the tool, so the guard lets it pass', () => {
+    for (const c of ['kit eng item approve SHOP-1', 'KIT_ROLE=owner kit next']) {
+      expect(bash(c).kind).toBe('pass')
     }
   })
 

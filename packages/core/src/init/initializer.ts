@@ -8,7 +8,6 @@ import { usage } from '@nook/shared/errors.ts'
 
 import { placeBlock } from './claude-block.ts'
 import { addPacks, nookYaml } from './nook-file.ts'
-import { moveOldNames } from './rename.ts'
 import { mergeSettings, type Settings } from './settings.ts'
 
 const RULES_DIR = join('.claude', 'rules', 'nook')
@@ -27,8 +26,7 @@ export type InitReport = { wrote: string[]; kept: string[]; packs: string[]; uns
 export class Initializer {
   private readonly report: InitReport = { wrote: [], kept: [], packs: [], unset: [] }
   private readonly wanted: string[]
-  /** `--update`, or a move from the old names, which needs the block, the rules and the style written again. */
-  private update: boolean
+  private readonly update: boolean
 
   constructor(
     private readonly options: InitOptions,
@@ -40,7 +38,6 @@ export class Initializer {
 
   run(): InitReport {
     this.checkPacks()
-    this.moveOldNames()
     this.writeNookFile()
     const env = Environment.read(this.options.dir)
     this.report.packs = ['core', ...env.config.packs]
@@ -52,12 +49,6 @@ export class Initializer {
     this.setupPacks()
     this.options.list?.add(this.options.dir)
     return this.report
-  }
-
-  private moveOldNames(): void {
-    const moved = moveOldNames(this.options.dir)
-    this.report.wrote.push(...moved)
-    if (moved.length) this.update = true
   }
 
   private checkPacks(): void {
