@@ -52,6 +52,7 @@ Desks can nest. `company/` is a top desk; `company/shop/` is a child desk inside
 
 ## After the merge
 
+1. Run `bun install` in the Nook repo, then remove the folder `packages/env/`. The package moved, and its links stay in the old folder until then.
 1. Remove the plugins `nook-engineering`, `nook-wiki` and `nook-learn`. Install `nk-eng@nook`, `nk-wiki@nook` and `nk-learn@nook`.
 2. Run `nook init --update` in each desk of the owner. It writes the new words into the block and the rules.
 3. Remove the old list `~/.config/nook/environments`.

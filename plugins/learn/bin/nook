@@ -15,7 +15,7 @@ run() {
   case $code in 0|2) exit $code ;; esac
   root=$(cd "$(dirname "$(readlink -f "$1")")/../../.." 2>/dev/null && pwd)
   if [ "$guard" = yes ]; then
-    echo "nook: Nook itself failed (exit $code), so this guard blocks the call. The owner repairs Nook with a ! command, for example: ! git -C $root status, then ! git -C $root checkout -- <the broken file>" >&2
+    echo "nook: Nook itself failed (exit $code), so this guard blocks the call. The owner repairs Nook with a ! command. Cannot find package: ! cd $root && bun install. A broken file: ! git -C $root status, then ! git -C $root checkout -- <the broken file>" >&2
     exit 2
   fi
   echo "nook: Nook itself failed (exit $code); this hook lets the session go on" >&2

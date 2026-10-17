@@ -56,6 +56,12 @@ describe('the plugin shim when Nook itself fails', () => {
     expect(result.err).toContain('! git -C')
   })
 
+  test('the repair names bun install for a package that the nook cannot find', () => {
+    const result = runShimWith({ NOOK_PROJECT: fakeNook(), FAKE_CODE: '1' }, 'hook', 'edit')
+    expect(result.err).toContain("Cannot find package: ! cd")
+    expect(result.err).toContain('&& bun install')
+  })
+
   test('any other hook lets the session go on with exit 0, so a broken nook cannot hold the session', () => {
     expect(runShimWith({ NOOK_PROJECT: fakeNook(), FAKE_CODE: '1' }, 'eng', 'hook', 'stop').code).toBe(0)
   })
