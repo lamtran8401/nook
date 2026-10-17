@@ -21,7 +21,7 @@ export type InitOptions = { dir: string; packs: string[]; update: boolean; coreD
 export type InitReport = { wrote: string[]; kept: string[]; packs: string[]; unset: string[] }
 
 /**
- * Scaffolds the nook in one folder: nook.yml (once), the nook block of CLAUDE.md, the base rules, the output style,
+ * Scaffolds Nook in one folder: nook.yml (once), the nook block of CLAUDE.md, the base rules, the output style,
  * the nook keys of the settings, the state folder. It never touches a line that the owner wrote.
  */
 export class Initializer {

@@ -43,7 +43,7 @@ describe('Doctor', () => {
     initIn(root)
     writeFileSync(join(root, '.claude', 'rules', 'writing.md'), '# mine\n')
     expect(report().findings).toEqual([
-      { level: 'warn', where: root, text: 'two rules named "writing": yours and the nook\'s; Claude can follow either', fix: 'turn the nook rule off (rules: { off: [writing] }) or rename yours' },
+      { level: 'warn', where: root, text: 'two rules named "writing": yours and Nook\'s; Claude can follow either', fix: 'turn the nook rule off (rules: { off: [writing] }) or rename yours' },
     ])
   })
 

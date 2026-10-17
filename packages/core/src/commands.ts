@@ -59,7 +59,7 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
     },
     {
       path: ['packs'],
-      summary: 'the packs on in this folder, where each keeps its record, and the packs that the nook ships',
+      summary: 'the packs on in this folder, where each keeps its record, and the packs that Nook ships',
       run(c) {
         const on = activePacks(process.cwd())
         const shipped = Catalog.load().all().map(p => ({ name: p.manifest.name, description: p.manifest.description }))

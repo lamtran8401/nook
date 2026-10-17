@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { Catalog } from './catalog.ts'
 
 /**
- * The UI kit of the pages that the nook builds: the tokens and the `bn-*` components of Bench, kept as files in
+ * The UI kit of the pages that Nook builds: the tokens and the `bn-*` components of Bench, kept as files in
  * `plugins/core/ui/bench/`. A page inlines what this module returns, since an artifact loads no other stylesheet.
  */
 

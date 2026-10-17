@@ -39,7 +39,7 @@ const baseRules: Check = env => {
   return readdirSync(join(env.dir, '.claude', 'rules'))
     .filter(file => file.endsWith('.md') && nookRules.has(basename(file, '.md')))
     .map(file => basename(file, '.md'))
-    .map(rule => warn(env, `two rules named "${rule}": yours and the nook's; Claude can follow either`, `turn the nook rule off (rules: { off: [${rule}] }) or rename yours`))
+    .map(rule => warn(env, `two rules named "${rule}": yours and Nook's; Claude can follow either`, `turn the nook rule off (rules: { off: [${rule}] }) or rename yours`))
 }
 
 const stateDir: Check = env =>

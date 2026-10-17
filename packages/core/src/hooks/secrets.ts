@@ -5,7 +5,7 @@ import { secretsAbove } from '@nook/env/env.ts'
 const SECRET_NAMES = [/^\.env(\..+)?$/, /^\.npmrc$/]
 const SECRET_DIRS = ['.ssh', '.aws']
 
-/** The secret files of the nook: `.env` files except `.env.example`, `.npmrc`, `~/.ssh`, `~/.aws`, and the `secrets` of nook.yml. */
+/** The secret files: `.env` files except `.env.example`, `.npmrc`, `~/.ssh`, `~/.aws`, and the `secrets` of nook.yml. */
 export class SecretPolicy {
   private readonly listed: string[]
 

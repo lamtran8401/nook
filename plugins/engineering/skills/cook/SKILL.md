@@ -7,7 +7,7 @@ allowed-tools: Bash(nook eng *), Bash(git status *), Bash(git diff *), Bash(git 
 ---
 
 Goal: every slice done with a proof, every check green, the item in `review`.
-The lead directs; a builder writes the code, one for each area. Who builds: `brief.md`. The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The builders: `brief.md` (this folder).
+The lead directs; a builder writes the code, one for each area. Who builds each slice: `brief.md` (this folder). The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 
 ## Order
 1. Run `nook eng pickup <id>` and `nook eng doctor`. The state must be `ready` or `cooking`, with no drift; else report the gap and its fix and stop.

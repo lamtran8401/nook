@@ -9,7 +9,7 @@ One builder for each area of the item, at most 4 at once.
 |---|---|---|
 | a quick item, or size S with one slice | the lead itself | one slice is one job; a builder would cost a brief and a return for nothing |
 | an area with one slice | a background subagent, no `name`, the brief as its prompt | one job, a summary back, its context never enters the lead's |
-| an area with two or more slices, or size M or L | a teammate `name: <area>-builder`, alive from `begin` to `submit` | the second slice reuses what the first one learned about the area |
+| an area with two or more slices | a teammate `name: <area>-builder`, alive from `begin` to `submit` | the second slice reuses what the first one learned about the area |
 
 A teammate costs many times the tokens of a subagent. Give a `name` only in the last case.
 

@@ -19,5 +19,5 @@ Goal: the owner can explain the topic in their own words and use it in an exampl
 
 ## Gotchas
 - A page with no example is not done. The owner's example comes first.
-- A large topic needs sources: say so and offer `/research` instead of a long session.
+- A large topic needs sources: say so, and split it into shorter sessions.
 - Write no page before the owner's yes.

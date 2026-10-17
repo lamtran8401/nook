@@ -11,11 +11,11 @@ The gain is time; the cost is guesses, so each one is small and recorded.
 The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 
 ## Start
-1. Read the lines that start with "Nook auto". A hook of the nook ran when the owner typed `/auto`: it named the item and set its mode `auto` as the owner.
+1. Read the lines that start with "Nook auto". A Nook hook ran when the owner typed `/auto`: it named the item and set its mode `auto` as the owner.
    - "It was refused": show the lines, and stop. With several open items, ask with AskUserQuestion which one, and tell the owner to type `/auto <id>`.
    - No "Nook auto" line: the hook did not run. Run `nook doctor`, report each gap, and stop. Never set the mode yourself.
    - A line "Nook session: background": this session can edit only inside a worktree, and the build of an area happens in place on the branch of the item. Tell the owner before the first stage, in plain words, and ask with AskUserQuestion: go on in a normal session (recommended), or run the spec and the plan here and stop before the build.
-2. Run `nook eng item show <id>`. The mode must be `auto`, set by the owner (`mode_by`).
+2. Run `nook eng item show <id> --json`. The mode must be `auto`, set by the owner (`mode_by`).
 3. An item that the hook "made from the prompt": the words of the owner are the ticket. Write `backlog/<id>/ticket.md` from them, then run intake from its step 3.
 4. The words after an id are the owner's context; they win over the ticket, cited as `(owner)`.
 
@@ -27,7 +27,7 @@ Run `nook eng next <id>`: it names the stage. Read `${CLAUDE_PLUGIN_ROOT}/skills
 | spec | take the recommended answer of each blocking question and record it as a guess; no confirm question; run `agree` yourself |
 | recipe | take the recommended depth and the recommended option of each design choice, as guesses; no confirm question; pass the gate with `nook eng item proceed <id>` |
 | cook | answer a waiting slice from the documents, or take the most likely answer as a guess |
-| check | run the agents as written; not met: `reject`, then cook again; at most two reject cycles; stop at the accept |
+| quality-check | run the agents as written; not met: `reject`, then cook again; at most two reject cycles; stop at the accept |
 
 The mode is the owner's instruction to run the next stage yourself; do not ask.
 The Stop hook holds the session while the next stage is yours; its reason names the file.

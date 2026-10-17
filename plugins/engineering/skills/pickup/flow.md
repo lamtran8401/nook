@@ -16,8 +16,8 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 
 | Phase | State | Skill | The move at the end | Who |
 |---|---|---|---|---|
-| Intake | backlog | `/intake` | `start` | lead |
-| Framing | framing | `/spec` | `agree` | lead, after the owner confirms the spec |
+| Intake | backlog | `/intake` | none: the item waits in backlog | lead |
+| Framing | framing | `/spec` | `agree` (`/spec` runs `start` first) | lead, after the owner confirms the spec |
 | Planning | planning | `/recipe` | `approve` | owner, with `/gate` |
 | Cooking | ready, cooking | `/cook` | `begin`, then `submit` | lead |
 | Review | review | `/quality-check`, `/view` | `accept` | owner, with `/gate` |
@@ -38,7 +38,7 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | Path | For | Stages |
 |---|---|---|
 | quick | a fix or chore in one area, size S, no contract change | `/quick`: one slice, no spec, no plan, test first, the owner accepts |
-| standard | everything else | intake, spec, recipe, cook, check, close |
+| standard | everything else | intake, spec, recipe, cook, quality-check, close |
 | auto | a standard item in mode `auto` | `/auto`: the lead runs the phases, records each guess, passes the plan gate with `proceed`, stops at the accept |
 
 Kind `investigate` follows the standard path with Questions in place of criteria: `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
@@ -48,9 +48,9 @@ Kind `investigate` follows the standard path with Questions in place of criteria
 |---|---|---|
 | lead | triage, the spec, the plan, the answers, the moves, a quick item, the reports | itself |
 | subagent | scout, verifier, reviewer, code-reviewer, skeptic, the designers: one job, a summary back | the Agent tool with `subagent_type`, no `name`; `run_in_background` when the lead has other work meanwhile |
-| teammate | a builder for an area with two or more slices, or an item of size M or L, alive from `begin` to `submit` | the Agent tool with `name: <area>-builder`; see `../cook/brief.md` |
+| teammate | a builder for an area with two or more slices, alive from `begin` to `submit` | the Agent tool with `name: <area>-builder`; see `../cook/brief.md` |
 
-A lone slice goes to a background subagent; a quick item the lead builds itself.
+An area with one slice goes to a background subagent; a quick item, or size S with one slice, the lead builds itself.
 A reviewer, a code-reviewer or the contract designer can get a second job on the same item: a second round, or the review after the plan check.
 - Record the id of each one when it starts: `nook eng note add <id> "<agent type>: <agent id>"`. The note survives a compaction.
 - Send the second job with SendMessage to that id, with what changed since the first job. It resumes with the first job in its context.

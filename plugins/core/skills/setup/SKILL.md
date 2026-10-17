@@ -6,7 +6,7 @@ disable-model-invocation: true
 allowed-tools: Bash(nook *), Bash(git *), Bash(ls *), Bash(cat *), Read, Glob, Grep, Edit, Write
 ---
 
-Goal: this folder becomes an environment that an agent can work in with no guess, for every pack that is on. `nook init` scaffolded the nook and the folders of each pack. You write the rest with the owner.
+Goal: this folder becomes an environment that an agent can work in with no guess, for every pack that is on. `nook init` wrote `nook.yml`, the Nook block, the rules and the folders of each pack. You write the rest with the owner.
 Run it again after a pack is turned on: `nook init` then says which pack needs its section.
 
 ## Order
@@ -18,7 +18,7 @@ Run it again after a pack is turned on: `nook init` then says which pack needs i
    For `wiki:`, list each shelf that exists in `docs/wiki/` with its use in one sentence, and `index: false` for a shelf of dated notes such as `daily/`. Move no page; then run `nook wiki index --fix`.
    For `learn:`, write `dir: learn`, the folder of the courses. A course gets its files later, with `/learn-setup <course>`.
 6. Make `projects/` only when the owner wants it. `nook init --update` in step 8 makes the folders of each pack (`work/`, `backlog/`, `docs/adr/` for engineering).
-7. Write the map of the folder into `CLAUDE.md`, outside the nook block: what each top folder is for, the areas, and the conventions that the owner named. Short, in plain words.
+7. Write the map of the folder into `CLAUDE.md`, outside the Nook block: what each top folder is for, the areas, and the conventions that the owner named. Short, in plain words.
 8. Run `nook init --update`, then `nook doctor`. Report: what the disk settled, what the owner decided, what you wrote, and every gap that doctor still lists. A pack gap that is left is not done: say why.
 
 ## With an argument
@@ -27,6 +27,6 @@ Run it again after a pack is turned on: `nook init` then says which pack needs i
 ## Gotchas
 - Never ask what the disk answers: a `test` script in `package.json` is the test check.
 - A folder that holds two environments that must stay apart (company and personal) gets no packs.
-- The nook block in `CLAUDE.md` is not yours. Write above or below it.
+- The Nook block in `CLAUDE.md` is not yours. Write above or below it.
 - A check that you did not run is a guess. Run each one once in its area, or mark it "not run".
 - Do not write a secret value anywhere. The `secrets` list holds paths only.

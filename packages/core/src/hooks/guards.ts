@@ -59,7 +59,7 @@ export function editGuard(input: HookInput): HookResult {
   if (!target) return pass
   return match(editTarget(resolve(cwdOf(input), target)))
     .with('secret', () => block(`${target} is a secret file: Nook never writes one.`))
-    .with('state', () => block(`${target} is in the state folder: the nook tools write it, not an edit.`))
+    .with('state', () => block(`${target} is in the state folder: the nook commands write it, not an edit.`))
     .with('settings', () => block(`${target} holds the permissions: the owner edits it, or \`nook init --update\`.`))
     .with('free', () => pass)
     .exhaustive()

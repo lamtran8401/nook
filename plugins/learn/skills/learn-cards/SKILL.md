@@ -1,6 +1,6 @@
 ---
 name: learn-cards
-description: "Review the cards that are due: show the front, let the owner answer, show the back, mark known (good) or missed (again) with nook learn. Use in /learn-today. Not for making new cards: /learn-today adds them."
+description: "Review the cards that are due: show the front, let the owner answer, show the back, mark known (good) or missed (again) with `nook learn card review`. Use in /learn-today. Not for making new cards: /learn-today adds them."
 allowed-tools: Bash(nook learn *)
 ---
 
