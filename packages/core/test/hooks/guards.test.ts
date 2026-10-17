@@ -18,7 +18,7 @@ const bash = (command: string, cwd = root) => bashGuard({ cwd, tool_name: 'Bash'
 const edit = (file_path: string) => editGuard({ cwd: root, tool_name: 'Edit', tool_input: { file_path } }).kind
 
 describe('readGuard', () => {
-  test.each(['.env', 'app/.env.local', 'prod.env', 'config/app.env', '.npmrc', '~/.ssh/id_rsa', 'config/infra.local.yaml'])('blocks a read of %s', file => {
+  test.each(['.env', 'app/.env.local', '.env.bak~', 'prod.env', 'config/app.env', 'process.env', '.npmrc', '~/.ssh/id_rsa', 'config/infra.local.yaml'])('blocks a read of %s', file => {
     expect(read(file)).toBe('block')
   })
 
@@ -38,7 +38,7 @@ describe('readGuard', () => {
 })
 
 describe('bashGuard', () => {
-  test.each(['cat .env', "cat '.env'", 'cat .env.local', 'cat ./app/.env.local', 'cat prod.env', 'cat config/app.env', 'cat ~/.aws/credentials', 'cat config/infra.local.yaml'])(
+  test.each(['cat .env', "cat '.env'", 'cat .env.local', 'cat ./app/.env.local', 'cat $HOME/.env', 'cat ${HOME}/.env', 'docker run --env-file=.env app', 'cat prod.env', 'cat config/app.env', 'cat ~/.aws/credentials', 'cat config/infra.local.yaml'])(
     'blocks a command that reaches a secret: %s',
     command => expect(bash(command)).toBe('block'),
   )

@@ -36,7 +36,7 @@ describe('Desk', () => {
     mkdirSync(inner, { recursive: true })
     writeFileSync(join(root, 'nook.yml'), 'packs: []\n')
     writeFileSync(join(root, 'company', 'nook.yml'), 'packs: [engineering]\nsecrets: [infra.yaml]\n')
-    expect(Desk.above(inner).map(e => e.dir)).toEqual([root, join(root, 'company')])
+    expect(Desk.above(inner).map(desk => desk.dir)).toEqual([root, join(root, 'company')])
     expect(Desk.nearest(inner)?.dir).toBe(join(root, 'company'))
     expect(Desk.nearest(inner)?.secretFiles()).toEqual([join(root, 'company', 'infra.yaml')])
   })

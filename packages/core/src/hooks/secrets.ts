@@ -2,12 +2,18 @@ import { basename, relative, resolve, sep } from 'node:path'
 
 import { secretsAbove } from '@nook/desk/desks.ts'
 
-const ENV_FILE = /^(?:\.env(?:\.[\w.-]+)?|[\w-][\w.-]*\.env)$/
+const ENV_FILE = /^(?:\.env(?:\..+)?|[\w-][\w.-]*\.env)$/
 const CODE_ENV = /^(?:process|Bun|Deno|import\.meta)\.env$/
 const SECRET_DIRS = ['.ssh', '.aws']
 
-/** `.env`, `.env.local`, `prod.env`; not `.env.example`, and not `process.env`, which is code. */
-export const isEnvFile = (name: string): boolean => ENV_FILE.test(name) && !CODE_ENV.test(name) && !name.endsWith('.env.example')
+/** `.env`, `.env.local`, `prod.env`; not `.env.example`. */
+export const isEnvFile = (name: string): boolean => ENV_FILE.test(name) && !name.endsWith('.env.example')
+
+/** In a command, `process.env` is code, not a file; `$HOME/.env` and `--env-file=.env` name the file. */
+const namesEnvFile = (word: string): boolean => {
+  const name = basename(word.split('=').at(-1) ?? '')
+  return isEnvFile(name) && !CODE_ENV.test(name)
+}
 
 /** The secret files: env files except `.env.example`, `.npmrc`, `~/.ssh`, `~/.aws`, and the `secrets` of nook.yml. */
 export class SecretPolicy {
@@ -26,7 +32,7 @@ export class SecretPolicy {
   }
 
   wordProblem(word: string): string | null {
-    if (/^(?:[~.\w-]*\/)*[\w.-]+$/.test(word) && isEnvFile(basename(word))) return `the command names ${word}: Nook does not read or write secrets.`
+    if (namesEnvFile(word)) return `the command names ${word}: Nook does not read or write secrets.`
     if (/(^|\/)\.npmrc$/.test(word) || /(^|\/)\.(ssh|aws)(\/|$)/.test(word)) return `the command touches ${word}: Nook does not read secrets.`
     if (/(^|\/)\.nook\/.*\.db/.test(word) || /^sqlite3?$/.test(word)) return 'the state databases are not for the shell: use the nook commands.'
     return null

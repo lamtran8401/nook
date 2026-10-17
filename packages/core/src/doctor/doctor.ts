@@ -97,7 +97,7 @@ export class Doctor {
     const packs = active.map(p => ({ name: p.name, home: p.home.dir }))
     if (!findings.length) findings.push(this.healthy(desks.length, packs.length + 1))
     return {
-      desks: desks.map(e => ({ dir: e.dir, packs: e.config.packs, off: e.config.off })),
+      desks: desks.map(desk => ({ dir: desk.dir, packs: desk.config.packs, off: desk.config.off })),
       packs: [{ name: 'core', home: desks[0]!.dir }, ...packs],
       findings,
     }
