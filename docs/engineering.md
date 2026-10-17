@@ -1,216 +1,420 @@
 # The engineering pack: the contract
 
-Status: v0.1, 2026-10-15. This file is the contract between the tool, the skills, the agents and the hooks of the pack. When the code and this file do not agree, fix one of them in the same change.
-The plan is in `nook.md` section 4 and `nook-guide.html` chapter 8. The expectations are in `expect/v0.1.md`, E-10 to E-24.
+> In short: one item moves from the backlog to the owner's accept. The tool `nook eng` holds the ledger and the guards; the skills, the agents and the hooks use only its commands.
+
+This file states how the code works now. The code is in `packages/engineering/`; the plugin is `plugins/engineering/`.
+When the code and this file do not agree, fix one of them in the same change.
 
 ## 1. Words
+
 | Word | Meaning |
 |---|---|
-| item | one piece of work with a goal and acceptance criteria (AC). Its id is the key of the tracker (`SHOP-12`) or one that Nook makes (`IT-001`). |
-| area | a folder of the environment with a kind and its checks, named in `nook.yml` |
+| desk | a folder with `nook.yml` |
+| home | the nearest desk above a folder that turns `engineering` on; the ledger, `work/` and `backlog/` live there |
+| item | one piece of work with a goal and acceptance criteria (AC) |
+| area | a folder of the home with a kind and its checks |
 | slice | one task of an item in one area: `T1`, `T2` |
-| guess | an assumption that an agent made in place of a question to the owner |
-| home | the nearest environment above the folder that turns the engineering pack on; the ledger, `work/` and `backlog/` live there |
+| guess | an answer that an agent took in place of a question |
+| gate | a move that only the owner makes |
+
+An item id is the key of a tracker (`SHOP-12`) or one that Nook makes (`IT-001`).
+A Nook id is `IT-` and the highest IT number plus one, with three digits at least: `IT-001`, `IT-042`, `IT-1000`.
 
 ## 2. Config: the `engineering` section of `nook.yml`
+
 ```yaml
 engineering:
   dir: work                              # the documents of each item: <home>/work/<id>/
   backlog: backlog                       # the tickets: <home>/backlog/<KEY>/
-  protected: [main, master, develop]     # branches that no agent builds on
+  protected: [main, master, develop]     # the branches that no agent builds on
   tracker: { type: none }                # none | jira | github
   areas:
-    - name: bff
-      path: projects/shop/bff            # relative to the home
+    - name: api
+      path: projects/shop/api            # relative to the home
       kind: backend                      # frontend | backend | docs | data | tool
-      checks: [yarn lint, yarn test]     # run in the area folder; [] means none; missing means "verify fails until set"
-      test: "yarn test {files}"          # the fast test command for a proof; {files} is replaced
-      install: yarn install              # read now, used later by a worktree for each item
-      git: true                          # false: no branch, no worktree, no commit
+      checks: [bun test]                 # run in the area folder; [] is none; no key: verify fails until set
+      test: "bun test {files}"           # the test command of a proof; {files} is replaced
+      install: bun install               # read, not used yet
+      git: true                          # false: no branch and no commit
 ```
-The tool checks the section and names each fault with its fix.
+
+The defaults are `dir: work`, `backlog: backlog` and the three protected branches.
+A fault in the section stops the command and names the fix: a kind that does not exist, two areas with one name, an area with no path.
 
 ## 3. Roles
+
 | Role | Who | How the tool knows |
 |---|---|---|
-| owner | the person | a process that Claude Code did not start (`CLAUDECODE` not set), or `NOOK_ROLE=owner` in the env of such a process; or a move that the owner typed as `/gate` in the prompt, which a `UserPromptExpansion` hook of the core runs with the actor `owner via /gate`; `/auto` sets the mode the same way, as `owner via /auto` |
-| lead | the main session | `CLAUDECODE` set and no `NOOK_ROLE` |
-| builder | a builder agent | the hook adds `--as builder --actor <name> --session <id>` to each `nook eng` call of an agent whose `agent_type` ends in `builder`, or that has an `agent_id` and no `agent_type` (an in-process teammate; only builders run as teammates); a flag that the model wrote is dropped first |
-| reader | a read-only agent of the pack: verifier, reviewer, code-reviewer, scout, skeptic and the three designers | the hook adds `--as reader …` to each call of `nook eng` |
-| lead, as a helper | any other agent, such as a general-purpose agent that the lead starts | the rules of the lead: no owner move, and the guards of the areas |
+| owner | the person | see the list below |
+| lead | the main session | `CLAUDECODE` is set and `NOOK_ROLE` is not |
+| builder | a builder agent | the Bash hook adds `--as builder` |
+| reader | a read-only agent of the pack | the Bash hook adds `--as reader` |
 
-The hook blocks a command of the model that sets `NOOK_ROLE` (or the old `KIT_ROLE`), unsets `CLAUDECODE`, runs the tool through `env`, `exec`, `xargs`, `eval`, `sh -c` or a path to its code, or runs it by another name (`nk`, `kit`, `kit-eng`): a call by another name would skip the role flags. The core bash guard already blocks the first two.
+The owner is one of these:
+- a process that Claude Code did not start: `CLAUDECODE` is not set;
+- a move that the owner typed as `/gate <move> <id>`, with the actor `owner via /gate`;
+- an `/auto` that the owner typed, with the actor `owner via /auto`.
+
+The Bash hook reads the role of an agent from the hook input:
+- No `agent_type` and no `agent_id`: the lead.
+- An `agent_type` that ends in `builder`: a builder. An `agent_id` with no type is a teammate, and only builders run as teammates.
+- The readers: `verifier`, `reviewer`, `code-reviewer`, `scout`, `skeptic`, `system-designer`, `contract-designer`, `data-modeler`.
+- Any other agent works for the lead and gets the rules of the lead.
+
+The actor of an agent is its type and the last 4 characters of its `agent_id`, such as `backend-builder-3f2a`.
+The hook drops a role flag that the model wrote, then adds its own flags right after `nook eng`. The lead gets `--session` only.
 
 ## 4. States and moves
+
 ```
 backlog ─start→ framing ─agree→ planning ─approve★→ ready ─begin→ cooking ─submit→ review ─accept★→ done
-                                 └──────proceed (auto run)────┘
-review ─reject→ cooking      done ─reopen→ cooking      ready | cooking | review ─replan→ planning
-planning | ready | cooking | review ─reframe→ framing      any open ─block→ blocked ─unblock→ the state before
-any open ─cancel→ cancelled ─restore→ backlog                 ★ only the owner
+                                 └──proceed (auto run)──┘
+review ─reject→ cooking            done ─reopen→ cooking         ready | cooking | review ─replan→ planning
+planning | ready | cooking | review ─reframe→ framing            any open ─block→ blocked ─unblock→ the state before
+any open ─cancel→ cancelled ─restore→ backlog                    ★ only the owner
 ```
-| Move | Who | Guard: each gap is listed, with the command that fixes it |
+
+| Move | Who | The guard: each gap comes with the command that fixes it |
 |---|---|---|
-| start | lead, owner | none; scaffolds `spec.md` |
-| agree | lead, owner | `spec.md` parses: front matter `kind`, `size`, `areas`, `created`, `updated`; a Why; at least one AC line `- [ADD\|CHANGE\|REMOVE\|NONE] text`, or at least one Question for kind `investigate`; every area exists in `nook.yml`; no open blocking question. Scaffolds `plan.md` and `tasks.md`. Warns, and does not refuse, when the criteria pass the proposed cap: the ticket's count + 2, in the range S 1 to 3, M 3 to 6, L 5 to 10. |
-| approve | owner | `plan.md` is filled (not the template); the slices of `tasks.md` are imported and equal the ledger; every AC is in a slice; each slice has one area of the item; no cycle in `depends`; no open blocking question. Stores a SHA-256 of `spec.md`, `plan.md`, `tasks.md`. |
-| proceed | lead | the guard of approve; the item mode is `auto`, and the last mode change was by the owner |
-| begin | lead, owner | no change in the three approved documents; each git area of the item is on a branch that is not protected; no other item in cooking uses an area of this item (v0.1) |
-| submit | lead, owner | no change in `spec.md`; at least one slice done and none in todo, running, waiting or failed; every check passed in the last verify after the last move back; kind investigate: `findings.md` filled |
-| accept | owner | no change in `spec.md`; every AC marked done, and the text of each mark equals the AC text now |
+| start | lead, owner | none; writes `spec.md` from its template |
+| agree | lead, owner | see the agree list below |
+| approve | owner | see the approve list below |
+| proceed | lead | the item is in mode `auto`, and the owner made the last mode change; then the approve list |
+| begin | lead, owner | see the begin list below |
+| submit | lead, owner | see the submit list below |
+| accept | owner | see the accept list below |
 | reject, replan, reframe, reopen, block, cancel | lead, owner | a `--reason` |
 | unblock, restore | lead, owner | none |
 
-Rules:
-- A move back (`reject`, `replan`, `reframe`, `reopen`, `restore`) clears the approval and sets `item.evidence_from` to the id of the last check run, so a verify counts only after it. `reopen` also sets the mode back to `normal`: an auto run ends at the accept, and only the owner starts the next one with `/auto`. `reopen` and `restore` bring an archived ticket folder back to `backlog/<id>/`, so the stages read the ticket again.
-- A change to the slices or the ACs of an item in `ready` or later is refused with exit 3 and the fix `nook eng item replan <id>`. Nothing voids an approval in silence.
-- `quick <id|title> --area <a>` makes an item in `cooking` with one running slice for the lead, with no spec and no plan. Its accept needs at least one AC (`item ac add`) and a passing verify.
-- Kind `investigate`: Questions in the spec instead of ACs; no slices; `cooking` writes `findings.md`; `accept` needs an answer with evidence for every question.
-- Mode `auto`: only the owner sets it (`item mode <id> auto`). The Stop hook keeps the lead on the next stage; `proceed` passes the approve gate. The accept stays the owner's.
+agree:
+- `spec.md` parses, with the front matter `kind`, `size`, `areas`, `created` and `updated`.
+- `## Why` has text.
+- The spec has one AC line `- [ADD|CHANGE|REMOVE|NONE] text` at least. An item of kind `investigate` has one Question at least.
+- Each area of the spec is in `nook.yml`.
+- No blocking question is open.
+- The move writes `plan.md` and `tasks.md` from their templates.
+- The move warns, and does not refuse, when the criteria go over the proposed cap: the count of the ticket plus 2, in the range of the size.
 
-## 5. Tables: `<home>/.nook/engineering.db`
+| Size | The range of criteria |
+|---|---|
+| S | 1 to 3 |
+| M | 3 to 6 |
+| L | 5 to 10 |
+
+With no criterion in the ticket, the cap is the top of the range.
+
+approve:
+- `plan.md` is not the template. Today, Approach, Impact, Proof and Risks have text; Flow too for size L. A diagram counts as text.
+- `plan.md` and `tasks.md` have both dates.
+- The slices of `tasks.md` are in the ledger, and the two are equal.
+- Each AC is in a slice, and each slice names an AC of the spec.
+- Each slice has one area of the item.
+- `depends` has no cycle.
+- No blocking question is open.
+- The move stores a SHA-256 of `spec.md`, `plan.md` and `tasks.md`.
+
+begin:
+- The three approved documents did not change.
+- Each git area of the item is on a branch that is not protected.
+- No other item in cooking uses an area of the item.
+
+submit:
+- `spec.md` did not change.
+- One slice is done at least, and no slice is in todo, running, waiting or failed.
+- Each check passed in the last verify after the last move back.
+- Kind `investigate`: `findings.md` has text, and no verify is necessary.
+- The move warns on a done slice with the proof `none` or `weak`. It does not refuse.
+
+accept:
+- `spec.md` did not change.
+- Each AC is marked done, and the text of each mark is the text of the spec now.
+- The spec and the ledger have the same count of criteria.
+- Kind `investigate`: each Question has an Answer and an Evidence in `findings.md`.
+- A quick item: a verify passed.
+
+Rules:
+- `kind`, `size`, `areas` and the criteria come from the front matter and the AC lines of `spec.md`. `agree`, `approve` and `proceed` copy them into the item.
+- A move back (`reject`, `replan`, `reframe`, `reopen`, `restore`) clears the approval. It also sets `evidence_from` to the last check run, so only a later verify counts.
+- `reopen` sets the mode back to `normal`. An auto run ends at the accept, and only the owner starts the next one.
+- `reopen` and `restore` bring an archived ticket folder back to `backlog/<id>/`.
+- From `ready` on, the slices, the criteria, and the fields `kind`, `size` and `areas` are frozen. A change stops with exit 3 and the fix `nook eng item replan <id>`.
+- `item ac add` writes the new line into `spec.md` too. A quick item can add a criterion in any state.
+- `quick <id|title> --area <a>` makes an item in `cooking` with one running slice for the lead. It has no spec and no plan.
+- Kind `investigate` has Questions in place of ACs and no slices. It writes `findings.md`.
+- Mode `auto`: only the owner sets it, with `/gate mode <id> auto` or `/auto`. The Stop hook keeps the lead on the next stage; the accept stays the owner's.
+
+## 5. The ledger: `<home>/.nook/engineering.db`
+
 | Table | Columns |
 |---|---|
-| item | id, title, kind (`feature`\|`fix`\|`chore`\|`investigate`), size (`S`\|`M`\|`L`), mode (`normal`\|`auto`), mode_by, state, blocked_from, reason, areas (JSON), source, rank, quick (0\|1), evidence_from, version, created, updated |
+| item | id, title, kind, size, mode, mode_by, state, blocked_from, reason, areas, source, rank, quick, evidence_from, version, created, updated |
 | event | id, item, type, from_state, to_state, actor, role, reason, at |
 | approval | item, document, hash, at |
-| criterion | item, n, text, done (0\|1), evidence, grade (`run`\|`sourced`\|`judged`\|`owner`), by, at |
-| slice | item, id, title, area, depends (JSON), acs (JSON), size, state, assignee, reason, files (JSON), proof (`none`\|`proven`\|`weak`\|`skipped`), proof_note, version |
-| question | id (`Q<n>` per item), item, text, blocking (0\|1), recommended, answer, status (`open`\|`answered`), asked_by, answered_by, asked_at, answered_at |
-| guess | id (`G<n>` per item), item, question, took, other, impact (`low`\|`med`\|`high`), slices (JSON), status (`open`\|`accepted`\|`flipped`), answer, by, at |
-| check_run | id, item, area, check, result (`pass`\|`fail`), output (the last 4000 characters), at |
+| criterion | item, n, text, done, evidence, grade, by, at |
+| slice | item, id, title, area, depends, acs, size, state, assignee, reason, files, proof, proof_note, version |
+| question | id, item, text, blocking, recommended, answer, status, asked_by, answered_by, asked_at, answered_at |
+| guess | id, item, question, took, other, impact, slices, status, answer, by, at |
+| check_run | id, item, area, check, result, output, at |
 | session | id, item, role, holds, seen_at |
 | note | id, item, text, by, at |
 
-Slice states: `todo → running ⇄ waiting → done`; `running | waiting → failed → todo` (retry); `done → running` (reopen); `* → cancelled`. A slice starts only when the item is in `cooking` and every slice in `depends` is done.
-Every write is one transaction that takes the lock at its start. `--if-version <n>` on an item or slice write fails with exit 4 when the version moved.
+| Field | Values |
+|---|---|
+| kind | `feature`, `fix`, `chore`, `investigate` |
+| size | `S`, `M`, `L` |
+| mode | `normal`, `auto` |
+| grade | `run`, `sourced`, `judged`, `owner` |
+| proof | `none`, `proven`, `weak`, `skipped` |
+| impact | `low`, `med`, `high` |
+| question id, guess id | `Q<n>`, `G<n>`, counted in each item |
+
+Slice states: `todo → running ⇄ waiting → done`; `running | waiting → failed → todo` (retry); `done → running` (reopen); any open state `→ cancelled`.
+A slice starts only when the item is in `cooking` and each slice of its `depends` is done.
+A running slice belongs to its builder. `check_run.output` keeps the last 4000 characters.
+Each write is one transaction. `--if-version <n>` on a write of an item or a slice stops with exit 4 when the version changed.
 
 ## 6. Documents: `<home>/work/<id>/`
+
 | File | Made at | Sections |
 |---|---|---|
-| `spec.md` | start | front matter `id, kind, size, areas, created, updated`; `# <id>: <title>`; one `> In short:` line; `## Why`; `## What changes`; `## Acceptance criteria` (one `- [TAG] text (source)` line each; the n-th line is AC n); `## Decisions` (a table: Point, Answer, From); `## Out of scope`. Kind investigate: `## Questions` in place of the criteria. |
-| `plan.md` | agree | front matter `id, approach, created, updated`; `# <id>: the plan`; one `> In short:` line; `## Today`; `## Approach`; `## Impact`; `## Flow` (size L only); `## Proof`; `## Risks`. No code, no function signature, no path with a line number. |
-| `tasks.md` | agree | front matter `id, created, updated`; `# <id>: the slices`; an optional `> In short:` line; then `## T<n>: title` and the lines `area:`, `depends:`, `acs:`, `size:`, `files:` (optional, text), `done when:`; `proof: none (reason)` when the slice has no test to prove |
-| `findings.md` | kind investigate | `## Q<n>` with `Answer`, `Evidence`, `Open` |
-| `walkthrough.md` | on request, and in review | In short, What changed, How it works, Requirements met, Try it, Heads up; the Walkthrough tab of `item page` shows it |
-| `handoff.md` | handoff | State, Done, Next, Open, Guesses, Watch; at most 40 lines |
+| `spec.md` | start | see below |
+| `plan.md` | agree | see below |
+| `tasks.md` | agree | see below |
+| `findings.md` | kind investigate | `## Q<n>` with Answer, Evidence, Open |
+| `walkthrough.md` | `/view`, and in review | the report of the finished work |
+| `handoff.md` | `/handoff` | State, Done, Next, Open, Guesses, Watch; 40 lines at most |
+
+`spec.md`:
+- Front matter `id`, `kind`, `size`, `areas`, `created`, `updated`.
+- `# <id>: <title>`, then one `> In short:` line.
+- `## Why`, `## What changes`, `## Acceptance criteria`, `## Decisions` (a table: Point, Answer, From), `## Out of scope`.
+- One AC line is `- [TAG] text (source)`. The n-th line is AC n.
+- Kind `investigate`: `## Questions` in place of the criteria.
+
+`plan.md`:
+- Front matter `id`, `approach`, `created`, `updated`.
+- `# <id>: the plan`, then one `> In short:` line.
+- `## Today`, `## Approach`, `## Impact`, `## Flow` (size L only), `## Proof`, `## Risks`.
+- No code, no function signature, no path with a line number.
+
+`tasks.md`:
+- Front matter `id`, `created`, `updated`; then `# <id>: the slices` and an optional `> In short:` line.
+- One `## T<n>: title` for each slice, with the lines `area:`, `depends:`, `acs:`, `size:`, `files:` and `done when:`.
+- `proof: none (<reason>)` marks a slice with no test to prove. Its proof is `skipped`.
+- The parser skips the front matter, the In short line and each fenced block.
 
 Rules of the three documents:
-- The dates use the form `YYYY-MM-DD`. A scaffold writes the date of today in `created` and `updated`. The writer changes `updated` at each edit.
-- `agree` needs `## Why` with text and both dates in `spec.md`. `approve` needs both dates in `plan.md` and `tasks.md`.
-- `approve` needs text in Today, Approach, Impact, Proof and Risks, and in Flow for an item of size L. A mermaid block counts as text.
-- The parser of `tasks.md` skips the front matter, the `> In short:` line and every fenced block.
-- The templates hold the size rules of the plan. A plan of size M has fewer than 60 lines with text. A plan of size L has fewer than 100.
+- The dates use the form `YYYY-MM-DD`. A template gets the date of today; the writer changes `updated` at each edit.
+- The Edit hook opens `spec.md` only in framing, and `plan.md` and `tasks.md` only in planning.
+- After the approve, a change shows as a gap at begin, submit and accept, and as a doctor finding.
+- The templates hold the size rule of a plan: size M has fewer than 60 lines with text, size L fewer than 100. No guard counts the lines.
 
-Tickets: `<home>/backlog/<KEY>/ticket.md` and `attachments/`. ADRs: `<home>/docs/adr/NNNN-title.md`. Wiki pages: the wiki pack, when it is on.
-The front matter of `spec.md` is the source of kind, size and areas: `agree` and `approve` copy it into the item.
+Other files of the home:
+- A ticket: `backlog/<KEY>/ticket.md` and `attachments/`. `item archive` moves the folder to `backlog/archive/<KEY>/`.
+- An ADR: `docs/adr/NNNN-title.md`.
 
 ## 7. The tool: `nook eng`
-Every read command takes `--json`. Exit codes: 0 ok, 1 error, 2 usage, 3 refused (the gaps and their fixes), 4 version conflict, 5 the role may not do it.
+
+Each read command takes `--json`. `nook eng --help` lists each command with its flags.
+
+| Exit | Meaning |
+|---|---|
+| 0 | ok |
+| 1 | error |
+| 2 | usage |
+| 3 | refused: the gaps and their fixes |
+| 4 | version conflict |
+| 5 | the role cannot do it |
 
 | Group | Commands |
 |---|---|
-| items | `item new [<id>] <title...> [--kind k --size s --area a... --source s --backlog]` (a first word in the form `KEY-12` is the id; with no id, Nook makes the next `IT-NNN`), `item show <id>`, `item list [--state s]`, `item edit <id> <title\|kind\|size\|areas\|source\|rank> <value>`, `item history <id>`, `item brief <id>` (the context for an agent, at most about 1800 characters: state, next step, areas with folders, ACs with marks, slices, open questions and guesses, mode), `item mode <id> auto\|normal` (owner only), `item archive <id>` (the ticket folder to `backlog/archive/`), `item page <id> [--tab t] [--out <file>]` (one HTML page of the item: see below), `doc page <file.md> [--out <file>]` (the same page for one document, such as the walkthrough of a question) |
-| moves | `item start\|agree\|approve\|proceed\|begin\|submit\|accept\|reject\|replan\|reframe\|reopen\|block\|unblock\|cancel\|restore <id> [--reason r]`, `item check <id>` (the gaps of the next move, no move) |
-| criteria | `item ac list <id>`, `item ac add <id> <text> [--tag ADD\|CHANGE\|REMOVE\|NONE]`, `item ac done <id> <n> --evidence <text> --grade run\|sourced\|judged\|owner`, `item ac undo <id> <n>` |
-| checks | `item verify <id> [--area a] [--last]`, `item branch <id>`, `item commit <id> [--run]` |
-| slices | `task import <id>`, `task list <id> [--ready\|--state s]`, `task show <id> <T>`, `task brief <id> <T>`, `task start\|done\|wait\|resume\|fail\|retry\|reopen\|cancel <id> <T> [--reason r] [--files f...]`, `task prove <id> <T> --files <f...>` |
-| questions | `ask <id> <text> [--blocking] [--rec <answer>]`, `answer <id> <Q> <text>`, `questions [<id>] [--open]` |
-| guesses | `guess <id> <question> --took <a> --other <b> --impact low\|med\|high [--slices T1,T2]`, `guesses [<id>] [--open]`, `guess accept\|flip <id> <G> [--answer <text>]`, `guess slices <id> <G> --slices T1,T2` (the slices of an open guess) |
-| the day | `next [<id>]` (what to do now, and the skill to type), `pickup <id>` (records the lead session; prints the brief and the last handoff), `quick <id\|title> --area <a>` (a title gets the next `IT-NNN`), `note add <id> <text>`, `notes <id>` |
-| knowledge | `adr new <title> [--item id]`, `adr list`, `adr accept <n>`, `adr supersede <n> --by <m>` |
-| areas | `area list`, `area status` (folder, kind, branch, dirty files, the item that uses it) |
-| contract | `brief --json` (BriefLine: items that wait for the owner = urgency now; open blocking questions; failed slices; items in cooking with no activity for a day), `doctor --json` (unknown areas, a missing `checks`, drift after approve, cooking with no slices, waiting or failed slices, two items in one area, a blocking question open for more than a day), `init` (the same folders that `nook init` makes through the pack module), `hook <name>` |
+| items | `item new`, `item show`, `item list`, `item edit`, `item history`, `item brief`, `item mode`, `item archive` |
+| moves | `item <move> <id> [--reason r]`; `item check <id>` shows the gaps of the next move |
+| criteria | `item ac list`, `item ac add`, `item ac done --evidence --grade`, `item ac undo` |
+| checks and git | `item verify [--area a] [--last]`, `item branch`, `item commit [--run]` |
+| slices | `task import`, `task list`, `task show`, `task brief`, `task <move> <id> <T>`, `task prove` |
+| questions | `ask [--blocking] [--rec]`, `answer`, `questions` |
+| guesses | `guess`, `guesses`, `guess accept`, `guess flip`, `guess slices` |
+| the day | `next`, `pickup`, `quick`, `note add`, `notes` |
+| decisions | `adr new`, `adr list`, `adr accept`, `adr supersede` |
+| areas | `area list`, `area status` |
+| pages | `item page <id> [--tab t] [--out f]`, `doc page <file.md> [--out f]` |
+| the contract | `brief`, `doctor`, `init`, `hook <name>` |
 
-A nook-made id is `IT-` and one more than the highest IT number of the ledger, with three digits at least: `IT-001`, `IT-042`, `IT-1000`.
-`item page` builds one HTML document from `spec.md`, `plan.md`, `tasks.md`, `walkthrough.md` and the ledger, to open from the disk. The skills write it to `work/<id>/page.html` and never publish it. `--tab` names the tab that it opens on. It uses the Bench UI kit of `plugins/core/ui/bench/`: the tokens, the `bn-*` components and their script go inline into the page. The page holds:
-| Part | What it shows |
-|---|---|
-| header | the id, the title, badges for the state, the kind, the size and the areas; an audit line with the date of each move and the `updated` date of each document |
-| tabs | Spec, Plan and Tasks, and Walkthrough when `walkthrough.md` exists; each tab shows the path and the front matter of its document, then the document with the components of the UI kit |
-| diagrams | a mermaid flowchart or sequence diagram becomes nodes of the UI kit; the page script draws the edges; a mermaid block of another kind stays a mermaid block |
-| lanes | in the Tasks tab, after the In short block: one group for each area, a node for each slice, a solid edge for each `depends`, a dashed edge to the next slice of a lane |
-| lane line | the slices that start first, and the slices of different areas that run side by side |
+What the commands do:
+- `item new [<id>] <title>`: a first word such as `SHOP-12` is the id. With no id, Nook makes the next `IT-NNN`. `--backlog` writes `backlog/<id>/ticket.md`.
+- `item brief`: the context of an item for an agent, about 1800 characters at most. It holds the state, the next step, the areas, the ACs, the slices, the open questions and guesses, and the mode.
+- `next [<id>]`: the next step of each item and the skill to type, the owner's steps first.
+- `pickup <id>`: this session leads the item. It prints the brief and the last `handoff.md`.
+- `item verify`: runs the checks of each area of the item in the area folder, and writes one `check_run` for each check. `--last` prints the last run.
+- `task prove <id> <T> --files <tests>`: see the proof list below.
+- `item branch`: makes `nook/<id>-<slug>` in each git area of the item and switches to it. It refuses an area that another item in cooking uses.
+- `item commit --run`: one commit for each done slice from its recorded files, on the branch of the item. It refuses a protected branch and never pushes. With no `--run`, it prints the plan.
+- `guess flip`: sends the slices of the guess back to `todo`. On a `done` item, it records the answer only.
+- `brief`: the lines that wait, for `nook brief`. These are the items at a gate of the owner, the open blocking questions and the failed slices.
+- It also names an item in cooking with no change for a day, and a done item that waits for `/close`.
+- `nook brief` adds the items done since the last brief and the items that run, through the pack module.
+- `doctor`: the gaps of the pack. Examples: an area with no folder, an area with no checks, a change after the approve, a cooking item with no slice, two items in one area.
+- `init`: makes `work/`, `backlog/` and `docs/adr/` in the home. `nook init` runs it too.
 
-The audit line names start, agree, approve, begin, submit and accept, when they happened.
-A node label `area: text` puts the area in the kicker of the node. The marks `(new)`, `(changes)` and `(error)` at the end of a label set its tone.
-Without `--out` it prints the page. With `--out` it writes the file and prints its path. A reader can print the page but cannot use `--out`.
-`guess flip` sends the slices of the guess back to `todo`. On a `done` item it records the answer and sends no slice back.
-`verify` runs the checks of each area of the item in the area folder, writes one `check_run` row for each check, and keeps the last 4000 characters of output. `--last` prints the last run without a new run.
-`task prove` makes a git worktree of the area at the merge base of the branch and the first protected branch, copies the new test files of the slice into it, and runs the `test` command of the area with `{files}`. A failure there is `proven`; a pass there is `weak` (the tests cannot fail); a load or import error is `none`, unless it names a file that the branch adds or changes: then the tests need the new code, and the proof is `proven`. The result goes into `slice.proof`. Submit warns on a done slice with proof `none` or `weak`; it does not block.
-`item branch` makes `nook/<id>-<slug>` in each git area of the item and switches the checkout to it, or refuses when the area is in use by another item in cooking. `item commit --run` makes one commit for each done slice from its recorded files, on the branch of the item; it refuses a protected branch; it never pushes. Without `--run` it prints the plan.
+The proof of `task prove`:
+- The tool makes a git worktree of the area at the merge base of the branch and the first protected branch.
+- It copies the new test files into it, links the installed dependencies, and runs the `test` command of the area with `{files}`. A run stops after 4 minutes.
+- A failure there is `proven`. A pass there is `weak`: the tests cannot fail.
+- A load or import error is `none`, unless it names a file that the branch adds or changes. Then the tests need the new code, and the proof is `proven`.
+
+The item page:
+- `item page` builds one HTML file from `spec.md`, `plan.md`, `tasks.md`, `walkthrough.md` and the ledger, to open from the disk.
+- The skills write it to `work/<id>/page.html` and never publish it.
+- It uses the Bench UI kit of `plugins/core/ui/bench/`, inline in the page.
+- The header shows the id, the title, the state, the kind, the size and the areas. An audit line shows the date of each move and of each document.
+- One tab for each document; Walkthrough only when the file exists. With no `--tab`, the page opens on the tab of the state, such as Plan in planning.
+- A mermaid flowchart or sequence diagram becomes nodes of the UI kit. A mermaid block of another kind stays as it is.
+- The Tasks tab shows one lane for each area, a node for each slice, and an edge for each `depends`.
+- With no `--out`, the command prints the page. A reader can print it but cannot use `--out`.
+- `doc page` makes the same page for one Markdown file with no item, such as the walkthrough of a question.
 
 ## 8. Permissions
+
 | Action | owner | lead | builder | reader |
 |---|---|---|---|---|
 | approve, accept, mode | yes | no | no | no |
-| proceed | no | yes, in an auto run | no | no |
-| every other move; item new, edit, ac add, archive; ask, answer; task import, retry, reopen, cancel; guess accept, flip; adr; commit, branch | yes | yes | no | no |
-| task start, done, wait, resume, fail | yes | yes | its own slice only | no |
-| task prove, item verify | yes | yes | yes | the verifier only |
-| item ac done | yes | yes | no | the reviewer only |
+| proceed | no | yes | no | no |
+| every other move of an item | yes | yes | no | no |
+| item new, edit, ac add, archive, branch, commit | yes | yes | no | no |
+| ask, answer, guess accept, guess flip, adr | yes | yes | no | no |
+| task import, retry, reopen, cancel; quick; pickup | yes | yes | no | no |
+| task start, done, wait, resume, fail | yes | yes | its own slice | no |
 | guess, note add | yes | yes | yes | no |
+| task prove, item verify | yes | yes | yes | the verifier |
+| item ac done | yes | yes | no | the reviewer |
 | read commands | yes | yes | yes | yes |
 
-The owner moves are also denied to the model in `templates/settings.json`: `Bash(nook eng item approve *)`, `accept`, `mode`, and the same through `nook engineering`.
+The settings of the pack also deny the owner moves to the model: `Bash(nook eng item approve *)`, `accept` and `mode`, also through `nook engineering`.
 
-## 9. Hooks (`plugins/engineering/hooks/hooks.json`, each one `bin/nook eng hook <name>`)
-| Event | Job | Fails |
+## 9. Hooks
+
+The file is `plugins/engineering/hooks/hooks.json`. Each hook runs `nook eng hook <name>`, and does nothing outside a home.
+
+| Event | Job | On a failure |
 |---|---|---|
-| PreToolUse Bash | read the command as the shell does: a quoted string is one argument, and only the command word of each simple command counts; the code of `sh -c`, of a shell that reads a heredoc, and of `$( )` and backticks counts too; block the owner moves by the model, in any spelling and under any name of the tool; block wrappers around the tool, and a call by another name (`nk`, `kit`, `kit-eng`); add `--as`, `--actor`, `--session` right after `nook eng` in each call by an agent (the lead gets `--session` only), so the permission rule `Bash(nook eng *)` still matches; a reader may run only read commands (`ls`, `cat`, `head`, `tail`, `wc`, `rg`, `grep`, `find`, `git status\|diff\|log\|show`, the read commands of the tool, plus `task prove` and `item verify` for the verifier, `item ac done` for the reviewer); no `$( )` and no `>` for a reader | closed |
-| PreToolUse Edit, Write | a reader cannot write; `spec.md` opens only in framing, `plan.md` and `tasks.md` only in planning (the lead may edit `work/<id>/` otherwise only for `findings.md`, `walkthrough.md`, `handoff.md`); a file in a git area needs an item in cooking with a running slice in that area, and a builder may edit only in the areas of its own slice; a file outside the areas and outside `work/` is free | closed |
-| Stop | hold the lead (`decision: block`) while a blocking question of its item is open, or while the item is in mode auto and the next stage is the lead's; the reason names the next skill: "read `${CLAUDE_PLUGIN_ROOT}/skills/<stage>/SKILL.md` and follow it for <id>"; let go after 6 holds in one session, and stay let go until the lead moves the item; a move resets the count. Only the session that touched the item last is held, and not while a background task still runs | open |
-| SubagentStop | hold a builder subagent that still has a running slice: "finish the slice: `nook eng task done` or `task wait`" | open |
-| TeammateIdle | hold a teammate named `<area>-builder` while a slice of that area runs, with the same words; exit 2 is the only form the event honors | open |
-| SessionStart | add the first lines of `nook eng next` as context | open |
-| UserPromptExpansion (core) | `/gate <move> <id>`: run an owner move of a pack because the owner typed it; refuse it inside an agent and in a session that the Bash tool of another session started; `/gate` alone lists the moves that wait; `/auto` sets the mode `auto` the same way. It runs on `/gate` and `/auto` | closed |
+| PreToolUse Bash | see the Bash list below | blocks |
+| PreToolUse Edit, Write | see the Edit list below | blocks |
+| Stop | see the Stop list below | lets go |
+| SubagentStop | holds a builder with a running slice: "finish the slice: `task done` or `task wait`" | lets go |
+| TeammateIdle | holds a builder teammate while its slice runs, with the same words | lets go |
+| SessionStart | the first 8 lines of `nook eng next` as context | lets go |
 
-The role of an agent comes from the hook input: no `agent_type` and no `agent_id` is the lead; an `agent_type` that ends in `builder` is a builder; any other is a reader. `NOOK_ACTOR` is the agent type plus the last 4 characters of `agent_id`.
+The Bash hook:
+- It reads the command as the shell does. A quoted string is one argument, and only the command word of each simple command counts.
+- The code of `sh -c`, of a shell that reads a heredoc or a pipe, and of `$( )` and backticks counts too.
+- It blocks an owner move by the model, under `nook` or `nk`.
+- It blocks `nook` inside `env`, `exec`, `xargs`, `eval`, `sh -c` and the like, and a call by a path to its code.
+- It blocks a call as `nk`: the short form is for the owner. It blocks a command that sets `NOOK_ROLE`, `NOOK_ACTOR` or `NOOK_SESSION`, or unsets `CLAUDECODE`.
+- It adds `--as`, `--actor` and `--session` to each call by an agent, so the rule `Bash(nook eng *)` still matches.
+- A reader runs only reads: shell reads such as `ls`, `cat`, `grep` and `find`, and `git status`, `diff`, `log` and `show`.
+- A reader also runs the read commands of the tool. The verifier adds `task prove` and `item verify`; the reviewer adds `item ac done`.
+- A reader cannot use `$( )`, backticks or `>`.
+
+The Edit hook:
+- A reader never writes a file.
+- In `work/<id>/`: `spec.md` opens in framing, `plan.md` and `tasks.md` in planning. `findings.md`, `handoff.md` and `walkthrough.*` are free. A builder never edits these documents.
+- A file of an area changes only while a slice of that area runs in cooking. A builder edits only in the area of its own slice.
+- A file outside the areas and outside `work/` is free.
+
+The Stop hook:
+- It holds the lead while a blocking question of its item is open.
+- It holds the lead in an auto run that the owner started, while the next stage is the lead's. The reason names the skill file of the stage.
+- It holds only the session that leads the item, or the one auto item that no session leads.
+- It lets go while a background task runs, unless a blocking question is open.
+- It lets go after 6 holds in a row; a move of the item starts the count again.
+- In review, it lets go after 2 rejects, or when accept has no gap.
+- In cooking, it lets go while a slice runs, or when each slice ended and one failed.
+
+The `/gate` and `/auto` hook is in the core (`UserPromptExpansion`). It runs an owner move of a pack because the owner typed it.
+It refuses inside an agent, and in a session that a tool started. `/gate` alone lists the moves that wait for the owner.
 
 ## 10. Skills
-Stage skills, typed by the owner (`disable-model-invocation: true`): `/intake`, `/spec`, `/recipe`, `/cook`, `/quality-check`, `/view`, `/close`, `/quick`, `/auto`, `/guesses`, `/handoff`, `/pickup`.
-Craft skills, started by the model: `triage`, `find-repos`, `write-spec`, `spec-check`, `write-plan`, `challenge`, `slice-tasks`, `plan-check`, `contract-check`, `adr`, `tdd`, `test-design`, `clean-code`, `diagnose`, `verify`, `code-review`, `write-walkthrough`.
-Each `SKILL.md` is a hub of at most 500 words: the goal, the constraints, the order of the steps, a `## Gotchas` section, and which side file to read when. The detail goes to side files. A description is at most 250 characters and says when to use the skill and, for a near pair, what it is not for.
-Every skill uses only the commands of section 7. A skill never runs an owner move. The writing standard and the question rule live in the core rules; a skill does not repeat them.
+
+Stage skills, which the owner types (`disable-model-invocation: true`):
+
+| Skill | Phase |
+|---|---|
+| `/intake` | backlog |
+| `/spec` | framing |
+| `/recipe` | planning |
+| `/cook` | cooking |
+| `/quality-check`, `/view` | review |
+| `/close` | done |
+| `/quick`, `/auto`, `/guesses`, `/handoff`, `/pickup` | any |
+
+Craft skills, which the model starts:
+
+| Phase | Skills |
+|---|---|
+| framing | `triage`, `find-repos`, `write-spec`, `spec-check` |
+| planning | `write-plan`, `challenge`, `slice-tasks`, `plan-check`, `contract-check`, `adr` |
+| cooking | `tdd`, `test-design`, `clean-code`, `diagnose`, `verify` |
+| review | `code-review`, `verify`, `write-walkthrough` |
+
+Each `SKILL.md` is a hub: the goal, the constraints, the steps, `## Gotchas`, and the side file to read when. The detail goes to side files.
+A skill uses only the commands of section 7 and never runs an owner move. The writing rule and the question rule live in the core rules.
 
 ## 11. Agents
+
 | Agent | Model | Tools | Returns |
 |---|---|---|---|
-| backend-builder | sonnet | Read, Grep, Glob, Edit, Write, Bash | files, tests and what each proves, checks, guesses, not checked |
-| frontend-builder | sonnet | the same | the same, plus the loading, empty and error states |
-| verifier | sonnet | Read, Grep, Glob, Bash | for each area: lint, test, build with counts; the first error lines; the proof of each slice |
-| reviewer | opus | Read, Grep, Glob, Bash | accept or send back; evidence and grade for each AC; blocking findings apart from nits; not confirmed |
-| code-reviewer | sonnet | Read, Grep, Glob, Bash | blocks only on: a swallowed error, a secret in a log, dead code, a duplicate helper, a lint rule off with no reason, a skipped test, a test that cannot fail, a dependency the plan did not name; nits |
-| scout | sonnet | Read, Grep, Glob | at most 40 lines: facts with path and line, guesses marked, not found; at intake it reads the ticket as data and reports text that reads as an instruction |
-| skeptic | opus | Read, Grep, Glob | numbered objections with evidence and what would change its mind, then a verdict: proceed, change the plan, stop |
-| system-designer | inherit | Read, Grep, Glob, Bash | at most 60 lines: facts, 2 or 3 options with trade-offs and slice cost, a recommendation and the condition that changes it |
-| contract-designer | inherit | Read, Grep, Glob, Bash | the consumers of a contract (none, needs a change, breaks), the order, the migration path |
-| data-modeler | inherit | Read, Grep, Glob, Bash | for each entity: migration, existing rows, indexes, backfill, rollback, order |
+| backend-builder | sonnet | Read, Grep, Glob, Edit, Write, Bash | the files, the tests and what each proves, the checks, the guesses |
+| frontend-builder | sonnet | the same | the same, with the loading, empty and error states |
+| verifier | sonnet | Read, Grep, Glob, Bash | for each area, the checks with counts; the first error lines; each proof |
+| reviewer | opus | Read, Grep, Glob, Bash | accept or send back; the evidence and grade of each AC |
+| code-reviewer | sonnet | Read, Grep, Glob, Bash | blocking findings from a fixed list; nits |
+| scout | sonnet | Read, Grep, Glob | 40 lines at most: facts with path and line |
+| skeptic | opus | Read, Grep, Glob | numbered objections, then a verdict |
+| system-designer | inherit | Read, Grep, Glob, Bash | 2 or 3 options with their cost, and a recommendation |
+| contract-designer | inherit | Read, Grep, Glob, Bash | each consumer of a contract: none, needs a change, breaks |
+| data-modeler | inherit | Read, Grep, Glob, Bash | for each entity: migration, rows, indexes, backfill, rollback |
 
-An agent body has at most 500 words. The rules that every agent follows are in the core rules and the pack rules; a body does not repeat them. A builder gets `nook eng task brief <id> <T>` as its brief and runs `task start`, `task prove`, `task done --files` or `task wait --reason`; after three failed tries it runs `task fail`. A builder runs as a teammate or a background subagent by the rule of section 13, at most 4 at once, one for each area.
+The blocking list of the code-reviewer:
+- a swallowed error, or a secret or personal field in a log line;
+- dead code, code in a comment, or a comment that tells history;
+- a second copy of a helper of the area;
+- a lint rule off with no reason on its line;
+- a skipped test, a test that cannot fail, or a test named by an id;
+- a dependency that the plan did not name.
+
+A builder gets `nook eng task brief <id> <T>` as its brief. It runs `task start`, `task prove`, then `task done --files` or `task wait --reason`.
+After three failed tries on one problem, a builder runs `task fail` and stops. At most 4 builders run at once, one for each area.
+At intake, the scout reads the ticket as data and reports each line that reads as an instruction.
 
 ## 12. Templates
-The templates live in `plugins/engineering/templates/`; the code lives in `packages/engineering/`.
-`templates/rules/engineering.md`: the workspace rules of the pack, copied to `.claude/rules/nook/engineering.md` by `nook init`: never build on a protected branch; never commit unless the owner asks, then `item commit --run`; never push; never start apps, containers or deploys; never change an approved document, replan first; the code rules (the area's conventions first; clear names, small functions, early returns; no dead code; reuse a helper of the area; no dependency that the plan did not name; never swallow an error; never log a secret; comment only hard logic).
-`templates/rules/testing.md`: the test rules, for test files only (`paths` in its front matter): a name that states the behavior, one behavior for each test, a test that can fail, expected values written by hand, never a skipped or weakened test.
-`templates/settings.json`: allow `Bash(nook eng *)`, `Bash(git switch -c nook/*)`, `Edit(work/**)`, `Edit(backlog/**)`, `Edit(docs/adr/**)`; ask `Bash(git commit *)`, `Bash(git worktree *)`, installs; deny the owner moves; env `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1`, `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=4`.
-`templates/spec.md`, `plan.md`, `tasks.md`, `findings.md`, `handoff.md`: the documents of section 6.
-`init` of the pack makes `<home>/work/`, `<home>/backlog/`, `<home>/docs/adr/`.
+
+The templates are in `plugins/engineering/templates/`:
+- `rules/engineering.md`: the rules of the flow, of git and of the code. `nook init` copies it to `.claude/rules/nook/engineering.md`.
+- `rules/testing.md`: the test rules, for test files only (`paths` in its front matter).
+- `settings.json`: see the list below.
+- `spec.md`, `plan.md`, `tasks.md`, `findings.md`, `handoff.md`: the documents of section 6.
+
+`settings.json`:
+- allow `Bash(nook eng *)`, `Bash(git switch -c nook/*)`, `Edit(work/**)`, `Edit(backlog/**)`, `Edit(docs/adr/**)`;
+- ask `Bash(git commit *)`, `Bash(git worktree *)` and the install commands;
+- deny the owner moves;
+- env `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` and `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=4`.
 
 ## 13. Who does the work
-The lead, the main session, directs the work. The rule of Nook (the `nook-companion` output style) is: a one-shot job that returns a summary runs as a subagent; a job that builds and must keep its context for the whole item runs as a teammate; everything else the lead does itself.
+
+The lead, the main session, directs the work. The output style `nook-companion` holds the rule:
 
 | Who | Jobs | How the lead starts it |
 |---|---|---|
-| lead | triage, the spec, the plan, the answers, the moves, the reports, a quick item or a size S item with one slice | itself |
-| subagent | scout, verifier, reviewer, code-reviewer, skeptic, system-designer, contract-designer, data-modeler | the Agent tool with `subagent_type` and no `name`; `run_in_background: true` where the lead has other work meanwhile |
-| teammate | backend-builder, frontend-builder for an area with two or more slices: one for each area, alive from `begin` to `submit` | the Agent tool with `subagent_type` and `name: <area>-builder`; the next slice of the same area goes to the same teammate with SendMessage and the new `task brief` |
-| subagent (builder) | a builder for an area with one slice | the same call with no `name` and `run_in_background: true` |
+| lead | triage, the spec, the plan, the answers, the moves, the reports, a quick item, an item of size S with one slice | itself |
+| subagent | scout, verifier, reviewer, code-reviewer, skeptic, the three designers | the Agent tool with no `name`, in the background when the lead has other work |
+| teammate | a builder for an area with two or more slices | the Agent tool with `name: <area>-builder`; the next slice goes by SendMessage |
+| subagent (builder) | a builder for an area with one slice | the Agent tool with no `name`, in the background |
 
-A teammate costs many times the tokens of a subagent, so it is given only where its context is reused. Agent teams are on in every environment: the core settings set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and `teammateMode: auto`. While teams are on, every Agent call with a `name` makes a teammate, so a one-shot job never gets a `name`. When teams are off (a headless run), the same call makes a background subagent and the flow still works: the SubagentStop hook takes the place of TeammateIdle.
-A teammate does not see the lead's conversation and does not preload skills: the brief from `task brief` is all it knows, and the body of its agent file stands alone. A teammate does not survive `/resume` or a compaction of the lead: `task list --state running` names the slices to give to a new teammate with the same brief.
-
-A subagent with a second job on the same item resumes; it does not become a teammate. Examples: a second review round, or the contract review after the plan check.
-- A finished subagent keeps its transcript. SendMessage to its id starts a new run with the first job in its context, in the background, at the cost of a subagent.
-- A teammate stays a live session and talks to other agents. A reviewer uses neither, so a teammate adds cost and no gain.
-- The lead records each id with `nook eng note add <id> "<agent type>: <agent id>"`. The note survives a compaction; with no note, the lead starts a new subagent.
+- A teammate costs many times a subagent, so it gets a `name` only where its context is used again.
+- The core settings turn agent teams on: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and `teammateMode: auto`. So each Agent call with a `name` makes a teammate.
+- With teams off, such as in a headless run, the same call makes a background subagent. SubagentStop then does the job of TeammateIdle.
+- A teammate does not see the chat of the lead. The brief is all it knows.
+- A teammate does not survive `/resume` or a compaction of the lead. `task list --state running` names the slices for a new teammate.
+- A second job for a subagent, such as a second review round, goes by SendMessage to its id. The lead records the id with `nook eng note add`.

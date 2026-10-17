@@ -4,31 +4,32 @@ This repo builds Nook itself. Read `docs/nook.md` for the plan and `docs/expect/
 
 ## Map
 ```
-apps/nook/              the one binary `nook`: it joins the commands of each package and runs them. No logic.
-packages/shared/       the CLI router, the exit codes, the hook input and output
-packages/env/          environments, nook.yml, the pack manifests, the plugin folders
-packages/core/         init and the move from the old names, doctor, the writing check, brief, retro, the core hooks
+apps/nook/             the one binary `nook`: it joins the commands of each package and runs them. No logic.
+packages/shared/       the CLI router, the exit codes, the hook input and output, the names of the tool
+packages/desk/         desks, nook.yml, the desk list of the owner, the pack manifests, the plugin folders, the UI kit
+packages/core/         init, doctor, packs, where, the writing check, brief, retro, the core hooks
 packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks
 packages/wiki/         the shelves of the wiki, their indexes, the link check
 packages/learn/        the courses: roadmap, cards, mistakes, scores, the study log
 plugins/<pack>/        one Claude Code plugin each: pack.json, .claude-plugin/, bin/nook (a shim), hooks/, skills/, agents/, templates/. No code.
-docs/                  the plan, the guide, the contract of engineering (`engineering.md`), the expectations
+docs/                  the plan, the contract of engineering (`engineering.md`), the wiki (`wiki.md`), the expectations
 ```
 The packs are core, engineering, wiki and learn. `nook eng …` runs the commands of engineering, `nook wiki …` those of the wiki, `nook learn …` those of learn.
+A desk is a folder with `nook.yml`. Desks nest: `company/` is a top desk, and `company/shop/` is a child desk inside it.
 
 ## Checks
 - `bun run check`: `tsc --noEmit` and `bun test`. Commit only when it passes.
-- `apps/nook/bin/nook ste <file.md>` on each Markdown file of `plugins/` and `docs/`: above 80%.
+- `nook ste <file.md>` on each Markdown file of `plugins/` and `docs/`: above 80%. Run the tool by its name; the guard blocks a path to the binary.
 - `claude plugin validate .` after a change to a manifest.
 - Try a change in a scratch folder: `nook init` there, then `nook doctor` and a hook call with JSON on stdin.
 
 ## Rules
-- `apps/nook` imports the packages. A package imports `@nook/shared/*` and `@nook/env/*` only, never another pack package. A plugin holds no code: its hooks call `bin/nook`, which runs the binary.
+- `apps/nook` imports the packages. A package imports `@nook/shared/*` and `@nook/desk/*` only, never another pack package. A plugin holds no code: its hooks call `bin/nook`, which runs the binary.
 - One job for each module. A class where state and its rules live together (the ledger, an item, a guard); a plain function for the rest. Branch on a union with `ts-pattern` and `.exhaustive()`.
 - Nook never names the owner's folders. Examples use `company/`, `personal/`, `shop`, `SHOP-12`.
 - A guard hook blocks when it cannot decide. A helper hook (style, context) lets the call pass when it fails.
-- An agent runs the tool as `nook` only; the guard blocks `nk` and the old names `kit` and `kit-eng`. The names live in `packages/shared/src/names.ts`.
-- `nook init` writes only what it marks: the Nook block, `.claude/rules/nook/`, its settings keys, `.nook/`. Never a line of the owner.
+- An agent runs the tool as `nook` only; the guard blocks the short form `nk`. The names live in `packages/shared/src/names.ts`.
+- `nook init` writes only what it marks: the Nook block, `.claude/rules/nook/`, `.claude/output-styles/nook-companion.md`, its settings keys, `.nook/`, and the folders of each pack. Never a line of the owner.
 - Write clear code: clear names, small functions, early returns.
 - Each edit of the Nook code leaves `nook` runnable. The hooks run this code, so a broken `nook` binary blocks the guards of the session. Write a new function before the line that calls it, or write the whole file at once.
 
@@ -46,5 +47,7 @@ The packs are core, engineering, wiki and learn. `nook eng …` runs the command
 - A test must be able to fail. Write the expected value by hand; never compute it with the code under test. A test that asserts only a mock call, a constant, `toBeDefined` or `not.toThrow` proves nothing.
 - Break the rule in the code once and see the test fail before you trust it.
 - Never weaken, skip or comment out a test to make it pass. Change a test only when the behavior changed.
+
+## Git
 - Work in a worktree branch, never on `main`. Commit each part there once `bun run check` passes; the owner merges it. Never merge and never push.
 - One commit for each part, with a message that says what changed and why.
