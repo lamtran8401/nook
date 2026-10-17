@@ -31,19 +31,28 @@ The bundle mounts each diagram when the page loads. A diagram draws when its ele
 - When a spec fails, `mount` writes the error in the element and in the console. The other diagrams still draw.
 - `window.BenchDiagrams` is the same object as `Bench.diagram`.
 
+## Frame
+
+A diagram sits in a raised card: the surface colour, a 1px ring and a soft shadow. The labels on its edges sit on the same colour. Set `"frame": false` in the spec for a diagram with no card.
+
 ## Open large
 
-Each diagram has a button in its top right corner. It shows when the pointer is on the diagram, and always on a touch screen. The button opens the diagram at its full width in an overlay.
+Each diagram has a button in its top right corner. It shows when the pointer is on the diagram, and always on a touch screen. The button opens the diagram at its full width in a dialog over the page.
 
-| In the overlay | Action |
+| In the dialog | Action |
 |---|---|
-| The wheel, or a pinch | Zoom at the pointer |
-| A drag | Move the diagram |
-| A double click, `0` or Fit | Fit the diagram in the screen |
+| Select mode, `V` | Choose and copy the text. The wheel moves the view. |
+| Hand mode, `H`, or hold `Space` | A drag moves the view. The text is not chosen. |
+| `Ctrl` or `⌘` with the wheel, or a pinch | Zoom at the pointer |
 | `+`, `-`, or the buttons | Zoom at the middle |
-| `Escape` or ✕ | Close the overlay |
+| `0`, Fit, or a double click in Hand mode | Fit the diagram in the dialog |
+| `Escape`, ✕, or a click outside the dialog | Close the dialog |
 
-A diagram does not shrink to fit a column. It takes the width it needs, and its box scrolls. The overlay shows all of it.
+A diagram does not shrink to fit a column. It takes the width it needs, and its box scrolls. The dialog shows all of it.
+
+## Scrollbars
+
+The bundle hides the native scrollbar of each diagram box, each board column and each element with `data-bn-scroll`. It draws a thin bar over the box instead. The bar shows while the box scrolls or while the pointer is on it, and it fades after one second. A drag on the bar scrolls the box. `Bench.scrollbars(root)` adds the bar to the boxes of `root` that a page adds later.
 
 ## Shared values
 
@@ -309,7 +318,7 @@ A timeline shows moments in order. It has three styles.
 
 ## board
 
-A board shows many things in a few states. Each state that holds items gets a column. The empty states go in a small panel at the end. A switch above the board changes the density of the cards.
+A board shows many things in a few states. Each state that holds items gets a column. The empty states go in a small panel at the end.
 
 | Field | Default | Meaning |
 |---|---|---|
@@ -320,12 +329,11 @@ A board shows many things in a few states. Each state that holds items gets a co
 | `emptyText` | `No items` | The text of a column with no cards. |
 | `colWidth` | `250` | The smallest width of a column, in px. |
 | `colHeight` | `560` | The largest height of the cards of a column, in px. A longer column scrolls inside itself. |
-| `density` | `compact` | `compact` shows the id and the title of a card on one line, and a click opens the rest. `full` shows each card whole. |
 
 | Card field | Meaning |
 |---|---|
 | `id` | A short id in mono. |
-| `title` | The main text. |
+| `title` | The main text, two lines at most. A longer title ends in an ellipsis, and the tooltip shows all of it. |
 | `kind`, `kindTone`, `kindIcon` | A chip with the kind. |
 | `size` | A size letter in a box. |
 | `areas` | A list of `{ name, tone }`. |

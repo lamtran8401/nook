@@ -192,7 +192,7 @@ function polish(html: string, links: LinkMap): string {
     // code in a table cell breaks only between its words, never at a hyphen inside one
     .replace(/<td>([\s\S]*?)<\/td>/g, (_all, cell: string) =>
       `<td>${cell.replace(/<code>([^<]*)<\/code>/g, (_c, text: string) => `<code>${text.split(' ').map(w => `<span class="nw">${w}</span>`).join(' ')}</code>`)}</td>`)
-    .replace(/<table>/g, '<div class="tbl card"><div class="scroll-x"><table>')
+    .replace(/<table>/g, '<div class="tbl card"><div class="scroll-x" data-bn-scroll><table>')
     .replace(/<\/table>/g, '</table></div></div>')
     .replace(/<a href="([^"]+)">([\s\S]*?)<\/a>/g, (_all, href: string, text: string) =>
       /^https?:/.test(href) ? `<a href="${href}" target="_blank" rel="noopener">${text}</a>` : (links(href, text) ?? text))

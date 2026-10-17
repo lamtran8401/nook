@@ -361,7 +361,7 @@
     document.addEventListener('pointerover', function (ev) {
       var t = ev.target.closest && ev.target.closest('[data-tip], .dg-cut')
       if (!t) return
-      if (!t.hasAttribute('data-tip') && t.scrollWidth <= t.clientWidth) return
+      if (!t.hasAttribute('data-tip') && t.scrollWidth <= t.clientWidth && t.scrollHeight <= t.clientHeight + 1) return
       var words = t.getAttribute('data-tip') || t.textContent
       var move = function (e) { showTip(esc(words), e) }
       move(ev)
@@ -1011,7 +1011,7 @@
     if (c.kind) top += '<span class="bd-kind"' + tone(c.kindTone) + '>' + icon(c.kindIcon) + esc(c.kind) + '</span>'
     if (c.size) top += '<span class="bd-size">' + esc(c.size) + '</span>'
     top += '</div>'
-    var html = top + '<h4>' + esc(c.title) + '</h4>'
+    var html = top + '<h4 class="bd-title dg-cut">' + esc(c.title) + '</h4>'
     if (c.note) html += '<p class="bd-note">' + icon(c.noteIcon || 'link') + esc(c.note) + '</p>'
     if (c.areas) html += '<div class="bd-areas">' + c.areas.map(function (a) { return '<span' + tone(a.tone) + '>' + esc(a.name) + '</span>' }).join('') + '</div>'
     if (c.meter) html += '<div class="bd-meter">' + meterHtml(c.meter, c.flag === 'fail' ? 'danger' : 'success') + '</div>'
@@ -1038,40 +1038,8 @@
     var board = h('div', 'bd', html)
     board.style.gridTemplateColumns = 'repeat(' + cols.length + ', minmax(' + (spec.colWidth || 250) + 'px, 1fr))' + (rest.length ? ' 170px' : '')
     board.style.setProperty('--bd-col-h', (spec.colHeight || 560) + 'px')
-    var density = spec.density === 'full' ? 'full' : 'compact'
-    board.setAttribute('data-density', density)
-    /* a compact card shows its id and its title on one line; a click opens the rest of it */
-    board.addEventListener('click', function (e) {
-      if (board.getAttribute('data-density') !== 'compact') return
-      var card = e.target.closest('.bd-card')
-      if (!card || e.target.closest('a, button')) return
-      if (card.hasAttribute('data-open')) card.removeAttribute('data-open'); else card.setAttribute('data-open', '')
-      card.setAttribute('aria-expanded', card.hasAttribute('data-open') ? 'true' : 'false')
-      delete card.dataset.r0
-      fitCorners(board)
-    })
-    board.querySelectorAll('.bd-card').forEach(function (c) { c.tabIndex = 0; c.setAttribute('aria-expanded', 'false') })
-    board.addEventListener('keydown', function (e) {
-      if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('bd-card')) { e.preventDefault(); e.target.click() }
-    })
-    var tools = h('div', 'bd-tools', '<span class="bd-tools__label">Cards</span><span class="bd-switch" role="group" aria-label="Card density">' +
-      '<button type="button" data-density="compact">Compact</button><button type="button" data-density="full">Full</button></span>')
-    var sync = function () {
-      var d = board.getAttribute('data-density')
-      tools.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-density') === d ? 'true' : 'false') })
-    }
-    tools.addEventListener('click', function (e) {
-      var b = e.target.closest('button[data-density]')
-      if (!b) return
-      board.setAttribute('data-density', b.getAttribute('data-density'))
-      board.querySelectorAll('.bd-card').forEach(function (c) { delete c.dataset.r0 })
-      sync()
-      fitCorners(board)
-    })
-    sync()
     var scroll = h('div', 'dg-scroll')
     scroll.appendChild(board)
-    el.appendChild(tools)
     el.appendChild(scroll)
   }
 
@@ -1460,27 +1428,42 @@
     btn.addEventListener('click', function () { openOverlay(el, spec, btn) })
     el.appendChild(btn)
   }
+  var HAND_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4.5a1.5 1.5 0 0 1 3 0V10M14 10V6.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-6 6h-.5a6 6 0 0 1-4.6-2.2L3.6 14.7a1.5 1.5 0 0 1 2.3-1.9L8 15V8.5"/></svg>'
+  var SELECT_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3l14 7-6 2-2 6z"/></svg>'
+  /* a dialog layer over the page; Select lets the text be chosen, Hand drags the view; Ctrl or ⌘ with the wheel, or a pinch, zooms at the pointer */
   function openOverlay(source, spec, opener) {
     var natural = source.querySelector('.dg-scroll')
     var width = Math.max(source.clientWidth, natural ? natural.scrollWidth : 0)
-    var overlay = h('div', 'dg-overlay', '<div class="dg-overlay__stage"></div>' +
-      '<div class="dg-overlay__bar" role="toolbar" aria-label="Zoom">' +
-      '<button type="button" data-z="out" aria-label="Zoom out">−</button><output class="dg-overlay__pct">100%</output>' +
-      '<button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit">Fit</button>' +
-      '<button type="button" data-z="close" aria-label="Close">✕</button></div>')
-    overlay.setAttribute('role', 'dialog')
-    overlay.setAttribute('aria-modal', 'true')
-    overlay.setAttribute('aria-label', 'Diagram, large')
-    var stage = overlay.querySelector('.dg-overlay__stage'), pct = overlay.querySelector('.dg-overlay__pct')
-    var copy = h('div', 'dg-overlay__copy')
+    var fig = source.closest('figure'), cap = fig && fig.querySelector('figcaption')
+    var title = spec.title || (cap ? cap.textContent.replace(/\s+/g, ' ').trim() : '') || 'Diagram'
+    var overlay = h('div', 'dg-overlay', '<div class="dg-dialog" role="dialog" aria-modal="true">' +
+      '<div class="dg-dialog__head"><p class="dg-dialog__title"></p>' +
+      '<span class="dg-dialog__modes" role="group" aria-label="Mode">' +
+      '<button type="button" data-mode="select" aria-label="Select text (V)" data-tip="Select · V">' + SELECT_ICON + '</button>' +
+      '<button type="button" data-mode="hand" aria-label="Move the view (H, or hold Space)" data-tip="Hand · H or Space">' + HAND_ICON + '</button></span>' +
+      '<span class="dg-dialog__zoom" role="group" aria-label="Zoom">' +
+      '<button type="button" data-z="out" aria-label="Zoom out">−</button><output class="dg-dialog__pct">100%</output>' +
+      '<button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit">Fit</button></span>' +
+      '<button type="button" class="dg-dialog__close" data-z="close" aria-label="Close">✕</button></div>' +
+      '<div class="dg-dialog__stage"></div></div>')
+    var dialog = overlay.querySelector('.dg-dialog')
+    dialog.setAttribute('aria-label', title)
+    overlay.querySelector('.dg-dialog__title').textContent = title
+    var stage = overlay.querySelector('.dg-dialog__stage'), pct = overlay.querySelector('.dg-dialog__pct')
+    var copy = h('div', 'dg-dialog__copy')
     copy.style.width = width + 'px'
     stage.appendChild(copy)
     document.body.appendChild(overlay)
     var lock = document.documentElement.style.overflow
     document.documentElement.style.overflow = 'hidden'
-    render(copy, spec)
-    var s = 1, x = 0, y = 0
+    render(copy, Object.assign({}, spec, { frame: false }))
+    var s = 1, x = 0, y = 0, mode = 'select', held = false
     var apply = function () { copy.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')'; pct.textContent = Math.round(s * 100) + '%' }
+    var setMode = function (m) {
+      mode = m
+      stage.setAttribute('data-mode', held ? 'hand' : mode)
+      overlay.querySelectorAll('[data-mode]').forEach(function (b) { if (b.tagName === 'BUTTON') b.setAttribute('aria-pressed', b.getAttribute('data-mode') === mode ? 'true' : 'false') })
+    }
     var fit = function () {
       var sw = stage.clientWidth, sh = stage.clientHeight, cw = copy.offsetWidth, ch = copy.offsetHeight
       s = Math.min(1.6, Math.max(0.1, Math.min((sw - 48) / cw, (sh - 48) / ch)))
@@ -1494,14 +1477,17 @@
       apply()
     }
     var centre = function () { return [stage.clientWidth / 2, stage.clientHeight / 2] }
+    setMode('select')
     requestAnimationFrame(function () { requestAnimationFrame(fit) })
     stage.addEventListener('wheel', function (e) {
       e.preventDefault()
       var r = stage.getBoundingClientRect()
-      zoomAt(s * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)), e.clientX - r.left, e.clientY - r.top)
+      if (e.ctrlKey || e.metaKey) zoomAt(s * Math.exp(-e.deltaY * 0.01), e.clientX - r.left, e.clientY - r.top)
+      else { x -= e.deltaX; y -= e.deltaY; apply() }
     }, { passive: false })
     var points = {}, pinch = null, drag = null
     stage.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && stage.getAttribute('data-mode') !== 'hand' && e.button !== 1) return
       stage.setPointerCapture(e.pointerId)
       points[e.pointerId] = [e.clientX, e.clientY]
       var ids = Object.keys(points)
@@ -1510,6 +1496,7 @@
         pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: s }
         drag = null
       } else drag = { x: e.clientX - x, y: e.clientY - y }
+      e.preventDefault()
       stage.classList.add('is-grab')
     })
     stage.addEventListener('pointermove', function (e) {
@@ -1528,22 +1515,33 @@
     }
     stage.addEventListener('pointerup', up)
     stage.addEventListener('pointercancel', up)
-    stage.addEventListener('dblclick', fit)
+    stage.addEventListener('dblclick', function () { if (stage.getAttribute('data-mode') === 'hand') fit() })
     var close = function () {
       if (copy._bnDiagram) copy._bnDiagram.stop()
       overlay.remove()
       document.documentElement.style.overflow = lock
       document.removeEventListener('keydown', onKey)
+      document.removeEventListener('keyup', onKeyUp)
       if (opener) opener.focus()
     }
+    var typing = function (e) { return /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) }
     var onKey = function (e) {
-      if (e.key === 'Escape') close()
+      if (e.key === 'Escape') return close()
+      if (typing(e) || e.metaKey || e.ctrlKey) return
+      if (e.key === ' ' && !held) { held = true; setMode(mode); e.preventDefault() }
+      else if (e.key === 'v' || e.key === 'V') setMode('select')
+      else if (e.key === 'h' || e.key === 'H') setMode('hand')
       else if (e.key === '+' || e.key === '=') zoomAt(s * 1.25, centre()[0], centre()[1])
       else if (e.key === '-') zoomAt(s / 1.25, centre()[0], centre()[1])
       else if (e.key === '0') fit()
     }
+    var onKeyUp = function (e) { if (e.key === ' ' && held) { held = false; setMode(mode) } }
     document.addEventListener('keydown', onKey)
-    overlay.querySelector('.dg-overlay__bar').addEventListener('click', function (e) {
+    document.addEventListener('keyup', onKeyUp)
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close() })
+    overlay.querySelector('.dg-dialog__head').addEventListener('click', function (e) {
+      var m = e.target.closest('button[data-mode]')
+      if (m) return setMode(m.getAttribute('data-mode'))
       var b = e.target.closest('button[data-z]')
       if (!b) return
       var z = b.getAttribute('data-z')
@@ -1551,7 +1549,72 @@
       else if (z === 'fit') fit()
       else zoomAt(s * (z === 'in' ? 1.25 : 0.8), centre()[0], centre()[1])
     })
-    overlay.querySelector('[data-z="close"]').focus()
+    overlay.querySelector('.dg-dialog__close').focus()
+  }
+
+  /* ---------- scrollbars: the native bar is hidden; a thin bar floats over the box while it scrolls or under the pointer, then fades ---------- */
+  var SCROLL_BOXES = '.dg-scroll, .bd-col__body, [data-bn-scroll]'
+  function enhanceScroll(box) {
+    if (box._bnScroll || !box.parentElement) return
+    var host = box.parentElement
+    if (getComputedStyle(host).position === 'static') host.style.position = 'relative'
+    box.classList.add('bn-scroll')
+    var bars = { x: h('div', 'bn-sbar bn-sbar--x', '<span></span>'), y: h('div', 'bn-sbar bn-sbar--y', '<span></span>') }
+    host.appendChild(bars.x)
+    host.appendChild(bars.y)
+    var timer = 0
+    var place = function () {
+      var w = box.clientWidth, hh = box.clientHeight, sw = box.scrollWidth, sh = box.scrollHeight
+      var left = box.offsetLeft, top = box.offsetTop
+      var fx = bars.x.firstChild, fy = bars.y.firstChild
+      bars.x.hidden = sw <= w + 1
+      bars.y.hidden = sh <= hh + 1
+      if (!bars.x.hidden) {
+        var tw = Math.max(32, w * w / sw)
+        bars.x.style.cssText = 'left:' + (left + 4) + 'px;top:' + (top + hh - 9) + 'px;width:' + (w - 8) + 'px'
+        fx.style.width = tw + 'px'
+        fx.style.transform = 'translateX(' + ((w - 8 - tw) * box.scrollLeft / (sw - w)) + 'px)'
+      }
+      if (!bars.y.hidden) {
+        var th = Math.max(32, hh * hh / sh)
+        bars.y.style.cssText = 'left:' + (left + w - 9) + 'px;top:' + (top + 4) + 'px;height:' + (hh - 8) + 'px'
+        fy.style.height = th + 'px'
+        fy.style.transform = 'translateY(' + ((hh - 8 - th) * box.scrollTop / (sh - hh)) + 'px)'
+      }
+    }
+    var show = function () {
+      place()
+      host.classList.add('bn-sbar-on')
+      clearTimeout(timer)
+      timer = setTimeout(function () { if (!box.matches(':hover') && !host.querySelector('.bn-sbar.is-drag')) host.classList.remove('bn-sbar-on') }, 1000)
+    }
+    box.addEventListener('scroll', show, { passive: true })
+    box.addEventListener('pointerenter', show)
+    box.addEventListener('pointerleave', function () { timer = setTimeout(function () { host.classList.remove('bn-sbar-on') }, 600) })
+    ;['x', 'y'].forEach(function (axis) {
+      var bar = bars[axis], thumb = bar.firstChild
+      thumb.addEventListener('pointerdown', function (e) {
+        e.preventDefault()
+        thumb.setPointerCapture(e.pointerId)
+        bar.classList.add('is-drag')
+        var start = axis === 'x' ? e.clientX : e.clientY, from = axis === 'x' ? box.scrollLeft : box.scrollTop
+        var track = axis === 'x' ? bar.clientWidth - thumb.offsetWidth : bar.clientHeight - thumb.offsetHeight
+        var range = axis === 'x' ? box.scrollWidth - box.clientWidth : box.scrollHeight - box.clientHeight
+        var move = function (ev) {
+          var d = ((axis === 'x' ? ev.clientX : ev.clientY) - start) * range / Math.max(1, track)
+          if (axis === 'x') box.scrollLeft = from + d; else box.scrollTop = from + d
+        }
+        var end = function () { bar.classList.remove('is-drag'); thumb.removeEventListener('pointermove', move); thumb.removeEventListener('pointerup', end); show() }
+        thumb.addEventListener('pointermove', move)
+        thumb.addEventListener('pointerup', end)
+      })
+    })
+    if (window.ResizeObserver) new ResizeObserver(place).observe(box)
+    box._bnScroll = { place: place }
+    place()
+  }
+  function enhanceScrolls(root) {
+    ;(root || document).querySelectorAll(SCROLL_BOXES).forEach(enhanceScroll)
   }
 
   /* ---------- render: draw when visible, again on resize and when fonts arrive ---------- */
@@ -1565,22 +1628,26 @@
     if (el._bnDiagram) el._bnDiagram.stop()
     startTips()
     el.classList.add('dg')
+    el.classList.toggle('dg--bare', spec.frame === false)
     el.innerHTML = ''
     var last = 0, redraw = null, built = false
     var run = function (force) {
-      var w = el.clientWidth
+      var cs = getComputedStyle(el)
+      var w = el.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0)
       if (!w) return
       if (type === 'graph') {
         if (!redraw) redraw = renderGraph(el, spec)
         fitCorners(el)
         redraw()
         ensureExpand(el, spec)
+        enhanceScrolls(el)
         return
       }
       if (FIXED[type]) {
         if (!built) { FIXED[type](el, spec); built = true }
         fitCorners(el)
         ensureExpand(el, spec)
+        enhanceScrolls(el)
         return
       }
       if (w === last && !force) return
@@ -1589,6 +1656,7 @@
       SIZED[type](el, spec, w)
       fitCorners(el)
       ensureExpand(el, spec)
+      enhanceScrolls(el)
     }
     var observer = window.ResizeObserver ? new ResizeObserver(function () { run() }) : null
     var restyle = function () { run(true) }
@@ -1602,6 +1670,7 @@
   /* ---------- mount: each [data-bn-diagram] that holds a <script type="application/json"> spec ---------- */
   function mount(root) {
     root = root || document
+    enhanceScrolls(root)
     root.querySelectorAll('[data-bn-diagram]').forEach(function (el) {
       if (el.hasAttribute('data-bn-drawn')) return
       var source = el.querySelector('script[type="application/json"]')
@@ -1617,7 +1686,7 @@
     })
   }
 
-  window.BenchDiagrams = { render: render, mount: mount }
+  window.BenchDiagrams = { render: render, mount: mount, scrollbars: enhanceScrolls }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { mount(document) })
   else mount(document)
 })();
@@ -1628,6 +1697,7 @@
   var B = window.Bench, D = window.BenchDiagrams;
   if (!B || !D) return;
   B.diagram = D;
+  B.scrollbars = D.scrollbars;
   var init = B.init;
   B.init = function (root) { var r = init(root); D.mount(root || document); return r; };
 })();
