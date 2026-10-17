@@ -37,13 +37,13 @@ A diagram sits in a raised card: the surface colour, a 1px ring and a soft shado
 
 ## Open large
 
-Each diagram has a button in its top right corner. It shows when the pointer is on the diagram, and always on a touch screen. The button opens the diagram at its full width in a dialog over the page.
+Each diagram has a button in its top right corner. It shows when the pointer is on the diagram, and always on a touch screen. The button opens the diagram at its full width in a dialog over the page. The dialog opens in Hand mode.
 
 | In the dialog | Action |
 |---|---|
-| Select mode, `V` | Choose and copy the text. The wheel moves the view. |
+| Select mode, `V` | Choose and copy the text. |
 | Hand mode, `H`, or hold `Space` | A drag moves the view. The text is not chosen. |
-| `Ctrl` or `⌘` with the wheel, or a pinch | Zoom at the pointer |
+| The wheel, or a pinch | Zoom at the pointer, by 10% or less for each step |
 | `+`, `-`, or the buttons | Zoom at the middle |
 | `0`, Fit, or a double click in Hand mode | Fit the diagram in the dialog |
 | `Escape`, ✕, or a click outside the dialog | Close the dialog |

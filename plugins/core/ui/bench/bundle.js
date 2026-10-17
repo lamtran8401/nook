@@ -1477,13 +1477,15 @@
       apply()
     }
     var centre = function () { return [stage.clientWidth / 2, stage.clientHeight / 2] }
-    setMode('select')
+    setMode('hand')
     requestAnimationFrame(function () { requestAnimationFrame(fit) })
     stage.addEventListener('wheel', function (e) {
       e.preventDefault()
       var r = stage.getBoundingClientRect()
-      if (e.ctrlKey || e.metaKey) zoomAt(s * Math.exp(-e.deltaY * 0.01), e.clientX - r.left, e.clientY - r.top)
-      else { x -= e.deltaX; y -= e.deltaY; apply() }
+      // the wheel zooms gently: a mouse notch (~100 px) or a pinch step is capped at about 10%
+      var dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY
+      var step = Math.max(-0.1, Math.min(0.1, -dy * (e.ctrlKey ? 0.01 : 0.002)))
+      zoomAt(s * Math.exp(step), e.clientX - r.left, e.clientY - r.top)
     }, { passive: false })
     var points = {}, pinch = null, drag = null
     stage.addEventListener('pointerdown', function (e) {

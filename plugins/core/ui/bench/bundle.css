@@ -1129,6 +1129,7 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 /* ===== tree: a bn-tree of folders and files ===== */
 .dg-tree { overflow-x: auto; }
 .dg-tree > ul { padding-left: 0; }
+.dg:not(.dg--bare) .dg-tree { border: 0; box-shadow: none; background: transparent; padding: 0; }
 .dg-tree .bn-tree__row { height: 32px; min-width: 0; cursor: default; }
 .dg-tree .bn-tree__row:hover { background: none; }
 .dg-tree summary .bn-tree__row { cursor: pointer; }
