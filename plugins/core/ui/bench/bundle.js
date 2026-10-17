@@ -1479,10 +1479,10 @@
   window.BenchDiagrams = { render: render, mount: mount }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { mount(document) })
   else mount(document)
-})()
+})();
 
 /* Bench.diagram is the diagram library; Bench.init also draws each [data-bn-diagram] of its root. */
-(function () {
+;(function () {
   'use strict';
   var B = window.Bench, D = window.BenchDiagrams;
   if (!B || !D) return;

@@ -1,6 +1,6 @@
 # The build report
 
-> In short: Nook has four packs, 90 commands, 45 skills, 12 agents and 12 hooks. All 571 tests pass. Engineering is in real use; the wiki and learn are built and wait for more use. The next step is the viewer.
+> In short: Nook has four packs, 90 commands, 45 skills, 12 agents and 12 hooks. All 572 tests pass. Engineering is in real use; the wiki and learn are built and wait for more use. The next step is the viewer.
 
 This file states the build of today. Update its numbers in the same commit as the change that moves them.
 
@@ -14,7 +14,7 @@ This file states the build of today. Update its numbers in the same commit as th
 | agents | 12: engineering 10, wiki 1, learn 1 | `ls plugins/*/agents` |
 | hooks | 12: core 6, engineering 6 | `plugins/*/hooks/hooks.json` |
 | base rules | 7: writing, safety, questions, engineering, testing, wiki, learn | `ls plugins/*/templates/rules` |
-| tests | 571 in 65 files, 0 failures | `bun run check` |
+| tests | 572 in 65 files, 0 failures | `bun run check` |
 | source | about 9,800 lines of TypeScript in 6 packages | `find packages/*/src -name '*.ts' \| xargs cat \| wc -l` |
 | runtime dependencies | 2: `yaml` 2.9.1, `ts-pattern` 5.9.0 | `packages/*/package.json` |
 
@@ -59,13 +59,13 @@ the desk on disk         nook.yml, CLAUDE.md, .claude/rules/nook/, .nook/enginee
 | Package | Tests | Files |
 |---|---|---|
 | shared | 10 | 1 |
-| desk | 15 | 3 |
+| desk | 16 | 3 |
 | core | 158 | 14 |
 | engineering | 339 | 40 |
 | wiki | 21 | 2 |
 | learn | 19 | 4 |
 | scripts | 9 | 1 |
-| total | 571 | 65 |
+| total | 572 | 65 |
 
 Each test uses a temporary folder and never touches `~/.claude` or the owner's folders. The engineering tests run real git repos, so they take about 40 seconds.
 

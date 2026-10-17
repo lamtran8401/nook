@@ -48,3 +48,16 @@ describe('uiKit', () => {
     expect(uiKit().js).toContain('window.Bench = {')
   })
 })
+
+describe('the bundle script', () => {
+  test('runs to its end while the page loads and gives Bench its diagram library', () => {
+    const noop = () => {}
+    const node = (): Record<string, unknown> => ({ style: {}, dataset: {}, classList: { add: noop }, setAttribute: noop, appendChild: noop, getContext: () => ({ measureText: () => ({ width: 0 }) }) })
+    const document = { readyState: 'loading', addEventListener: noop, createElement: node, createElementNS: node, documentElement: node(), querySelectorAll: () => [] }
+    const window: Record<string, unknown> = { addEventListener: noop }
+    new Function('window', 'document', uiKit().js)(window, document)
+    const bench = window.Bench as { diagram?: { render?: unknown; mount?: unknown } }
+    expect(typeof bench.diagram?.render).toBe('function')
+    expect(window.BenchDiagrams).toBe(bench.diagram)
+  })
+})
