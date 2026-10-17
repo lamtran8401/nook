@@ -1,4 +1,4 @@
-/** The schema of the ledger (docs/engineering.md section 5). A new migration goes at the end. */
+/** The schema of the ledger (docs/reference/engineering.md section 5). A new migration goes at the end. */
 export const MIGRATIONS: string[] = [
   `
   CREATE TABLE item (

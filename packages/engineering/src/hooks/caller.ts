@@ -2,7 +2,7 @@ import type { HookInput } from '@nook/shared/hook.ts'
 
 import { type Role, Who } from '../who.ts'
 
-/** Who sends a hook event, read from the hook input (docs/engineering.md section 9). */
+/** Who sends a hook event, read from the hook input (docs/reference/engineering.md section 9). */
 
 export type CallerKind = 'lead' | 'builder' | 'verifier' | 'reviewer' | 'reader'
 

@@ -1,6 +1,6 @@
 import { denied } from '@nook/shared/errors.ts'
 
-/** Who calls the tool, and the one table of what each role can do (docs/engineering.md section 8). */
+/** Who calls the tool, and the one table of what each role can do (docs/reference/engineering.md section 8). */
 
 export const ROLES = ['owner', 'lead', 'builder', 'reader'] as const
 export type Role = (typeof ROLES)[number]

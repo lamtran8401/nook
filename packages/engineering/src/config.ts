@@ -6,7 +6,7 @@ import { parse } from 'yaml'
 import { NOOK_FILE } from '@nook/desk/desks.ts'
 import { usage } from '@nook/shared/errors.ts'
 
-/** The `engineering` section of nook.yml (docs/engineering.md section 2). Each fault names its fix. */
+/** The `engineering` section of nook.yml (docs/reference/engineering.md section 2). Each fault names its fix. */
 
 export const AREA_KINDS = ['frontend', 'backend', 'docs', 'data', 'tool'] as const
 export type AreaKind = (typeof AREA_KINDS)[number]
@@ -66,7 +66,7 @@ export class EngineeringConfig {
     const section = data.engineering
     if (section === undefined || section === null) return EngineeringConfig.empty()
     if (typeof section !== 'object' || Array.isArray(section))
-      throw usage(`${file}: engineering must be a map`, 'see docs/engineering.md section 2')
+      throw usage(`${file}: engineering must be a map`, 'see docs/reference/engineering.md section 2')
     const raw = section as Raw
     const where = `${file}: engineering`
     return new EngineeringConfig({

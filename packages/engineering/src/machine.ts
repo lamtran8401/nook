@@ -5,7 +5,7 @@ import { usage } from '@nook/shared/errors.ts'
 import type { WorkDoc } from './documents/work-folder.ts'
 import type { Action } from './who.ts'
 
-/** The states and moves of an item and of a slice (docs/engineering.md sections 4 and 5). */
+/** The states and moves of an item and of a slice (docs/reference/engineering.md sections 4 and 5). */
 
 export const STATES = [
   'backlog',

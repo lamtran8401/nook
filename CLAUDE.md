@@ -1,6 +1,6 @@
 # Nook, the repo
 
-This repo builds Nook itself. Read `docs/nook.md` for the plan and `docs/expect/` for what each step must do.
+This repo builds Nook itself. Read `docs/report.md` for the current build, `docs/reference/` for the contract of each pack, and `docs/expect/` for what the current step must do.
 
 ## Map
 ```
@@ -12,12 +12,16 @@ packages/engineering/  the ledger, the item machine, the guards, the permissions
 packages/wiki/         the shelves of the wiki, their indexes, the link check
 packages/learn/        the courses: roadmap, cards, mistakes, scores, the study log
 plugins/<pack>/        one Claude Code plugin each: pack.json, .claude-plugin/, bin/nook (a shim), hooks/, skills/, agents/, templates/. No code.
-docs/                  the plan, the contract of engineering (`engineering.md`), the wiki (`wiki.md`), the expectations
+docs/guide/            the guide book: how to use Nook, one chapter for each task
+docs/reference/        the contract of each pack: core, engineering, wiki, learn
+docs/report.md         the current build: the parts, the numbers, the limits, the next steps
+docs/expect/           what the current step must do before it is done
 ```
 The packs are core, engineering, wiki and learn. `nook eng …` runs the commands of engineering, `nook wiki …` those of the wiki, `nook learn …` those of learn.
 A desk is a folder with `nook.yml`. Desks nest: `company/` is a top desk, and `company/shop/` is a child desk inside it.
 
 ## Checks
+- A change to a command, a skill, an agent or a hook changes its doc in the same commit: the reference of its pack, the guide when the use changes, the numbers of `docs/report.md`.
 - `bun run check`: `tsc --noEmit` and `bun test`. Commit only when it passes.
 - `nook ste <file.md>` on each Markdown file of `plugins/` and `docs/`: above 80%. Run the tool by its name; the guard blocks a path to the binary.
 - `claude plugin validate .` after a change to a manifest.

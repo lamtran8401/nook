@@ -1,4 +1,4 @@
-/** The closed sets of values of the ledger columns and the document fields (docs/engineering.md 5, 6). */
+/** The closed sets of values of the ledger columns and the document fields (docs/reference/engineering.md 5, 6). */
 
 export const ITEM_KINDS = ['feature', 'fix', 'chore', 'investigate'] as const
 export type ItemKind = (typeof ITEM_KINDS)[number]
