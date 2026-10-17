@@ -24,6 +24,5 @@ These rules hold in every folder of this desk. Hooks enforce the moves of the ow
 - Write no dead code. Reuse a helper of the area before you write a new one.
 - Add no dependency that the plan did not name.
 - Never swallow an error. Never log a secret.
-- Comment only hard logic, in one or two lines: what and why. Never write history or a decision log in a comment, and never leave code in one.
-- Delete a comment that repeats the code. A long comment asks for a better name or a smaller function.
+- Follow the base rule `comments` for every comment.
 - Write the failing test first. Prove it with `nook eng task prove <id> <T> --files <tests>`.
