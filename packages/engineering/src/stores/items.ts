@@ -1,4 +1,4 @@
-import { EvError, Exit } from '@kit/shared/errors.ts'
+import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { type Ledger, now, type Param, parseList } from '../ledger.ts'
 import { isOpen, type State } from '../machine.ts'
@@ -50,7 +50,7 @@ export class ItemStore {
   get(id: string): Item {
     const item = this.find(id)
     if (!item)
-      throw new EvError(`no item ${id} in the ledger`, Exit.error, `kit eng item new ${id} "<title>"`)
+      throw new EvError(`no item ${id} in the ledger`, Exit.error, `nook eng item new ${id} "<title>"`)
     return item
   }
 
@@ -99,7 +99,7 @@ export class ItemStore {
     )
   }
 
-  /** A kit-made id: one more than the highest IT number, three digits at least (IT-001, IT-1000). */
+  /** A nook-made id: one more than the highest IT number, three digits at least (IT-001, IT-1000). */
   nextId(): string {
     const rows = this.ledger.all<{ id: string }>("SELECT id FROM item WHERE id LIKE 'IT-%'")
     const numbers = rows.map(r => /^IT-(\d+)$/.exec(r.id)?.[1]).filter(n => n !== undefined)

@@ -1,5 +1,5 @@
-import { type Context, type Program, text } from '@kit/shared/cli.ts'
-import { usage } from '@kit/shared/errors.ts'
+import { type Context, type Program, text } from '@nook/shared/cli.ts'
+import { usage } from '@nook/shared/errors.ts'
 
 import type { Review } from './cards.ts'
 import { dayOf, requireLearn } from './learn.ts'
@@ -17,13 +17,13 @@ const course = (c: Context, at = 0) => requireLearn().pick(c.args[at])
 /** `card review` takes `[course] <id> good|again`: with three words the first is the course. */
 export function reviewArgs(args: string[]): { name?: string; id: string; result: Review } {
   const [name, id, result] = args.length === 3 ? args : [undefined, ...args]
-  if (!id || (result !== 'good' && result !== 'again')) throw usage('give the card and good or again', 'kit learn card review [course] C1 good')
+  if (!id || (result !== 'good' && result !== 'again')) throw usage('give the card and good or again', 'nook learn card review [course] C1 good')
   return { ...(name ? { name } : {}), id, result }
 }
 
 export const learnProgram: Program = {
-  name: 'kit learn',
-  summary: 'the learn pack of Harness Kit: the courses, their cards, mistakes and scores',
+  name: 'nook learn',
+  summary: 'the learn pack of Nook: the courses, their cards, mistakes and scores',
   commands: [
     {
       path: ['courses'],

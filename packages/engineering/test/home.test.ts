@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { EvError, Exit } from '@kit/shared/errors.ts'
+import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { Home } from '../src/home.ts'
 import { makeHome, type TestHome } from './helpers.ts'
@@ -26,26 +26,26 @@ describe('Home', () => {
   test('find returns the environment that turns the pack on, from a folder below it', () => {
     const home = Home.find(t.area('bff'))
     expect(home?.dir).toBe(t.root)
-    expect(home?.dbFile).toBe(join(t.root, '.kit', 'engineering.db'))
+    expect(home?.dbFile).toBe(join(t.root, '.nook', 'engineering.db'))
     expect(home?.workDir('SHOP-1')).toBe(join(t.root, 'work', 'SHOP-1'))
     expect(home?.backlogDir('SHOP-1')).toBe(join(t.root, 'backlog', 'SHOP-1'))
     expect(home?.adrDir).toBe(join(t.root, 'docs', 'adr'))
   })
 
-  test('require outside a home exits 1 and names kit init as the fix', () => {
+  test('require outside a home exits 1 and names nook init as the fix', () => {
     const outside = makeHome()
-    writeFileSync(join(outside.root, 'kit.yml'), 'packs: []\n')
+    writeFileSync(join(outside.root, 'nook.yml'), 'packs: []\n')
     try {
       const error = caught(() => Home.require(outside.root))
       expect(error.code).toBe(Exit.error)
-      expect(error.fix).toContain('kit init --pack engineering')
+      expect(error.fix).toContain('nook init --pack engineering')
     } finally {
       outside.cleanup()
     }
   })
 
   test('areaOf picks the deepest area that holds the file', () => {
-    writeFileSync(join(t.root, 'kit.yml'), `packs: [engineering]
+    writeFileSync(join(t.root, 'nook.yml'), `packs: [engineering]
 engineering:
   areas:
     - { name: shop, path: projects, kind: tool }
@@ -60,7 +60,7 @@ engineering:
   test('areaNamed refuses an unknown area and lists the areas that exist', () => {
     const error = caught(() => t.home.areaNamed('ghost'))
     expect(error.code).toBe(Exit.refused)
-    expect(error.message).toBe('area ghost is not in kit.yml')
+    expect(error.message).toBe('area ghost is not in nook.yml')
     expect(error.fix).toBe('areas that exist: bff, web; add it with /setup')
   })
 

@@ -6,7 +6,7 @@ import { initIn, removeDir, tempDir } from '../helpers.ts'
 describe('sessionStart', () => {
   let root: string
   beforeEach(() => {
-    root = tempDir('kit-start-')
+    root = tempDir('nook-start-')
     initIn(root)
   })
   afterEach(() => removeDir(root))
@@ -17,7 +17,7 @@ describe('sessionStart', () => {
       value: {
         hookSpecificOutput: {
           hookEventName: 'SessionStart',
-          additionalContext: `Harness Kit environment: ${root}. Packs on: core. The base rules are in .claude/rules/kit/. Run \`kit doctor\` for the environments above and every gap.`,
+          additionalContext: `Nook environment: ${root}. Packs on: core. The base rules are in .claude/rules/nook/. Run \`nook doctor\` for the environments above and every gap.`,
         },
       },
     })

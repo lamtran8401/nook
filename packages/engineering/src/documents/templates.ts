@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { pluginDir } from '@kit/env/pack.ts'
+import { pluginDir } from '@nook/env/pack.ts'
 
 import { now } from '../ledger.ts'
 import type { ItemDoc, WorkFolder } from './work-folder.ts'

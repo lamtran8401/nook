@@ -12,11 +12,11 @@ The lead writes the plan and the owner approves it. You give the input that make
 
 ## What you get
 The brief of the item, the spec or its summary, often the Today section of the plan and the facts of the scouts, and one question.
-A missing brief: run `kit eng item brief <id>`. An unclear question: state your reading of it first, then answer.
+A missing brief: run `nook eng item brief <id>`. An unclear question: state your reading of it first, then answer.
 
 ## Order
 1. Read the brief and the spec. Your options must meet each criterion and stay inside the scope.
-2. Read the live ADRs (`kit eng adr list`) and the pages the brief names. A live ADR is a decision already made: follow it, or say why this item must break it.
+2. Read the live ADRs (`nook eng adr list`) and the pages the brief names. A live ADR is a decision already made: follow it, or say why this item must break it.
 3. Describe the parts that change and how they connect today, with path and line for each claim. Read the code; do not rely on the lead's summary.
 4. Give two or three real options, each one you could defend. For each: what changes, the trade-offs, the risk, the effect on the contract and on data, the cost in slices.
 5. Recommend one. Two sentences of reason, and what would make you change the recommendation.

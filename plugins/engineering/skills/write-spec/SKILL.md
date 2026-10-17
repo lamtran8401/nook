@@ -2,7 +2,7 @@
 name: write-spec
 description: "Write work/<id>/spec.md from the ticket and the answers: front matter with dates, In short, Why, What changes, checkable criteria, Decisions, Out of scope. Use in /spec or when the owner says draft the spec. Not for checking it: spec-check."
 argument-hint: "<item id>"
-allowed-tools: Bash(kit eng *), Read, Glob, Grep, Edit, Write
+allowed-tools: Bash(nook eng *), Read, Glob, Grep, Edit, Write
 ---
 
 Goal: a spec that says what and why, with criteria that anyone can check. It is the contract for the plan, the build and the review.
@@ -11,7 +11,7 @@ The clarify step and the bar for a criterion: `criteria.md` (this folder). A ful
 
 ## Read first
 - The ticket (`backlog/<id>/ticket.md`) and its attachments, with the comments that change the scope.
-- The answers: `kit eng questions <id>`. They override the ticket where they differ.
+- The answers: `nook eng questions <id>`. They override the ticket where they differ.
 - The result of `triage` and `find-repos`: the kind, the size, the areas.
 
 ## Order
@@ -30,5 +30,5 @@ The clarify step and the bar for a criterion: `criteria.md` (this folder). A ful
 - An impact on a related feature is easy to miss: the same call, table or component used elsewhere. Search for it.
 - AC numbers follow the order of the lines. Move lines before the plan names the numbers.
 - Do not write how. The design belongs in `/recipe`.
-- Do not run `kit eng item ac add` for these lines; the file is the source. Do not run `agree`; `/spec` does, after the owner confirms.
+- Do not run `nook eng item ac add` for these lines; the file is the source. Do not run `agree`; `/spec` does, after the owner confirms.
 - Keep the clear words of the ticket. Do not rewrite for style.

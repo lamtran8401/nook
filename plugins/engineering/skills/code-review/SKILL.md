@@ -2,7 +2,7 @@
 name: code-review
 description: "Review a done slice or the full diff of an item with fresh eyes through the code-reviewer agent: a fixed blocking list sends work back, the rest are nits. Use in /cook (L) and /quality-check. Not for your own diff: clean-code. Not the bundled one."
 argument-hint: "<item id> [<T>]"
-allowed-tools: Bash(kit eng *), Bash(git diff *), Read
+allowed-tools: Bash(nook eng *), Bash(git diff *), Read
 ---
 
 Goal: code that the next person changes safely: clear, in the style of its area, with no silent failure.
@@ -11,7 +11,7 @@ The reviewer of `/quality-check` judges the criteria. This review judges the cod
 
 ## When
 ```
-/cook    L item        each slice, after task done                the files of the slice (kit eng task show <id> <T>)
+/cook    L item        each slice, after task done                the files of the slice (nook eng task show <id> <T>)
 /quality-check   every item    once, one agent for every area             the full diff of each area against its base
 ```
 An S or M item gets the review in `/quality-check` only.
@@ -20,16 +20,16 @@ A second round of `/quality-check` reviews only the files that changed since the
 
 ## Order
 1. Take the scope: the files of the slice, or the full diff of each area.
-2. Start the Agent tool (no `name`: a subagent) with `subagent_type: kit-engineering:code-reviewer` and this prompt:
+2. Start the Agent tool (no `name`: a subagent) with `subagent_type: nook-engineering:code-reviewer` and this prompt:
    ```
    Item: <id>. Scope: slice <T> | the full item.
    Areas: <area> folder <path> base <branch>, one line for each area. Files: <list> | the full diff.
    Plan: work/<id>/plan.md (the dependencies it names).
    ```
 3. Read the verdict. The blocking list lives in the agent file; only a finding on it sends work back. A pass with nits: keep the nits for the report of the stage.
-4. A blocking finding in `/cook`: `kit eng task reopen <id> <T> --reason "<file:line> <what>"`, and send the four parts (where, what, why, how to show it) to the builder of the slice. It fixes, runs the checks, and runs `task done` again with every file. Then review the slice again.
+4. A blocking finding in `/cook`: `nook eng task reopen <id> <T> --reason "<file:line> <what>"`, and send the four parts (where, what, why, how to show it) to the builder of the slice. It fixes, runs the checks, and runs `task done` again with every file. Then review the slice again.
    The same finding after two rounds is a question for the owner.
-5. A blocking finding in `/quality-check`: it sends the item back. Name it in the reason of `kit eng item reject`.
+5. A blocking finding in `/quality-check`: it sends the item back. Name it in the reason of `nook eng item reject`.
 
 ```
 Code review: T1 pass (2 nits). T2 send back, then pass: list.ts:42 swallowed the query error (fixed).

@@ -9,7 +9,7 @@ const LONG = 'This sentence should really be split because it is very long and i
 
 let root: string
 beforeEach(() => {
-  root = tempDir('kit-style-')
+  root = tempDir('nook-style-')
   initIn(root)
 })
 afterEach(() => removeDir(root))

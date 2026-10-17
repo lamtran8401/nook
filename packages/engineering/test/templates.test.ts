@@ -11,7 +11,7 @@ const ITEM = { id: 'SHOP-12', title: 'Filter by status', kind: 'feature', size: 
 
 let dir: string
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'kit-templates-'))
+  dir = mkdtempSync(join(tmpdir(), 'nook-templates-'))
 })
 afterEach(() => rmSync(dir, { recursive: true, force: true }))
 

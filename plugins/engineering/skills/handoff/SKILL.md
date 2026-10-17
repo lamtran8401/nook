@@ -3,7 +3,7 @@ name: handoff
 description: "End a session: write work/<id>/handoff.md, at most 40 lines, with State, Done, Next, Open, Guesses and Watch. Use when the owner says handoff, wrap up the session, save state or stop for today, or when an auto run stops."
 argument-hint: "[item id]"
 disable-model-invocation: true
-allowed-tools: Bash(kit eng *), Bash(git status *), Read, Write, Edit
+allowed-tools: Bash(nook eng *), Bash(git status *), Read, Write, Edit
 ---
 
 Goal: a new session, or the owner after a night, knows in one minute where the item is, what was done, what comes next and what to watch.
@@ -11,10 +11,10 @@ The next session starts with no memory. The note is how it continues without a q
 Write facts about the state, not a diary.
 
 ## Order
-1. Run `kit eng pickup <id>` and `kit eng next <id>`. The ledger is the truth for the state and the slices; the note adds what the ledger does not hold.
-2. Run `kit eng item history <id>`: what changed since the last note.
+1. Run `nook eng pickup <id>` and `nook eng next <id>`. The ledger is the truth for the state and the slices; the note adds what the ledger does not hold.
+2. Run `nook eng item history <id>`: what changed since the last note.
 3. Read the old `work/<id>/handoff.md` when there is one. You replace it; keep what is still true.
-4. Run `kit eng doctor` and `kit eng area status`: drift, dirty files, an area on another branch.
+4. Run `nook eng doctor` and `nook eng area status`: drift, dirty files, an area on another branch.
 5. Write `work/<id>/handoff.md`, 40 lines or fewer, with the six sections below. Replace the old note.
 6. Report the path and the Next section. The next command is `/pickup <id>` in a new session. Do not start new work.
 
@@ -24,8 +24,8 @@ Write facts about the state, not a diary.
 ## State      the state, the mode, the slices by state; the stop reason when an auto run stopped
 ## Done       what changed since the last note, with the file paths; not the story of how
 ## Next       one command and one slice; at a gate, the `/gate` command that the owner types
-## Open       each open question (kit eng questions <id> --open) and each failed slice, with the reason and what you tried
-## Guesses    each open guess (kit eng guesses <id> --open) as question, taken, other; it makes sense with no context
+## Open       each open question (nook eng questions <id> --open) and each failed slice, with the reason and what you tried
+## Guesses    each open guess (nook eng guesses <id> --open) as question, taken, other; it makes sense with no context
 ## Watch      drift, dirty files, a flaky test, an area on another branch, the files the next session reads first
 ```
 

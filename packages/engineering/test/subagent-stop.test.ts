@@ -13,10 +13,10 @@ afterEach(() => t.cleanup())
 describe('subagentStop', () => {
   test('a builder with a running slice is held once, and let go when the slice is done', () => {
     itemAt(t, 'cooking')
-    const lead = t.kit(LEAD)
-    t.kit(BUILDER).moveSlice('start', 'SHOP-1', 'T1')
+    const lead = t.eng(LEAD)
+    t.eng(BUILDER).moveSlice('start', 'SHOP-1', 'T1')
     const held = subagentStop({ cwd: t.root, ...BUILDER_AGENT })
-    expect(reason(held)).toContain('kit eng task done SHOP-1 T1')
+    expect(reason(held)).toContain('nook eng task done SHOP-1 T1')
     expect(subagentStop({ cwd: t.root, ...BUILDER_AGENT, stop_hook_active: true }).kind).toBe('pass')
     expect(subagentStop({ cwd: t.root, agent_type: 'frontend-builder', agent_id: 'zz99' }).kind).toBe('pass')
     expect(subagentStop({ cwd: t.root, ...SCOUT }).kind).toBe('pass')

@@ -23,7 +23,7 @@ paths:
 - Write the expected value by hand. Never compute it with the code under test.
 - A test that asserts only a constant, `toBeDefined` or `not.toThrow` where a real value exists proves nothing.
 - Never write a snapshot with `--update` before the code exists. Check the expected output by hand.
-- `kit eng task prove <id> <T> --files <tests>` runs the new tests on the base: they must fail there.
+- `nook eng task prove <id> <T> --files <tests>` runs the new tests on the base: they must fail there.
 
 ## A failing test
 - Find the cause before you change a test. Change a test only when the criterion changed.

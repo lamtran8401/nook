@@ -1,8 +1,8 @@
 # The wiki pack
 
-> In short: the wiki is `docs/wiki/` of an environment, in shelves, each shelf with one `INDEX.md`. The kit adds and checks the index lines; the skills read and write the pages after the owner's yes.
+> In short: the wiki is `docs/wiki/` of an environment, in shelves, each shelf with one `INDEX.md`. Nook adds and checks the index lines; the skills read and write the pages after the owner's yes.
 
-## The section of kit.yml
+## The section of nook.yml
 
 ```yaml
 wiki:
@@ -26,19 +26,19 @@ A shelf with `index: false` gets no index line for its pages. `/setup` writes th
 | `docs/wiki/<shelf>/INDEX.md` | `| Page | Type | Summary |`, one row for each page of the shelf, the page as a link relative to the shelf |
 
 A new row takes its type from `type:` in the front matter of the page, else from the shelf (`ideas` gives `idea`, `areas` gives `area`, `resources` gives `resource`). Its summary is the first sentence of the `> In short:` line, else of the first paragraph.
-The kit adds rows after the last row of the table. It never removes a row and never changes a row that exists, so the owner can edit any summary.
+Nook adds rows after the last row of the table. It never removes a row and never changes a row that exists, so the owner can edit any summary.
 
 ## Commands
 
 | Command | What it does |
 |---|---|
-| `kit wiki index` | each gap of the indexes, with its fix; exit 1 with a gap |
-| `kit wiki index --fix` | makes each missing index and adds a row for each page with none; removes nothing |
-| `kit wiki links` | each `[[name]]` with no page of that name, and each relative Markdown link to a file that does not exist |
-| `kit wiki shelves` | the shelves and the use of each |
-| `kit wiki retire <page...> --into <page>` | after a merged page: moves the old pages to `archive/wiki/<date>/`, takes their rows out of the index, points each link at the merged page |
+| `nook wiki index` | each gap of the indexes, with its fix; exit 1 with a gap |
+| `nook wiki index --fix` | makes each missing index and adds a row for each page with none; removes nothing |
+| `nook wiki links` | each `[[name]]` with no page of that name, and each relative Markdown link to a file that does not exist |
+| `nook wiki shelves` | the shelves and the use of each |
+| `nook wiki retire <page...> --into <page>` | after a merged page: moves the old pages to `archive/wiki/<date>/`, takes their rows out of the index, points each link at the merged page |
 
-`kit doctor` lists the gaps of the indexes under the wiki pack.
+`nook doctor` lists the gaps of the indexes under the wiki pack.
 
 ## Skills and agent
 

@@ -5,7 +5,7 @@
 - send back: one AC is not met, a check fails, or a blocking finding remains.
 - A blocking finding breaks an AC, a changed contract or the scope of the spec, or it is a test that cannot fail.
   It has four parts: where (file and line), what, why it matters, how to show it fails.
-- The blocking list of `kit-engineering:code-reviewer` is in its agent file. Only that list sends work back from the code review.
+- The blocking list of `nook-engineering:code-reviewer` is in its agent file. Only that list sends work back from the code review.
 - A nit does not change the behavior: a name, a comment, a style point. Nits go to the owner as a list. They never send the item back.
 - Not confirmed: what the agents could not check, and where they looked. The owner reads it before the accept.
 
@@ -24,7 +24,7 @@ An AC with grade `owner` needs the manual check in the report, with what the own
 | Weak | Strong |
 |---|---|
 | "The filter is implemented." | `list.test.ts:42` fails on the base and passes on the branch (run). |
-| "Tests pass." | `kit eng item verify`: bff 212 passed, 0 failed, the full suite (run). |
+| "Tests pass." | `nook eng item verify`: bff 212 passed, 0 failed, the full suite (run). |
 | "The banner shows." | `ShipmentList.test.tsx:60` asserts the text "Unable to filter" (run). |
 
 ## The negative case
@@ -44,4 +44,4 @@ Blocking: none. Nits: list.ts:44 names the parameter `s`.
 Not confirmed: the time for 500 shipments; looked in list.test.ts and the Proof section.
 Next: /close SHOP-12 after the accept. /view SHOP-12 for the page with the walkthrough.
 ```
-A send-back starts with the unmet AC or the blocking finding, then the `kit eng item reject` that ran, then `/cook <id>`.
+A send-back starts with the unmet AC or the blocking finding, then the `nook eng item reject` that ran, then `/cook <id>`.

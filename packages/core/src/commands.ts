@@ -1,11 +1,11 @@
 import { resolve } from 'node:path'
 
-import { arg, list, type Program } from '@kit/shared/cli.ts'
-import { activePacks, environmentsAbove, nearestEnvironment, type PackModule, projectRoot } from '@kit/env/env.ts'
-import { EnvironmentList } from '@kit/env/environment-list.ts'
-import { Exit, usage } from '@kit/shared/errors.ts'
-import { readInput, runHook } from '@kit/shared/hook.ts'
-import { Catalog } from '@kit/env/pack.ts'
+import { arg, list, type Program } from '@nook/shared/cli.ts'
+import { activePacks, environmentsAbove, nearestEnvironment, type PackModule, projectRoot } from '@nook/env/env.ts'
+import { EnvironmentList } from '@nook/env/environment-list.ts'
+import { Exit, usage } from '@nook/shared/errors.ts'
+import { readInput, runHook } from '@nook/shared/hook.ts'
+import { Catalog } from '@nook/env/pack.ts'
 
 import { collectBrief, formatBrief, startOfYesterday } from './brief/brief.ts'
 import { doctor } from './doctor/doctor.ts'
@@ -25,24 +25,24 @@ const briefDirs = (cwd: string): string[] => {
   return here && !dirs.includes(here) ? [...dirs, here] : dirs
 }
 
-/** The commands of the core. `modules` are the pack packages that `kit init` and `kit doctor` reach. */
+/** The commands of the core. `modules` are the pack packages that `nook init` and `nook doctor` reach. */
 export const coreProgram = (modules: PackModule[] = []): Program => ({
-  name: 'kit',
-  summary: 'Harness Kit: a base layer for Claude Code that you init into any folder',
+  name: 'nook',
+  summary: 'Nook: a base layer for Claude Code that you init into any folder',
   commands: [
     {
       path: ['init'],
-      summary: 'make this folder an environment: kit.yml, the kit block of CLAUDE.md, the base rules, the kit settings keys, .kit/',
+      summary: 'make this folder an environment: nook.yml, the nook block of CLAUDE.md, the base rules, the nook settings keys, .nook/',
       usage: '[--pack a,b] [--update]',
-      flags: { pack: { type: 'string', list: true, help: 'a pack to turn on here; repeat it, or join names with a comma' }, update: { type: 'boolean', help: 'replace what the kit owns; never a line of yours' } },
+      flags: { pack: { type: 'string', list: true, help: 'a pack to turn on here; repeat it, or join names with a comma' }, update: { type: 'boolean', help: 'replace what Nook owns; never a line of yours' } },
       run(c) {
         const report = init({ dir: process.cwd(), packs: list(c, 'pack'), update: c.flags.update === true, coreDir: coreDir(), modules, list: EnvironmentList.mine() })
         c.out(report, r => {
           const lines = [`packs on here: ${r.packs.join(', ')}`]
           if (r.wrote.length) lines.push(`wrote: ${r.wrote.join(', ')}`)
           if (r.kept.length) lines.push(`kept: ${r.kept.join(', ')}`)
-          if (r.unset.length) lines.push(`next: in Claude Code, run /setup: it writes the section of ${r.unset.join(', ')} in kit.yml`)
-          else if (r.wrote.includes('kit.yml')) lines.push('next: in Claude Code, run /setup to build the structure, then kit doctor')
+          if (r.unset.length) lines.push(`next: in Claude Code, run /setup: it writes the section of ${r.unset.join(', ')} in nook.yml`)
+          else if (r.wrote.includes('nook.yml')) lines.push('next: in Claude Code, run /setup to build the structure, then nook doctor')
           return lines.join('\n')
         })
       },
@@ -59,7 +59,7 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
     },
     {
       path: ['packs'],
-      summary: 'the packs on in this folder, where each keeps its record, and the packs that the kit ships',
+      summary: 'the packs on in this folder, where each keeps its record, and the packs that the nook ships',
       run(c) {
         const on = activePacks(process.cwd())
         const shipped = Catalog.load().all().map(p => ({ name: p.manifest.name, description: p.manifest.description }))
@@ -67,7 +67,7 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
           'on here:',
           '  core         (every environment)',
           ...on.map(p => `  ${p.name.padEnd(12)} ${p.home.dir}`),
-          'shipped by this kit:',
+          'shipped by this nook:',
           ...shipped.map(p => `  ${p.name.padEnd(12)} ${p.description}`),
         ].join('\n'))
       },
@@ -91,7 +91,7 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
       summary: 'the facts since the last retro of this environment: items sent back, guesses flipped, slow questions, weak proofs',
       run(c) {
         const env = nearestEnvironment(process.cwd())
-        if (!env) throw usage('not inside an environment', 'run kit init in a folder first')
+        if (!env) throw usage('not inside an environment', 'run nook init in a folder first')
         const since = retroSince(env.dir)
         const facts = activePacks(env.dir)
           .filter(p => p.home.dir === env.dir)
@@ -104,7 +104,7 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
     },
     {
       path: ['where'],
-      summary: 'the environments above this folder and the kit project',
+      summary: 'the environments above this folder and the nook project',
       run(c) {
         const envs = environmentsAbove(process.cwd())
         c.out({ environments: envs.map(e => e.dir), project: projectRoot() }, r => [...r.environments.map(d => `env: ${d}`), `project: ${r.project}`].join('\n'))

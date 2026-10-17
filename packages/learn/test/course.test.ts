@@ -7,7 +7,7 @@ import { Course } from '../src/course.ts'
 
 let root: string
 beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'kit-course-')))
+  root = realpathSync(mkdtempSync(join(tmpdir(), 'nook-course-')))
 })
 afterEach(() => rmSync(root, { recursive: true, force: true }))
 

@@ -7,7 +7,7 @@ import { addDays, CardDeck } from '../src/cards.ts'
 
 let root: string
 beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'kit-cards-')))
+  root = realpathSync(mkdtempSync(join(tmpdir(), 'nook-cards-')))
 })
 afterEach(() => rmSync(root, { recursive: true, force: true }))
 

@@ -1,4 +1,4 @@
-/** The exit codes of every kit command. A skill, a hook or a script branches on them. */
+/** The exit codes of every nook command. A skill, a hook or a script branches on them. */
 export const Exit = {
   ok: 0,
   error: 1,

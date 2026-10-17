@@ -1,4 +1,4 @@
-import { context, type HookInput, type HookResult, pass } from '@kit/shared/hook.ts'
+import { context, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { nextText } from '../format.ts'
 import { Home } from '../home.ts'
@@ -8,7 +8,7 @@ import { Caller, whoOf } from './caller.ts'
 
 const LINES = 8
 
-/** SessionStart: the first lines of `kit eng next` as context. */
+/** SessionStart: the first lines of `nook eng next` as context. */
 export function sessionStart(input: HookInput): HookResult {
   const home = Home.find(input.cwd ?? process.cwd())
   if (!home) return pass
@@ -16,6 +16,6 @@ export function sessionStart(input: HookInput): HookResult {
   const lines = nextText(next(eng)).split('\n').slice(0, LINES)
   return context(
     'SessionStart',
-    `Engineering (${home.dir}):\n${lines.join('\n')}\nRun \`kit eng next\` for the full list, \`kit eng pickup <id>\` to take an item.`,
+    `Engineering (${home.dir}):\n${lines.join('\n')}\nRun \`nook eng next\` for the full list, \`nook eng pickup <id>\` to take an item.`,
   )
 }

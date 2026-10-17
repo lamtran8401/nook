@@ -100,7 +100,7 @@ const SPEC_7 = SPEC({ areas: ['bff', 'web'], size: 'L', acs: ['[ADD] checkout ho
 
 /** SHOP-7 in planning with a plan of size L and three slices imported. */
 const planned = () => {
-  const lead = t.kit(LEAD)
+  const lead = t.eng(LEAD)
   lead.newItem({ id: 'SHOP-7', title: 'Reserve <stock> & hold', areas: ['bff', 'web'] })
   lead.moveItem('start', 'SHOP-7')
   writeDoc(t, 'SHOP-7', 'spec.md', SPEC_7)
@@ -197,7 +197,7 @@ describe('itemPage', () => {
   test('a page asked for the walkthrough tab opens on it', () => {
     planned()
     writeDoc(t, 'SHOP-7', 'walkthrough.md', '---\nid: SHOP-7\ncreated: 2026-10-18\nupdated: 2026-10-18\n---\n\n# SHOP-7: the walkthrough\n')
-    const html = itemPage(t.kit(LEAD), 'SHOP-7', 'walkthrough')
+    const html = itemPage(t.eng(LEAD), 'SHOP-7', 'walkthrough')
     expect(html).toContain('id="tab-spec" data-doc="spec" aria-controls="panel-spec" aria-selected="false" tabindex="-1">')
     expect(html).toContain('id="tab-walkthrough" data-doc="walkthrough" aria-controls="panel-walkthrough" aria-selected="true" tabindex="0">')
     expect(html).toContain('id="panel-spec" aria-labelledby="tab-spec" hidden>')
@@ -206,8 +206,8 @@ describe('itemPage', () => {
 
   test('with no tab named, an item in review opens on its walkthrough, or on its spec while it has none', () => {
     itemAt(t, 'cooking')
-    t.kit(LEAD).ledger.run("UPDATE item SET state = 'review' WHERE id = 'SHOP-1'")
-    const selected = () => /id="tab-(\w+)" data-doc="\w+" aria-controls="panel-\w+" aria-selected="true"/.exec(itemPage(t.kit(LEAD), 'SHOP-1'))?.[1]
+    t.eng(LEAD).ledger.run("UPDATE item SET state = 'review' WHERE id = 'SHOP-1'")
+    const selected = () => /id="tab-(\w+)" data-doc="\w+" aria-controls="panel-\w+" aria-selected="true"/.exec(itemPage(t.eng(LEAD), 'SHOP-1'))?.[1]
     expect(selected()).toBe('spec')
     writeDoc(t, 'SHOP-1', 'walkthrough.md', '---\nid: SHOP-1\ncreated: 2026-10-18\nupdated: 2026-10-18\n---\n\n# SHOP-1: the walkthrough\n')
     expect(selected()).toBe('walkthrough')
@@ -215,7 +215,7 @@ describe('itemPage', () => {
 
   test('a tab that the item does not have is refused with the tabs it has', () => {
     planned()
-    expect(() => itemPage(t.kit(LEAD), 'SHOP-7', 'walkthrough')).toThrow('SHOP-7 has no walkthrough tab; its tabs: spec, plan, tasks')
+    expect(() => itemPage(t.eng(LEAD), 'SHOP-7', 'walkthrough')).toThrow('SHOP-7 has no walkthrough tab; its tabs: spec, plan, tasks')
   })
 
   test('an item with no walkthrough.md has no Walkthrough tab', () => {
@@ -225,7 +225,7 @@ describe('itemPage', () => {
   test('walkthrough.md adds a Walkthrough tab after Tasks, hidden at first, with its document', () => {
     planned()
     writeDoc(t, 'SHOP-7', 'walkthrough.md', '---\nid: SHOP-7\ncreated: 2026-10-18\nupdated: 2026-10-18\n---\n\n# SHOP-7: the walkthrough\n\n## The verdict\n\n- accept\n')
-    const html = itemPage(t.kit(LEAD), 'SHOP-7')
+    const html = itemPage(t.eng(LEAD), 'SHOP-7')
     expect([...html.matchAll(/role="tab" id="tab-(\w+)"/g)].map(m => m[1])).toEqual(['spec', 'plan', 'tasks', 'walkthrough'])
     expect(html).toContain('<button type="button" class="bn-tabs__tab" role="tab" id="tab-walkthrough" data-doc="walkthrough" aria-controls="panel-walkthrough" aria-selected="false" tabindex="-1">Walkthrough</button>')
     expect(panelOf(html, 'walkthrough')).toContain('<h2 class="kd-sec__title">The verdict</h2>')

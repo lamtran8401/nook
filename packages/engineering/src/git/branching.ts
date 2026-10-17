@@ -1,10 +1,10 @@
-import { EvError, Exit } from '@kit/shared/errors.ts'
+import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import type { Area } from '../config.ts'
 import type { Home } from '../home.ts'
 import { GitRepo } from './repo.ts'
 
-/** The branch of an item, `kit/<id>-<slug>`, in each git area of the item. */
+/** The branch of an item, `nook/<id>-<slug>`, in each git area of the item. */
 
 export type BranchResult = { area: string; branch: string; made: boolean }
 
@@ -15,7 +15,7 @@ const slug = (title: string) =>
     .replace(/^-|-$/g, '')
     .slice(0, 40)
 export const branchName = (item: { id: string; title: string }) =>
-  `kit/${item.id}-${slug(item.title) || 'work'}`
+  `nook/${item.id}-${slug(item.title) || 'work'}`
 
 export class Branching {
   constructor(private readonly home: Home) {}

@@ -12,7 +12,7 @@ afterEach(() => t.cleanup())
 describe('brief', () => {
   test('the owner steps are now; failed slices and an item cooking with no activity for a day are today', () => {
     itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }, { id: 'T2' }]))
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.newItem({ id: 'SHOP-2', title: 'b', areas: ['web'] })
     lead.ask('SHOP-2', 'what?', true)
     lead.moveSlice('start', 'SHOP-1', 'T1')
@@ -22,7 +22,7 @@ describe('brief', () => {
     expect(lines.every(l => l.pack === 'engineering' && l.text && l.action && l.ref)).toBe(true)
     expect(lines.map(l => [l.urgency, l.ref])).toEqual([['today', 'SHOP-1'], ['today', 'SHOP-1'], ['now', 'SHOP-2']])
     expect(lines[0]!.text).toContain('T1 failed: cannot')
-    expect(lines[2]!.action).toBe('kit eng answer SHOP-2 Q1 "<answer>"')
+    expect(lines[2]!.action).toBe('nook eng answer SHOP-2 Q1 "<answer>"')
     itemAt(t, 'planning', 'SHOP-3')
     writeDoc(t, 'SHOP-3', 'plan.md', PLAN)
     writeDoc(t, 'SHOP-3', 'tasks.md', TASKS([{ id: 'T1' }]))
@@ -35,7 +35,7 @@ describe('brief: a close that waits', () => {
   test('a done item that is not closed waits for its /close; a closed one does not', () => {
     itemAt(t, 'planning')
     itemAt(t, 'planning', 'SHOP-2')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.ledger.run("UPDATE item SET state = 'done' WHERE id IN ('SHOP-1', 'SHOP-2')")
     lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-2', 'archive', NULL, NULL, 'lead', 'lead', '2026-10-16T10:00:00.000Z')")
     expect(brief(lead).map(l => [l.urgency, l.ref, l.text, l.action])).toEqual([
@@ -48,7 +48,7 @@ describe('doneSince', () => {
   test('an item accepted since the time is done, and closed when its archive came after', () => {
     itemAt(t, 'planning')
     itemAt(t, 'planning', 'SHOP-2')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.ledger.run("UPDATE item SET state = 'done' WHERE id IN ('SHOP-1', 'SHOP-2')")
     lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-1', 'accept', 'review', 'done', 'owner', 'owner', '2026-10-16T09:00:00.000Z')")
     lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-1', 'archive', NULL, NULL, 'lead', 'lead', '2026-10-16T10:00:00.000Z')")
@@ -60,7 +60,7 @@ describe('doneSince', () => {
 describe('runs', () => {
   test('an open item that waits for nobody runs, with its next step and its running slices', () => {
     itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }, { id: 'T2' }]))
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.moveSlice('start', 'SHOP-1', 'T1')
     lead.newItem({ id: 'SHOP-2', title: 'b', areas: ['web'] })
     lead.ask('SHOP-2', 'what?', true)

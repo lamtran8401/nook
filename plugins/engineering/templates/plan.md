@@ -8,7 +8,7 @@ updated: {{today}}
 # {{id}}: the plan
 
 <!-- `approve` needs text in Today, Approach, Impact, Proof and Risks, and in Flow for size L. -->
-<!-- `kit eng item check {{id}}` lists the sections that are empty. A mermaid block counts as text. -->
+<!-- `nook eng item check {{id}}` lists the sections that are empty. A mermaid block counts as text. -->
 <!-- Length: a plan of size M has fewer than 60 lines with text, a plan of size L fewer than 100. Blank lines do not count; the diagrams do. -->
 <!-- Write decisions, not code: no path with a line number, no function signature, no code block. -->
 <!-- Write the In short line last, as one line of 2 sentences: `> In short: <the approach>. <the main risk>.` -->

@@ -9,15 +9,16 @@
         "typescript": "7.0.2",
       },
     },
-    "apps/kit": {
-      "name": "@kit/app",
+    "apps/nook": {
+      "name": "@nook/app",
       "version": "0.1.0",
       "bin": {
-        "kit": "bin/kit",
+        "nook": "bin/nook",
+        "nk": "bin/nook",
       },
     },
     "packages/core": {
-      "name": "@kit/core",
+      "name": "@nook/core",
       "version": "0.1.0",
       "dependencies": {
         "ts-pattern": "5.9.0",
@@ -25,7 +26,7 @@
       },
     },
     "packages/engineering": {
-      "name": "@kit/engineering",
+      "name": "@nook/engineering",
       "version": "0.1.0",
       "dependencies": {
         "ts-pattern": "5.9.0",
@@ -33,22 +34,22 @@
       },
     },
     "packages/env": {
-      "name": "@kit/env",
+      "name": "@nook/env",
       "version": "0.1.0",
       "dependencies": {
         "yaml": "2.9.1",
       },
     },
     "packages/learn": {
-      "name": "@kit/learn",
+      "name": "@nook/learn",
       "version": "0.1.0",
     },
     "packages/shared": {
-      "name": "@kit/shared",
+      "name": "@nook/shared",
       "version": "0.1.0",
     },
     "packages/wiki": {
-      "name": "@kit/wiki",
+      "name": "@nook/wiki",
       "version": "0.1.0",
       "dependencies": {
         "ts-pattern": "5.9.0",
@@ -56,19 +57,19 @@
     },
   },
   "packages": {
-    "@kit/app": ["@kit/app@workspace:apps/kit"],
+    "@nook/app": ["@nook/app@workspace:apps/nook"],
 
-    "@kit/core": ["@kit/core@workspace:packages/core"],
+    "@nook/core": ["@nook/core@workspace:packages/core"],
 
-    "@kit/engineering": ["@kit/engineering@workspace:packages/engineering"],
+    "@nook/engineering": ["@nook/engineering@workspace:packages/engineering"],
 
-    "@kit/env": ["@kit/env@workspace:packages/env"],
+    "@nook/env": ["@nook/env@workspace:packages/env"],
 
-    "@kit/learn": ["@kit/learn@workspace:packages/learn"],
+    "@nook/learn": ["@nook/learn@workspace:packages/learn"],
 
-    "@kit/shared": ["@kit/shared@workspace:packages/shared"],
+    "@nook/shared": ["@nook/shared@workspace:packages/shared"],
 
-    "@kit/wiki": ["@kit/wiki@workspace:packages/wiki"],
+    "@nook/wiki": ["@nook/wiki@workspace:packages/wiki"],
 
     "@types/bun": ["@types/bun@1.4.2", "", { "dependencies": { "bun-types": "1.4.2" } }, "sha512-GimotNn7+ZV0uVArItBbriZsR1oNf0+WTzPkdcFrzShI7k2norL0uzEaJT8T33dWr7O/c9ZDuAFQrctKCi72oQ=="],
 

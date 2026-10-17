@@ -31,25 +31,25 @@ describe('engineeringModule', () => {
     clearFolders()
     const child = join(t.root, 'projects', 'notes')
     mkdirSync(child, { recursive: true })
-    writeFileSync(join(child, 'kit.yml'), 'packs: []\n')
+    writeFileSync(join(child, 'nook.yml'), 'packs: []\n')
     expect(engineeringModule.setup(child)).toEqual([])
     expect(existsSync(join(t.root, 'work'))).toBe(false)
   })
 
-  test('a home with no engineering section in kit.yml is not configured', () => {
+  test('a home with no engineering section in nook.yml is not configured', () => {
     t = makeHome({ section: false })
     expect(engineeringModule.configured(t.root)).toBe(false)
   })
 
-  test('a home with its areas in kit.yml is configured', () => {
+  test('a home with its areas in nook.yml is configured', () => {
     t = makeHome()
     expect(engineeringModule.configured(t.root)).toBe(true)
   })
 
-  test('doctor names a missing folder with the fix to run kit init --update', () => {
+  test('doctor names a missing folder with the fix to run nook init --update', () => {
     t = makeHome()
     clearFolders()
-    expect(engineeringModule.doctor(t.root)).toContainEqual({ level: 'warn', where: t.root, text: 'work/ is missing', fix: 'kit init --update' })
+    expect(engineeringModule.doctor(t.root)).toContainEqual({ level: 'warn', where: t.root, text: 'work/ is missing', fix: 'nook init --update' })
   })
 })
 
@@ -58,7 +58,7 @@ function readyToApprove(t: TestHome) {
   itemAt(t, 'planning')
   writeDoc(t, 'SHOP-1', 'plan.md', PLAN)
   writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }]))
-  t.kit(LEAD).importTasks('SHOP-1')
+  t.eng(LEAD).importTasks('SHOP-1')
 }
 
 describe('engineeringModule: the owner moves of /gate', () => {
@@ -72,7 +72,7 @@ describe('engineeringModule: the owner moves of /gate', () => {
     t = makeHome()
     readyToApprove(t)
     engineeringModule.gate!(t.root, ['approve', 'SHOP-1'], 's-1')
-    const last = t.kit(LEAD).stores.events.history('SHOP-1').at(-1)!
+    const last = t.eng(LEAD).stores.events.history('SHOP-1').at(-1)!
     expect([last.type, last.actor, last.role]).toEqual(['approve', 'owner via /gate', 'owner'])
   })
 
@@ -82,7 +82,7 @@ describe('engineeringModule: the owner moves of /gate', () => {
     const result = engineeringModule.gate!(t.root, ['approve', 'SHOP-1'], 's-1')
     expect(result.ok).toBe(false)
     expect(result.lines[0]).toMatch(/^approve SHOP-1: \d+ gaps?/)
-    expect(t.kit(LEAD).item('SHOP-1').state).toBe('planning')
+    expect(t.eng(LEAD).item('SHOP-1').state).toBe('planning')
   })
 
   test('mode sets the mode of the item as the owner', () => {
@@ -110,7 +110,7 @@ describe('engineeringModule: a typed /auto', () => {
     t = makeHome()
     itemAt(t, 'framing')
     expect(auto('SHOP-1 keep the old export')).toEqual({ ok: true, lines: ['SHOP-1 mode auto', 'next: /spec SHOP-1'] })
-    const last = t.kit(LEAD).stores.events.history('SHOP-1').at(-1)!
+    const last = t.eng(LEAD).stores.events.history('SHOP-1').at(-1)!
     expect([last.type, last.actor, last.role]).toEqual(['mode', 'owner via /auto', 'owner'])
   })
 
@@ -120,7 +120,7 @@ describe('engineeringModule: a typed /auto', () => {
       ok: true,
       lines: ['IT-001 made from the prompt', 'IT-001 mode auto', 'next: /spec IT-001'],
     })
-    expect(t.kit(LEAD).item('IT-001').title).toBe('add a CSV export to the shipments page')
+    expect(t.eng(LEAD).item('IT-001').title).toBe('add a CSV export to the shipments page')
   })
 
   test('a key that is no item yet makes the item with that key', () => {
@@ -139,13 +139,13 @@ describe('engineeringModule: a typed /auto', () => {
     itemAt(t, 'framing')
     itemAt(t, 'framing', 'SHOP-2')
     expect(auto('')).toEqual({ ok: false, lines: ['several open items: type /auto with one of SHOP-1, SHOP-2'] })
-    expect(t.kit(LEAD).item('SHOP-1').mode).toBe('normal')
+    expect(t.eng(LEAD).item('SHOP-1').mode).toBe('normal')
   })
 
   test('an item that is not open is refused', () => {
     t = makeHome()
     itemAt(t, 'framing')
-    t.kit(LEAD).moveItem('cancel', 'SHOP-1', { reason: 'not worth it' })
+    t.eng(LEAD).moveItem('cancel', 'SHOP-1', { reason: 'not worth it' })
     expect(auto('SHOP-1')).toEqual({ ok: false, lines: ['SHOP-1 is cancelled: /auto runs an open item'] })
   })
 })
@@ -154,7 +154,7 @@ describe('engineeringModule: the retro', () => {
   test('gives the facts of the ledger since the time', () => {
     t = makeHome()
     itemAt(t, 'planning')
-    t.kit(LEAD).ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, reason, at) VALUES ('SHOP-1', 'reject', 'review', 'cooking', 'lead', 'lead', 'AC 4 has no test', '2026-10-16T09:00:00.000Z')")
+    t.eng(LEAD).ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, reason, at) VALUES ('SHOP-1', 'reject', 'review', 'cooking', 'lead', 'lead', 'AC 4 has no test', '2026-10-16T09:00:00.000Z')")
     expect(engineeringModule.retro!(t.root, new Date('2026-10-15T00:00:00.000Z'))).toEqual([
       { item: 'SHOP-1', kind: 'sent back', text: 'AC 4 has no test', at: '2026-10-16T09:00:00.000Z' },
     ])
@@ -166,7 +166,7 @@ describe('engineeringModule: the daily brief', () => {
     t = makeHome()
     readyToApprove(t)
     itemAt(t, 'planning', 'SHOP-2')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.ledger.run("UPDATE item SET state = 'done' WHERE id = 'SHOP-2'")
     lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-2', 'accept', 'review', 'done', 'owner', 'owner', '2026-10-16T09:00:00.000Z')")
     lead.newItem({ id: 'SHOP-3', title: 'the new export', areas: ['bff'] })

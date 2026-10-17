@@ -2,7 +2,7 @@
 name: contract-check
 description: "List the impact of a contract change on each consumer (none, needs a change, breaks) and the order of change, through the read-only contract designer. Use in /recipe and /quality-check when a shared schema changes, or when the owner asks who consumes it."
 argument-hint: "<item id>"
-allowed-tools: Bash(kit eng *), Read, Glob, Grep
+allowed-tools: Bash(nook eng *), Read, Glob, Grep
 ---
 
 Goal: before the approve and again before the accept, show which areas a contract change reaches and whether each one still works.
@@ -11,11 +11,11 @@ A contract is shared by areas that deploy apart, so an unchecked consumer is a f
 ## Where the change is
 - In a plan: the Design section of `plan.md` and the contract files it names.
 - In a review: the diff of the branch in each area. Read the real change, not the plan.
-- A contract file is any shared interface: a proto, a GraphQL or OpenAPI schema, an event schema. Find them with a search in the folders of `kit eng area status`.
+- A contract file is any shared interface: a proto, a GraphQL or OpenAPI schema, an event schema. Find them with a search in the folders of `nook eng area status`.
 
 ## Order
-1. Start the Agent tool with `subagent_type: kit-engineering:contract-designer`, the brief (`kit eng item brief <id>`), the folders of the areas, where the change is, and one job: "plan check" or "review check".
-   A review check after a plan check goes to the same contract designer: SendMessage to the id in `kit eng notes <id>`, with the diff to check.
+1. Start the Agent tool with `subagent_type: nook-engineering:contract-designer`, the brief (`nook eng item brief <id>`), the folders of the areas, where the change is, and one job: "plan check" or "review check".
+   A review check after a plan check goes to the same contract designer: SendMessage to the id in `nook eng notes <id>`, with the diff to check.
 2. Read its table. For each consumer: none, needs a change, or breaks, with the file and line. For each change: additive or breaking.
 3. Check the order it gives: the contract, then the provider, then the consumers. Which consumers can ship before the provider.
 4. A breaking change needs a migration path and the owner's explicit word. Say so and stop there: nobody approves it for the owner.
@@ -35,5 +35,5 @@ Review evidence: bff `list.test.ts` covers the field; frontend built against the
 - Generated code hides consumers. Search for the generated type name and the package import, not only the field name.
 - "None found" needs the search terms. Write what was searched.
 - A changed default value is a breaking change even when the type is the same.
-- A consumer outside the areas of `kit.yml` is outside the check. Say that it can exist.
+- A consumer outside the areas of `nook.yml` is outside the check. Say that it can exist.
 - The agent reports. You change the plan; nobody edits a contract to make a check pass.

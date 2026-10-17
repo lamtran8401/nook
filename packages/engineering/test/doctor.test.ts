@@ -14,7 +14,7 @@ afterEach(() => t.cleanup())
 describe('doctor', () => {
   test('lists each gap of the pack in the home with its fix', () => {
     itemAt(t, 'cooking')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.ledger.run("UPDATE item SET areas = '[\"bff\",\"ghost\"]' WHERE id = 'SHOP-1'")
     lead.newItem({ id: 'SHOP-2', title: 'b', areas: ['bff'], state: 'cooking' })
     lead.moveSlice('start', 'SHOP-1', 'T1')
@@ -25,7 +25,7 @@ describe('doctor', () => {
     lead.ledger.run("UPDATE question SET asked_at = '2026-01-01T00:00:00.000Z'")
     const found = doctor(lead)
     const texts = found.map(f => f.text)
-    expect(texts).toContain('SHOP-1 names an area that kit.yml does not have: ghost')
+    expect(texts).toContain('SHOP-1 names an area that nook.yml does not have: ghost')
     expect(texts).toContain('SHOP-1: plan.md changed after the approve')
     expect(texts).toContain('SHOP-1 T1 is waiting: the schema')
     expect(texts).toContain('SHOP-2 is cooking with no slice')
@@ -35,7 +35,7 @@ describe('doctor', () => {
     expect(found.every(f => f.fix && f.where && ['error', 'warn'].includes(f.level))).toBe(true)
     const bare = makeHome({ section: false })
     try {
-      expect(doctor(bare.kit()).map(f => f.text)[0]).toContain('no engineering section')
+      expect(doctor(bare.eng()).map(f => f.text)[0]).toContain('no engineering section')
     } finally {
       bare.cleanup()
     }

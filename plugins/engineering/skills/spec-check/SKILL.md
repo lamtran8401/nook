@@ -1,16 +1,16 @@
 ---
 name: spec-check
-description: "Gate before the owner reads a spec: front matter complete, areas in kit.yml, each criterion checkable and sourced, the ticket covered, no gap for agree. Use in /spec or when the owner asks if the spec is ready. Not for writing it: write-spec."
+description: "Gate before the owner reads a spec: front matter complete, areas in nook.yml, each criterion checkable and sourced, the ticket covered, no gap for agree. Use in /spec or when the owner asks if the spec is ready. Not for writing it: write-spec."
 argument-hint: "<item id>"
-allowed-tools: Bash(kit eng *), Read, Glob, Grep, Edit
+allowed-tools: Bash(nook eng *), Read, Glob, Grep, Edit
 ---
 
 Goal: a spec that passes the guard of `agree` and that the owner reads once and agrees with.
 A gap left here comes back as a failed review. This is the cheapest place to find it, so be strict.
 
 ## Order
-Read `work/<id>/spec.md`, the ticket and `kit eng item brief <id>`. Name each gap in one line, with the line of the file.
-1. Front matter: `kind` set; a feature has a `size`; `areas` not empty and each one in `kit eng area list`; `created` and `updated` are dates, and `updated` is today after an edit.
+Read `work/<id>/spec.md`, the ticket and `nook eng item brief <id>`. Name each gap in one line, with the line of the file.
+1. Front matter: `kind` set; a feature has a `size`; `areas` not empty and each one in `nook eng area list`; `created` and `updated` are dates, and `updated` is today after an edit.
 2. In short and Why: the change in one line, then one paragraph that says who is stuck and why. Neither repeats the title.
 3. What changes: a reader who did not see the ticket understands what changes in each area.
 4. Decisions: each gap, edge case, conflict and impact has a row that says how it was resolved: `Q<n>`, `G<n>` or `open`.
@@ -21,8 +21,8 @@ Read `work/<id>/spec.md`, the ticket and `kit eng item brief <id>`. Name each ga
    Plain words: a criterion with an endpoint, a query, a status code, a field, a function or a file name is a gap. Rewrite it as what a person or a caller gets; the exact check goes in the Proof of the plan.
 8. Coverage: every requirement of the ticket has a criterion or an Out of scope line. No criterion adds a behavior that nobody asked for.
 9. Out of scope has content and names what a reader could assume.
-10. Questions: `kit eng questions <id> --open` lists no blocking question.
-11. The guard: `kit eng item check <id>` lists no gap for `agree`.
+10. Questions: `nook eng questions <id> --open` lists no blocking question.
+11. The guard: `nook eng item check <id>` lists no gap for `agree`.
 
 ## Fix or report
 - Fix what is mechanical: a tag, a source, a heading, the front matter.

@@ -1,4 +1,4 @@
-import { block, type HookInput, type HookResult, pass } from '@kit/shared/hook.ts'
+import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { Home } from '../home.ts'
 import { Engineering } from '../service.ts'
@@ -18,6 +18,6 @@ export function teammateIdle(input: HookInput): HookResult {
   const s = eng.stores.slices.running().find(s => s.area === area)
   if (!s) return pass
   return block(
-    `${name} holds ${s.item} ${s.id} (running). Finish it: \`kit eng task done ${s.item} ${s.id} --files <f...>\`, or \`kit eng task wait ${s.item} ${s.id} --reason "<what you need>"\`, or task fail --reason after three tries.`,
+    `${name} holds ${s.item} ${s.id} (running). Finish it: \`nook eng task done ${s.item} ${s.id} --files <f...>\`, or \`nook eng task wait ${s.item} ${s.id} --reason "<what you need>"\`, or task fail --reason after three tries.`,
   )
 }

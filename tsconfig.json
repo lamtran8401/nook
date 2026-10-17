@@ -15,12 +15,12 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "paths": {
-      "@kit/shared/*": ["./packages/shared/src/*"],
-      "@kit/env/*": ["./packages/env/src/*"],
-      "@kit/core/*": ["./packages/core/src/*"],
-      "@kit/engineering/*": ["./packages/engineering/src/*"],
-      "@kit/wiki/*": ["./packages/wiki/src/*"],
-      "@kit/learn/*": ["./packages/learn/src/*"]
+      "@nook/shared/*": ["./packages/shared/src/*"],
+      "@nook/env/*": ["./packages/env/src/*"],
+      "@nook/core/*": ["./packages/core/src/*"],
+      "@nook/engineering/*": ["./packages/engineering/src/*"],
+      "@nook/wiki/*": ["./packages/wiki/src/*"],
+      "@nook/learn/*": ["./packages/learn/src/*"]
     }
   },
   "include": ["apps/*/src", "packages/*/src", "packages/*/test"]

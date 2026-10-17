@@ -25,19 +25,19 @@ describe('idAndTitle', () => {
 
 describe('Engineering.newItem', () => {
   test('an item with no id gets the next IT id of the ledger', () => {
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.newItem({ id: 'IT-004', title: 'an older item' })
     expect(lead.newItem({ title: 'Filter shipments by status' })).toMatchObject({ id: 'IT-005', title: 'Filter shipments by status', state: 'backlog' })
   })
 
   test('an item with an id keeps it', () => {
-    expect(t.kit(LEAD).newItem({ id: 'SHOP-12', title: 'Filter by status' }).id).toBe('SHOP-12')
+    expect(t.eng(LEAD).newItem({ id: 'SHOP-12', title: 'Filter by status' }).id).toBe('SHOP-12')
   })
 })
 
 describe('Engineering.quick with a title', () => {
   test('a title gets the next IT id', () => {
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.newItem({ id: 'IT-009', title: 'an older item' })
     expect(lead.quick('the web title is wrong', 'web')).toMatchObject({ id: 'IT-010', title: 'the web title is wrong', state: 'cooking' })
   })

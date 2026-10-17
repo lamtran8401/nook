@@ -1,5 +1,5 @@
 node_modules/
-.kit/
+.nook/
 *.db
 *.db-wal
 *.db-shm

@@ -1,12 +1,12 @@
-import { type Program, text } from '@kit/shared/cli.ts'
-import { Exit, usage } from '@kit/shared/errors.ts'
+import { type Program, text } from '@nook/shared/cli.ts'
+import { Exit, usage } from '@nook/shared/errors.ts'
 
 import { requireWiki } from './module.ts'
 
 /** The commands of the wiki pack: the index and the links. The skills read and write the pages. */
 export const wikiProgram: Program = {
-  name: 'kit wiki',
-  summary: 'the wiki pack of Harness Kit: the shelves, their indexes and the links',
+  name: 'nook wiki',
+  summary: 'the wiki pack of Nook: the shelves, their indexes and the links',
   commands: [
     {
       path: ['index'],
@@ -53,7 +53,7 @@ export const wikiProgram: Program = {
       summary: 'the shelves of the wiki and the use of each',
       run(c) {
         const wiki = requireWiki()
-        c.out(wiki.config.shelves, s => s.map(x => `${x.name}/  ${x.use}${x.index ? '' : ' (no index)'}`).join('\n') || 'no shelf in kit.yml: /setup')
+        c.out(wiki.config.shelves, s => s.map(x => `${x.name}/  ${x.use}${x.index ? '' : ' (no index)'}`).join('\n') || 'no shelf in nook.yml: /setup')
       },
     },
   ],

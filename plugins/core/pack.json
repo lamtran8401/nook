@@ -1,6 +1,6 @@
 {
   "name": "core",
-  "description": "what every environment has: the kit tool, the base rules, the persona, the secret guards, the writing check",
+  "description": "what every environment has: the nook tool, the base rules, the persona, the secret guards, the writing check",
   "rules": [
     "templates/rules/writing.md",
     "templates/rules/safety.md",

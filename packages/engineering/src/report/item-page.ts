@@ -1,5 +1,5 @@
-import { uiKit } from '@kit/env/env.ts'
-import { usage } from '@kit/shared/errors.ts'
+import { uiKit } from '@nook/env/env.ts'
+import { usage } from '@nook/shared/errors.ts'
 
 import { dateOf, frontMatter } from '../documents/markdown.ts'
 import { TasksDocument } from '../documents/tasks.ts'
@@ -42,7 +42,7 @@ const STATE_TAB: Record<State, PageDoc> = {
 
 /** A whole HTML document with the UI kit, to open from the disk. */
 function pageDocument(title: string, body: string[]): string {
-  const kit = uiKit()
+  const nook = uiKit()
   return [
     '<!doctype html>',
     '<html lang="en">',
@@ -50,13 +50,13 @@ function pageDocument(title: string, body: string[]): string {
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     `<title>${escape(title)}</title>`,
-    `<style>${kit.css}\n${PAGE_LAYOUT}</style>`,
+    `<style>${nook.css}\n${PAGE_LAYOUT}</style>`,
     '</head>',
     '<body>',
     '<div class="bn-root kd-page">',
     ...body,
     '</div>',
-    `<script>${kit.js}</script>`,
+    `<script>${nook.js}</script>`,
     `<script>${PAGE_SCRIPT}</script>`,
     '</body>',
     '</html>',
@@ -185,6 +185,6 @@ const metaValue = (value: unknown) =>
   Array.isArray(value) ? value.join(', ') : value instanceof Date ? value.toISOString().slice(0, 10) : String(value ?? '')
 
 function lanesSection(item: Item, slices: PageSlice[]): string {
-  if (!slices.length) return `<p class="kd-empty">No slices yet: kit eng task import ${escape(item.id)}.</p>`
+  if (!slices.length) return `<p class="kd-empty">No slices yet: nook eng task import ${escape(item.id)}.</p>`
   return `<section class="kd-sec"><h2 class="kd-sec__title">Lanes</h2>${lanesFigure(slices)}<p class="kd-lanes-note">${escape(laneNote(slices))}</p></section>`
 }

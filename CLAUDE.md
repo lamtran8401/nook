@@ -1,34 +1,34 @@
-# Harness Kit, the repo
+# Nook, the repo
 
-This repo builds the kit itself. Read `docs/harness-kit.md` for the plan and `docs/expect/` for what each step must do.
+This repo builds Nook itself. Read `docs/nook.md` for the plan and `docs/expect/` for what each step must do.
 
 ## Map
 ```
-apps/kit/              the one binary `kit`: it joins the commands of each package and runs them. No logic.
+apps/nook/              the one binary `nook`: it joins the commands of each package and runs them. No logic.
 packages/shared/       the CLI router, the exit codes, the hook input and output
-packages/env/          environments, kit.yml, the pack manifests, the plugin folders
+packages/env/          environments, nook.yml, the pack manifests, the plugin folders
 packages/core/         init, doctor, the writing check, the core hooks
 packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks
 packages/wiki/         the shelves of the wiki, their indexes, the link check
-plugins/<pack>/        one Claude Code plugin each: pack.json, .claude-plugin/, bin/kit (a shim), hooks/, skills/, agents/, templates/. No code.
+plugins/<pack>/        one Claude Code plugin each: pack.json, .claude-plugin/, bin/nook (a shim), hooks/, skills/, agents/, templates/. No code.
 docs/                  the plan, the guide, the contract of engineering (`engineering.md`), the expectations
 ```
-The packs are core, engineering and wiki. `kit eng …` runs the commands of engineering, `kit wiki …` those of the wiki.
+The packs are core, engineering and wiki. `nook eng …` runs the commands of engineering, `nook wiki …` those of the wiki.
 
 ## Checks
 - `bun run check`: `tsc --noEmit` and `bun test`. Commit only when it passes.
-- `apps/kit/bin/kit ste <file.md>` on each Markdown file of `plugins/` and `docs/`: above 80%.
+- `apps/nook/bin/nook ste <file.md>` on each Markdown file of `plugins/` and `docs/`: above 80%.
 - `claude plugin validate .` after a change to a manifest.
-- Try a change in a scratch folder: `kit init` there, then `kit doctor` and a hook call with JSON on stdin.
+- Try a change in a scratch folder: `nook init` there, then `nook doctor` and a hook call with JSON on stdin.
 
 ## Rules
-- `apps/kit` imports the packages. A package imports `@kit/shared/*` and `@kit/env/*` only, never another pack package. A plugin holds no code: its hooks call `bin/kit`, which runs the binary.
+- `apps/nook` imports the packages. A package imports `@nook/shared/*` and `@nook/env/*` only, never another pack package. A plugin holds no code: its hooks call `bin/nook`, which runs the binary.
 - One job for each module. A class where state and its rules live together (the ledger, an item, a guard); a plain function for the rest. Branch on a union with `ts-pattern` and `.exhaustive()`.
-- The kit never names the owner's folders. Examples use `company/`, `personal/`, `shop`, `SHOP-12`.
+- Nook never names the owner's folders. Examples use `company/`, `personal/`, `shop`, `SHOP-12`.
 - A guard hook blocks when it cannot decide. A helper hook (style, context) lets the call pass when it fails.
-- `kit init` writes only what it marks: the kit block, `.claude/rules/kit/`, its settings keys, `.kit/`. Never a line of the owner.
+- `nook init` writes only what it marks: the nook block, `.claude/rules/nook/`, its settings keys, `.nook/`. Never a line of the owner.
 - Write clear code: clear names, small functions, early returns.
-- Each edit of the kit code leaves `kit` runnable. The hooks run this code, so a broken kit blocks the guards of the session. Write a new function before the line that calls it, or write the whole file at once.
+- Each edit of the nook code leaves `nook` runnable. The hooks run this code, so a broken nook blocks the guards of the session. Write a new function before the line that calls it, or write the whole file at once.
 
 ## Comments
 - Comment only hard logic, in one or two lines: what and why.

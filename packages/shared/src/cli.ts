@@ -34,7 +34,7 @@ export async function run(program: Program, argv: string[]): Promise<number> {
   const command = find(program.commands, argv)
   if (!command) {
     const words = argv.filter(word => !word.startsWith('-') && word !== 'help')
-    // `kit eng` alone names a group: its help, not an error
+    // `nook eng` alone names a group: its help, not an error
     const known = words.length === 0 || program.commands.some(c => words.every((word, i) => c.path[i] === word))
     if (!known) process.stderr.write(`${program.name}: unknown command "${words.join(' ')}"\n\n`)
     process.stdout.write(help(program, argv))

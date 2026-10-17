@@ -28,7 +28,7 @@ A contract is any shared interface: a proto, a GraphQL or OpenAPI schema, an eve
 
 ## Gotchas
 - "No other consumer found" needs the search terms. Write what you searched.
-- A consumer outside the areas of `kit.yml` is outside your search. Say that it can exist.
+- A consumer outside the areas of `nook.yml` is outside your search. Say that it can exist.
 - A changed default value is a breaking change even when the type is the same.
 - Generated code hides consumers. Search for the generated names.
 - In the objections job, argue as the builder of that area would. Do not argue for the plan.

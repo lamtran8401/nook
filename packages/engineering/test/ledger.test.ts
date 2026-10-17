@@ -10,7 +10,7 @@ import { MIGRATIONS } from '../src/migrations.ts'
 let dir: string
 let ledger: Ledger
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'kit-ledger-'))
+  dir = mkdtempSync(join(tmpdir(), 'nook-ledger-'))
   ledger = Ledger.open(join(dir, 'state', 'engineering.db'))
 })
 afterEach(() => {

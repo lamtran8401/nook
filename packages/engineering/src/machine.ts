@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern'
 
-import { usage } from '@kit/shared/errors.ts'
+import { usage } from '@nook/shared/errors.ts'
 
 import type { WorkDoc } from './documents/work-folder.ts'
 import type { Action } from './who.ts'

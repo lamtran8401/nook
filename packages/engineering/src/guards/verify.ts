@@ -14,7 +14,7 @@ export class VerifyPassed implements Guard {
       .with('slices', () => 'the checks have not passed since the last move back')
       .with('quick', () => 'the checks have not passed')
       .exhaustive()
-    return [{ text, fix: `kit eng item verify ${ctx.id}` }]
+    return [{ text, fix: `nook eng item verify ${ctx.id}` }]
   }
 
   private applies(ctx: GuardContext): boolean {

@@ -3,10 +3,10 @@ import { join } from 'node:path'
 
 import { parse } from 'yaml'
 
-import { KIT_FILE } from '@kit/env/env.ts'
-import { usage } from '@kit/shared/errors.ts'
+import { NOOK_FILE } from '@nook/env/env.ts'
+import { usage } from '@nook/shared/errors.ts'
 
-/** The `engineering` section of kit.yml (docs/engineering.md section 2). Each fault names its fix. */
+/** The `engineering` section of nook.yml (docs/engineering.md section 2). Each fault names its fix. */
 
 export const AREA_KINDS = ['frontend', 'backend', 'docs', 'data', 'tool'] as const
 export type AreaKind = (typeof AREA_KINDS)[number]
@@ -44,7 +44,7 @@ export class EngineeringConfig {
   readonly protected: string[]
   readonly tracker: Tracker
   readonly areas: Area[]
-  /** True when kit.yml has no `engineering` section. */
+  /** True when nook.yml has no `engineering` section. */
   readonly missing: boolean
 
   private constructor(fields: Fields) {
@@ -57,7 +57,7 @@ export class EngineeringConfig {
   }
 
   static read(dir: string): EngineeringConfig {
-    const file = join(dir, KIT_FILE)
+    const file = join(dir, NOOK_FILE)
     return EngineeringConfig.parse(readFileSync(file, 'utf8'), file)
   }
 

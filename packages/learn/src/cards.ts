@@ -1,4 +1,4 @@
-import { usage } from '@kit/shared/errors.ts'
+import { usage } from '@nook/shared/errors.ts'
 
 import { MdTable } from './table.ts'
 
@@ -41,7 +41,7 @@ export class CardDeck {
   review(id: string, result: Review, today: string): Card {
     const cards = this.list()
     const card = cards.find(c => c.id === id)
-    if (!card) throw usage(`no card ${id}`, 'kit learn due <course> lists the cards')
+    if (!card) throw usage(`no card ${id}`, 'nook learn due <course> lists the cards')
     card.box = result === 'good' ? Math.min(card.box + 1, INTERVALS.length) : 1
     card.due = addDays(today, INTERVALS[card.box - 1]!)
     card.last = today

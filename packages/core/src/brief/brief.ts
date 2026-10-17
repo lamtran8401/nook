@@ -1,8 +1,8 @@
 import { basename } from 'node:path'
 
-import type { BriefLine, Finding } from '@kit/env/env.ts'
+import type { BriefLine, Finding } from '@nook/env/env.ts'
 
-/** `kit brief`: what waits for the owner, what is done since yesterday and what runs, in every folder of the list. */
+/** `nook brief`: what waits for the owner, what is done since yesterday and what runs, in every folder of the list. */
 
 export type BriefFolder = { dir: string; lines: BriefLine[] }
 

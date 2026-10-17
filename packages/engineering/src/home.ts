@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve } from 'node:path'
 
-import { activePacks, STATE_DIR } from '@kit/env/env.ts'
-import { EvError, Exit, refused } from '@kit/shared/errors.ts'
+import { activePacks, STATE_DIR } from '@nook/env/env.ts'
+import { EvError, Exit, refused } from '@nook/shared/errors.ts'
 
 import { type Area, EngineeringConfig } from './config.ts'
 
@@ -25,7 +25,7 @@ export class Home {
     throw new EvError(
       'not inside an environment that turns the engineering pack on',
       Exit.error,
-      'run `kit init --pack engineering` in the folder of the project, or add `engineering` to `packs:` in its kit.yml',
+      'run `nook init --pack engineering` in the folder of the project, or add `engineering` to `packs:` in its nook.yml',
     )
   }
 
@@ -66,11 +66,11 @@ export class Home {
     if (area) return area
     if (this.config.missing)
       throw refused(
-        `kit.yml has no engineering section, so there is no area ${name}`,
-        'add areas to kit.yml with /setup',
+        `nook.yml has no engineering section, so there is no area ${name}`,
+        'add areas to nook.yml with /setup',
       )
     const known = this.config.areas.map(a => a.name).join(', ') || 'none'
-    throw refused(`area ${name} is not in kit.yml`, `areas that exist: ${known}; add it with /setup`)
+    throw refused(`area ${name} is not in nook.yml`, `areas that exist: ${known}; add it with /setup`)
   }
 
   /** The area whose folder holds `file`, the deepest first. */

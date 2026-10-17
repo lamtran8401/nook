@@ -2,7 +2,7 @@
 name: write-walkthrough
 description: "Write walkthrough.md, the report of finished work: what was built, the changed files as a tree, how it works, which requirements it meets, how to try it. It is the source of the Walkthrough tab of the page. Use in /view. Not for showing the page: /view does that."
 argument-hint: "[item id] or a question about the code"
-allowed-tools: Bash(kit eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Write, Edit
+allowed-tools: Bash(nook eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Write, Edit
 ---
 
 Goal: a short report of the finished work that the owner reads in minutes: what was built, how it works, what it meets.
@@ -12,8 +12,8 @@ The parts in full, and the path with no item: `parts.md` (this folder).
 
 ## Order
 1. Decide the subject:
-   - an item id: `kit eng item brief <id>`, `kit eng item ac list <id>`, `kit eng guesses <id>`.
-   - a question (`/view how does the export job retry?`): no item. Find the code with `kit eng area status` and a search.
+   - an item id: `nook eng item brief <id>`, `nook eng item ac list <id>`, `nook eng guesses <id>`.
+   - a question (`/view how does the export job retry?`): no item. Find the code with `nook eng area status` and a search.
 2. Read the work itself: the diff of each area on the branch (`git -C <folder> diff <base>`), or the code that the question names.
    Explain the code that exists, not the plan.
 3. Write `walkthrough.md` with the six parts of `parts.md`. 80 lines or fewer. It is the source of the page, as `spec.md` is the source of the Spec tab.

@@ -1,9 +1,9 @@
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { RetroFact } from '@kit/env/env.ts'
+import type { RetroFact } from '@nook/env/env.ts'
 
-/** `kit retro`: the facts since the last retro of an environment, and the file that the retro of today writes. */
+/** `nook retro`: the facts since the last retro of an environment, and the file that the retro of today writes. */
 
 const RETRO_DIR = join('docs', 'retro')
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000

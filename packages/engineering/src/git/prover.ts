@@ -1,7 +1,7 @@
 import { copyFileSync, existsSync, mkdirSync, symlinkSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
-import { EvError, refused } from '@kit/shared/errors.ts'
+import { EvError, refused } from '@nook/shared/errors.ts'
 
 import type { Area } from '../config.ts'
 import type { Home } from '../home.ts'
@@ -104,7 +104,7 @@ export class Prover {
     if (!main)
       throw refused(
         `no protected branch exists in the repo (${config.protected.join(', ')})`,
-        'name the main branch of the area in `protected` of kit.yml',
+        'name the main branch of the area in `protected` of nook.yml',
       )
     const base = this.repo.mergeBase('HEAD', main)
     if (!base.ok) throw new EvError(`git merge-base failed: ${base.err}`)

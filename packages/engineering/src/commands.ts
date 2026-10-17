@@ -1,9 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 
-import { arg, type Command, type Context, list, type Program, text } from '@kit/shared/cli.ts'
-import { Exit, usage } from '@kit/shared/errors.ts'
-import { readInput, runHook } from '@kit/shared/hook.ts'
+import { arg, type Command, type Context, list, type Program, text } from '@nook/shared/cli.ts'
+import { Exit, usage } from '@nook/shared/errors.ts'
+import { readInput, runHook } from '@nook/shared/hook.ts'
 
 import {
   adrList,
@@ -121,12 +121,12 @@ const guessSlices: Command = {
 const itemCommands: Command[] = [
   {
     path: ['item', 'new'],
-    summary: 'make an item in the backlog; with no id, the kit makes the next IT-NNN',
+    summary: 'make an item in the backlog; with no id, Nook makes the next IT-NNN',
     usage: '[<id>] <title...> [--kind k --size s --area a... --source s --backlog]',
     flags: {
       kind: { type: 'string', help: 'feature | fix | chore | investigate' },
       size: { type: 'string', help: 'S | M | L' },
-      area: { type: 'string', list: true, help: 'an area of kit.yml; repeat it' },
+      area: { type: 'string', list: true, help: 'an area of nook.yml; repeat it' },
       source: { type: 'string', help: 'where the item comes from' },
       backlog: { type: 'boolean', help: 'also make backlog/<id>/ticket.md' },
     },
@@ -325,7 +325,7 @@ const checkCommands: Command[] = [
   },
   {
     path: ['item', 'branch'],
-    summary: 'kit/<id>-<slug> in each git area of the item',
+    summary: 'nook/<id>-<slug> in each git area of the item',
     usage: '<id>',
     run(c) {
       c.out(eng().branch(arg(c, 0, 'item id')), branchList)
@@ -506,7 +506,7 @@ const dayCommands: Command[] = [
       c.out(
         item,
         i =>
-          `${itemLine(i)}\nT1 is running for you. When done: kit eng item verify ${id}; kit eng task done ${id} T1 --files <f...>; kit eng item submit ${id}; kit eng item ac add ${id} "<text>"; then the owner accepts.`,
+          `${itemLine(i)}\nT1 is running for you. When done: nook eng item verify ${id}; nook eng task done ${id} T1 --files <f...>; nook eng item submit ${id}; nook eng item ac add ${id} "<text>"; then the owner accepts.`,
       )
     },
   },
@@ -573,7 +573,7 @@ const adrCommands: Command[] = [
 const homeCommands: Command[] = [
   {
     path: ['area', 'list'],
-    summary: 'the areas of kit.yml',
+    summary: 'the areas of nook.yml',
     run(c) {
       c.out(eng().home.config.areas, areaList)
     },
@@ -587,7 +587,7 @@ const homeCommands: Command[] = [
   },
   {
     path: ['brief'],
-    summary: 'the lines for `kit brief`: what waits for the owner',
+    summary: 'the lines for `nook brief`: what waits for the owner',
     run(c) {
       c.out(brief(eng()), briefList)
     },
@@ -629,8 +629,8 @@ const homeCommands: Command[] = [
 ]
 
 export const engineeringProgram: Program = {
-  name: 'kit eng',
-  summary: 'the engineering pack of Harness Kit: items, slices, gates and proofs',
+  name: 'nook eng',
+  summary: 'the engineering pack of Nook: items, slices, gates and proofs',
   commands: [
     ...itemCommands,
     ...criterionCommands,
@@ -643,7 +643,7 @@ export const engineeringProgram: Program = {
   ],
 }
 
-const ROLE_ENV: Record<string, string> = { as: 'KIT_ROLE', actor: 'KIT_ACTOR', session: 'KIT_SESSION' }
+const ROLE_ENV: Record<string, string> = { as: 'NOOK_ROLE', actor: 'NOOK_ACTOR', session: 'NOOK_SESSION' }
 
 /** `--as`, `--actor` and `--session` can sit anywhere in the call; they go into the env of `Who.fromEnv`. */
 export function takeRoleFlags(argv: string[]): string[] {

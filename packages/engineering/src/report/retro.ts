@@ -1,4 +1,4 @@
-import type { RetroFact } from '@kit/env/env.ts'
+import type { RetroFact } from '@nook/env/env.ts'
 
 import { cut } from '../format.ts'
 import type { Engineering } from '../service.ts'

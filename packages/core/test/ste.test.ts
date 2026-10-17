@@ -39,7 +39,7 @@ describe('sentences', () => {
   })
 
   test('inline code counts as one word', () => {
-    expect(sentences('Run `kit eng item show SHOP-12 --json` now.')).toEqual(['Run X now.'])
+    expect(sentences('Run `nook eng item show SHOP-12 --json` now.')).toEqual(['Run X now.'])
   })
 })
 

@@ -1,7 +1,7 @@
 {
-  "name": "kit-wiki",
+  "name": "nook-wiki",
   "version": "0.1.0",
-  "description": "Harness Kit wiki: the shelves of docs/wiki/ with their indexes, the references, /wiki-ask, /wiki-add and /wiki-tidy, and a librarian agent.",
+  "description": "Nook wiki: the shelves of docs/wiki/ with their indexes, the references, /wiki-ask, /wiki-add and /wiki-tidy, and a librarian agent.",
   "author": { "name": "Lam" },
   "license": "MIT"
 }

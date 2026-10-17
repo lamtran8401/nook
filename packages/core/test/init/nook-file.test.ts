@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { addPacks, kitYaml } from '../../src/init/kit-file.ts'
+import { addPacks, nookYaml } from '../../src/init/nook-file.ts'
 
 describe('addPacks', () => {
   test('adds to a flow list and changes no other line', () => {
@@ -19,7 +19,7 @@ describe('addPacks', () => {
     expect(addPacks('packs: { on: [a], off: [x] }\n', ['b'])).toBe('packs: { on: [a, b], off: [x] }\n')
   })
 
-  test('adds a packs line when kit.yml has none', () => {
+  test('adds a packs line when nook.yml has none', () => {
     expect(addPacks('secrets: []\n', ['b'])).toBe('secrets: []\npacks: [b]\n')
   })
 
@@ -28,16 +28,16 @@ describe('addPacks', () => {
   })
 
   test('a packs value that is not a list is refused', () => {
-    expect(() => addPacks('packs: everything\n', ['b'])).toThrow('kit.yml has no list of packs that the kit can add to')
+    expect(() => addPacks('packs: everything\n', ['b'])).toThrow('nook.yml has no list of packs that Nook can add to')
   })
 })
 
-describe('kitYaml', () => {
+describe('nookYaml', () => {
   test('ends with the pack list in flow form', () => {
-    expect(kitYaml(['a', 'b']).endsWith('\npacks: [a, b]\n')).toBe(true)
+    expect(nookYaml(['a', 'b']).endsWith('\npacks: [a, b]\n')).toBe(true)
   })
 
   test('an environment with no pack gets an empty list, not an empty key', () => {
-    expect(kitYaml([]).endsWith('\npacks: []\n')).toBe(true)
+    expect(nookYaml([]).endsWith('\npacks: []\n')).toBe(true)
   })
 })

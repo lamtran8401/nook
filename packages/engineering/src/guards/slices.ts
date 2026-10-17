@@ -6,7 +6,7 @@ import type { Gap, Guard, GuardContext } from './guard.ts'
 /** The guards on the slices. An investigation has no slices, so none of them applies to it. */
 
 const fixWith = (ctx: GuardContext, change: string) =>
-  `${change} in ${ctx.folder.path('tasks.md')}, then kit eng task import ${ctx.id}`
+  `${change} in ${ctx.folder.path('tasks.md')}, then nook eng task import ${ctx.id}`
 
 /** approve: tasks.md parses, has a slice, and the ledger holds the same slices. */
 export class SlicesImported implements Guard {
@@ -15,7 +15,7 @@ export class SlicesImported implements Guard {
     const tasks = ctx.tasks()
     const file = ctx.folder.path('tasks.md')
     if (!tasks)
-      return [{ text: 'tasks.md is missing', fix: `write ${file}, then kit eng task import ${ctx.id}` }]
+      return [{ text: 'tasks.md is missing', fix: `write ${file}, then nook eng task import ${ctx.id}` }]
     if (tasks.problems.length)
       return tasks.problems.map(p => ({ text: `tasks.md: ${p}`, fix: fixWith(ctx, 'fix the line') }))
     const found: Gap[] = []
@@ -33,7 +33,7 @@ export class SlicesImported implements Guard {
     if (differ.length || extra.length) {
       found.push({
         text: `tasks.md and the ledger differ: ${[...differ, ...extra].join(', ')}`,
-        fix: `kit eng task import ${ctx.id}`,
+        fix: `nook eng task import ${ctx.id}`,
       })
     }
     return found
@@ -94,7 +94,7 @@ export class SlicesDone implements Guard {
     const live = ctx.stores.slices.live(ctx.id)
     const found: Gap[] = []
     if (!live.some(s => s.state === 'done'))
-      found.push({ text: 'no slice is done', fix: `kit eng task done ${ctx.id} <T> --files <f...>` })
+      found.push({ text: 'no slice is done', fix: `nook eng task done ${ctx.id} <T> --files <f...>` })
     for (const s of live.filter(s => s.state !== 'done'))
       found.push({ text: `${s.id} is ${s.state}`, fix: sliceFix(ctx.id, s) })
     return found
@@ -105,9 +105,9 @@ function sliceFix(id: string, s: Slice): string {
   return match(s.state)
     .with(
       'failed',
-      () => `kit eng task retry ${id} ${s.id}, or kit eng task cancel ${id} ${s.id} --reason "<why>"`,
+      () => `nook eng task retry ${id} ${s.id}, or nook eng task cancel ${id} ${s.id} --reason "<why>"`,
     )
-    .with('waiting', () => `answer what it waits for, then kit eng task resume ${id} ${s.id}`)
-    .with('todo', 'running', 'done', 'cancelled', () => `kit eng task done ${id} ${s.id} --files <f...>`)
+    .with('waiting', () => `answer what it waits for, then nook eng task resume ${id} ${s.id}`)
+    .with('todo', 'running', 'done', 'cancelled', () => `nook eng task done ${id} ${s.id} --files <f...>`)
     .exhaustive()
 }

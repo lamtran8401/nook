@@ -17,7 +17,7 @@ export function nextFor(eng: Engineering, item: Item): Next {
   const base = { id, state: item.state, owner: false, gaps: [] as Gap[], detail: '' }
   const blocking = eng.stores.questions.openBlocking(id)
   if (blocking.length) {
-    const skill = `answer ${blocking.map(q => q.id).join(', ')}: kit eng answer ${id} ${blocking[0]!.id} "<answer>"`
+    const skill = `answer ${blocking.map(q => q.id).join(', ')}: nook eng answer ${id} ${blocking[0]!.id} "<answer>"`
     return { ...base, skill, owner: true, detail: blocking.map(q => `${q.id} ${q.text}`).join('; ') }
   }
   return match(item.state)
@@ -53,7 +53,7 @@ export function nextFor(eng: Engineering, item: Item): Next {
     .with('done', () => ({ ...base, skill: isArchived(eng, id) ? 'closed' : `/close ${id}` }))
     .with('blocked', () => ({
       ...base,
-      skill: `kit eng item unblock ${id} when it is resolved`,
+      skill: `nook eng item unblock ${id} when it is resolved`,
       detail: item.reason ?? '',
     }))
     .with('cancelled', () => ({ ...base, skill: item.state }))

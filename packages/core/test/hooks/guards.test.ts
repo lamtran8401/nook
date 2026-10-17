@@ -7,9 +7,9 @@ import { initIn, removeDir, tempDir } from '../helpers.ts'
 
 let root: string
 beforeEach(() => {
-  root = tempDir('kit-hooks-')
+  root = tempDir('nook-hooks-')
   initIn(root)
-  writeFileSync(join(root, 'kit.yml'), 'packs: []\nsecrets: [config/infra.local.yaml]\n')
+  writeFileSync(join(root, 'nook.yml'), 'packs: []\nsecrets: [config/infra.local.yaml]\n')
 })
 afterEach(() => removeDir(root))
 
@@ -22,7 +22,7 @@ describe('readGuard', () => {
     expect(read(file)).toBe('block')
   })
 
-  test('blocks a secret of kit.yml by its full path', () => {
+  test('blocks a secret of nook.yml by its full path', () => {
     expect(read(join(root, 'config/infra.local.yaml'))).toBe('block')
   })
 
@@ -31,7 +31,7 @@ describe('readGuard', () => {
   })
 
   test('does nothing outside an environment', () => {
-    const outside = tempDir('kit-outside-')
+    const outside = tempDir('nook-outside-')
     expect(read('.env', outside)).toBe('pass')
     removeDir(outside)
   })
@@ -43,28 +43,28 @@ describe('bashGuard', () => {
     command => expect(bash(command)).toBe('block'),
   )
 
-  test.each(['sqlite3 .kit/engineering.db', 'cat .kit/x.db'])('blocks a command on a state database: %s', command => {
+  test.each(['sqlite3 .nook/engineering.db', 'cat .nook/x.db', 'cat .kit/engineering.db'])('blocks a command on a state database: %s', command => {
     expect(bash(command)).toBe('block')
   })
 
-  test.each(['KIT_ROLE=owner kit eng item approve A-1', 'env -u CLAUDECODE kit doctor'])('blocks a command that sets a role: %s', command => {
+  test.each(['NOOK_ROLE=owner nook eng item approve A-1', 'KIT_ROLE=owner nook doctor', 'env -u CLAUDECODE nook doctor'])('blocks a command that sets a role: %s', command => {
     expect(bash(command)).toBe('block')
   })
 
   test('reads a comment and a heredoc body as text, not as a command', () => {
-    expect(bash("cat > kit.yml <<'EOF'\n# secrets: files such as .env that no agent reads\nsecrets: []\nEOF")).toBe('pass')
-    expect(bash('kit doctor # the .env rule is on')).toBe('pass')
+    expect(bash("cat > nook.yml <<'EOF'\n# secrets: files such as .env that no agent reads\nsecrets: []\nEOF")).toBe('pass')
+    expect(bash('nook doctor # the .env rule is on')).toBe('pass')
   })
 
   test('still blocks a command that follows a heredoc', () => {
     expect(bash('cat > note.md <<EOF\nnever read .env\nEOF\ncat .env')).toBe('block')
   })
 
-  test.each(['cat .env.example', 'git status', 'kit doctor'])('lets %s pass', command => {
+  test.each(['cat .env.example', 'git status', 'nook doctor'])('lets %s pass', command => {
     expect(bash(command)).toBe('pass')
   })
 
-  test.each(['claude -p "/kit:gate approve IT-1"', 'claude --bg "/gate accept IT-1"'])('blocks a session started by a tool that types /gate: %s', command => {
+  test.each(['claude -p "/nook:gate approve IT-1"', 'claude --bg "/gate accept IT-1"'])('blocks a session started by a tool that types /gate: %s', command => {
     expect(bash(command)).toBe('block')
   })
 
@@ -77,14 +77,14 @@ describe('bashGuard', () => {
   })
 
   test('does nothing outside an environment', () => {
-    const outside = tempDir('kit-outside-')
+    const outside = tempDir('nook-outside-')
     expect(bash('cat .env', outside)).toBe('pass')
     removeDir(outside)
   })
 })
 
 describe('editGuard', () => {
-  test.each(['.env', '.kit/state.json', '.claude/settings.json', '.claude/settings.local.json'])('blocks an edit of %s', file => {
+  test.each(['.env', '.nook/state.json', '.kit/state.json','.claude/settings.json', '.claude/settings.local.json'])('blocks an edit of %s', file => {
     expect(edit(file)).toBe('block')
   })
 

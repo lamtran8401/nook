@@ -1,5 +1,7 @@
 import { match } from 'ts-pattern'
 
+import { TOOL } from '@nook/shared/names.ts'
+
 import type { Caller, CallerKind } from './caller.ts'
 import { segments, words } from './shell.ts'
 
@@ -86,7 +88,7 @@ function segmentDenial(segment: string, kind: CallerKind, who: string): string |
     return `${who} is read-only: find may not run or delete.`
   if (READ_VERBS.has(verb)) return null
   if (verb === 'git') return gitDenial(tokens, who)
-  if (verb === 'kit' || verb === 'kit-eng') return kitDenial(verb, tokens, kind, who)
+  if (verb === TOOL) return nookDenial(tokens, kind, who)
   return `${who} is read-only: may not run \`${verb}\`.`
 }
 
@@ -95,18 +97,18 @@ function gitDenial(tokens: string[], who: string): string | null {
   return sub && GIT_READ.has(sub) ? null : `${who} may use only git status, diff, log and show.`
 }
 
-function kitDenial(verb: string, tokens: string[], kind: CallerKind, who: string): string | null {
+function nookDenial(tokens: string[], kind: CallerKind, who: string): string | null {
   const rest = tokens.slice(1).filter(t => !t.startsWith('--') || t === '--help')
-  const inPack = verb === 'kit-eng' || rest[0] === 'eng' || rest[0] === 'engineering'
+  const inPack = rest[0] === 'eng' || rest[0] === 'engineering'
   if (!inPack)
     return !rest[0] || CORE_READ.has(rest[0])
       ? null
-      : `${who} may run only the read commands of kit (doctor, packs, where).`
-  const path = verb === 'kit' ? rest.slice(1) : rest
+      : `${who} may run only the read commands of nook (doctor, packs, where).`
+  const path = rest.slice(1)
   if (path[0] === 'item' && path[1] === 'page' && tokens.some(t => t.startsWith('--out')))
     return `${who} is read-only: \`item page\` prints the page; --out writes a file.`
   const extra = extraCalls(kind)
   if (!path.length || [...READ_CALLS, ...extra].some(call => call.every((w, i) => path[i] === w))) return null
   const plus = extra.length ? `, plus ${extra.map(c => c.join(' ')).join(' and ')}` : ''
-  return `${who} may not run \`kit eng ${path.slice(0, 3).join(' ')}\`: read commands only${plus}.`
+  return `${who} may not run \`nook eng ${path.slice(0, 3).join(' ')}\`: read commands only${plus}.`
 }

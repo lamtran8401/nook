@@ -9,7 +9,7 @@ beforeEach(() => {
 afterEach(() => t.cleanup())
 
 const make = (...ids: string[]) => {
-  const lead = t.kit(LEAD)
+  const lead = t.eng(LEAD)
   for (const id of ids) lead.newItem({ id, title: `item ${id}` })
   return lead.stores.items
 }

@@ -1,0 +1,14 @@
+#!/bin/sh
+# The nook binary. It runs apps/nook/src/main.ts of the nook project with bun.
+here=$(dirname "$(readlink -f "$0")")
+project=$(cd "$here/../../.." 2>/dev/null && pwd)
+[ -f "$project/apps/nook/src/main.ts" ] || project="${NOOK_PROJECT:-}"
+if [ -z "$project" ] || [ ! -f "$project/apps/nook/src/main.ts" ]; then
+  echo "nook: cannot find the nook project (set NOOK_PROJECT to the nook folder)" >&2
+  exit 1
+fi
+if command -v bun >/dev/null 2>&1; then bun=bun; elif [ -x "$HOME/.bun/bin/bun" ]; then bun="$HOME/.bun/bin/bun"; else
+  echo "nook: bun is not installed" >&2
+  exit 1
+fi
+NOOK_PROJECT="$project" exec "$bun" "$project/apps/nook/src/main.ts" "$@"

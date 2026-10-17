@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { EvError, Exit } from '@kit/shared/errors.ts'
+import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { afterMove, assigneeAfter, forwardMove, MOVES, moveNamed, SLICE_MOVES, sliceMoveNamed, type State } from '../src/machine.ts'
 

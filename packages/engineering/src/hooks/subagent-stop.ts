@@ -1,4 +1,4 @@
-import { hold, type HookInput, type HookResult, pass } from '@kit/shared/hook.ts'
+import { hold, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { Home } from '../home.ts'
 import { Engineering } from '../service.ts'
@@ -14,6 +14,6 @@ export function subagentStop(input: HookInput): HookResult {
   const s = eng.stores.slices.running().find(s => s.assignee === caller.actor)
   if (!s) return pass
   return hold(
-    `finish the slice: \`kit eng task done ${s.item} ${s.id} --files <f...>\` or \`kit eng task wait ${s.item} ${s.id} --reason "<what you need>"\` (or task fail --reason after three tries)`,
+    `finish the slice: \`nook eng task done ${s.item} ${s.id} --files <f...>\` or \`nook eng task wait ${s.item} ${s.id} --reason "<what you need>"\` (or task fail --reason after three tries)`,
   )
 }

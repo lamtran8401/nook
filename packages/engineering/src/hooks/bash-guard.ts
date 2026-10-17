@@ -1,4 +1,5 @@
-import { block, type HookInput, type HookResult, pass, rewrite } from '@kit/shared/hook.ts'
+import { block, type HookInput, type HookResult, pass, rewrite } from '@nook/shared/hook.ts'
+import { ANY_NAME, OTHER_NAMES, ROLE_VAR, TOOL } from '@nook/shared/names.ts'
 
 import { Home } from '../home.ts'
 import { Caller } from './caller.ts'
@@ -7,13 +8,15 @@ import { callSpans, commands, commandWords, normalize, shellText, type Word } fr
 
 /** PreToolUse Bash: owner moves stay the owner's, the tool runs by its name, each call names its caller. */
 
-const OWNER_MOVE = /\bkit(?:-eng|\s+eng|\s+engineering)\s+item\s+(approve|accept|mode)\b/
-const WRAPPER =
-  /(?:^|[\s;&|(`])(?:env|exec|xargs|eval|command|nohup|time|sudo|timeout|nice|stdbuf)\s+(?:\S+\s+)*kit(?:-eng)?(?:\s|$)/
-const SHELL_C = /\b(?:sh|bash|zsh|dash)\s+-[a-z]*c\s+(?:\S+\s+)*kit(?:-eng)?(?:\s|$)/
+const OWNER_MOVE = /\b(?:(?:nook|nk|kit)\s+(?:eng|engineering)|kit-eng)\s+item\s+(approve|accept|mode)\b/
+const WRAPPER = new RegExp(
+  `(?:^|[\\s;&|(\`])(?:env|exec|xargs|eval|command|nohup|time|sudo|timeout|nice|stdbuf)\\s+(?:\\S+\\s+)*${ANY_NAME}(?:\\s|$)`,
+)
+const SHELL_C = new RegExp(`\\b(?:sh|bash|zsh|dash)\\s+-[a-z]*c\\s+(?:\\S+\\s+)*${ANY_NAME}(?:\\s|$)`)
 const CODE_PATH =
-  /(?:^|[\s/])(?:bin\/kit(?:-eng)?|(?:apps|packages)\/\S+\/src\/\S+|src\/main\.ts)(?:\s|$)|\bbun\s+(?:run\s+)?\S*\.ts\b/
-const ROLE_ENV = /\bKIT_(?:ROLE|ACTOR|SESSION)\s*=|env\s+-u\s+CLAUDECODE/
+  /(?:^|[\s/])(?:bin\/(?:nook|nk|kit)(?:-eng)?|(?:apps|packages)\/\S+\/src\/\S+|src\/main\.ts)(?:\s|$)|\bbun\s+(?:run\s+)?\S*\.ts\b/
+const ROLE_ENV = new RegExp(`\\b${ROLE_VAR}\\s*=|env\\s+-u\\s+CLAUDECODE`)
+const OTHER_NAME = /(?:^|[\s;&|(`])(?:nk|kit-eng|kit)(?:\s|$)/
 
 const ROLE_FLAGS = /\s--(?:as|actor|session)(?:=\S+|\s+\S+)/g
 
@@ -31,15 +34,16 @@ export function bashGuard(input: HookInput): HookResult {
 }
 
 const OWNER_TEXT = (move: string) => `${move} is the owner's move: tell the owner to type \`/gate ${move} <id>\` in the prompt.`
-const WRAP_TEXT = 'run `kit eng` by its plain name: no env, exec, xargs, eval or sh -c around the tool.'
-const CODE_TEXT = 'run `kit eng` by its plain name, not by a path to its code.'
-const ROLE_TEXT = 'the role of an agent is set by the kit, not by a command.'
+const WRAP_TEXT = 'run `nook eng` by its plain name: no env, exec, xargs, eval or sh -c around the tool.'
+const CODE_TEXT = 'run `nook eng` by its plain name, not by a path to its code.'
+const ROLE_TEXT = 'the role of an agent is set by nook, not by a command.'
+const NAME_TEXT = 'run the tool as `nook`: `nk` is the short form for the owner, and `kit` is its name before the rename.'
 
 const WRAPPERS = new Set(['env', 'exec', 'xargs', 'eval', 'command', 'nohup', 'time', 'sudo', 'timeout', 'nice', 'stdbuf'])
 const SHELLS = new Set(['sh', 'bash', 'zsh', 'dash'])
 const OWNER_MOVES = new Set(['approve', 'accept', 'mode'])
-const ROLE_SET = /^KIT_(?:ROLE|ACTOR|SESSION)=/
-const isTool = (word: string) => word === 'kit' || word === 'kit-eng'
+const ROLE_SET = new RegExp(`^${ROLE_VAR}=`)
+const isTool = (word: string) => word === TOOL || OTHER_NAMES.includes(word)
 
 /** The reason to block a command line, or null. Only command words count: a quoted string is one argument. */
 function denial(command: string): string | null {
@@ -72,15 +76,19 @@ function commandDenial(all: Word[]): string | null {
   if (head === 'unset' && rest.includes('CLAUDECODE')) return ROLE_TEXT
   if (head === 'env' && rest.includes('CLAUDECODE')) return ROLE_TEXT
   if (WRAPPERS.has(head) && rest.some(isTool)) return WRAP_TEXT
-  if (SHELLS.has(head) && shellCode(rest).some(code => /(^|[\s;&|(])kit(-eng)?(\s|$)/.test(code))) return WRAP_TEXT
-  if (runsKitCode(head, rest)) return CODE_TEXT
+  if (SHELLS.has(head) && shellCode(rest).some(code => SHELL_TOOL.test(code))) return WRAP_TEXT
+  if (runsNookCode(head, rest)) return CODE_TEXT
   const move = ownerMove(head, rest)
-  return move ? OWNER_TEXT(move) : null
+  if (move) return OWNER_TEXT(move)
+  return OTHER_NAMES.includes(head) ? NAME_TEXT : null
 }
 
-/** `kit eng item approve`, `kit engineering item accept`, `kit-eng item mode`. */
+const SHELL_TOOL = new RegExp(`(^|[\\s;&|(])${ANY_NAME}(\\s|$)`)
+
+/** `nook eng item approve`, `nk engineering item accept`, `kit-eng item mode`: under any name of the tool. */
 function ownerMove(head: string, rest: string[]): string | null {
-  const path = head === 'kit' && (rest[0] === 'eng' || rest[0] === 'engineering') ? rest.slice(1) : head === 'kit-eng' ? rest : null
+  const inPack = isTool(head) && head !== 'kit-eng' && (rest[0] === 'eng' || rest[0] === 'engineering')
+  const path = inPack ? rest.slice(1) : head === 'kit-eng' ? rest : null
   const args = path?.filter(w => !w.startsWith('--')) ?? []
   return args[0] === 'item' && OWNER_MOVES.has(args[1] ?? '') ? args[1]! : null
 }
@@ -92,14 +100,14 @@ const shellCode = (rest: string[]) => rest.flatMap((w, i) => (/^-[a-z]*c[a-z]*$/
 const readsStdin = ([head, ...rest]: string[]) =>
   !!head && SHELLS.has(head) && !rest.some(w => !w.startsWith('-') && !/^\d*[<>]/.test(w))
 
-const KIT_SOURCE = /(^|\/)(apps|packages)\/\S+\.ts$|(^|\/)src\/main\.ts$/
+const NOOK_SOURCE = /(^|\/)(apps|packages)\/\S+\.ts$|(^|\/)src\/main\.ts$/
 
 /** A run of the tool by a path to its launcher, or of its source through bun. */
-function runsKitCode(head: string, rest: string[]): boolean {
-  if (/(^|\/)bin\/kit(-eng)?$/.test(head) || KIT_SOURCE.test(head)) return true
+function runsNookCode(head: string, rest: string[]): boolean {
+  if (/(^|\/)bin\/(nook|nk|kit)(-eng)?$/.test(head) || NOOK_SOURCE.test(head)) return true
   if (head !== 'bun') return false
   const script = rest.filter(w => !w.startsWith('-') && w !== 'run')[0] ?? ''
-  return KIT_SOURCE.test(script)
+  return NOOK_SOURCE.test(script)
 }
 
 /** The text inside each `$( )` and each pair of backticks. */
@@ -125,12 +133,13 @@ function strictDenial(plain: string): string | null {
   if (WRAPPER.test(plain) || SHELL_C.test(plain)) return WRAP_TEXT
   if (CODE_PATH.test(plain)) return CODE_TEXT
   if (ROLE_ENV.test(plain)) return ROLE_TEXT
+  if (OTHER_NAME.test(plain)) return NAME_TEXT
   return null
 }
 
 /**
- * Puts the role, the actor and the session right after `kit eng` in each call,
- * so the rule `Bash(kit eng *)` still matches. A flag that the model wrote is dropped first.
+ * Puts the role, the actor and the session right after `nook eng` in each call,
+ * so the rule `Bash(nook eng *)` still matches. A flag that the model wrote is dropped first.
  * The lead gets the session only.
  */
 export function inject(command: string, caller: Caller, session?: string): string {

@@ -4,17 +4,17 @@ These rules hold in every folder of this environment. Hooks enforce the moves of
 
 ## The flow
 
-- One item moves through `backlog → framing → planning → ready → cooking → review → done`. `kit eng next` names the step and the skill to type.
-- A stage skill with no item id takes the one open item that `kit eng next` sends to that skill. With none or several, ask with AskUserQuestion, with the items as options.
+- One item moves through `backlog → framing → planning → ready → cooking → review → done`. `nook eng next` names the step and the skill to type.
+- A stage skill with no item id takes the one open item that `nook eng next` sends to that skill. With none or several, ask with AskUserQuestion, with the items as options.
 - Only the owner runs `approve`, `accept` and `mode`. An agent never runs them. Tell the owner to type `/gate <move> <id>` in the prompt.
-- Never change `spec.md`, `plan.md` or `tasks.md` after the approve. Run `kit eng item replan <id>` first.
+- Never change `spec.md`, `plan.md` or `tasks.md` after the approve. Run `nook eng item replan <id>` first.
 - A guard lists each gap with its fix. Fix the gap; never work around a guard.
-- Record a guess with `kit eng guess`. Ask a blocking question with `kit eng ask --blocking`.
+- Record a guess with `nook eng guess`. Ask a blocking question with `nook eng ask --blocking`.
 
 ## Git
 
-- Never build on a protected branch (`main`, `master`, `develop`). Run `kit eng item branch <id>` first.
-- Never commit unless the owner asks. Then run `kit eng item commit <id> --run`.
+- Never build on a protected branch (`main`, `master`, `develop`). Run `nook eng item branch <id>` first.
+- Never commit unless the owner asks. Then run `nook eng item commit <id> --run`.
 - Never push. Never start an app, a container or a deploy that the owner did not ask for.
 
 ## Code
@@ -26,4 +26,4 @@ These rules hold in every folder of this environment. Hooks enforce the moves of
 - Never swallow an error. Never log a secret.
 - Comment only hard logic, in one or two lines: what and why. Never write history or a decision log in a comment, and never leave code in one.
 - Delete a comment that repeats the code. A long comment asks for a better name or a smaller function.
-- Write the failing test first. Prove it with `kit eng task prove <id> <T> --files <tests>`.
+- Write the failing test first. Prove it with `nook eng task prove <id> <T> --files <tests>`.

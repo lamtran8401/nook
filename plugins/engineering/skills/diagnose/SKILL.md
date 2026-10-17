@@ -1,7 +1,7 @@
 ---
 name: diagnose
 description: "Find the cause of a failing test, build or behavior: reproduce, isolate, read, state the cause with evidence, fix the cause, run again. Use when a check fails, a test is red or a result is unexpected, and the cause is not clear after one read."
-allowed-tools: Bash(kit eng *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Edit
+allowed-tools: Bash(nook eng *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Edit
 ---
 
 Goal: a fix that removes the cause, not one that hides the symptom.
@@ -28,7 +28,7 @@ fails only in CI or only here           the environment: versions, env variables
 
 ## When you are stuck
 After three tries with no progress, stop.
-A builder runs `kit eng task fail <id> <T> --reason "<the command, the first error, what you ruled out, your best guess>"`, so the lead continues without you.
+A builder runs `nook eng task fail <id> <T> --reason "<the command, the first error, what you ruled out, your best guess>"`, so the lead continues without you.
 The lead reports the same four things to the owner.
 
 ```

@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { EvError, Exit } from '@kit/shared/errors.ts'
+import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { frontMatter } from '../documents/markdown.ts'
 

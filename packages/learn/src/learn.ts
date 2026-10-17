@@ -1,12 +1,12 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { activePacks } from '@kit/env/env.ts'
-import { EvError, Exit, usage } from '@kit/shared/errors.ts'
+import { activePacks } from '@nook/env/env.ts'
+import { EvError, Exit, usage } from '@nook/shared/errors.ts'
 
 import { Course } from './course.ts'
 
-/** The courses of one environment, in the folder that the `learn` section of kit.yml names. */
+/** The courses of one environment, in the folder that the `learn` section of nook.yml names. */
 export class Learn {
   constructor(
     readonly home: string,
@@ -35,7 +35,7 @@ export class Learn {
     if (courses.length === 1) return courses[0]!
     throw usage(
       courses.length ? `name the course: ${courses.map(c => c.name).join(', ')}` : 'no course yet',
-      courses.length ? 'kit learn <command> <course>' : 'run /learn-setup <course>',
+      courses.length ? 'nook learn <command> <course>' : 'run /learn-setup <course>',
     )
   }
 }
@@ -59,10 +59,10 @@ export function findLearn(cwd = process.cwd()): Learn | null {
 export function requireLearn(cwd = process.cwd()): Learn {
   const learn = findLearn(cwd)
   if (learn) return learn
-  throw new EvError('not inside an environment that turns the learn pack on', Exit.error, 'add `learn` to `packs:` in kit.yml, then run /setup')
+  throw new EvError('not inside an environment that turns the learn pack on', Exit.error, 'add `learn` to `packs:` in nook.yml, then run /setup')
 }
 
-/** The learn of `dir` only when `dir` itself turns the pack on, and whether its section of kit.yml exists. */
+/** The learn of `dir` only when `dir` itself turns the pack on, and whether its section of nook.yml exists. */
 export function learnAt(dir: string): { learn: Learn; configured: boolean } | null {
   const pack = activePacks(dir).find(p => p.name === 'learn')
   if (!pack || pack.home.dir !== dir) return null

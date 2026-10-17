@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import type { BriefLine, Finding } from '@kit/env/env.ts'
+import type { BriefLine, Finding } from '@nook/env/env.ts'
 
 import { type BriefFolder, collectBrief, formatBrief, startOfYesterday } from '../src/brief/brief.ts'
 
@@ -10,7 +10,7 @@ describe('collectBrief', () => {
   test('a gap of the doctor waits with its fix; the lines of the packs follow; an ok finding is no line', () => {
     const gaps: Record<string, Finding[]> = {
       '/a/personal': [
-        { level: 'warn', where: 'wiki', text: 'resources/INDEX.md lacks a line', fix: 'kit wiki index --fix' },
+        { level: 'warn', where: 'wiki', text: 'resources/INDEX.md lacks a line', fix: 'nook wiki index --fix' },
         { level: 'ok', where: '/a/personal', text: '1 environment, no gap' },
       ],
     }
@@ -25,7 +25,7 @@ describe('collectBrief', () => {
       {
         dir: '/a/personal',
         lines: [
-          { part: 'waits', urgent: true, text: 'resources/INDEX.md lacks a line', action: 'kit wiki index --fix' },
+          { part: 'waits', urgent: true, text: 'resources/INDEX.md lacks a line', action: 'nook wiki index --fix' },
           { part: 'waits', urgent: true, text: 'IT-7 waits for your accept', action: '/gate accept IT-7' },
           { part: 'done', text: 'IT-6 closed: readable dates' },
         ],
@@ -34,7 +34,7 @@ describe('collectBrief', () => {
   })
 
   test('a gap that two folders share shows once, under the first folder', () => {
-    const gap: Finding = { level: 'error', where: 'core', text: 'the kit plugin is off', fix: 'claude plugin enable kit' }
+    const gap: Finding = { level: 'error', where: 'core', text: 'the nook plugin is off', fix: 'claude plugin enable nook' }
     const folders = collectBrief(['/a/one', '/a/two'], SINCE, { gaps: () => [gap], lines: () => [] })
     expect(folders.map(f => f.lines.length)).toEqual([1, 0])
   })

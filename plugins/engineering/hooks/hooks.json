@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/kit\" eng hook bash",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" eng hook bash",
             "timeout": 20
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/kit\" eng hook edit",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" eng hook edit",
             "timeout": 20
           }
         ]
@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/kit\" eng hook stop",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" eng hook stop",
             "timeout": 20
           }
         ]
@@ -38,7 +38,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/kit\" eng hook subagent-stop",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" eng hook subagent-stop",
             "timeout": 20
           }
         ]
@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/kit\" eng hook teammate-idle",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" eng hook teammate-idle",
             "timeout": 20
           }
         ]
@@ -61,7 +61,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/kit\" eng hook start",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" eng hook start",
             "timeout": 20
           }
         ]

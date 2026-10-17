@@ -8,7 +8,7 @@ import { GitRepo } from '../src/git/repo.ts'
 let dir: string
 let repo: GitRepo
 beforeEach(() => {
-  dir = realpathSync(mkdtempSync(join(tmpdir(), 'kit-repo-')))
+  dir = realpathSync(mkdtempSync(join(tmpdir(), 'nook-repo-')))
   repo = new GitRepo(dir)
   repo.run('init', '-q')
   writeFileSync(join(dir, 'a.ts'), 'one\n')

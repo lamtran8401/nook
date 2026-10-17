@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { GateResult, PackModule } from '@kit/env/env.ts'
+import type { GateResult, PackModule } from '@nook/env/env.ts'
 
 import { gateHook } from '../../src/hooks/gate.ts'
 import { inBackground, startedByTool } from '../../src/hooks/session.ts'
@@ -11,9 +11,9 @@ import { initIn, removeDir, tempDir } from '../helpers.ts'
 let root: string
 const calls: string[][] = []
 beforeEach(() => {
-  root = tempDir('kit-gate-')
+  root = tempDir('nook-gate-')
   initIn(root)
-  writeFileSync(join(root, 'kit.yml'), 'packs: [engineering]\n')
+  writeFileSync(join(root, 'nook.yml'), 'packs: [engineering]\n')
   calls.length = 0
 })
 afterEach(() => removeDir(root))
@@ -35,22 +35,22 @@ const typed = (name: string, args: string, extra: Record<string, unknown> = {}, 
     { modules: [pack()], startedByTool: () => false, inBackground: () => background },
   )
 const run = (args: string, extra: Record<string, unknown> = {}, modules = [pack()], nested = false) =>
-  gateHook({ cwd: root, session_id: 's-1', command_name: 'kit:gate', command_args: args, ...extra }, { modules, startedByTool: () => nested })
+  gateHook({ cwd: root, session_id: 's-1', command_name: 'nook:gate', command_args: args, ...extra }, { modules, startedByTool: () => nested })
 const contextOf = (r: ReturnType<typeof run>) => (r.kind === 'json' ? (r.value.hookSpecificOutput as { additionalContext: string }).additionalContext : '')
 
 describe('gateHook', () => {
   test('a typed /gate runs the move of the pack that owns it and gives its lines as context', () => {
-    expect(contextOf(run('approve IT-1'))).toBe('Kit gate: the owner typed /gate approve IT-1. The move ran.\nIT-1 is ready\nnext: /cook IT-1')
+    expect(contextOf(run('approve IT-1'))).toBe('Nook gate: the owner typed /gate approve IT-1. The move ran.\nIT-1 is ready\nnext: /cook IT-1')
     expect(calls).toEqual([['approve', 'IT-1']])
   })
 
   test('a refused move says so, with the lines of the pack', () => {
     const r = run('accept IT-1', {}, [pack({ ok: false, lines: ['accept IT-1: 1 gap'] })])
-    expect(contextOf(r)).toBe('Kit gate: the owner typed /gate accept IT-1. The move was refused.\naccept IT-1: 1 gap')
+    expect(contextOf(r)).toBe('Nook gate: the owner typed /gate accept IT-1. The move was refused.\naccept IT-1: 1 gap')
   })
 
   test('/gate alone lists the owner moves that wait, as the commands to type', () => {
-    expect(contextOf(run(''))).toBe('Kit gate: the owner moves that wait now:\n- /gate approve IT-1 (IT-1 is planning, no gap)')
+    expect(contextOf(run(''))).toBe('Nook gate: the owner moves that wait now:\n- /gate approve IT-1 (IT-1 is planning, no gap)')
     expect(calls).toEqual([])
   })
 
@@ -64,7 +64,7 @@ describe('gateHook', () => {
   })
 
   test('a main session that runs under an agent definition, as a background session, is the owner: its typed command runs', () => {
-    expect(contextOf(typed('kit-engineering:auto', 'IT-1', { agent_type: 'claude' }))).toBe('Kit auto: the owner typed /auto IT-1. It ran.\nIT-1 mode auto')
+    expect(contextOf(typed('nook-engineering:auto', 'IT-1', { agent_type: 'claude' }))).toBe('Nook auto: the owner typed /auto IT-1. It ran.\nIT-1 mode auto')
     expect(calls).toEqual([['auto', 'IT-1']])
   })
 
@@ -74,24 +74,24 @@ describe('gateHook', () => {
   })
 
   test('a typed command that a pack names runs as the owner and gives its lines as context', () => {
-    const r = typed('kit-engineering:auto', 'IT-1 keep the old export')
-    expect(contextOf(r)).toBe('Kit auto: the owner typed /auto IT-1 keep the old export. It ran.\nIT-1 mode auto')
+    const r = typed('nook-engineering:auto', 'IT-1 keep the old export')
+    expect(contextOf(r)).toBe('Nook auto: the owner typed /auto IT-1 keep the old export. It ran.\nIT-1 mode auto')
     expect(calls).toEqual([['auto', 'IT-1 keep the old export']])
   })
 
   test('a typed command of a pack inside an agent is blocked and runs nothing', () => {
-    expect(typed('kit-engineering:auto', 'IT-1', { agent_id: 'a-1', agent_type: 'general-purpose' })).toEqual({ kind: 'block', reason: '/auto runs only from the prompt of the owner, not inside an agent.' })
+    expect(typed('nook-engineering:auto', 'IT-1', { agent_id: 'a-1', agent_type: 'general-purpose' })).toEqual({ kind: 'block', reason: '/auto runs only from the prompt of the owner, not inside an agent.' })
     expect(calls).toEqual([])
   })
 
   test('a typed command in a background session says that the session edits only inside a worktree', () => {
-    expect(contextOf(typed('kit-engineering:auto', 'IT-1', {}, true))).toBe(
-      'Kit auto: the owner typed /auto IT-1. It ran.\nIT-1 mode auto\nKit session: background. Claude Code lets this session edit only inside a worktree, so the build of an area cannot run here.',
+    expect(contextOf(typed('nook-engineering:auto', 'IT-1', {}, true))).toBe(
+      'Nook auto: the owner typed /auto IT-1. It ran.\nIT-1 mode auto\nNook session: background. Claude Code lets this session edit only inside a worktree, so the build of an area cannot run here.',
     )
   })
 
   test('another command passes untouched', () => {
-    expect(gateHook({ cwd: root, command_name: 'kit-engineering:cook', command_args: 'IT-1' }, { modules: [pack()], startedByTool: () => false })).toEqual({ kind: 'pass' })
+    expect(gateHook({ cwd: root, command_name: 'nook-engineering:cook', command_args: 'IT-1' }, { modules: [pack()], startedByTool: () => false })).toEqual({ kind: 'pass' })
   })
 })
 
@@ -115,7 +115,7 @@ describe('startedByTool', () => {
   })
 
   test('a session that the Bash tool of another session started reaches that session through a shell', () => {
-    expect(startedByTool(['/bin/sh -c hook', 'claude -p /kit:gate approve IT-1', '/bin/zsh -c claude -p ...', 'claude bg-spare --bg-spare /tmp/x.sock', 'claude bg-pty-host --bg-pty-host /tmp/x.pty'])).toBe(true)
+    expect(startedByTool(['/bin/sh -c hook', 'claude -p /nook:gate approve IT-1', '/bin/zsh -c claude -p ...', 'claude bg-spare --bg-spare /tmp/x.sock', 'claude bg-pty-host --bg-pty-host /tmp/x.pty'])).toBe(true)
   })
 
   test('a versioned binary of Claude counts as a Claude process', () => {

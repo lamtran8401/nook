@@ -305,7 +305,7 @@ export function lanesFigure(slices: LaneSlice[]): string {
   return `<figure class="kd-dg">${canvas('lanes', groups + cells, edges, style)}${note}</figure>`
 }
 
-/** A mermaid text as a diagram of the UI kit, or null for a kind that the kit does not draw. */
+/** A mermaid text as a diagram of the UI kit, or null for a kind that Nook does not draw. */
 export function renderDiagram(source: string): string | null {
   const chart = parseFlowchart(source)
   if (chart) return flowchartHtml(chart)

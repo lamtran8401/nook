@@ -5,12 +5,12 @@ allowed-tools: Bash(git diff *), Bash(git status *), Read, Glob, Grep, Edit
 ---
 
 Goal: a diff that a reviewer reads once and understands, with nothing to remove.
-The code rules are in the pack rules (`.claude/rules/kit/engineering.md`). This skill is how you check a diff against them.
-The fresh reviewer blocks on a fixed list; find those points yourself first, in the agent file of `kit-engineering:code-reviewer`.
+The code rules are in the pack rules (`.claude/rules/nook/engineering.md`). This skill is how you check a diff against them.
+The fresh reviewer blocks on a fixed list; find those points yourself first, in the agent file of `nook-engineering:code-reviewer`.
 
 ## When
 1. In the refactor step of `tdd`, with the tests green: the code of the behavior you just made pass.
-2. Before `kit eng task done`: the full diff of the slice, `git diff` in the folder of the slice.
+2. Before `nook eng task done`: the full diff of the slice, `git diff` in the folder of the slice.
 
 ## Order
 1. The area first. Read the lint config and the code next to the change. Your names, folders and error handling look like theirs.

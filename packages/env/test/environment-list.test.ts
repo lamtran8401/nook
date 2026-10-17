@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -7,7 +7,7 @@ import { EnvironmentList } from '../src/environment-list.ts'
 
 let root: string
 beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'kit-list-')))
+  root = realpathSync(mkdtempSync(join(tmpdir(), 'nook-list-')))
 })
 afterEach(() => rmSync(root, { recursive: true, force: true }))
 
@@ -19,7 +19,7 @@ const folder = (name: string) => {
 
 describe('EnvironmentList', () => {
   test('adds a folder once, in the order of the first add, and writes one path on each line', () => {
-    const file = join(root, 'config', 'kit', 'environments')
+    const file = join(root, 'config', 'nook', 'environments')
     const list = new EnvironmentList(file)
     const personal = folder('personal')
     const company = folder('company')
@@ -49,7 +49,29 @@ describe('EnvironmentList', () => {
   })
 
   test('the list of the owner lives under the config folder of the home', () => {
-    expect(EnvironmentList.pathFor({ HOME: '/home/a' })).toBe('/home/a/.config/kit/environments')
-    expect(EnvironmentList.pathFor({ HOME: '/home/a', XDG_CONFIG_HOME: '/cfg' })).toBe('/cfg/kit/environments')
+    expect(EnvironmentList.pathFor({ HOME: '/home/a' })).toBe('/home/a/.config/nook/environments')
+    expect(EnvironmentList.pathFor({ HOME: '/home/a', XDG_CONFIG_HOME: '/cfg' })).toBe('/cfg/nook/environments')
+  })
+})
+
+describe('EnvironmentList.mine: the list from before the rename', () => {
+  const writeList = (name: string, dirs: string[]) => {
+    mkdirSync(join(root, name), { recursive: true })
+    writeFileSync(join(root, name, 'environments'), dirs.map(dir => `${dir}\n`).join(''))
+  }
+
+  test('the list of ~/.config/kit is carried to ~/.config/nook when nook has none yet', () => {
+    const personal = folder('personal')
+    writeList('kit', [personal])
+    const list = EnvironmentList.mine({ XDG_CONFIG_HOME: root })
+    expect(list.file).toBe(join(root, 'nook', 'environments'))
+    expect(list.dirs()).toEqual([personal])
+  })
+
+  test('a list of nook that exists is never replaced by the old one', () => {
+    writeList('kit', [folder('personal')])
+    const company = folder('company')
+    writeList('nook', [company])
+    expect(EnvironmentList.mine({ XDG_CONFIG_HOME: root }).dirs()).toEqual([company])
   })
 })

@@ -1,4 +1,4 @@
-import { EvError, Exit } from '@kit/shared/errors.ts'
+import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import type { SliceSpec } from '../documents/tasks.ts'
 import { type Ledger, parseList, parseNumbers } from '../ledger.ts'
@@ -78,7 +78,7 @@ export class SliceStore {
 
   get(item: string, id: string): Slice {
     const slice = this.find(item, id)
-    if (!slice) throw new EvError(`${item} has no slice ${id}`, Exit.error, `kit eng task list ${item}`)
+    if (!slice) throw new EvError(`${item} has no slice ${id}`, Exit.error, `nook eng task list ${item}`)
     return slice
   }
 

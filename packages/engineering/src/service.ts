@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path'
 
 import { match } from 'ts-pattern'
 
-import { conflict, EvError, Exit, refused, usage } from '@kit/shared/errors.ts'
+import { conflict, EvError, Exit, refused, usage } from '@nook/shared/errors.ts'
 
 import { criteriaCap, ticketCriteria } from './documents/criteria-cap.ts'
 import { SpecDocument } from './documents/spec.ts'
@@ -47,7 +47,7 @@ import { Permissions, Who } from './who.ts'
 /** The pack as one object: each method checks the role, runs the guards and writes in one transaction. */
 
 export type NewItem = {
-  /** Missing: the kit makes the next `IT-NNN`. */
+  /** Missing: Nook makes the next `IT-NNN`. */
   id?: string
   title: string
   kind?: string
@@ -146,7 +146,7 @@ export class Engineering {
     if (!isOneOf(ITEM_KINDS, input.kind ?? 'feature'))
       throw usage(`kind must be one of ${ITEM_KINDS.join(', ')}`)
     if (!isOneOf(SIZES, input.size ?? 'M')) throw usage('size must be S, M or L')
-    if (input.id && items.find(input.id)) throw refused(`item ${input.id} exists`, `kit eng item show ${input.id}`)
+    if (input.id && items.find(input.id)) throw refused(`item ${input.id} exists`, `nook eng item show ${input.id}`)
     for (const name of input.areas ?? []) this.home.areaNamed(name)
     const state = input.state ?? 'backlog'
     const id = this.ledger.write(() => {
@@ -184,7 +184,7 @@ export class Engineering {
     if (['kind', 'size', 'areas'].includes(field) && isFrozen(item.state))
       throw refused(
         `${id} is ${item.state}: ${field} is frozen after the approve`,
-        `kit eng item replan ${id}`,
+        `nook eng item replan ${id}`,
       )
     const stored = this.editValue(field, value)
     this.ledger.write(() => {
@@ -284,7 +284,7 @@ export class Engineering {
       const item = this.item(id)
       assertVersion(id, item.version, input.ifVersion)
       if (!move.from.includes(item.state))
-        throw refused(`${id} is ${item.state}: ${name} needs ${move.from.join(' or ')}`, `kit eng next ${id}`)
+        throw refused(`${id} is ${item.state}: ${name} needs ${move.from.join(' or ')}`, `nook eng next ${id}`)
       if (move.reason && !reason) throw usage(`${name} needs --reason "<why>"`)
       const found = this.gaps(item, moveName)
       if (found.length) throw refused(gapsHeading(name, id, found), found[0]!.fix)
@@ -403,7 +403,7 @@ export class Engineering {
     if (isFrozen(item.state) && !item.quick)
       throw refused(
         `${id} is ${item.state}: the criteria are frozen after the approve`,
-        `kit eng item replan ${id}`,
+        `nook eng item replan ${id}`,
       )
     const line = `[${tag}] ${text.trim()}`
     const n = this.stores.criteria.list(id).length + 1
@@ -451,7 +451,7 @@ export class Engineering {
 
   private criterion(id: string, n: number): Criterion {
     const found = this.stores.criteria.find(id, n)
-    if (!found) throw usage(`${id} has no AC ${n}`, `kit eng item ac list ${id}`)
+    if (!found) throw usage(`${id} has no AC ${n}`, `nook eng item ac list ${id}`)
     return found
   }
 
@@ -462,11 +462,11 @@ export class Engineering {
     if (isFrozen(item.state))
       throw refused(
         `${id} is ${item.state}: the slices are frozen after the approve`,
-        `replan first: kit eng item replan ${id}`,
+        `replan first: nook eng item replan ${id}`,
       )
     const file = this.folder(id).path('tasks.md')
     const text = this.folder(id).read('tasks.md')
-    if (text === null) throw refused(`${file} is missing`, `kit eng item agree ${id} scaffolds it`)
+    if (text === null) throw refused(`${file} is missing`, `nook eng item agree ${id} scaffolds it`)
     const tasks = TasksDocument.parse(text)
     if (tasks.problems.length)
       throw refused(
@@ -525,7 +525,7 @@ export class Engineering {
     if (!move.from.includes(slice.state))
       throw refused(
         `${slice.id} is ${slice.state}: ${name} needs ${move.from.join(' or ')}`,
-        `kit eng task show ${id} ${slice.id}`,
+        `nook eng task show ${id} ${slice.id}`,
       )
     if (move.reason && !input.reason?.trim()) throw usage(`${name} needs --reason`)
     if (move.to === 'running') this.assertCanRun(item, slice)
@@ -550,13 +550,13 @@ export class Engineering {
   /** A slice runs only when the item is in cooking and every slice in `depends` is done. */
   private assertCanRun(item: Item, slice: Slice): void {
     if (item.state !== 'cooking')
-      throw refused(`${item.id} is ${item.state}: a slice starts only in cooking`, `kit eng next ${item.id}`)
+      throw refused(`${item.id} is ${item.state}: a slice starts only in cooking`, `nook eng next ${item.id}`)
     const done = this.stores.slices.doneIds(item.id)
     const waiting = slice.depends.filter(d => !done.has(d))
     if (waiting.length)
       throw refused(
         `${slice.id} depends on ${waiting.join(', ')}, not done yet`,
-        `kit eng task list ${item.id} --ready`,
+        `nook eng task list ${item.id} --ready`,
       )
   }
 
@@ -587,7 +587,7 @@ export class Engineering {
     this.item(id)
     const questions = this.stores.questions
     const question = questions.find(id, qid.toUpperCase())
-    if (!question) throw usage(`${id} has no question ${qid}`, `kit eng questions ${id}`)
+    if (!question) throw usage(`${id} has no question ${qid}`, `nook eng questions ${id}`)
     if (question.status === 'answered')
       throw refused(`${qid} is answered: ${question.answer}`, 'ask a new question when the answer changed')
     if (!text.trim()) throw usage('give the answer')
@@ -609,7 +609,7 @@ export class Engineering {
       throw usage('give the question, what you took (--took) and the other option (--other)')
     const known = this.stores.slices.ids(id)
     for (const slice of input.slices)
-      if (!known.has(slice)) throw usage(`${id} has no slice ${slice}`, `kit eng task list ${id}`)
+      if (!known.has(slice)) throw usage(`${id} has no slice ${slice}`, `nook eng task list ${id}`)
     const guesses = this.stores.guesses
     const gid = guesses.nextId(id)
     this.ledger.write(() => {
@@ -636,11 +636,11 @@ export class Engineering {
     this.permissions.assert('guess')
     this.item(id)
     const guess = this.stores.guesses.find(id, gid.toUpperCase())
-    if (!guess) throw usage(`${id} has no guess ${gid}`, `kit eng guesses ${id}`)
+    if (!guess) throw usage(`${id} has no guess ${gid}`, `nook eng guesses ${id}`)
     if (guess.status !== 'open') throw refused(`${guess.id} is ${guess.status}`, 'only an open guess changes its slices')
     const known = this.stores.slices.ids(id)
     for (const slice of slices)
-      if (!known.has(slice)) throw usage(`${id} has no slice ${slice}`, `kit eng task list ${id}`)
+      if (!known.has(slice)) throw usage(`${id} has no slice ${slice}`, `nook eng task list ${id}`)
     this.ledger.write(() => {
       this.stores.guesses.setSlices(id, guess.id, slices)
       this.stores.events.record(id, 'guess', { reason: `${guess.id} shapes ${slices.join(', ') || 'no slice'}` })
@@ -662,7 +662,7 @@ export class Engineering {
     // a done item is accepted work: a flip records what the code took, and sends no slice back
     const rework = this.item(id).state !== 'done'
     const guess = this.stores.guesses.find(id, gid.toUpperCase())
-    if (!guess) throw usage(`${id} has no guess ${gid}`, `kit eng guesses ${id}`)
+    if (!guess) throw usage(`${id} has no guess ${gid}`, `nook eng guesses ${id}`)
     if (guess.status !== 'open')
       throw refused(`${guess.id} is ${guess.status}`, 'record a new guess when the answer changed again')
     const reset = this.ledger.write(() => {
@@ -692,19 +692,19 @@ export class Engineering {
     const item = this.item(id)
     const config = this.home.config
     if (config.missing || !config.areas.length)
-      throw refused('kit.yml has no areas, so there is nothing to check', 'add areas to kit.yml with /setup')
+      throw refused('nook.yml has no areas, so there is nothing to check', 'add areas to nook.yml with /setup')
     const names = only ? [only] : item.areas
-    if (!names.length) throw refused(`${id} has no areas`, `kit eng item edit ${id} areas <a,b>`)
+    if (!names.length) throw refused(`${id} has no areas`, `nook eng item edit ${id} areas <a,b>`)
     const areas = names.map(name => this.home.areaNamed(name))
     for (const area of areas) {
       if (!area.checks)
         throw refused(
-          `area ${area.name} has no \`checks\` in kit.yml`,
+          `area ${area.name} has no \`checks\` in nook.yml`,
           'add checks: [<command>] to the area, or checks: [] for none',
         )
       const dir = this.home.areaDir(area)
       if (!existsSync(dir))
-        throw refused(`the folder of area ${area.name} does not exist: ${dir}`, 'fix the path in kit.yml')
+        throw refused(`the folder of area ${area.name} does not exist: ${dir}`, 'fix the path in nook.yml')
     }
     const at = now()
     const outcomes = areas.flatMap(area =>
@@ -728,17 +728,17 @@ export class Engineering {
     return this.stores.checks.lastRun(this.item(id))
   }
 
-  /** `item branch`: `kit/<id>-<slug>` in each git area, switched to. */
+  /** `item branch`: `nook/<id>-<slug>` in each git area, switched to. */
   branch(id: string): BranchResult[] {
     this.permissions.assert('item branch')
     const item = this.item(id)
     const branching = new Branching(this.home)
     const areas = branching.gitAreas(item.areas)
     if (!areas.length)
-      throw refused(`${id} has no git area`, `kit eng item edit ${id} areas <a,b>, with git: true in kit.yml`)
+      throw refused(`${id} has no git area`, `nook eng item edit ${id} areas <a,b>, with git: true in nook.yml`)
     const branch = branchName(item)
     if (this.home.config.isProtected(branch))
-      throw refused(`${branch} is a protected branch`, 'change the title, or the protected list of kit.yml')
+      throw refused(`${branch} is a protected branch`, 'change the title, or the protected list of nook.yml')
     for (const area of areas) {
       const other = this.stores.items.cookingIn(area.name, id)
       if (other)
@@ -762,12 +762,12 @@ export class Engineering {
     if (!['cooking', 'review', 'done'].includes(item.state))
       throw refused(
         `${id} is ${item.state}: commits come from cooking, review or done`,
-        `kit eng next ${id}`,
+        `nook eng next ${id}`,
       )
     return planCommits(this.home, id, this.doneInOrder(id))
   }
 
-  /** The done slices in the order that they last finished, from the task events that the kit writes as "<T> done". */
+  /** The done slices in the order that they last finished, from the task events that Nook writes as "<T> done". */
   private doneInOrder(id: string): Slice[] {
     const finished = new Map<string, number>()
     for (const e of this.stores.events.history(id)) {
@@ -793,11 +793,11 @@ export class Engineering {
     const item = this.item(id)
     const slice = this.stores.slices.get(id, sliceId)
     if (!['cooking', 'review'].includes(item.state))
-      throw refused(`${id} is ${item.state}: a slice is proven in cooking or review`, `kit eng next ${id}`)
+      throw refused(`${id} is ${item.state}: a slice is proven in cooking or review`, `nook eng next ${id}`)
     const area = this.home.areaNamed(slice.area)
     const list = files.length ? files : slice.files
     if (!list.length)
-      throw usage(`${slice.id} has no files yet`, `kit eng task prove ${id} ${slice.id} --files <f...>`)
+      throw usage(`${slice.id} has no files yet`, `nook eng task prove ${id} ${slice.id} --files <f...>`)
     if (slice.proof === 'skipped')
       return this.storeProof(
         id,
@@ -810,7 +810,7 @@ export class Engineering {
       return this.storeProof(id, slice.id, { proof: 'none', note: 'the slice has no test file' }, [])
     if (!area.test)
       throw refused(
-        `area ${area.name} has no \`test\` command in kit.yml`,
+        `area ${area.name} has no \`test\` command in nook.yml`,
         'add test: "<command> {files}" to the area',
       )
     if (!area.git || !new GitRepo(this.home.areaDir(area)).isRepo()) {
@@ -843,9 +843,9 @@ export class Engineering {
     this.permissions.assert('adr')
     const adrs = this.stores.adrs
     const adr = adrs.find(n)
-    if (!adr) throw new EvError(`no ADR ${n}`, Exit.error, 'kit eng adr list')
+    if (!adr) throw new EvError(`no ADR ${n}`, Exit.error, 'nook eng adr list')
     if (status === 'superseded' && (!by || !adrs.find(by)))
-      throw usage('--by must name an ADR that exists', 'kit eng adr list')
+      throw usage('--by must name an ADR that exists', 'nook eng adr list')
     return adrs.setStatus(adr, status, by)
   }
 }

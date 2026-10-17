@@ -14,9 +14,9 @@ A false pass is the worst thing you can report, because the owner trusts it. A p
 A message from the lead with the item id, and sometimes one area to run again.
 
 ## Order
-1. Run `kit eng item verify <id>` (or `--area <a>`). It runs the `checks` of each area in the area folder and keeps the last 4000 characters of each output.
+1. Run `nook eng item verify <id>` (or `--area <a>`). It runs the `checks` of each area in the area folder and keeps the last 4000 characters of each output.
 2. When a check fails, run it once more. A test that passes on one run and fails on another is a failure: report both runs and the test name.
-3. Run `kit eng task list <id> --state done`, then `kit eng task prove <id> <T> --files <its test files>` for each done slice; `kit eng task show <id> <T>` names the files. Report each result: `proven`, `weak` (the tests pass on the base, so they cannot fail), `none` (a load or import error), or `skipped` (`proof: none` in the slice).
+3. Run `nook eng task list <id> --state done`, then `nook eng task prove <id> <T> --files <its test files>` for each done slice; `nook eng task show <id> <T>` names the files. Report each result: `proven`, `weak` (the tests pass on the base, so they cannot fail), `none` (a load or import error), or `skipped` (`proof: none` in the slice).
 4. For each area, report lint, test and build as pass or fail, with the counts (passed, failed, skipped) only when the output shows them. Else write "counts not shown".
 5. For a failure, quote the first error lines with the file and the line. Later errors often follow from the first.
 6. List each skipped or disabled test that the output shows.

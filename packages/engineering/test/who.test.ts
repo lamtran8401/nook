@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { EvError, Exit } from '@kit/shared/errors.ts'
+import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { type Action, Permissions, type Role, Who } from '../src/who.ts'
 
@@ -20,16 +20,16 @@ describe('Who.fromEnv', () => {
     expect(Who.fromEnv({})).toEqual(new Who('owner', 'owner', null))
   })
 
-  test('CLAUDECODE set with no KIT_ROLE is the lead', () => {
+  test('CLAUDECODE set with no NOOK_ROLE is the lead', () => {
     expect(Who.fromEnv({ CLAUDECODE: '1', CLAUDE_SESSION_ID: 's-9' })).toEqual(new Who('lead', 'lead', 's-9'))
   })
 
-  test('KIT_ROLE, KIT_ACTOR and KIT_SESSION name the agent', () => {
-    expect(Who.fromEnv({ CLAUDECODE: '1', KIT_ROLE: 'builder', KIT_ACTOR: 'bff-builder-01', KIT_SESSION: 's-1' })).toEqual(new Who('builder', 'bff-builder-01', 's-1'))
+  test('NOOK_ROLE, NOOK_ACTOR and NOOK_SESSION name the agent', () => {
+    expect(Who.fromEnv({ CLAUDECODE: '1', NOOK_ROLE: 'builder', NOOK_ACTOR: 'bff-builder-01', NOOK_SESSION: 's-1' })).toEqual(new Who('builder', 'bff-builder-01', 's-1'))
   })
 
-  test('a KIT_ROLE that names no role is ignored', () => {
-    expect(Who.fromEnv({ KIT_ROLE: 'admin' }).role).toBe('owner')
+  test('a NOOK_ROLE that names no role is ignored', () => {
+    expect(Who.fromEnv({ NOOK_ROLE: 'admin' }).role).toBe('owner')
   })
 })
 

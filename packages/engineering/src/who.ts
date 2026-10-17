@@ -1,4 +1,4 @@
-import { denied } from '@kit/shared/errors.ts'
+import { denied } from '@nook/shared/errors.ts'
 
 /** Who calls the tool, and the one table of what each role can do (docs/engineering.md section 8). */
 
@@ -12,12 +12,12 @@ export class Who {
     readonly session: string | null,
   ) {}
 
-  /** `KIT_ROLE` when it names a role; else `CLAUDECODE` set means the lead, and unset means the owner. */
+  /** `NOOK_ROLE` when it names a role; else `CLAUDECODE` set means the lead, and unset means the owner. */
   static fromEnv(env: NodeJS.ProcessEnv = process.env): Who {
-    const named = env.KIT_ROLE as Role | undefined
+    const named = env.NOOK_ROLE as Role | undefined
     const role: Role = named && ROLES.includes(named) ? named : env.CLAUDECODE ? 'lead' : 'owner'
-    const actor = env.KIT_ACTOR?.trim() || role
-    const session = env.KIT_SESSION?.trim() || env.CLAUDE_SESSION_ID?.trim() || null
+    const actor = env.NOOK_ACTOR?.trim() || role
+    const session = env.NOOK_SESSION?.trim() || env.CLAUDE_SESSION_ID?.trim() || null
     return new Who(role, actor, session)
   }
 }

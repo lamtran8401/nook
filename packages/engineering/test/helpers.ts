@@ -6,10 +6,10 @@ import { Home } from '../src/home.ts'
 import { Engineering } from '../src/service.ts'
 import { Who } from '../src/who.ts'
 
-/** A temporary home: kit.yml with the engineering pack and two areas that are small git repos. */
+/** A temporary home: nook.yml with the engineering pack and two areas that are small git repos. */
 
-process.env.KIT_PROJECT = join(import.meta.dir, '..', '..', '..')
-Object.assign(process.env, { GIT_AUTHOR_NAME: 'kit test', GIT_AUTHOR_EMAIL: 'test@example.com', GIT_COMMITTER_NAME: 'kit test', GIT_COMMITTER_EMAIL: 'test@example.com' })
+process.env.NOOK_PROJECT = join(import.meta.dir, '..', '..', '..')
+Object.assign(process.env, { GIT_AUTHOR_NAME: 'nook test', GIT_AUTHOR_EMAIL: 'test@example.com', GIT_COMMITTER_NAME: 'nook test', GIT_COMMITTER_EMAIL: 'test@example.com' })
 
 export const OWNER = new Who('owner', 'owner', null)
 export const LEAD = new Who('lead', 'lead', 'sess-1')
@@ -27,7 +27,7 @@ exit $code
 export type TestHome = {
   root: string
   home: Home
-  kit(who?: Who): Engineering
+  eng(who?: Who): Engineering
   area(name: string): string
   fail(name: string, on: boolean): void
   git(name: string, ...args: string[]): string
@@ -35,7 +35,7 @@ export type TestHome = {
 }
 
 export function makeHome(options: { section?: boolean; checks?: boolean } = {}): TestHome {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'kit-eng-')))
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'nook-eng-')))
   const areas = ['bff', 'web']
   for (const name of areas) {
     const dir = join(root, 'projects', name)
@@ -56,13 +56,13 @@ export function makeHome(options: { section?: boolean; checks?: boolean } = {}):
     - { name: bff, path: projects/bff, kind: backend, ${checks ? `${checks}, ` : ''}test: "sh test.sh {files}" }
     - { name: web, path: projects/web, kind: frontend, checks: [sh test.sh], test: "sh test.sh {files}" }
 `
-  writeFileSync(join(root, 'kit.yml'), `packs: [engineering]\n${section}`)
+  writeFileSync(join(root, 'nook.yml'), `packs: [engineering]\n${section}`)
   mkdirSync(join(root, 'work'), { recursive: true })
   const home = Home.find(root)!
   return {
     root,
     home,
-    kit: (who = OWNER) => Engineering.open(home, who),
+    eng: (who = OWNER) => Engineering.open(home, who),
     area: name => join(root, 'projects', name),
     fail(name, on) {
       const marker = join(root, 'projects', name, 'FAIL')
@@ -101,8 +101,8 @@ export const writeDoc = (t: TestHome, id: string, name: string, text: string) =>
 
 /** An item taken to a state through the real moves, with one slice T1 in bff. */
 export function itemAt(t: TestHome, state: 'backlog' | 'framing' | 'planning' | 'ready' | 'cooking' | 'review', id = 'SHOP-1', spec = SPEC(), tasks = TASKS([{ id: 'T1' }])) {
-  const lead = t.kit(LEAD)
-  const owner = t.kit(OWNER)
+  const lead = t.eng(LEAD)
+  const owner = t.eng(OWNER)
   lead.newItem({ id, title: 'the export date is off', kind: 'feature', size: 'S', areas: ['bff'] })
   if (state === 'backlog') return
   lead.moveItem('start', id)
@@ -116,7 +116,7 @@ export function itemAt(t: TestHome, state: 'backlog' | 'framing' | 'planning' | 
   owner.moveItem('approve', id)
   if (state === 'ready') return
   const areas = /areas: \[([^\]]*)\]/.exec(spec)?.[1]?.split(',').map(s => s.trim()) ?? ['bff']
-  for (const area of areas) t.git(area, 'switch', '-q', '-c', `kit/${id}-work`)
+  for (const area of areas) t.git(area, 'switch', '-q', '-c', `nook/${id}-work`)
   lead.moveItem('begin', id)
   if (state === 'cooking') return
   throw new Error('itemAt: review needs the slices done and a verify; do it in the test')

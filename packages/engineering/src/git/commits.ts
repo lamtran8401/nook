@@ -1,4 +1,4 @@
-import { EvError, Exit, refused } from '@kit/shared/errors.ts'
+import { EvError, Exit, refused } from '@nook/shared/errors.ts'
 
 import type { EngineeringConfig } from '../config.ts'
 import type { Home } from '../home.ts'
@@ -33,7 +33,7 @@ export function planCommits(home: Home, id: string, done: Slice[]): CommitPlan {
     }
     if (!slice.files.length) {
       plan.skipped.push(
-        `${slice.id} has no files recorded: kit eng task done ${id} ${slice.id} --files <f...>`,
+        `${slice.id} has no files recorded: nook eng task done ${id} ${slice.id} --files <f...>`,
       )
       continue
     }
@@ -78,7 +78,7 @@ export function runCommits(plan: CommitPlan, config: EngineeringConfig, id: stri
     if (entry.branch && !config.isProtected(entry.branch)) continue
     throw refused(
       `area ${entry.area} is on ${entry.branch ?? 'no branch'}: a commit goes on the item branch, not a protected one`,
-      `kit eng item branch ${id}`,
+      `nook eng item branch ${id}`,
     )
   }
   for (const entry of plan.entries) {

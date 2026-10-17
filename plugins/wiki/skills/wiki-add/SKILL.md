@@ -3,7 +3,7 @@ name: wiki-add
 description: "Keep the lesson of a source in the wiki: the source into docs/references/, a draft page in the shelf resources/ with its main points, a real example for each, the gotchas and the source; written after the owner's yes. Use when the owner says add this to the wiki, keep this, or gives a link or a file to keep."
 argument-hint: "<a link, a file, or the text>"
 disable-model-invocation: true
-allowed-tools: Bash(kit wiki *), Read, Glob, Grep, Write, Edit, WebFetch, AskUserQuestion
+allowed-tools: Bash(nook wiki *), Read, Glob, Grep, Write, Edit, WebFetch, AskUserQuestion
 ---
 
 Goal: a page that the owner and the agents can read later in place of the source, with its examples.
@@ -14,7 +14,7 @@ Goal: a page that the owner and the agents can read later in place of the source
 3. Write the reference: `docs/references/<date>-<slug>.md` with the link, the title, the date, and the main points in your own words. Never copy the source.
 4. Draft the page (the format is below). Each point gets one real example from the source or from the work of the owner.
 5. Show the draft and ask the owner once with AskUserQuestion: write it, change it, keep it for later, or drop it.
-6. On yes: write the page into `resources/`, then run `kit wiki index --fix` and `kit wiki links`. Report the path and the index line.
+6. On yes: write the page into `resources/`, then run `nook wiki index --fix` and `nook wiki links`. Report the path and the index line.
 7. Keep it for later, or no answer before the session ends: write the draft into `docs/wiki/drafts/resources/<page>.md`. `/brief` shows it until the owner decides. On a later yes, move it to its shelf and run step 6; on a no, delete the draft.
 
 ## The page

@@ -105,7 +105,7 @@ export function commitText(plan: CommitPlan, id: string, ran: boolean): string {
         `${e.commit ? `${e.commit} ` : ''}${e.area} (${e.branch ?? 'no branch'}): ${e.message}\n    ${e.files.join(', ')}`,
     ),
     ...plan.skipped.map(s => `skipped: ${s}`),
-    plan.entries.length && !ran ? `run them: kit eng item commit ${id} --run` : '',
+    plan.entries.length && !ran ? `run them: nook eng item commit ${id} --run` : '',
   ]
   return lines.filter(Boolean).join('\n') || 'nothing to commit'
 }
@@ -159,7 +159,7 @@ export const areaList = (all: Area[]) =>
       a =>
         `${a.name.padEnd(12)} ${a.kind.padEnd(9)} ${a.path}${a.checks ? `  checks: ${a.checks.join(' && ') || 'none'}` : '  checks: MISSING'}${a.git ? '' : '  (no git)'}`,
     ),
-    'no areas: add them to kit.yml with /setup',
+    'no areas: add them to nook.yml with /setup',
   )
 
 export const areaStatusList = (all: AreaStatus[]) =>

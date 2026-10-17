@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 
-import { nearestEnvironment } from '@kit/env/env.ts'
-import { block, type HookInput, type HookResult, pass } from '@kit/shared/hook.ts'
+import { nearestEnvironment } from '@nook/env/env.ts'
+import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { score } from '../ste.ts'
 

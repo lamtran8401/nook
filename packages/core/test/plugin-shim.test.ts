@@ -4,15 +4,15 @@ import { join } from 'node:path'
 
 import { removeDir, tempDir } from './helpers.ts'
 
-const SHIM = join(import.meta.dir, '..', '..', '..', 'plugins', 'core', 'bin', 'kit')
+const SHIM = join(import.meta.dir, '..', '..', '..', 'plugins', 'core', 'bin', 'nook')
 
-/** A copy of the shim with no kit project around it and no kit on the PATH, as in a plugin cache. */
+/** A copy of the shim with no nook project around it and no nook on the PATH, as in a plugin cache. */
 let copy: string
 let root: string
 beforeEach(() => {
-  root = tempDir('kit-shim-')
-  mkdirSync(join(root, 'cache', 'kit', '0.1.0', 'bin'), { recursive: true })
-  copy = join(root, 'cache', 'kit', '0.1.0', 'bin', 'kit')
+  root = tempDir('nook-shim-')
+  mkdirSync(join(root, 'cache', 'nook', '0.1.0', 'bin'), { recursive: true })
+  copy = join(root, 'cache', 'nook', '0.1.0', 'bin', 'nook')
   copyFileSync(SHIM, copy)
 })
 afterEach(() => removeDir(root))
@@ -25,7 +25,7 @@ const runShimWith = (extra: Record<string, string>, ...args: string[]) => {
   return { code: result.exitCode, err: result.stderr.toString() }
 }
 
-describe('the plugin shim with no kit binary', () => {
+describe('the plugin shim with no nook binary', () => {
   test.each(['hook read', 'hook bash', 'hook edit', 'eng hook bash', 'eng hook edit'])('the guard `%s` blocks with exit 2', call => {
     expect(runShim(...call.split(' ')).code).toBe(2)
   })
@@ -35,32 +35,32 @@ describe('the plugin shim with no kit binary', () => {
   })
 
   test('says how to link the binary', () => {
-    expect(runShim('hook', 'read').err).toContain('ln -s <harness-kit>/apps/kit/bin/kit ~/.local/bin/kit')
+    expect(runShim('hook', 'read').err).toContain('ln -s <nook>/apps/nook/bin/nook ~/.local/bin/nook')
   })
 })
 
-/** A kit binary that exits with FAKE_CODE, as a kit whose own code fails to load exits 1. */
-const fakeKit = () => {
-  const bin = join(root, 'fake', 'apps', 'kit', 'bin')
+/** A nook binary that exits with FAKE_CODE, as a nook whose own code fails to load exits 1. */
+const fakeNook = () => {
+  const bin = join(root, 'fake', 'apps', 'nook', 'bin')
   mkdirSync(bin, { recursive: true })
-  writeFileSync(join(bin, 'kit'), '#!/bin/sh\necho "SyntaxError: x is not defined" >&2\nexit $FAKE_CODE\n')
-  chmodSync(join(bin, 'kit'), 0o755)
+  writeFileSync(join(bin, 'nook'), '#!/bin/sh\necho "SyntaxError: x is not defined" >&2\nexit $FAKE_CODE\n')
+  chmodSync(join(bin, 'nook'), 0o755)
   return join(root, 'fake')
 }
 
-describe('the plugin shim when the kit itself fails', () => {
-  test('a guard blocks with exit 2 and says how the owner repairs the kit', () => {
-    const result = runShimWith({ KIT_PROJECT: fakeKit(), FAKE_CODE: '1' }, 'eng', 'hook', 'edit')
+describe('the plugin shim when Nook itself fails', () => {
+  test('a guard blocks with exit 2 and says how the owner repairs the nook', () => {
+    const result = runShimWith({ NOOK_PROJECT: fakeNook(), FAKE_CODE: '1' }, 'eng', 'hook', 'edit')
     expect(result.code).toBe(2)
-    expect(result.err).toContain('the kit itself failed (exit 1), so this guard blocks the call')
+    expect(result.err).toContain('Nook itself failed (exit 1), so this guard blocks the call')
     expect(result.err).toContain('! git -C')
   })
 
-  test('any other hook lets the session go on with exit 0, so a broken kit cannot hold the session', () => {
-    expect(runShimWith({ KIT_PROJECT: fakeKit(), FAKE_CODE: '1' }, 'eng', 'hook', 'stop').code).toBe(0)
+  test('any other hook lets the session go on with exit 0, so a broken nook cannot hold the session', () => {
+    expect(runShimWith({ NOOK_PROJECT: fakeNook(), FAKE_CODE: '1' }, 'eng', 'hook', 'stop').code).toBe(0)
   })
 
   test('a block of a working guard stays a block', () => {
-    expect(runShimWith({ KIT_PROJECT: fakeKit(), FAKE_CODE: '2' }, 'hook', 'bash').code).toBe(2)
+    expect(runShimWith({ NOOK_PROJECT: fakeNook(), FAKE_CODE: '2' }, 'hook', 'bash').code).toBe(2)
   })
 })

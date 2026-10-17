@@ -13,7 +13,7 @@ export class EachArea implements Guard {
   check(ctx: GuardContext): Gap[] {
     return ctx.item.areas.flatMap(name => {
       const area = ctx.home.config.area(name)
-      if (!area) return [{ text: `area ${name} is not in kit.yml`, fix: 'add it with /setup' }]
+      if (!area) return [{ text: `area ${name} is not in nook.yml`, fix: 'add it with /setup' }]
       return this.guards.flatMap(guard => guard.checkArea(ctx, area))
     })
   }
@@ -29,7 +29,7 @@ export class BranchNotProtected implements AreaGuard {
     return [
       {
         text: `area ${area.name} is on ${branch ?? 'no branch'}, a protected branch`,
-        fix: `kit eng item branch ${ctx.id}`,
+        fix: `nook eng item branch ${ctx.id}`,
       },
     ]
   }
@@ -43,7 +43,7 @@ export class AreaFree implements AreaGuard {
     return [
       {
         text: `area ${area.name} is in use by ${other.id}`,
-        fix: `wait for ${other.id}, or move ${ctx.id} to another area: kit eng item edit ${ctx.id} areas <a>`,
+        fix: `wait for ${other.id}, or move ${ctx.id} to another area: nook eng item edit ${ctx.id} areas <a>`,
       },
     ]
   }

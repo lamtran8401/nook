@@ -8,7 +8,7 @@ describe('mergeSettings', () => {
     expect(merged.permissions).toEqual({ allow: ['a', 'b'], ask: [], deny: ['c'] })
   })
 
-  test('a key that the owner set keeps its value; a key that the owner did not set comes from the kit', () => {
+  test('a key that the owner set keeps its value; a key that the owner did not set comes from the nook', () => {
     expect(mergeSettings({ theme: 'dark' }, { theme: 'light', outputStyle: 'x' })).toEqual({ theme: 'dark', outputStyle: 'x' })
   })
 

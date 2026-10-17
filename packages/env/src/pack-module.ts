@@ -21,7 +21,7 @@ export interface PackModule {
   readonly name: string
   /** Makes the folders and the state that the pack needs; returns what it made, relative to the folder. */
   setup(dir: string): string[]
-  /** False while kit.yml lacks the section that /setup writes for the pack. */
+  /** False while nook.yml lacks the section that /setup writes for the pack. */
   configured(dir: string): boolean
   doctor(dir: string): Finding[]
   /** The lines of the pack for the daily brief: what waits for the owner, what is done since `since`, what runs. `now` is the time of the brief. */

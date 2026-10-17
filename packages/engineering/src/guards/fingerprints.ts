@@ -10,7 +10,7 @@ export class FingerprintsUnchanged implements Guard {
   check(ctx: GuardContext): Gap[] {
     return this.changed(ctx).map(doc => ({
       text: `${doc} changed after the approve`,
-      fix: `kit eng item replan ${ctx.id}`,
+      fix: `nook eng item replan ${ctx.id}`,
     }))
   }
 

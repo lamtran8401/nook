@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { EvError } from '@kit/shared/errors.ts'
+import { EvError } from '@nook/shared/errors.ts'
 
 import { projectRoot } from './project.ts'
 
@@ -9,9 +9,9 @@ import { projectRoot } from './project.ts'
 export type PackManifest = {
   name: string
   description: string
-  /** Rules that `kit init` copies into `.claude/rules/kit/`, relative to the pack folder. */
+  /** Rules that `nook init` copies into `.claude/rules/nook/`, relative to the pack folder. */
   rules?: string[]
-  /** A settings fragment that `kit init` merges into `.claude/settings.json`. */
+  /** A settings fragment that `nook init` merges into `.claude/settings.json`. */
   settings?: string
   /** Files and folders that the pack keeps under the state folder. */
   state?: string[]
@@ -27,7 +27,7 @@ export function readManifest(dir: string): PackManifest {
   return manifest
 }
 
-/** The packs that the kit project ships: one plugin folder each under `plugins/`. */
+/** The packs that the nook project ships: one plugin folder each under `plugins/`. */
 export class Catalog {
   private constructor(
     private readonly plugins: Map<string, Plugin>,
@@ -70,7 +70,7 @@ export class Catalog {
 
   dirOf(name: string): string {
     const plugin = this.get(name)
-    if (!plugin) throw new EvError(`the kit project has no plugin for the pack ${name}`)
+    if (!plugin) throw new EvError(`the nook project has no plugin for the pack ${name}`)
     return plugin.dir
   }
 }

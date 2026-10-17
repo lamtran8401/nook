@@ -11,7 +11,7 @@ export function itemBrief(eng: Engineering, id: string, limit = BRIEF_LIMIT): st
   const step = nextFor(eng, item)
   const areas = item.areas.map(name => {
     const area = eng.home.config.area(name)
-    return area ? `${name} → ${area.path} (${area.kind})` : `${name} (not in kit.yml)`
+    return area ? `${name} → ${area.path} (${area.kind})` : `${name} (not in nook.yml)`
   })
   const head = [
     `${item.id} — ${cut(item.title, 80)} [${item.kind} ${item.size}${item.quick ? ', quick' : ''}]  state: ${item.state}  mode: ${item.mode}`,

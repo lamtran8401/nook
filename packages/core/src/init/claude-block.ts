@@ -1,6 +1,6 @@
-/** The kit block of CLAUDE.md: the only part of the file that the kit writes. */
-export const BLOCK_BEGIN = '<!-- kit:begin -->'
-export const BLOCK_END = '<!-- kit:end -->'
+/** The nook block of CLAUDE.md: the only part of the file that Nook writes. */
+export const BLOCK_BEGIN = '<!-- nook:begin -->'
+export const BLOCK_END = '<!-- nook:end -->'
 
 export const hasBlock = (text: string): boolean => text.includes(BLOCK_BEGIN) && text.includes(BLOCK_END)
 

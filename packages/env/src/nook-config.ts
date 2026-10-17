@@ -1,9 +1,9 @@
 import { parse } from 'yaml'
 
-import { EvError, usage } from '@kit/shared/errors.ts'
+import { EvError, usage } from '@nook/shared/errors.ts'
 
-/** The part of `kit.yml` that the core reads. Each pack reads its own section by its name. */
-export class KitConfig {
+/** The part of `nook.yml` that the core reads. Each pack reads its own section by its name. */
+export class NookConfig {
   private constructor(
     readonly packs: string[],
     /** Packs of a parent environment that this one turns off. */
@@ -14,11 +14,11 @@ export class KitConfig {
   ) {}
 
   /** `packs: [a, b]` or `packs: { on: [a], off: [b] }`; `rules: { off: [...] }`; `secrets: [...]`. */
-  static parse(source: string, file: string): KitConfig {
+  static parse(source: string, file: string): NookConfig {
     const data = readMap(source, file)
     const { packs, off } = readPacks(data.packs, file)
     const rules = isMap(data.rules) ? data.rules : {}
-    return new KitConfig(packs, off, { off: strings(rules.off, `${file}: rules.off`) }, strings(data.secrets, `${file}: secrets`), data)
+    return new NookConfig(packs, off, { off: strings(rules.off, `${file}: rules.off`) }, strings(data.secrets, `${file}: secrets`), data)
   }
 
   section(name: string): unknown {

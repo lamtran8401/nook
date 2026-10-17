@@ -9,7 +9,7 @@ export function taskBrief(eng: Engineering, id: string, sliceId: string): string
   if (!slice) return `${id} has no slice ${sliceId}`
   const area = eng.home.config.area(slice.area)
   const acs = eng.stores.criteria.list(id).filter(c => slice.acs.includes(c.n))
-  const where = area ? `${eng.home.areaDir(area)} (${area.kind})` : 'not in kit.yml'
+  const where = area ? `${eng.home.areaDir(area)} (${area.kind})` : 'not in nook.yml'
   const planned = plannedSlice(eng, id, slice.id)
   const guesses = eng.stores.guesses.list(id, true).filter(g => !g.slices.length || g.slices.includes(slice.id))
   const decisions = eng.stores.adrs.list().filter(a => a.status !== 'superseded' && (a.item === id || a.scope.includes(slice.area)))
@@ -25,9 +25,9 @@ export function taskBrief(eng: Engineering, id: string, sliceId: string): string
     decisions.length ? `decisions:\n${decisions.map(a => `  ADR ${a.n} ${a.title}: ${a.decision}`).join('\n')}` : '',
     slice.files.length ? `files so far: ${slice.files.join(', ')}` : '',
     `proof: ${slice.proof}${slice.proof_note ? ` (${cut(slice.proof_note, 100)})` : ''}`,
-    `run: kit eng task start ${id} ${slice.id}; write the failing test first; kit eng task prove ${id} ${slice.id} --files <tests>; ` +
-      `kit eng task done ${id} ${slice.id} --files <all files>, or task wait --reason "<what you need>"; after three failed tries: task fail --reason`,
-    `record a guess: kit eng guess ${id} "<question>" --took <a> --other <b> --impact low|med|high --slices ${slice.id}`,
+    `run: nook eng task start ${id} ${slice.id}; write the failing test first; nook eng task prove ${id} ${slice.id} --files <tests>; ` +
+      `nook eng task done ${id} ${slice.id} --files <all files>, or task wait --reason "<what you need>"; after three failed tries: task fail --reason`,
+    `record a guess: nook eng guess ${id} "<question>" --took <a> --other <b> --impact low|med|high --slices ${slice.id}`,
   ]
   return lines.filter(Boolean).join('\n')
 }

@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 
-import type { Finding } from '@kit/env/env.ts'
+import type { Finding } from '@nook/env/env.ts'
 
 import { cut } from '../format.ts'
 import { FingerprintsUnchanged } from '../guards/fingerprints.ts'
@@ -10,7 +10,7 @@ import type { Item } from '../stores/items.ts'
 
 /** `doctor`: the gaps of the pack in this home, each with its fix. */
 
-export type { Finding } from '@kit/env/env.ts'
+export type { Finding } from '@nook/env/env.ts'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const drift = new FingerprintsUnchanged()
@@ -39,8 +39,8 @@ function configFindings(eng: Engineering): Finding[] {
     found.push({
       level: 'warn',
       where: home,
-      text: 'kit.yml has no engineering section: no areas, so verify cannot run',
-      fix: 'add areas to kit.yml with /setup',
+      text: 'nook.yml has no engineering section: no areas, so verify cannot run',
+      fix: 'add areas to nook.yml with /setup',
     })
   for (const area of config.areas) {
     if (!existsSync(eng.home.areaDir(area)))
@@ -48,19 +48,19 @@ function configFindings(eng: Engineering): Finding[] {
         level: 'error',
         where: area.name,
         text: `the folder of area ${area.name} does not exist: ${area.path}`,
-        fix: 'fix path: in kit.yml',
+        fix: 'fix path: in nook.yml',
       })
     if (!area.checks)
       found.push({
         level: 'warn',
         where: area.name,
         text: `area ${area.name} has no checks: verify fails until set`,
-        fix: 'add checks: [<command>] to the area in kit.yml, or checks: [] for none',
+        fix: 'add checks: [<command>] to the area in nook.yml, or checks: [] for none',
       })
   }
   for (const folder of [config.dir, config.backlog, 'docs/adr']) {
     if (!existsSync(`${home}/${folder}`))
-      found.push({ level: 'warn', where: home, text: `${folder}/ is missing`, fix: 'kit init --update' })
+      found.push({ level: 'warn', where: home, text: `${folder}/ is missing`, fix: 'nook init --update' })
   }
   return found
 }
@@ -72,8 +72,8 @@ function itemFindings(eng: Engineering, item: Item): Finding[] {
     found.push({
       level: 'error',
       where: id,
-      text: `${id} names an area that kit.yml does not have: ${name}`,
-      fix: `kit eng item edit ${id} areas <a,b>, or add the area with /setup`,
+      text: `${id} names an area that nook.yml does not have: ${name}`,
+      fix: `nook eng item edit ${id} areas <a,b>, or add the area with /setup`,
     })
   }
   if (['ready', 'cooking', 'review'].includes(item.state)) {
@@ -82,7 +82,7 @@ function itemFindings(eng: Engineering, item: Item): Finding[] {
         level: 'warn',
         where: id,
         text: `${id}: ${doc} changed after the approve`,
-        fix: `kit eng item replan ${id}`,
+        fix: `nook eng item replan ${id}`,
       })
     }
   }
@@ -92,12 +92,12 @@ function itemFindings(eng: Engineering, item: Item): Finding[] {
       level: 'warn',
       where: id,
       text: `${id} is cooking with no slice`,
-      fix: `kit eng item replan ${id} --reason "no slices", then write tasks.md`,
+      fix: `nook eng item replan ${id} --reason "no slices", then write tasks.md`,
     })
   }
   for (const s of live.filter(s => s.state === 'waiting' || s.state === 'failed')) {
     const fix =
-      s.state === 'failed' ? `kit eng task retry ${id} ${s.id}` : `kit eng task resume ${id} ${s.id}`
+      s.state === 'failed' ? `nook eng task retry ${id} ${s.id}` : `nook eng task resume ${id} ${s.id}`
     found.push({
       level: 'warn',
       where: id,
@@ -112,7 +112,7 @@ function itemFindings(eng: Engineering, item: Item): Finding[] {
       level: 'warn',
       where: id,
       text: `${id} ${q.id} has blocked for more than a day: ${cut(q.text, 80)}`,
-      fix: `kit eng answer ${id} ${q.id} "<answer>"`,
+      fix: `nook eng answer ${id} ${q.id} "<answer>"`,
     })
   }
   return found

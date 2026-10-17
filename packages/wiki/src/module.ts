@@ -1,8 +1,8 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
-import { activePacks, type PackModule } from '@kit/env/env.ts'
-import { EvError, Exit } from '@kit/shared/errors.ts'
+import { activePacks, type PackModule } from '@nook/env/env.ts'
+import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { WikiConfig } from './config.ts'
 import { Wiki } from './wiki.ts'
@@ -16,7 +16,7 @@ export function findWiki(cwd = process.cwd()): Wiki | null {
 export function requireWiki(cwd = process.cwd()): Wiki {
   const wiki = findWiki(cwd)
   if (wiki) return wiki
-  throw new EvError('not inside an environment that turns the wiki pack on', Exit.error, 'add `wiki` to `packs:` in kit.yml, then run /setup')
+  throw new EvError('not inside an environment that turns the wiki pack on', Exit.error, 'add `wiki` to `packs:` in nook.yml, then run /setup')
 }
 
 /** The wiki of `dir` only when `dir` itself turns the pack on: a child does not set up its parent. */
@@ -44,7 +44,7 @@ export const wikiModule: PackModule = {
   doctor(dir) {
     const wiki = wikiAt(dir)
     if (!wiki) return []
-    if (wiki.config.missing) return [{ level: 'warn', where: 'wiki', text: 'kit.yml has no wiki section with the shelves', fix: 'write it with /setup' }]
+    if (wiki.config.missing) return [{ level: 'warn', where: 'wiki', text: 'nook.yml has no wiki section with the shelves', fix: 'write it with /setup' }]
     return wiki.check()
   },
 

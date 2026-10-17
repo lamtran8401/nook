@@ -2,7 +2,7 @@
 name: slice-tasks
 description: "Cut a plan into slices in work/<id>/tasks.md, one area each with depends, acs, size and done when, then import them into the ledger. Use in /recipe or when the owner says slice, split into tasks or break down the plan. Not for the plan: write-plan."
 argument-hint: "<item id>"
-allowed-tools: Bash(kit eng *), Read, Edit, Write
+allowed-tools: Bash(nook eng *), Read, Edit, Write
 ---
 
 Goal: slices that one builder finishes test first without a question, in an order that never builds a consumer before its provider.
@@ -11,7 +11,7 @@ A builder reads only its own slice, so each slice stands alone.
 ## Read first
 - The Rollout row and the diagrams of `plan.md`: the order across areas and what waits for what. They become `depends`.
 - Proof in `plan.md`: the proof of each AC. It becomes `done when`.
-- The kind of each area (`kit eng area list`): it picks the builder, so a slice never mixes two areas.
+- The kind of each area (`nook eng area list`): it picks the builder, so a slice never mixes two areas.
 
 ## Rules
 - One area for each slice. A change in two areas is two slices.
@@ -39,11 +39,11 @@ A full `tasks.md` for SHOP-12: `${CLAUDE_PLUGIN_ROOT}/skills/recipe/example.md`.
 2. Cut each area's work at a behavior: one behavior, or a few that share a file, with the tests that prove them.
 3. Write each slice. The title says what it does ("Add the status parameter"), not where ("bff work").
 4. Set `depends` from the Rollout row, `acs` from the criteria the slice proves, `size` as the effort for one builder, and `files` as the main files the builder starts from, with no line numbers.
-5. Run `kit eng task import <id>`, then `kit eng item check <id>`. Fix each gap it lists: a cycle, an AC with no slice, a slice with two areas.
-6. Name the slices of each open guess, so a flip resets the right ones: `--slices T1,T2` on a new guess, `kit eng guess slices <id> <G> --slices T1,T2` on a guess from `/spec`.
+5. Run `nook eng task import <id>`, then `nook eng item check <id>`. Fix each gap it lists: a cycle, an AC with no slice, a slice with two areas.
+6. Name the slices of each open guess, so a flip resets the right ones: `--slices T1,T2` on a new guess, `nook eng guess slices <id> <G> --slices T1,T2` on a guess from `/spec`.
 
 ## Gotchas
 - `task import` refuses a cycle or an AC that no slice covers. Never drop the AC.
-- Run `kit eng task import <id>` after each change to `tasks.md`.
+- Run `nook eng task import <id>` after each change to `tasks.md`.
 - Do not put the code in the slice. Give the behavior and the test; the builder writes the code.
-- A change to the slices after the approve is refused. `kit eng item replan <id>` first.
+- A change to the slices after the approve is refused. `nook eng item replan <id>` first.

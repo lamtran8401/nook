@@ -24,7 +24,7 @@ beforeEach(() => {
 afterEach(() => t.cleanup())
 
 const ctx = (id = 'SHOP-1') => {
-  const eng = t.kit(LEAD)
+  const eng = t.eng(LEAD)
   return new GuardContext(t.home, eng.stores, eng.item(id))
 }
 const doc = (name: string, id = 'SHOP-1') => join(t.root, 'work', id, name)
@@ -39,7 +39,7 @@ const planned = (tasks = TASKS([{ id: 'T1' }])) => {
 /** An item in cooking whose one slice T1 is done. */
 const built = () => {
   itemAt(t, 'cooking')
-  const lead = t.kit(LEAD)
+  const lead = t.eng(LEAD)
   lead.moveSlice('start', 'SHOP-1', 'T1')
   lead.moveSlice('done', 'SHOP-1', 'T1', { files: ['a.ts'] })
 }
@@ -48,14 +48,14 @@ describe('SpecParses', () => {
   test('a missing spec.md is one gap whose fix is the start move', () => {
     itemAt(t, 'framing')
     rmSync(doc('spec.md'))
-    expect(new SpecParses().check(ctx())).toEqual([{ text: 'spec.md is missing', fix: 'kit eng item start SHOP-1 scaffolds it' }])
+    expect(new SpecParses().check(ctx())).toEqual([{ text: 'spec.md is missing', fix: 'nook eng item start SHOP-1 scaffolds it' }])
   })
 
-  test('an area that kit.yml does not have is a gap that names the spec', () => {
+  test('an area that nook.yml does not have is a gap that names the spec', () => {
     itemAt(t, 'framing')
     writeDoc(t, 'SHOP-1', 'spec.md', SPEC({ areas: ['ghost'] }))
     expect(new SpecParses().check(ctx())).toEqual([
-      { text: 'spec.md: area "ghost" is not in kit.yml', fix: `fix the name in ${doc('spec.md')}, or add the area with /setup` },
+      { text: 'spec.md: area "ghost" is not in nook.yml', fix: `fix the name in ${doc('spec.md')}, or add the area with /setup` },
     ])
   })
 
@@ -77,13 +77,13 @@ describe('SpecParses', () => {
 describe('NoOpenBlockingQuestion', () => {
   test('an open blocking question is a gap whose fix answers it', () => {
     itemAt(t, 'framing')
-    t.kit(LEAD).ask('SHOP-1', 'which zone?', true)
-    expect(new NoOpenBlockingQuestion().check(ctx())).toEqual([{ text: 'Q1 is open and blocking: which zone?', fix: 'ask the owner, then kit eng answer SHOP-1 Q1 "<answer>"' }])
+    t.eng(LEAD).ask('SHOP-1', 'which zone?', true)
+    expect(new NoOpenBlockingQuestion().check(ctx())).toEqual([{ text: 'Q1 is open and blocking: which zone?', fix: 'ask the owner, then nook eng answer SHOP-1 Q1 "<answer>"' }])
   })
 
   test('a question that does not block is no gap', () => {
     itemAt(t, 'framing')
-    t.kit(LEAD).ask('SHOP-1', 'which zone?', false)
+    t.eng(LEAD).ask('SHOP-1', 'which zone?', false)
     expect(new NoOpenBlockingQuestion().check(ctx())).toEqual([])
   })
 })
@@ -111,14 +111,14 @@ describe('PlanFilled', () => {
 
   test('a plan of size L without a Flow is a gap', () => {
     itemAt(t, 'planning')
-    t.kit(LEAD).editItem('SHOP-1', 'size', 'L')
+    t.eng(LEAD).editItem('SHOP-1', 'size', 'L')
     writeDoc(t, 'SHOP-1', 'plan.md', PLAN)
     expect(new PlanFilled().check(ctx())).toEqual([{ text: 'plan.md: ## Flow is empty', fix: `write the Flow in ${doc('plan.md')}` }])
   })
 
   test('a plan of size L with a Flow has no gap', () => {
     itemAt(t, 'planning')
-    t.kit(LEAD).editItem('SHOP-1', 'size', 'L')
+    t.eng(LEAD).editItem('SHOP-1', 'size', 'L')
     writeDoc(t, 'SHOP-1', 'plan.md', `${PLAN}\n## Flow\n\n\`\`\`mermaid\nsequenceDiagram\n  a->>b: export\n\`\`\`\n`)
     expect(new PlanFilled().check(ctx())).toEqual([])
   })
@@ -165,7 +165,7 @@ describe('DatesWritten', () => {
 describe('SlicesImported', () => {
   test('slices in tasks.md that the ledger does not hold are named, with task import as the fix', () => {
     planned(TASKS([{ id: 'T1' }, { id: 'T2' }]))
-    expect(new SlicesImported().check(ctx())).toEqual([{ text: 'tasks.md and the ledger differ: T1, T2', fix: 'kit eng task import SHOP-1' }])
+    expect(new SlicesImported().check(ctx())).toEqual([{ text: 'tasks.md and the ledger differ: T1, T2', fix: 'nook eng task import SHOP-1' }])
   })
 
   test('a problem of tasks.md is a gap, and the other slice guards then say nothing', () => {
@@ -177,7 +177,7 @@ describe('SlicesImported', () => {
 
   test('imported slices that equal the file are no gap', () => {
     planned()
-    t.kit(LEAD).importTasks('SHOP-1')
+    t.eng(LEAD).importTasks('SHOP-1')
     expect(new SlicesImported().check(ctx())).toEqual([])
   })
 })
@@ -186,21 +186,21 @@ describe('EveryAcInSlice', () => {
   test('a criterion that no slice names is a gap', () => {
     planned(TASKS([{ id: 'T1', acs: '1' }]))
     expect(new EveryAcInSlice().check(ctx())).toEqual([
-      { text: 'AC 2 is in no slice: [CHANGE] the error shows a reason', fix: `add 2 to the acs: line of a slice in ${doc('tasks.md')}, then kit eng task import SHOP-1` },
+      { text: 'AC 2 is in no slice: [CHANGE] the error shows a reason', fix: `add 2 to the acs: line of a slice in ${doc('tasks.md')}, then nook eng task import SHOP-1` },
     ])
   })
 
   test('a slice that names a criterion the spec no longer has is a gap', () => {
     planned(TASKS([{ id: 'T1', acs: '1, 2' }, { id: 'T2', acs: '2, 9' }]))
     expect(new EveryAcInSlice().check(ctx())).toEqual([
-      { text: 'T2 names AC 9, but the spec has 2 criteria', fix: `fix the acs: line of T2 in ${doc('tasks.md')}, then kit eng task import SHOP-1` },
+      { text: 'T2 names AC 9, but the spec has 2 criteria', fix: `fix the acs: line of T2 in ${doc('tasks.md')}, then nook eng task import SHOP-1` },
     ])
   })
 })
 
 describe('the slice guards on an investigation', () => {
   test('an investigation has no slices, so a criterion in no slice and a foreign area are no gap', () => {
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.newItem({ id: 'SHOP-5', title: 'why?', kind: 'investigate', areas: ['bff'] })
     lead.addCriterion('SHOP-5', 'an answer')
     writeDoc(t, 'SHOP-5', 'tasks.md', TASKS([{ id: 'T1', area: 'web', acs: '2', depends: 'T1' }]))
@@ -219,7 +219,7 @@ describe('SliceAreasOfItem', () => {
 describe('NoDependsCycle', () => {
   test('a cycle in depends is one gap that shows the path', () => {
     planned(TASKS([{ id: 'T1', depends: 'T2' }, { id: 'T2', depends: 'T1' }]))
-    expect(new NoDependsCycle().check(ctx())).toEqual([{ text: 'depends has a cycle: T1 → T2 → T1', fix: `break it in ${doc('tasks.md')}, then kit eng task import SHOP-1` }])
+    expect(new NoDependsCycle().check(ctx())).toEqual([{ text: 'depends has a cycle: T1 → T2 → T1', fix: `break it in ${doc('tasks.md')}, then nook eng task import SHOP-1` }])
   })
 })
 
@@ -233,7 +233,7 @@ describe('AutoByOwner', () => {
 
   test('mode auto set by the owner is no gap', () => {
     itemAt(t, 'planning')
-    t.kit(OWNER).setMode('SHOP-1', 'auto')
+    t.eng(OWNER).setMode('SHOP-1', 'auto')
     expect(new AutoByOwner().check(ctx())).toEqual([])
   })
 })
@@ -242,7 +242,7 @@ describe('FingerprintsUnchanged', () => {
   test('a document that changed after the approve is a gap whose fix is the replan', () => {
     itemAt(t, 'ready')
     writeDoc(t, 'SHOP-1', 'tasks.md', 'changed')
-    expect(new FingerprintsUnchanged().check(ctx())).toEqual([{ text: 'tasks.md changed after the approve', fix: 'kit eng item replan SHOP-1' }])
+    expect(new FingerprintsUnchanged().check(ctx())).toEqual([{ text: 'tasks.md changed after the approve', fix: 'nook eng item replan SHOP-1' }])
   })
 
   test('a guard on spec.md alone ignores a change of the plan', () => {
@@ -252,7 +252,7 @@ describe('FingerprintsUnchanged', () => {
   })
 
   test('a quick item is never held by a fingerprint, even one stored by a later approve', () => {
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.quick('SHOP-30', 'bff')
     lead.stores.approvals.store('SHOP-30', 'spec.md', 'an older hash')
     writeDoc(t, 'SHOP-30', 'spec.md', SPEC())
@@ -265,7 +265,7 @@ describe('EachArea with BranchNotProtected and AreaFree', () => {
 
   test('a git area on a protected branch is a gap whose fix is item branch', () => {
     itemAt(t, 'ready')
-    expect(areas.check(ctx())).toEqual([{ text: 'area bff is on main, a protected branch', fix: 'kit eng item branch SHOP-1' }])
+    expect(areas.check(ctx())).toEqual([{ text: 'area bff is on main, a protected branch', fix: 'nook eng item branch SHOP-1' }])
   })
 
   test('an area that another item cooks in is a gap', () => {
@@ -274,58 +274,58 @@ describe('EachArea with BranchNotProtected and AreaFree', () => {
     expect(areas.check(ctx('SHOP-14')).map(g => g.text)).toEqual(['area bff is in use by SHOP-1'])
   })
 
-  test('an area that kit.yml does not have is one gap, and the area guards skip it', () => {
+  test('an area that nook.yml does not have is one gap, and the area guards skip it', () => {
     itemAt(t, 'backlog')
-    t.kit(LEAD).ledger.run("UPDATE item SET areas = '[\"ghost\"]' WHERE id = 'SHOP-1'")
-    expect(areas.check(ctx())).toEqual([{ text: 'area ghost is not in kit.yml', fix: 'add it with /setup' }])
+    t.eng(LEAD).ledger.run("UPDATE item SET areas = '[\"ghost\"]' WHERE id = 'SHOP-1'")
+    expect(areas.check(ctx())).toEqual([{ text: 'area ghost is not in nook.yml', fix: 'add it with /setup' }])
   })
 })
 
 describe('SlicesDone', () => {
   test('no done slice is a gap, and each open slice is one more with the fix of its state', () => {
     itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }, { id: 'T2' }]))
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.moveSlice('start', 'SHOP-1', 'T2')
     lead.moveSlice('fail', 'SHOP-1', 'T2', { reason: 'no' })
     expect(new SlicesDone().check(ctx())).toEqual([
-      { text: 'no slice is done', fix: 'kit eng task done SHOP-1 <T> --files <f...>' },
-      { text: 'T1 is todo', fix: 'kit eng task done SHOP-1 T1 --files <f...>' },
-      { text: 'T2 is failed', fix: 'kit eng task retry SHOP-1 T2, or kit eng task cancel SHOP-1 T2 --reason "<why>"' },
+      { text: 'no slice is done', fix: 'nook eng task done SHOP-1 <T> --files <f...>' },
+      { text: 'T1 is todo', fix: 'nook eng task done SHOP-1 T1 --files <f...>' },
+      { text: 'T2 is failed', fix: 'nook eng task retry SHOP-1 T2, or nook eng task cancel SHOP-1 T2 --reason "<why>"' },
     ])
   })
 
   test('a waiting slice is fixed by an answer and a resume', () => {
     itemAt(t, 'cooking')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.moveSlice('start', 'SHOP-1', 'T1')
     lead.moveSlice('wait', 'SHOP-1', 'T1', { reason: 'the schema' })
-    expect(new SlicesDone().check(ctx())[1]).toEqual({ text: 'T1 is waiting', fix: 'answer what it waits for, then kit eng task resume SHOP-1 T1' })
+    expect(new SlicesDone().check(ctx())[1]).toEqual({ text: 'T1 is waiting', fix: 'answer what it waits for, then nook eng task resume SHOP-1 T1' })
   })
 })
 
 describe('VerifyPassed', () => {
   test('with no passing verify, submit has a gap whose fix is item verify', () => {
     built()
-    expect(new VerifyPassed('slices').check(ctx())).toEqual([{ text: 'the checks have not passed since the last move back', fix: 'kit eng item verify SHOP-1' }])
+    expect(new VerifyPassed('slices').check(ctx())).toEqual([{ text: 'the checks have not passed since the last move back', fix: 'nook eng item verify SHOP-1' }])
   })
 
   test('a passing verify clears the gap', () => {
     built()
-    t.kit(LEAD).verify('SHOP-1')
+    t.eng(LEAD).verify('SHOP-1')
     expect(new VerifyPassed('slices').check(ctx())).toEqual([])
   })
 
   test('the accept guard applies to a quick item only', () => {
     built()
-    t.kit(LEAD).quick('SHOP-30', 'web')
+    t.eng(LEAD).quick('SHOP-30', 'web')
     expect(new VerifyPassed('quick').check(ctx())).toEqual([])
-    expect(new VerifyPassed('quick').check(ctx('SHOP-30'))).toEqual([{ text: 'the checks have not passed', fix: 'kit eng item verify SHOP-30' }])
+    expect(new VerifyPassed('quick').check(ctx('SHOP-30'))).toEqual([{ text: 'the checks have not passed', fix: 'nook eng item verify SHOP-30' }])
   })
 })
 
 describe('FindingsFilled and QuestionsAnswered', () => {
   const investigation = () => {
-    t.kit(LEAD).newItem({ id: 'SHOP-5', title: 'why?', kind: 'investigate', areas: ['bff'] })
+    t.eng(LEAD).newItem({ id: 'SHOP-5', title: 'why?', kind: 'investigate', areas: ['bff'] })
     writeDoc(t, 'SHOP-5', 'spec.md', SPEC({ kind: 'investigate', questions: ['why does it retry?', 'how often?'] }))
   }
 
@@ -356,22 +356,22 @@ describe('CriteriaMarked', () => {
     itemAt(t, 'cooking')
     expect(new CriteriaMarked().check(ctx())[0]).toEqual({
       text: 'AC 1 is not met: [ADD] the export has the right date',
-      fix: 'kit eng item ac done SHOP-1 1 --evidence "<what shows it>" --grade run|sourced|judged|owner',
+      fix: 'nook eng item ac done SHOP-1 1 --evidence "<what shows it>" --grade run|sourced|judged|owner',
     })
   })
 
   test('a spec with more criteria than the ledger is a gap whose fix is the replan', () => {
     itemAt(t, 'cooking')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.markCriterion('SHOP-1', 1, 'the test', 'run')
     lead.markCriterion('SHOP-1', 2, 'the log', 'run')
     writeDoc(t, 'SHOP-1', 'spec.md', SPEC({ acs: ['[ADD] the export has the right date', '[CHANGE] the error shows a reason', '[ADD] a third'] }))
-    expect(new CriteriaMarked().check(ctx())).toEqual([{ text: 'spec.md has 3 criteria, the ledger has 2', fix: 'kit eng item replan SHOP-1' }])
+    expect(new CriteriaMarked().check(ctx())).toEqual([{ text: 'spec.md has 3 criteria, the ledger has 2', fix: 'nook eng item replan SHOP-1' }])
   })
 
   test('every criterion marked for the text of the spec is no gap', () => {
     itemAt(t, 'cooking')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.markCriterion('SHOP-1', 1, 'the test', 'run')
     lead.markCriterion('SHOP-1', 2, 'the log', 'run')
     expect(new CriteriaMarked().check(ctx())).toEqual([])

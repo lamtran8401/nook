@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { PackModule } from '@kit/env/env.ts'
-import { EnvironmentList } from '@kit/env/environment-list.ts'
+import type { PackModule } from '@nook/env/env.ts'
+import { EnvironmentList } from '@nook/env/environment-list.ts'
 
 import { init } from '../../src/init/initializer.ts'
 import { CORE_DIR, initIn, removeDir, tempDir } from '../helpers.ts'
@@ -16,19 +16,19 @@ afterEach(() => removeDir(root))
 
 const readText = (rel: string) => readFileSync(join(root, rel), 'utf8')
 const readJson = (rel: string) => JSON.parse(readText(rel))
-const kitRules = () => readdirSync(join(root, '.claude', 'rules', 'kit')).sort()
+const nookRules = () => readdirSync(join(root, '.claude', 'rules', 'nook')).sort()
 
 describe('Initializer', () => {
-  test('a first init writes kit.yml, .kit, the CLAUDE.md block, the three base rules, the style and the settings', () => {
+  test('a first init writes nook.yml, .nook, the CLAUDE.md block, the three base rules, the style and the settings', () => {
     expect(initIn(root).wrote).toEqual([
-      'kit.yml',
-      '.kit/',
-      'CLAUDE.md (the kit block)',
-      '.claude/rules/kit/writing.md',
-      '.claude/rules/kit/safety.md',
-      '.claude/rules/kit/questions.md',
-      '.claude/output-styles/kit-companion.md',
-      '.claude/settings.json (the kit keys)',
+      'nook.yml',
+      '.nook/',
+      'CLAUDE.md (the nook block)',
+      '.claude/rules/nook/writing.md',
+      '.claude/rules/nook/safety.md',
+      '.claude/rules/nook/questions.md',
+      '.claude/output-styles/nook-companion.md',
+      '.claude/settings.json (the nook keys)',
     ])
   })
 
@@ -40,14 +40,14 @@ describe('Initializer', () => {
   test('the text that the owner wrote in CLAUDE.md stays above the block', () => {
     writeFileSync(join(root, 'CLAUDE.md'), '# Mine\n\nI write in Vietnamese.\n')
     initIn(root)
-    expect(readText('CLAUDE.md').startsWith('# Mine\n\nI write in Vietnamese.\n\n<!-- kit:begin -->')).toBe(true)
+    expect(readText('CLAUDE.md').startsWith('# Mine\n\nI write in Vietnamese.\n\n<!-- nook:begin -->')).toBe(true)
   })
 
-  test('the settings deny an edit of .kit and set the companion style', () => {
+  test('the settings deny an edit of .nook and set the companion style', () => {
     initIn(root)
     const settings = readJson('.claude/settings.json')
-    expect(settings.permissions.deny).toContain('Edit(.kit/**)')
-    expect(settings.outputStyle).toBe('kit-companion')
+    expect(settings.permissions.deny).toContain('Edit(.nook/**)')
+    expect(settings.outputStyle).toBe('nook-companion')
   })
 
   test('a second run writes nothing', () => {
@@ -55,27 +55,27 @@ describe('Initializer', () => {
     expect(initIn(root).wrote).toEqual([])
   })
 
-  test('a rule turned off in kit.yml goes away on update, and the other rules stay', () => {
+  test('a rule turned off in nook.yml goes away on update, and the other rules stay', () => {
     initIn(root)
-    writeFileSync(join(root, 'kit.yml'), 'packs: []\nrules: { off: [writing] }\n')
-    expect(initIn(root, [], true).wrote).toEqual(['.claude/rules/kit/writing.md (removed)'])
-    expect(kitRules()).toEqual(['questions.md', 'safety.md'])
+    writeFileSync(join(root, 'nook.yml'), 'packs: []\nrules: { off: [writing] }\n')
+    expect(initIn(root, [], true).wrote).toEqual(['.claude/rules/nook/writing.md (removed)'])
+    expect(nookRules()).toEqual(['questions.md', 'safety.md'])
   })
 
-  test('a pack that the kit does not ship is refused', () => {
+  test('a pack that Nook does not ship is refused', () => {
     expect(() => initIn(root, ['nope'])).toThrow('no pack is named "nope"')
   })
 
   test('core is always on, so naming it writes an empty pack list', () => {
     expect(initIn(root, ['core']).packs).toEqual(['core'])
-    expect(readText('kit.yml')).toContain('packs: []\n')
+    expect(readText('nook.yml')).toContain('packs: []\n')
   })
 
-  test('a pack named on a second init goes into kit.yml, and its rules keep their own file names', () => {
+  test('a pack named on a second init goes into nook.yml, and its rules keep their own file names', () => {
     initIn(root)
     expect(initIn(root, ['engineering']).packs).toEqual(['core', 'engineering'])
-    expect(readText('kit.yml')).toContain('packs: [engineering]\n')
-    expect(kitRules()).toEqual(['engineering.md', 'questions.md', 'safety.md', 'testing.md', 'writing.md'])
+    expect(readText('nook.yml')).toContain('packs: [engineering]\n')
+    expect(nookRules()).toEqual(['engineering.md', 'questions.md', 'safety.md', 'testing.md', 'writing.md'])
   })
 
   test('an update keeps the notes, the rules and the settings keys of the owner', () => {
@@ -96,7 +96,7 @@ describe('Initializer', () => {
 
 describe('Initializer: the list of environments', () => {
   test('init adds its folder to the list of the owner, once', () => {
-    const list = new EnvironmentList(join(root, 'home', '.config', 'kit', 'environments'))
+    const list = new EnvironmentList(join(root, 'home', '.config', 'nook', 'environments'))
     init({ dir: root, packs: [], update: false, coreDir: CORE_DIR, list })
     init({ dir: root, packs: [], update: true, coreDir: CORE_DIR, list })
     expect(list.dirs()).toEqual([root])
@@ -119,7 +119,7 @@ describe('Initializer: the packs on here', () => {
     expect(calls).toEqual([root])
   })
 
-  test('names a pack whose section of kit.yml is not written yet', () => {
+  test('names a pack whose section of nook.yml is not written yet', () => {
     expect(initWith(pack(false), ['engineering']).unset).toEqual(['engineering'])
   })
 

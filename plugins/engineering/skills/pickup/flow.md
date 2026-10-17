@@ -3,7 +3,7 @@
 One owner, one lead session for each open item.
 The owner decides at two gates.
 The lead does the work between them.
-The tool `kit eng` holds the ledger and refuses a move with a gap; each gap comes with its fix.
+The tool `nook eng` holds the ledger and refuses a move with a gap; each gap comes with its fix.
 
 ## States and moves
 ```
@@ -28,10 +28,10 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
   A skill says "approve: type `/gate approve <id>`" and stops. The owner types it in the prompt, never in a terminal.
   The deny rule and the hook refuse the same command from the model.
 - `approve` stores a hash of `spec.md`, `plan.md` and `tasks.md`.
-  A change to one of them after the approve blocks `begin`; the fix is `kit eng item replan <id>`.
+  A change to one of them after the approve blocks `begin`; the fix is `nook eng item replan <id>`.
 - A move back (`reject`, `replan`, `reframe`, `reopen`) clears the approval.
   A verify counts only after the last move back.
-- `kit eng item check <id>` lists the gaps of the next move with no move.
+- `nook eng item check <id>` lists the gaps of the next move with no move.
   Run it before you tell the owner that a gate is ready.
 
 ## The three paths
@@ -52,21 +52,21 @@ Kind `investigate` follows the standard path with Questions in place of criteria
 
 A lone slice goes to a background subagent; a quick item the lead builds itself.
 A reviewer, a code-reviewer or the contract designer can get a second job on the same item: a second round, or the review after the plan check.
-- Record the id of each one when it starts: `kit eng note add <id> "<agent type>: <agent id>"`. The note survives a compaction.
+- Record the id of each one when it starts: `nook eng note add <id> "<agent type>: <agent id>"`. The note survives a compaction.
 - Send the second job with SendMessage to that id, with what changed since the first job. It resumes with the first job in its context.
 - Start a new one only when no note holds its id.
 Agent teams are on in every environment. A `name` makes a teammate, so a one-shot job never gets one.
 
 ## The question round
 Only the lead asks the owner.
-A builder parks its slice with `kit eng task wait <id> <T> --reason "<question>"`; the lead brings the question to the owner.
+A builder parks its slice with `nook eng task wait <id> <T> --reason "<question>"`; the lead brings the question to the owner.
 1. Collect every blocking question of the stage before you ask one.
    An answer that a file holds is not a question: read `spec.md`, `plan.md`, the ADRs and the code first.
-2. Register each one: `kit eng ask <id> "<text>" --blocking --rec "<recommended answer>"`.
+2. Register each one: `nook eng ask <id> "<text>" --blocking --rec "<recommended answer>"`.
    The record is what lets the Stop hook hold the session while the question is open.
 3. Ask them in one AskUserQuestion call, as the core rule says.
-4. Record each answer: `kit eng answer <id> Q<n> "<answer>"`.
-5. A question that does not block becomes a guess: `kit eng guess <id> "<question>" --took "<a>" --other "<b>" --impact low|med|high [--slices T1,T2]`.
+4. Record each answer: `nook eng answer <id> Q<n> "<answer>"`.
+5. A question that does not block becomes a guess: `nook eng guess <id> "<question>" --took "<a>" --other "<b>" --impact low|med|high [--slices T1,T2]`.
 
 ## The confirm question
 The spec at the end of `/spec`, and the plan with the slices at the end of `/recipe`, need the owner's word.
@@ -80,7 +80,7 @@ Never ask "shall I proceed" or "do you approve": the gates have their own comman
 - Then: what changed, with paths; the guesses of the stage; what was not checked.
 - Last: the next command to type, and the one or two others that make sense now.
   When the spec or the plan exists, one of them is `/view <id>`: the local page of the item, open on the tab of its state. Make the page only when the owner asks.
-  Check it with `kit eng next <id>`; when they differ, the tool is right.
+  Check it with `nook eng next <id>`; when they differ, the tool is right.
 
 ## Going back
 | Case | Move |

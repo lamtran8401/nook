@@ -1,6 +1,6 @@
 /**
  * The layout of the item page around the components of the UI kit, and the page script. The colours, the
- * shadows and the components come from the UI kit; this file places them and adds the parts that the kit has
+ * shadows and the components come from the UI kit; this file places them and adds the parts that Nook has
  * no component for: the edges of a diagram, a sequence diagram, a table that stacks on a phone.
  */
 

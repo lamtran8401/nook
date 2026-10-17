@@ -46,7 +46,7 @@ describe('renderDocument', () => {
     expect(renderDocument('| Kind | Impact |\n|---|---|\n| Data | none |\n', 'plan')).toStartWith('<div class="bn-table-wrap"><table class="bn-table">')
   })
 
-  test('a mermaid fence of a kind that the kit does not draw stays a mermaid block, with the neutral theme', () => {
+  test('a mermaid fence of a kind that Nook does not draw stays a mermaid block, with the neutral theme', () => {
     expect(renderDocument('```mermaid\ngantt\n  title x & y\n```\n', 'plan')).toBe(
       '<figure class="kd-dg"><div class="kd-dg__scroll"><pre class="mermaid">%%{init: {&quot;theme&quot;: &quot;neutral&quot;, &quot;flowchart&quot;: {&quot;useMaxWidth&quot;: false}, &quot;sequence&quot;: {&quot;useMaxWidth&quot;: false}}}%%\ngantt\n  title x &amp; y</pre></div></figure>',
     )
@@ -75,7 +75,7 @@ describe('renderDocument', () => {
   })
 
   test('another fence becomes a code block with one line for each line of text', () => {
-    expect(renderDocument('```\nkit doctor\nkit init\n```\n', 'plan')).toBe('<div class="bn-code"><pre><span class="ln">kit doctor</span><span class="ln">kit init</span></pre></div>')
+    expect(renderDocument('```\nnook doctor\nnook init\n```\n', 'plan')).toBe('<div class="bn-code"><pre><span class="ln">nook doctor</span><span class="ln">nook init</span></pre></div>')
   })
 
   test('a slice of tasks.md becomes a card with its id, area and size, its fields, and what it waits for', () => {

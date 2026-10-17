@@ -2,7 +2,7 @@ import { relative, resolve, sep } from 'node:path'
 
 import { match, P } from 'ts-pattern'
 
-import { block, type HookInput, type HookResult, pass } from '@kit/shared/hook.ts'
+import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { Home } from '../home.ts'
 import { Engineering } from '../service.ts'
@@ -34,7 +34,7 @@ function areaRule(eng: Engineering, caller: Caller, file: string): HookResult {
   const running = eng.stores.slices.running().filter(s => s.itemState === 'cooking' && s.area === area.name)
   if (!running.length) {
     return block(
-      `area ${area.name} has no item in cooking with a running slice: a file of an area changes inside a slice (kit eng task start <id> <T>).`,
+      `area ${area.name} has no item in cooking with a running slice: a file of an area changes inside a slice (nook eng task start <id> <T>).`,
     )
   }
   if (caller.role !== 'builder' || running.some(s => s.assignee === caller.actor)) return pass
@@ -60,20 +60,20 @@ function documentRule(eng: Engineering, caller: Caller, parts: string[]): HookRe
   if (caller.role === 'builder')
     return block('a builder edits the files of its slice, not the documents of the item.')
   const item = eng.stores.items.find(id)
-  if (!item) return block(`no item ${id} in the ledger: kit eng item new ${id} "<title>" first.`)
+  if (!item) return block(`no item ${id} in the ledger: nook eng item new ${id} "<title>" first.`)
   return match(kindOf(name))
     .with('spec', () =>
       item.state === 'framing'
         ? pass
         : block(
-            `${id} is ${item.state}: spec.md opens only in framing (kit eng item reframe ${id} --reason "<why>").`,
+            `${id} is ${item.state}: spec.md opens only in framing (nook eng item reframe ${id} --reason "<why>").`,
           ),
     )
     .with('plan', () =>
       item.state === 'planning'
         ? pass
         : block(
-            `${id} is ${item.state}: ${name} opens only in planning (kit eng item replan ${id} --reason "<why>").`,
+            `${id} is ${item.state}: ${name} opens only in planning (nook eng item replan ${id} --reason "<why>").`,
           ),
     )
     .with('free', () => pass)

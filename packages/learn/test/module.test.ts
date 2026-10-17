@@ -8,8 +8,8 @@ import { learnModule } from '../src/module.ts'
 
 let root: string
 beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'kit-learn-module-')))
-  writeFileSync(join(root, 'kit.yml'), 'packs: [learn]\nlearn: { dir: learn }\n')
+  root = realpathSync(mkdtempSync(join(tmpdir(), 'nook-learn-module-')))
+  writeFileSync(join(root, 'nook.yml'), 'packs: [learn]\nlearn: { dir: learn }\n')
 })
 afterEach(() => rmSync(root, { recursive: true, force: true }))
 
@@ -19,7 +19,7 @@ describe('learnModule', () => {
   test('setup makes the folder of the courses; with no learn section the pack is not configured', () => {
     expect(learnModule.setup(root)).toEqual(['learn/'])
     expect(existsSync(join(root, 'learn'))).toBe(true)
-    writeFileSync(join(root, 'kit.yml'), 'packs: [learn]\n')
+    writeFileSync(join(root, 'nook.yml'), 'packs: [learn]\n')
     expect(learnModule.configured(root)).toBe(false)
   })
 

@@ -1,29 +1,29 @@
 {
-  "name": "harness-kit",
+  "name": "nook",
   "owner": {
     "name": "Lam"
   },
   "metadata": {
-    "description": "Harness Kit: a base layer for Claude Code that you init into any folder."
+    "description": "Nook: a base layer for Claude Code that you init into any folder."
   },
   "plugins": [
     {
-      "name": "kit",
+      "name": "nook",
       "source": "./plugins/core",
-      "description": "The core: the kit tool, the base rules, the persona, the secret guards and the writing check."
+      "description": "The core: the nook tool, the base rules, the persona, the secret guards and the writing check."
     },
     {
-      "name": "kit-engineering",
+      "name": "nook-engineering",
       "source": "./plugins/engineering",
       "description": "The item flow from intake to the owner's accept, the ledger and its gates, builders and reviewers."
     },
     {
-      "name": "kit-wiki",
+      "name": "nook-wiki",
       "source": "./plugins/wiki",
       "description": "The wiki of the environment: the shelves and their indexes, the references, /wiki-ask, /wiki-add and /wiki-tidy, and a librarian agent."
     },
     {
-      "name": "kit-learn",
+      "name": "nook-learn",
       "source": "./plugins/learn",
       "description": "Courses against a standard and a ruler: the roadmap, cards in boxes, the mistake log and scores; /learn-setup, /learn-today, /learn-practice, /study, and a coach agent."
     }

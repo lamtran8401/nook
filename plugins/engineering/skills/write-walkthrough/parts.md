@@ -7,7 +7,7 @@
 
 ## No item
 The subject is a prompt: a question about the code, or the open changes of the environment.
-- `kit eng area status` lists each area with its branch and its dirty files.
+- `nook eng area status` lists each area with its branch and its dirty files.
 - A question about a mechanism: read the code that answers it, from the entry point to the effect.
 - Open changes: read `git -C <folder> diff HEAD` and the commits of the branch against its base.
 - There is no spec. "Requirements met" becomes "What it does": the goal from the owner's words or the commit messages.
@@ -49,7 +49,7 @@ A limit of the change, a side effect on another feature, a choice that the owner
 A `Need to know:` quote stays in How it works, under its step; Heads up holds the rest.
 
 ## The page
-`kit eng item page <id> --tab walkthrough --out work/<id>/page.html` shows `walkthrough.md` in its own tab, next to Spec, Plan and Tasks, and opens on it. The tree and the flowchart render as components of the UI kit. The page is a local file, never an artifact.
+`nook eng item page <id> --tab walkthrough --out work/<id>/page.html` shows `walkthrough.md` in its own tab, next to Spec, Plan and Tasks, and opens on it. The tree and the flowchart render as components of the UI kit. The page is a local file, never an artifact.
 
 ## Deep dives
 When the owner asks for a deep dive, explain that topic in full: the code, the reason for each choice, an example run.

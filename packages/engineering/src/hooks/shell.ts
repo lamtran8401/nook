@@ -16,7 +16,7 @@ export function shellText(command: string): string {
   return kept.join('\n')
 }
 
-/** Quotes and backslashes go, blanks shrink: `kit "item" appr\ove` reads as `kit item approve`. */
+/** Quotes and backslashes go, blanks shrink: `nook "item" appr\ove` reads as `nook item approve`. */
 export const normalize = (text: string) => text.replace(/[\\'"]/g, '').replace(/[ \t]+/g, ' ')
 
 /** The simple commands of a line: split at `&&`, `||`, `;`, `|` and new lines. */
@@ -84,10 +84,10 @@ export function commands(command: string): Word[][] {
   return out
 }
 
-/** A call of the tool in a command line: where its prefix (`kit eng `) ends, and where its command ends. */
+/** A call of the tool in a command line: where its prefix (`nook eng `) ends, and where its command ends. */
 export type CallSpan = { prefixEnd: number; end: number }
 
-const CALL_PREFIX = /^(?:kit eng|kit engineering)[ \t]/
+const CALL_PREFIX = /^(?:nook eng|nook engineering)[ \t]/
 const LEAD_WORD = /^(?:[A-Za-z_]\w*=\S*|then|do|else|if|while|until|!)[ \t]+/
 const OPERATORS = new Set([';', '&', '|', '(', ')'])
 

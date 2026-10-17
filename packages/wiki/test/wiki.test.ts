@@ -9,7 +9,7 @@ import { Wiki } from '../src/wiki.ts'
 
 let root: string
 beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'kit-wiki-')))
+  root = realpathSync(mkdtempSync(join(tmpdir(), 'nook-wiki-')))
 })
 afterEach(() => rmSync(root, { recursive: true, force: true }))
 
@@ -51,7 +51,7 @@ describe('WikiConfig', () => {
   })
 
   test('a shelf with no name is refused with its fix', () => {
-    expect(() => WikiConfig.from({ shelves: [{ use: 'x' }] })).toThrow('kit.yml: each shelf of wiki needs a name')
+    expect(() => WikiConfig.from({ shelves: [{ use: 'x' }] })).toThrow('nook.yml: each shelf of wiki needs a name')
   })
 })
 
@@ -79,10 +79,10 @@ describe('Wiki.check', () => {
       'resources/INDEX.md is missing',
     ])
     expect(gaps.map(g => g.fix)).toEqual([
-      'kit wiki index --fix',
-      'kit wiki index --fix',
+      'nook wiki index --fix',
+      'nook wiki index --fix',
       'restore the page, or remove the line',
-      'kit wiki index --fix',
+      'nook wiki index --fix',
     ])
   })
 })

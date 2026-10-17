@@ -1,18 +1,18 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join, normalize, relative } from 'node:path'
 
-import type { Finding } from '@kit/env/env.ts'
-import { usage } from '@kit/shared/errors.ts'
+import type { Finding } from '@nook/env/env.ts'
+import { usage } from '@nook/shared/errors.ts'
 
 import type { Shelf, WikiConfig } from './config.ts'
 import { addRows, type IndexLine, indexRow, parseIndex, removeRows } from './index-file.ts'
 
-/** The wiki of one environment: its shelves, their pages and their indexes. The kit adds lines; it never removes one. */
+/** The wiki of one environment: its shelves, their pages and their indexes. Nook adds lines; it never removes one. */
 
 const INDEX = 'INDEX.md'
 const TABLE = '| Page | Type | Summary |\n|---|---|---|'
 const TOP_TABLE = '| Shelf | Use |\n|---|---|'
-const FIX = 'kit wiki index --fix'
+const FIX = 'nook wiki index --fix'
 const DRAFTS = 'drafts'
 
 /** The type of a page with no `type:` in its front matter. */

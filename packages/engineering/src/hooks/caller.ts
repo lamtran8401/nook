@@ -1,4 +1,4 @@
-import type { HookInput } from '@kit/shared/hook.ts'
+import type { HookInput } from '@nook/shared/hook.ts'
 
 import { type Role, Who } from '../who.ts'
 

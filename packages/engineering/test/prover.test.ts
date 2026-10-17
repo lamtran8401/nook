@@ -10,10 +10,10 @@ describe('classify', () => {
   })
 
   test('a missing export of a file that the branch changes is proven: the tests need the new code', () => {
-    const output = "SyntaxError: Export named 'STATUSES' not found in module '/home/.kit/prove/IT-1-T1/src/shipments.ts'."
+    const output = "SyntaxError: Export named 'STATUSES' not found in module '/home/.nook/prove/IT-1-T1/src/shipments.ts'."
     expect(classify(1, output, ['src/shipments.ts'])).toEqual({
       proof: 'proven',
-      note: "the tests fail on the base because they need code that the branch adds (src/shipments.ts): SyntaxError: Export named 'STATUSES' not found in module '/home/.kit/prove/IT-1-T1/src/shipments.ts'.",
+      note: "the tests fail on the base because they need code that the branch adds (src/shipments.ts): SyntaxError: Export named 'STATUSES' not found in module '/home/.nook/prove/IT-1-T1/src/shipments.ts'.",
     })
   })
 

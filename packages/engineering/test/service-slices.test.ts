@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 
-import { EvError, Exit } from '@kit/shared/errors.ts'
+import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { BUILDER, itemAt, LEAD, makeHome, OWNER, READER, TASKS, type TestHome, writeDoc } from './helpers.ts'
 
@@ -22,7 +22,7 @@ const code = (work: () => unknown) => {
 describe('Engineering.importTasks', () => {
   test('is idempotent by slice id: creates, updates todo, cancels removed, keeps started', () => {
     itemAt(t, 'planning')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }, { id: 'T2', depends: 'T1' }, { id: 'T3' }]))
     expect(lead.importTasks('SHOP-1')).toEqual({ created: ['T1', 'T2', 'T3'], updated: [], cancelled: [], kept: [] })
     expect(lead.importTasks('SHOP-1')).toEqual({ created: [], updated: [], cancelled: [], kept: [] })
@@ -40,7 +40,7 @@ describe('Engineering.importTasks', () => {
 
   test('a done slice takes a new mapping to the criteria and keeps its work; a new area is not taken', () => {
     itemAt(t, 'planning')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1', acs: '1, 2, 3' }]))
     lead.importTasks('SHOP-1')
     lead.ledger.run("UPDATE slice SET state = 'done', assignee = 'lead', proof = 'proven' WHERE item = 'SHOP-1' AND id = 'T1'")
@@ -55,7 +55,7 @@ describe('Engineering.importTasks', () => {
 
   test('a proof line added to a todo slice reaches the ledger at the next import', () => {
     itemAt(t, 'planning')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }]))
     lead.importTasks('SHOP-1')
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1', proof: 'none (a test-only slice)' }]))
@@ -67,26 +67,26 @@ describe('Engineering.importTasks', () => {
   test('refuses a file with problems, and refuses from ready on with exit 3', () => {
     itemAt(t, 'planning')
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1', area: '' }]))
-    expect(code(() => t.kit(LEAD).importTasks('SHOP-1'))).toBe(Exit.refused)
-    expect(code(() => t.kit(BUILDER).importTasks('SHOP-1'))).toBe(Exit.denied)
+    expect(code(() => t.eng(LEAD).importTasks('SHOP-1'))).toBe(Exit.refused)
+    expect(code(() => t.eng(BUILDER).importTasks('SHOP-1'))).toBe(Exit.denied)
     t.cleanup()
     t = makeHome()
     itemAt(t, 'ready')
-    expect(code(() => t.kit(LEAD).importTasks('SHOP-1'))).toBe(Exit.refused)
+    expect(code(() => t.eng(LEAD).importTasks('SHOP-1'))).toBe(Exit.refused)
   })
 })
 
 describe('Engineering.moveSlice', () => {
   test('start needs cooking and done dependencies; the states follow the machine', () => {
     itemAt(t, 'planning')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }, { id: 'T2', depends: 'T1' }]))
     lead.importTasks('SHOP-1')
     expect(code(() => lead.moveSlice('start', 'SHOP-1', 'T1'))).toBe(Exit.refused)
     t.cleanup()
     t = makeHome()
     itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }, { id: 'T2', depends: 'T1' }]))
-    const k = t.kit(LEAD)
+    const k = t.eng(LEAD)
     expect(k.stores.slices.ready('SHOP-1').map(s => s.id)).toEqual(['T1'])
     expect(code(() => k.moveSlice('start', 'SHOP-1', 'T2'))).toBe(Exit.refused)
     k.moveSlice('start', 'SHOP-1', 'T1')
@@ -110,25 +110,25 @@ describe('Engineering.moveSlice', () => {
 
   test('a builder works on its own slice only; a reader on none; retry and cancel are the lead\'s', () => {
     itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }, { id: 'T2' }]))
-    const builder = t.kit(BUILDER)
-    const other = t.kit({ role: 'builder', actor: 'frontend-builder-ff00', session: null })
+    const builder = t.eng(BUILDER)
+    const other = t.eng({ role: 'builder', actor: 'frontend-builder-ff00', session: null })
     builder.moveSlice('start', 'SHOP-1', 'T1')
     expect(builder.stores.slices.list('SHOP-1')[0]!.assignee).toBe('backend-builder-ab12')
     expect(code(() => other.moveSlice('done', 'SHOP-1', 'T1', { files: ['a'] }))).toBe(Exit.denied)
     expect(code(() => other.moveSlice('wait', 'SHOP-1', 'T1', { reason: 'x' }))).toBe(Exit.denied)
-    expect(code(() => t.kit(READER).moveSlice('start', 'SHOP-1', 'T2'))).toBe(Exit.denied)
+    expect(code(() => t.eng(READER).moveSlice('start', 'SHOP-1', 'T2'))).toBe(Exit.denied)
     builder.moveSlice('fail', 'SHOP-1', 'T1', { reason: 'cannot' })
     expect(code(() => builder.moveSlice('retry', 'SHOP-1', 'T1'))).toBe(Exit.denied)
     expect(code(() => builder.moveSlice('cancel', 'SHOP-1', 'T2', { reason: 'x' }))).toBe(Exit.denied)
-    t.kit(LEAD).moveSlice('retry', 'SHOP-1', 'T1')
+    t.eng(LEAD).moveSlice('retry', 'SHOP-1', 'T1')
     // the lead and the owner work on any slice
     builder.moveSlice('start', 'SHOP-1', 'T1')
-    t.kit(OWNER).moveSlice('done', 'SHOP-1', 'T1', { files: ['a'] })
+    t.eng(OWNER).moveSlice('done', 'SHOP-1', 'T1', { files: ['a'] })
   })
 
   test('submit refuses while a slice runs', () => {
     itemAt(t, 'cooking')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.moveSlice('start', 'SHOP-1', 'T1')
     expect(code(() => lead.moveItem('submit', 'SHOP-1'))).toBe(Exit.refused)
   })
@@ -137,8 +137,8 @@ describe('Engineering.moveSlice', () => {
 describe('Engineering.addGuess and decideGuess', () => {
   test('a guess is recorded with its impact and slices; a flip resets only those slices', () => {
     itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }, { id: 'T2' }, { id: 'T3' }]))
-    const lead = t.kit(LEAD)
-    const builder = t.kit(BUILDER)
+    const lead = t.eng(LEAD)
+    const builder = t.eng(BUILDER)
     for (const id of ['T1', 'T2', 'T3']) {
       lead.moveSlice('start', 'SHOP-1', id)
       lead.moveSlice('done', 'SHOP-1', id, { files: [`${id}.ts`] })
@@ -158,7 +158,7 @@ describe('Engineering.addGuess and decideGuess', () => {
 
   test('the slices of an open guess can be named after the slicing, and a flip then resets them', () => {
     itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }, { id: 'T2' }]))
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.addGuess('SHOP-1', { question: 'which zone?', took: 'UTC', other: 'local', impact: 'low', slices: [] })
     expect(lead.setGuessSlices('SHOP-1', 'g1', ['T2']).slices).toEqual(['T2'])
     expect(code(() => lead.setGuessSlices('SHOP-1', 'G1', ['T9']))).toBe(Exit.usage)
@@ -171,7 +171,7 @@ describe('Engineering.addGuess and decideGuess', () => {
 
   test('a flip on a done item records the answer and resets no slice', () => {
     itemAt(t, 'cooking')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.moveSlice('start', 'SHOP-1', 'T1')
     lead.moveSlice('done', 'SHOP-1', 'T1', { files: ['T1.ts'] })
     lead.addGuess('SHOP-1', { question: 'which time zone?', took: 'UTC', other: 'local', impact: 'low', slices: ['T1'] })

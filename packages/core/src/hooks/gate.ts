@@ -1,5 +1,5 @@
-import { activePacks, type PackModule } from '@kit/env/env.ts'
-import { block, context, type HookInput, type HookResult, pass } from '@kit/shared/hook.ts'
+import { activePacks, type PackModule } from '@nook/env/env.ts'
+import { block, context, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { ancestorCommands, inBackground, startedByTool } from './session.ts'
 
@@ -13,7 +13,7 @@ export type GateDeps = { modules: PackModule[]; startedByTool?: () => boolean; i
 
 const EVENT = 'UserPromptExpansion'
 const BACKGROUND =
-  'Kit session: background. Claude Code lets this session edit only inside a worktree, so the build of an area cannot run here.'
+  'Nook session: background. Claude Code lets this session edit only inside a worktree, so the build of an area cannot run here.'
 
 export function gateHook(input: HookInput, deps: GateDeps): HookResult {
   const name = String(input.command_name ?? '').replace(/^.*:/, '')
@@ -39,7 +39,7 @@ export function gateHook(input: HookInput, deps: GateDeps): HookResult {
     return block(`no pack here has the owner move "${words[0]}". The moves here: ${moves.join(', ') || 'none'}.`)
   }
   const result = owner.gate(homeOf(owner), words, input.session_id ?? null)
-  const head = `Kit gate: the owner typed /gate ${words.join(' ')}. ${result.ok ? 'The move ran.' : 'The move was refused.'}`
+  const head = `Nook gate: the owner typed /gate ${words.join(' ')}. ${result.ok ? 'The move ran.' : 'The move was refused.'}`
   return context(EVENT, [head, ...result.lines].join('\n'))
 }
 
@@ -54,12 +54,12 @@ function typedCommand(
   const owner = modules.find(m => m.commands?.includes(name))
   if (!owner?.command) return pass
   const result = owner.command(homeOf(owner), name, args, session)
-  const head = `Kit ${name}: the owner typed /${name}${args ? ` ${args}` : ''}. ${result.ok ? 'It ran.' : 'It was refused.'}`
+  const head = `Nook ${name}: the owner typed /${name}${args ? ` ${args}` : ''}. ${result.ok ? 'It ran.' : 'It was refused.'}`
   return context(EVENT, [head, ...result.lines, ...(background ? [BACKGROUND] : [])].join('\n'))
 }
 
 function waitingText(modules: PackModule[], homeOf: (m: PackModule) => string): string {
   const waiting = modules.flatMap(m => m.waiting?.(homeOf(m)) ?? [])
-  if (!waiting.length) return 'Kit gate: no owner move waits now.'
-  return ['Kit gate: the owner moves that wait now:', ...waiting.map(w => `- /gate ${w.words} (${w.why})`)].join('\n')
+  if (!waiting.length) return 'Nook gate: no owner move waits now.'
+  return ['Nook gate: the owner moves that wait now:', ...waiting.map(w => `- /gate ${w.words} (${w.why})`)].join('\n')
 }

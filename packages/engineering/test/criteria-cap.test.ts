@@ -48,7 +48,7 @@ describe('agree over the proposed cap', () => {
     itemAt(t, 'framing')
     ticket(t, '- a\n- b\n- c\n- d\n')
     writeDoc(t, 'SHOP-1', 'spec.md', SPEC({ size: 'M', acs: acs(7) }))
-    const result = t.kit(LEAD).moveItem('agree', 'SHOP-1')
+    const result = t.eng(LEAD).moveItem('agree', 'SHOP-1')
     expect(result.item.state).toBe('planning')
     expect(result.warnings).toEqual([
       "spec.md has 7 acceptance criteria; the proposed cap is 6: the ticket's 4 + 2, in the range 3 to 6 of size M. Merge them, or keep them for a complex requirement and say why in the Decisions table.",
@@ -60,6 +60,6 @@ describe('agree over the proposed cap', () => {
     itemAt(t, 'framing')
     ticket(t, '- a\n- b\n- c\n- d\n')
     writeDoc(t, 'SHOP-1', 'spec.md', SPEC({ size: 'M', acs: acs(6) }))
-    expect(t.kit(LEAD).moveItem('agree', 'SHOP-1').warnings).toEqual([])
+    expect(t.eng(LEAD).moveItem('agree', 'SHOP-1').warnings).toEqual([])
   })
 })

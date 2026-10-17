@@ -22,7 +22,7 @@ A size M plan stays under 60 lines with text and a size L plan under 100, diagra
 - Risks: an owner who sees a risk before the build accepts it or changes the plan. "Not done on purpose" is a promise that the reviewer reads.
 
 ## The diagrams
-Write each diagram as a mermaid block. The record keeps the text; `kit eng item page` shows it as a diagram.
+Write each diagram as a mermaid block. The record keeps the text; `nook eng item page` shows it as a diagram.
 ```mermaid
 flowchart TB
   page["web: page with the status select (new)"] -->|"the picked status"| client["web: client adds ?status= (changes)"]

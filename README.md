@@ -1,54 +1,54 @@
-# Harness Kit
+# Nook
 
 A base layer for Claude Code that you init into any folder.
 
-Harness Kit gives Claude Code your standards: base rules, templates and packs for work, research, learning, knowledge and reports.
-You run `kit init` in a folder. Claude Code stacks the folders, and you add your own context on top.
+Nook gives Claude Code your standards: base rules, templates and packs for work, research, learning, knowledge and reports.
+You run `nook init` in a folder. Claude Code stacks the folders, and you add your own context on top.
 
-Status: v0.1 in progress. The core and the engineering pack work: `kit init`, `kit doctor`, `kit ste`, `kit eng`, the base rules, the persona, the guards, the writing check, `/setup`, and the item flow from `/intake` to the owner's accept. The other packs come in v0.2 and v0.3. Each part arrives when real use asks for it.
+Status: v0.1 in progress. The core and the engineering pack work: `nook init`, `nook doctor`, `nook ste`, `nook eng`, the base rules, the persona, the guards, the writing check, `/setup`, and the item flow from `/intake` to the owner's accept. The other packs come in v0.2 and v0.3. Each part arrives when real use asks for it.
 
 ## Install
 
 You need [Bun](https://bun.sh) and Claude Code.
 
 ```
-git clone <this repo> harness-kit && cd harness-kit && bun install
-ln -s "$PWD/apps/kit/bin/kit" ~/.local/bin/kit        # kit on your PATH; the hooks need it
+git clone <this repo> nook && cd nook && bun install
+ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nook        # nook on your PATH; the hooks need it
 claude plugin marketplace add "$PWD"
-claude plugin install kit@harness-kit                  # the core: always
-claude plugin install kit-engineering@harness-kit      # one plugin for each pack that you use
+claude plugin install nook@nook                  # the core: always
+claude plugin install nook-engineering@nook      # one plugin for each pack that you use
 ```
 
 Then, in each folder that you want as an environment:
 
 ```
-kit init --pack engineering    # kit.yml, the rules, the settings, and the folders of each pack
+nook init --pack engineering    # nook.yml, the rules, the settings, and the folders of each pack
 ```
 
-In Claude Code, run `/setup` in that folder. It writes the section of each pack in `kit.yml` (for engineering: the areas, their checks and their test command). Run it again when you turn a pack on. `kit doctor` lists every gap that is left, the gaps of each pack and a plugin that is off included.
+In Claude Code, run `/setup` in that folder. It writes the section of each pack in `nook.yml` (for engineering: the areas, their checks and their test command). Run it again when you turn a pack on. `nook doctor` lists every gap that is left, the gaps of each pack and a plugin that is off included.
 
 ## The one idea
 
 **Init a folder to make an environment. Its packs and rules reach every folder inside it.**
 
 - Claude Code reads `CLAUDE.md` and `.claude/rules/` from every folder above a session. Words flow down.
-- It reads `.claude/settings.json` only in the start folder. So the kit plugin is on for your user, and each hook finds the nearest `kit.yml` up the tree before it acts.
-- The kit has no fixed structure. A boundary such as `company/` can carry the packs for everything inside it, and a child can add its own or turn one off.
+- It reads `.claude/settings.json` only in the start folder. So the nook plugin is on for your user, and each hook finds the nearest `nook.yml` up the tree before it acts.
+- Nook has no fixed structure. A boundary such as `company/` can carry the packs for everything inside it, and a child can add its own or turn one off.
 
 ```
-kit init                          # context only
-kit init --pack engineering,wiki  # plus the packs
-kit init --update                 # replace only what the kit owns
-kit doctor                        # every layer, every pack, every gap with its fix
+nook init                          # context only
+nook init --pack engineering,wiki  # plus the packs
+nook init --update                 # replace only what Nook owns
+nook doctor                        # every layer, every pack, every gap with its fix
 ```
 
-`kit init` scaffolds the kit only. The `/setup` skill, in Claude Code, builds the environment: it reads the disk, asks what the disk cannot settle, and writes the areas, the folders and the map of the folder.
+`nook init` scaffolds Nook only. The `/setup` skill, in Claude Code, builds the environment: it reads the disk, asks what the disk cannot settle, and writes the areas, the folders and the map of the folder.
 
 ## Packs
 
 | Pack | What it gives |
 |---|---|
-| core | the persona, the base rules, the guards, `kit init`, `kit doctor`, `/setup` |
+| core | the persona, the base rules, the guards, `nook init`, `nook doctor`, `/setup` |
 | engineering | the item flow from intake to your accept, two gates, 28 skills, 10 agents |
 | research | `/research`: analysts in parallel, findings with sources, a fact-checker |
 | learn | a course in any subject against a standard, and `/study <topic>` for one topic |
@@ -58,8 +58,8 @@ kit doctor                        # every layer, every pack, every gap with its 
 
 ## Read the plan
 
-- [docs/harness-kit.md](docs/harness-kit.md): the short form.
-- [docs/harness-guide.html](docs/harness-guide.html): the full guide, 15 chapters with diagrams. Open it in a browser.
+- [docs/nook.md](docs/nook.md): the short form.
+- [docs/nook-guide.html](docs/nook-guide.html): the full guide, 15 chapters with diagrams. Open it in a browser.
 - [docs/expect/](docs/expect/): what each step must do before it is done.
 
 ## Licence

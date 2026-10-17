@@ -1,7 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(kit *)",
+      "Bash(nook *)",
       "Bash(git status *)",
       "Bash(git diff *)",
       "Bash(git log *)",
@@ -28,11 +28,11 @@
       "Read(~/.ssh/**)",
       "Read(~/.aws/**)",
       "Edit(**/.env*)",
-      "Edit(.kit/**)",
+      "Edit(.nook/**)",
       "Edit(.claude/settings*.json)"
     ]
   },
-  "outputStyle": "kit-companion",
+  "outputStyle": "nook-companion",
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },

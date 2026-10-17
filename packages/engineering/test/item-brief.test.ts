@@ -12,7 +12,7 @@ afterEach(() => t.cleanup())
 describe('itemBrief', () => {
   test('the brief holds the state, the next step, the areas, the criteria, the slices and stays under 1800 characters', () => {
     itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS(Array.from({ length: 30 }, (_, i) => ({ id: `T${i + 1}`, title: `a long slice title number ${i + 1} that goes on and on for a while` }))))
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     lead.ask('SHOP-1', 'which zone?', false, 'UTC')
     const text = itemBrief(lead, 'SHOP-1')
     expect(text.length).toBeLessThanOrEqual(1800)
@@ -29,13 +29,13 @@ describe('itemBrief', () => {
 describe('pickup', () => {
   test('pickup records the session and prints the brief plus handoff.md', () => {
     itemAt(t, 'framing')
-    const lead = t.kit(LEAD)
+    const lead = t.eng(LEAD)
     writeDoc(t, 'SHOP-1', 'handoff.md', '# handoff\n\n## Next\n\nwrite the spec\n')
     const out = pickup(lead, 'SHOP-1')
     expect(out).toContain('SHOP-1 — the export date is off')
     expect(out).toContain('--- handoff.md ---')
     expect(out).toContain('write the spec')
     expect(lead.ledger.get<{ item: string; role: string }>('SELECT item, role FROM session WHERE id = ?', 'sess-1')).toEqual({ item: 'SHOP-1', role: 'lead' })
-    expect(() => pickup(t.kit(READER), 'SHOP-1')).toThrow(/pickup/)
+    expect(() => pickup(t.eng(READER), 'SHOP-1')).toThrow(/pickup/)
   })
 })

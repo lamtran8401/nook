@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { EvError, Exit } from '@kit/shared/errors.ts'
+import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { EngineeringConfig } from '../src/config.ts'
 import { makeHome, type TestHome } from './helpers.ts'
@@ -28,7 +28,7 @@ describe('EngineeringConfig', () => {
     expect(config.protected).toEqual(['main', 'master'])
     expect(config.areas.map(a => [a.name, a.kind, a.git, a.checks])).toEqual([['bff', 'backend', true, ['sh test.sh']], ['web', 'frontend', true, ['sh test.sh']]])
     expect(config.tracker).toEqual({ type: 'none' })
-    const file = join(t.root, 'kit.yml')
+    const file = join(t.root, 'nook.yml')
     const faults: [string, RegExp][] = [
       ['engineering:\n  areas:\n    - { name: bff, path: p }\n', /kind must be one of frontend, backend, docs, data, tool/],
       ['engineering:\n  areas:\n    - { path: p, kind: docs }\n', /has no name/],
@@ -55,12 +55,12 @@ describe('EngineeringConfig', () => {
   })
 
   test('an area with no git key is a git area, and checks stay missing when the key is missing', () => {
-    const config = EngineeringConfig.parse('engineering:\n  areas:\n    - { name: a, path: p, kind: docs }\n', 'kit.yml')
+    const config = EngineeringConfig.parse('engineering:\n  areas:\n    - { name: a, path: p, kind: docs }\n', 'nook.yml')
     expect(config.areas).toEqual([{ name: 'a', path: 'p', kind: 'docs', git: true }])
   })
 
   test('git must be true or false', () => {
-    const error = caught(() => EngineeringConfig.parse('engineering:\n  areas:\n    - { name: a, path: p, kind: docs, git: maybe }\n', 'kit.yml'))
+    const error = caught(() => EngineeringConfig.parse('engineering:\n  areas:\n    - { name: a, path: p, kind: docs, git: maybe }\n', 'nook.yml'))
     expect(error.code).toBe(Exit.usage)
     expect(error.message).toBe('area a: git must be true or false')
   })

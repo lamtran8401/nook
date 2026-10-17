@@ -20,7 +20,7 @@ afterEach(() => {
 })
 
 const program: Program = {
-  name: 'kit',
+  name: 'nook',
   summary: 'the test program',
   commands: [
     {
@@ -71,18 +71,18 @@ describe('run', () => {
   test('a group word alone prints the help of its commands and exits 0', async () => {
     expect(await run(program, ['eng'])).toBe(0)
     expect(err).toBe('')
-    expect(out).toContain('kit eng item show <id>')
-    expect(out).not.toContain('kit doctor')
+    expect(out).toContain('nook eng item show <id>')
+    expect(out).not.toContain('nook doctor')
   })
 
   test('an unknown word exits 2 and names it', async () => {
     expect(await run(program, ['frob'])).toBe(2)
-    expect(err).toBe('kit: unknown command "frob"\n\n')
+    expect(err).toBe('nook: unknown command "frob"\n\n')
   })
 
   test('a missing argument exits 2 with the usage line', async () => {
     expect(await run(program, ['eng', 'item', 'show'])).toBe(2)
-    expect(err).toBe('kit eng item show: give the item id\nusage: kit eng item show <id>\n')
+    expect(err).toBe('nook eng item show: give the item id\nusage: nook eng item show <id>\n')
   })
 
   test('an unknown flag exits 2 and points to --help', async () => {
@@ -92,6 +92,6 @@ describe('run', () => {
 
   test('a refusal exits 3 and prints the fix once when the message holds it already', async () => {
     expect(await run(program, ['eng', 'item', 'approve'])).toBe(3)
-    expect(err).toBe('kit eng item approve: approve SHOP-1: 1 gap\n- the plan is empty\n    fix: /recipe SHOP-1\n')
+    expect(err).toBe('nook eng item approve: approve SHOP-1: 1 gap\n- the plan is empty\n    fix: /recipe SHOP-1\n')
   })
 })

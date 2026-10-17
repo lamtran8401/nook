@@ -44,7 +44,7 @@ describe('uiKit', () => {
     expect(css.match(/@import/g)?.length).toBe(1)
   })
 
-  test('the script is the behaviour layer of the kit', () => {
+  test('the script is the behaviour layer of the nook', () => {
     expect(uiKit().js).toContain('window.Bench = {')
   })
 })

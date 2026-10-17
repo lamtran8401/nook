@@ -1,4 +1,4 @@
-import type { HookInput, HookResult } from '@kit/shared/hook.ts'
+import type { HookInput, HookResult } from '@nook/shared/hook.ts'
 
 import { bashGuard, editGuard, readGuard } from './guards.ts'
 import { sessionStart } from './start.ts'

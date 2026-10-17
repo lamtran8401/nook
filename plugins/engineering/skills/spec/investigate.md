@@ -38,12 +38,12 @@ The shipment list call takes 4 seconds at peak. Find the cause before anyone cha
 ```
 
 ## The research in cook
-1. Run `kit eng item begin <id>`.
-2. Start one read-only agent for each question, in the same turn: `kit-engineering:scout` for a question about facts, `kit-engineering:system-designer` for a question about how the parts connect.
-   Give each the brief (`kit eng item brief <id>`) and its one question.
+1. Run `nook eng item begin <id>`.
+2. Start one read-only agent for each question, in the same turn: `nook-engineering:scout` for a question about facts, `nook-engineering:system-designer` for a question about how the parts connect.
+   Give each the brief (`nook eng item brief <id>`) and its one question.
 3. Check each claim that matters: open the file and read the line.
 4. Write `work/<id>/findings.md`: one section `## Q<n>` for each question with the lines `Answer`, `Evidence`, `Open`, and `Follow-up` when there is one.
-5. Run `kit eng item submit <id>`. The guard needs `findings.md` filled.
+5. Run `nook eng item submit <id>`. The guard needs `findings.md` filled.
 
 ```markdown
 ## Q1

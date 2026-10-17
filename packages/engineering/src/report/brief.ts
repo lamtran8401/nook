@@ -2,7 +2,7 @@ import { cut } from '../format.ts'
 import type { Engineering } from '../service.ts'
 import { nextFor } from './next.ts'
 
-/** `brief`: the lines of the pack for `kit brief`, what waits for the owner first. */
+/** `brief`: the lines of the pack for `nook brief`, what waits for the owner first. */
 
 export type BriefLine = {
   pack: 'engineering'
@@ -31,13 +31,13 @@ export function brief(eng: Engineering): BriefLine[] {
       )
     }
     for (const q of blocking)
-      line('now', id, `${id} ${q.id} blocks: ${cut(q.text, 80)}`, `kit eng answer ${id} ${q.id} "<answer>"`)
+      line('now', id, `${id} ${q.id} blocks: ${cut(q.text, 80)}`, `nook eng answer ${id} ${q.id} "<answer>"`)
     for (const s of eng.stores.slices.live(id).filter(s => s.state === 'failed')) {
       line(
         'today',
         id,
         `${id} ${s.id} failed: ${cut(s.reason ?? '', 80)}`,
-        `kit eng task retry ${id} ${s.id}, or /cook ${id}`,
+        `nook eng task retry ${id} ${s.id}, or /cook ${id}`,
       )
     }
     if (item.state === 'cooking' && Date.now() - Date.parse(item.updated) > DAY_MS)

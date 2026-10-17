@@ -2,17 +2,21 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 
-/** The folders that the owner made environments with `kit init`, one path on each line of a file in the home. */
+/** The folders that the owner made environments with `nook init`, one path on each line of a file in the home. */
 export class EnvironmentList {
   constructor(readonly file: string) {}
 
-  static pathFor(env: Record<string, string | undefined> = process.env): string {
+  static pathFor(env: Record<string, string | undefined> = process.env, name = 'nook'): string {
     const config = env.XDG_CONFIG_HOME || join(env.HOME || homedir(), '.config')
-    return join(config, 'kit', 'environments')
+    return join(config, name, 'environments')
   }
 
-  static mine(): EnvironmentList {
-    return new EnvironmentList(EnvironmentList.pathFor())
+  /** The list of the owner; the first time, it takes the folders of the list from before the rename (`~/.config/kit`). */
+  static mine(env: Record<string, string | undefined> = process.env): EnvironmentList {
+    const list = new EnvironmentList(EnvironmentList.pathFor(env))
+    const old = new EnvironmentList(EnvironmentList.pathFor(env, 'kit'))
+    if (!existsSync(list.file) && existsSync(old.file)) list.write(old.read())
+    return list
   }
 
   add(dir: string): void {

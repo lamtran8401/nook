@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(kit eng *)",
-      "Bash(git switch -c kit/*)",
+      "Bash(nook eng *)",
+      "Bash(git switch -c nook/*)",
       "Edit(work/**)",
       "Edit(backlog/**)",
       "Edit(docs/adr/**)"
@@ -18,12 +18,12 @@
       "Bash(uv sync*)"
     ],
     "deny": [
-      "Bash(kit eng item approve *)",
-      "Bash(kit eng item accept *)",
-      "Bash(kit eng item mode *)",
-      "Bash(kit engineering item approve *)",
-      "Bash(kit engineering item accept *)",
-      "Bash(kit engineering item mode *)"
+      "Bash(nook eng item approve *)",
+      "Bash(nook eng item accept *)",
+      "Bash(nook eng item mode *)",
+      "Bash(nook engineering item approve *)",
+      "Bash(nook engineering item accept *)",
+      "Bash(nook engineering item mode *)"
     ]
   },
   "env": {

@@ -1,7 +1,7 @@
 import { match } from 'ts-pattern'
 
-import { pluginDir } from '@kit/env/pack.ts'
-import { hold, type HookInput, type HookResult, pass } from '@kit/shared/hook.ts'
+import { pluginDir } from '@nook/env/pack.ts'
+import { hold, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { ownerStartedAuto } from '../guards/auto.ts'
 import { Home } from '../home.ts'
@@ -74,7 +74,7 @@ export function holdReasons(eng: Engineering, item: Item): string[] {
   const blocking = eng.stores.questions.openBlocking(item.id)
   if (blocking.length) {
     reasons.push(
-      `blocking question ${blocking.map(q => q.id).join(', ')} is open: ask the owner with AskUserQuestion, then \`kit eng answer ${item.id} ${blocking[0]!.id} "<answer>"\``,
+      `blocking question ${blocking.map(q => q.id).join(', ')} is open: ask the owner with AskUserQuestion, then \`nook eng answer ${item.id} ${blocking[0]!.id} "<answer>"\``,
     )
   }
   if (!ownerStartedAuto(eng.stores, item)) return reasons
@@ -94,7 +94,7 @@ function autoStage(eng: Engineering, item: Item): Stage | null {
     .with('planning', () =>
       eng.gaps(item, 'approve').length
         ? plain('recipe')
-        : { skill: 'cook', note: `the plan is ready: run \`kit eng item proceed ${item.id}\`, then ` },
+        : { skill: 'cook', note: `the plan is ready: run \`nook eng item proceed ${item.id}\`, then ` },
     )
     .with('ready', () => plain('cook'))
     .with('cooking', () => cookingStage(eng, item))
