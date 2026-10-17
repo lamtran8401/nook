@@ -65,4 +65,8 @@ describe('CardDeck', () => {
   test('a card that does not exist is refused', () => {
     expect(() => deck().review('C9', 'good', '2026-10-01')).toThrow('no card C9')
   })
+
+  test('the refusal of a missing card names the command that lists the cards due', () => {
+    expect(() => deck().review('C9', 'good', '2026-10-01')).toThrow(expect.objectContaining({ fix: 'nook learn today <course> lists the cards due, each with its id' }))
+  })
 })
