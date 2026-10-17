@@ -36,7 +36,7 @@ Desks can nest. `company/` is a top desk; `company/shop/` is a child desk inside
 |---|---|---|---|
 | D-1 | the repo after the cleanup | `bun run check` | the typecheck and every test pass |
 | D-2 | the repo | `git grep -i environment -- packages apps plugins` | each match is about a process, not a desk |
-| D-3 | the repo | `git grep -E 'kit-eng\|KIT_\|kit\.yml\|\.config/kit'` | no match |
+| D-3 | the repo | `git grep -E 'kit-eng\|KIT_\|kit\.yml\|\.config/kit'` | no match outside this file and the test of D-5 |
 | D-4 | an agent | it runs `nk eng item approve X` | the guard blocks it and says to run the tool as `nook` |
 | D-5 | an agent | it runs `kit eng item approve X` | no guard of Nook sees it: `kit` is not a name of the tool |
 | D-6 | a desk | `nook doctor` | the report names each desk, the outermost first |
