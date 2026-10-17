@@ -4,7 +4,8 @@
   "rules": [
     "templates/rules/writing.md",
     "templates/rules/safety.md",
-    "templates/rules/questions.md"
+    "templates/rules/questions.md",
+    "templates/rules/approach.md"
   ],
   "settings": "templates/settings.json",
   "state": []

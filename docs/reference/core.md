@@ -81,6 +81,7 @@ Each other line is the owner's. `nook init` never changes it.
 | `writing` | core | Simplified Technical English for files: 25 words at most in a sentence, must and can, one term for one meaning |
 | `safety` | core | no secret read, no state or settings edit, no push, commit only on request, only the owner at a gate |
 | `questions` | core | ask with a choice box, only blocking questions, one round of four at most, the recommended answer first |
+| `approach` | core | the right way, not the shortest: fix the cause, one home for one job, no patch on a patch, say when the right way costs more |
 | `engineering`, `testing` | engineering | the flow, git, code and tests; see the engineering reference |
 | `wiki` | wiki | read the index first, cite each page, write after a yes |
 | `learn` | learn | the record through `nook learn`, the owner's own words, scores with evidence |

@@ -19,7 +19,7 @@ const readJson = (rel: string) => JSON.parse(readText(rel))
 const nookRules = () => readdirSync(join(root, '.claude', 'rules', 'nook')).sort()
 
 describe('Initializer', () => {
-  test('a first init writes nook.yml, .nook, the CLAUDE.md block, the three base rules, the style and the settings', () => {
+  test('a first init writes nook.yml, .nook, the CLAUDE.md block, the four base rules, the style and the settings', () => {
     expect(initIn(root).wrote).toEqual([
       'nook.yml',
       '.nook/',
@@ -27,6 +27,7 @@ describe('Initializer', () => {
       '.claude/rules/nook/writing.md',
       '.claude/rules/nook/safety.md',
       '.claude/rules/nook/questions.md',
+      '.claude/rules/nook/approach.md',
       '.claude/output-styles/nook-companion.md',
       '.claude/settings.json (the nook keys)',
     ])
@@ -59,7 +60,7 @@ describe('Initializer', () => {
     initIn(root)
     writeFileSync(join(root, 'nook.yml'), 'packs: []\nrules: { off: [writing] }\n')
     expect(initIn(root, [], true).wrote).toEqual(['.claude/rules/nook/writing.md (removed)'])
-    expect(nookRules()).toEqual(['questions.md', 'safety.md'])
+    expect(nookRules()).toEqual(['approach.md', 'questions.md', 'safety.md'])
   })
 
   test('a pack that Nook does not ship is refused', () => {
@@ -75,7 +76,7 @@ describe('Initializer', () => {
     initIn(root)
     expect(initIn(root, ['engineering']).packs).toEqual(['core', 'engineering'])
     expect(readText('nook.yml')).toContain('packs: [engineering]\n')
-    expect(nookRules()).toEqual(['engineering.md', 'questions.md', 'safety.md', 'testing.md', 'writing.md'])
+    expect(nookRules()).toEqual(['approach.md', 'engineering.md', 'questions.md', 'safety.md', 'testing.md', 'writing.md'])
   })
 
   test('an update keeps the notes, the rules and the settings keys of the owner', () => {
