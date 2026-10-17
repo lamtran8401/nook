@@ -27,7 +27,7 @@ describe('Home', () => {
     const home = Home.find(t.area('bff'))
     expect(home?.dir).toBe(t.root)
     expect(home?.dbFile).toBe(join(t.root, '.nook', 'engineering.db'))
-    expect(home?.workDir('SHOP-1')).toBe(join(t.root, 'work', 'SHOP-1'))
+    expect(home?.workDir('SHOP-1')).toBe(join(t.root, 'works', 'SHOP-1'))
     expect(home?.backlogDir('SHOP-1')).toBe(join(t.root, 'backlog', 'SHOP-1'))
     expect(home?.adrDir).toBe(join(t.root, 'docs', 'adr'))
   })

@@ -9,15 +9,42 @@ let t: TestHome
 afterEach(() => t.cleanup())
 
 const clearFolders = () => {
-  for (const folder of ['work', 'backlog', 'docs/adr']) rmSync(join(t.root, folder), { recursive: true, force: true })
+  for (const folder of ['work', 'works', 'backlog', 'docs/adr']) rmSync(join(t.root, folder), { recursive: true, force: true })
 }
 
 describe('engineeringModule', () => {
-  test('setup makes work/, backlog/ and docs/adr/ in its home and names each one', () => {
+  test('setup makes works/, backlog/ and docs/adr/ in its home and names each one', () => {
     t = makeHome()
     clearFolders()
-    expect(engineeringModule.setup(t.root)).toEqual(['work/', 'backlog/', 'docs/adr/'])
-    expect(['work', 'backlog', 'docs/adr'].map(f => existsSync(join(t.root, f)))).toEqual([true, true, true])
+    expect(engineeringModule.setup(t.root)).toEqual(['works/', 'backlog/', 'docs/adr/'])
+    expect(['works', 'backlog', 'docs/adr'].map(f => existsSync(join(t.root, f)))).toEqual([true, true, true])
+  })
+
+  test('setup moves the work/ of an older Nook to works/ and names the move', () => {
+    t = makeHome({ dir: null })
+    clearFolders()
+    mkdirSync(join(t.root, 'work', 'SHOP-1'), { recursive: true })
+    writeFileSync(join(t.root, 'work', 'SHOP-1', 'spec.md'), '# Spec\n')
+    expect(engineeringModule.setup(t.root)).toEqual(['work/ → works/', 'backlog/', 'docs/adr/'])
+    expect(existsSync(join(t.root, 'works', 'SHOP-1', 'spec.md'))).toBe(true)
+    expect(existsSync(join(t.root, 'work'))).toBe(false)
+  })
+
+  test('setup keeps work/ when nook.yml names it as the item folder', () => {
+    t = makeHome({ dir: 'work' })
+    engineeringModule.setup(t.root)
+    expect([existsSync(join(t.root, 'work')), existsSync(join(t.root, 'works'))]).toEqual([true, false])
+  })
+
+  test('records names the item folder and the backlog of the home', () => {
+    t = makeHome()
+    expect(engineeringModule.records!(t.root)).toEqual([join(t.root, 'works'), join(t.root, 'backlog')])
+  })
+
+  test('doctor names a work/ beside works/, with the fix', () => {
+    t = makeHome({ dir: null })
+    mkdirSync(join(t.root, 'work'), { recursive: true })
+    expect(engineeringModule.doctor(t.root)).toContainEqual({ level: 'warn', where: t.root, text: 'work/ and works/ both exist: the items live in works/', fix: 'move each folder of work/ into works/, then delete work/' })
   })
 
   test('a second setup makes nothing', () => {
@@ -33,7 +60,7 @@ describe('engineeringModule', () => {
     mkdirSync(child, { recursive: true })
     writeFileSync(join(child, 'nook.yml'), 'packs: []\n')
     expect(engineeringModule.setup(child)).toEqual([])
-    expect(existsSync(join(t.root, 'work'))).toBe(false)
+    expect(existsSync(join(t.root, 'works'))).toBe(false)
   })
 
   test('a home with no engineering section in nook.yml is not configured', () => {
@@ -49,7 +76,7 @@ describe('engineeringModule', () => {
   test('doctor names a missing folder with the fix to run nook init --update', () => {
     t = makeHome()
     clearFolders()
-    expect(engineeringModule.doctor(t.root)).toContainEqual({ level: 'warn', where: t.root, text: 'work/ is missing', fix: 'nook init --update' })
+    expect(engineeringModule.doctor(t.root)).toContainEqual({ level: 'warn', where: t.root, text: 'works/ is missing', fix: 'nook init --update' })
   })
 })
 

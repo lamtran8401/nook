@@ -9,7 +9,7 @@ Goal: a spec that passes the guard of `agree` and that the owner reads once and 
 A gap left here comes back as a failed review. This is the cheapest place to find it, so be strict.
 
 ## Order
-Read `work/<id>/spec.md`, the ticket and `nook eng item brief <id>`. Name each gap in one line, with the line of the file.
+Read `works/<id>/spec.md`, the ticket and `nook eng item brief <id>`. Name each gap in one line, with the line of the file.
 1. Front matter: `kind` set; a feature has a `size`; `areas` not empty and each one in `nook eng area list`; `created` and `updated` are dates, and `updated` is today after an edit.
 2. In short and Why: the change in one line, then one paragraph that says who is stuck and why. Neither repeats the title.
 3. What changes: a reader who did not see the ticket understands what changes in each area.

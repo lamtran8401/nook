@@ -15,7 +15,7 @@ backlog ──/spec──▶ framing ──agree──▶ planning ──★ app
 | Stage | You type | The companion does | You get | You decide |
 |---|---|---|---|---|
 | intake | `/intake SHOP-12` | puts the ticket on disk; a scout reads it as data | an item in `backlog` | the rank |
-| framing | `/spec SHOP-12` | triage, reads the wiki and the code, asks one round of questions | `work/SHOP-12/spec.md` | "Looks right" |
+| framing | `/spec SHOP-12` | triage, reads the wiki and the code, asks one round of questions | `works/SHOP-12/spec.md` | "Looks right" |
 | planning | `/recipe SHOP-12` | the plan, a skeptic attacks it, the slices | `plan.md`, `tasks.md` | `/gate approve SHOP-12` |
 | cooking | `/cook SHOP-12` | a branch, one builder for each area, test first, the proofs, the checks | code on `nook/SHOP-12-…` | the answers to blocking questions |
 | review | `/deep-review SHOP-12` | a code reviewer and a reviewer check each criterion with evidence | a verdict | `/gate accept SHOP-12` |
@@ -133,8 +133,8 @@ After the run, review its guesses with `/guesses SHOP-12`. Only you set the mode
 | You type | It does |
 |---|---|
 | `/pickup SHOP-12` | this session leads the item; it shows the state, the last hand-over note, what blocks it, and the next command |
-| `/handoff SHOP-12` | writes `work/SHOP-12/handoff.md`: State, Done, Next, Open, Guesses, Watch |
-| `/view SHOP-12` | builds `work/SHOP-12/page.html`: the spec, the plan, the slices and the walkthrough as one local page |
+| `/handoff SHOP-12` | writes `works/SHOP-12/handoff.md`: State, Done, Next, Open, Guesses, Watch |
+| `/view SHOP-12` | builds `works/SHOP-12/page.html`: the spec, the plan, the slices and the walkthrough as one local page |
 | `/view how does the export pick its date?` | writes the answer as a walkthrough with its own page |
 
 The ledger in `.nook/engineering.db` is the memory. After a restart or a compaction, `/pickup` reads it, not the chat.

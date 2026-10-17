@@ -21,7 +21,7 @@
 | a block on `spec.md`, `plan.md` or `tasks.md` | a document opens only in its state, and the approve freezes it | `nook eng item replan <id>` or `reframe <id>` with a reason. |
 | a block on a file of an area | an area changes only while one of its slices runs | Start the slice through `/cook` or `/quick`. |
 | `the plugin … of the pack … is off` (from `nook doctor`) | the plugin of a pack is not installed or not on, so its hooks and skills do not run | Run the fix on the line, such as `claude plugin install nk-eng@nook`, then start a new session. |
-| `… % of … sentences pass the writing standard` | a Markdown file under `docs/`, `work/` or `backlog/` scored 80% or less | Rewrite the listed sentences: 25 words or fewer, no should, may or might. |
+| `… % of … sentences pass the writing standard` | a Markdown file under `docs/`, `works/` or `backlog/` scored 80% or less | Rewrite the listed sentences: 25 words or fewer, no should, may or might. |
 
 ## The session does not stop
 

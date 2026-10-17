@@ -10,7 +10,7 @@ When the code and this file do not agree, fix one of them in the same change.
 | Word | Meaning |
 |---|---|
 | desk | a folder with `nook.yml` |
-| home | the nearest desk above a folder that turns `engineering` on; the ledger, `work/` and `backlog/` live there |
+| home | the nearest desk above a folder that turns `engineering` on; the ledger, `works/` and `backlog/` live there |
 | item | one piece of work with a goal and acceptance criteria (AC) |
 | area | a folder of the home with a kind and its checks |
 | slice | one task of an item in one area: `T1`, `T2` |
@@ -24,7 +24,7 @@ A Nook id is `IT-` and the highest IT number plus one, with three digits at leas
 
 ```yaml
 engineering:
-  dir: work                              # the documents of each item: <home>/work/<id>/
+  dir: works                             # the documents of each item: <home>/works/<id>/
   backlog: backlog                       # the tickets: <home>/backlog/<KEY>/
   protected: [main, master, develop]     # the branches that no agent builds on
   tracker: { type: none }                # none | jira | github
@@ -38,7 +38,7 @@ engineering:
       git: true                          # false: no branch and no commit
 ```
 
-The defaults are `dir: work`, `backlog: backlog` and the three protected branches.
+The defaults are `dir: works`, `backlog: backlog` and the three protected branches. A home that keeps the default and still has the `work/` of an older Nook gets it moved to `works/` by `nook init --update`; `nook doctor` names a home that has both.
 A fault in the section stops the command and names the fix: a kind that does not exist, two areas with one name, an area with no path.
 
 ## 3. Roles
@@ -255,7 +255,7 @@ What the commands do:
 - It also names an item in cooking with no change for a day, and a done item that waits for `/close`.
 - `nook brief` adds the items done since the last brief and the items that run, through the pack module.
 - `doctor`: the gaps of the pack. Examples: an area with no folder, an area with no checks, a change after the approve, a cooking item with no slice, two items in one area.
-- `init`: makes `work/`, `backlog/` and `docs/adr/` in the home. `nook init` runs it too.
+- `init`: makes `works/`, `backlog/` and `docs/adr/` in the home. `nook init` runs it too.
 
 The proof of `task prove`:
 - The tool makes a git worktree of the area at the merge base of the branch and the first protected branch.
@@ -265,7 +265,7 @@ The proof of `task prove`:
 
 The item page:
 - `item page` builds one HTML file from `spec.md`, `plan.md`, `tasks.md`, `walkthrough.md` and the ledger, to open from the disk.
-- The skills write it to `work/<id>/page.html` and never publish it.
+- The skills write it to `works/<id>/page.html` and never publish it.
 - It uses the Bench UI kit of `plugins/core/ui/bench/`, inline in the page.
 - The header shows the id, the title, the state, the kind, the size and the areas. An audit line shows the date of each move and of each document.
 - One tab for each document; Walkthrough only when the file exists. With no `--tab`, the page opens on the tab of the state, such as Plan in planning.
@@ -318,9 +318,9 @@ The Bash hook:
 
 The Edit hook:
 - A reader never writes a file.
-- In `work/<id>/`: `spec.md` opens in framing, `plan.md` and `tasks.md` in planning. `findings.md`, `handoff.md` and `walkthrough.*` are free. A builder never edits these documents.
+- In `works/<id>/`: `spec.md` opens in framing, `plan.md` and `tasks.md` in planning. `findings.md`, `handoff.md` and `walkthrough.*` are free. A builder never edits these documents.
 - A file of an area changes only while a slice of that area runs in cooking. A builder edits only in the area of its own slice.
-- A file outside the areas and outside `work/` is free.
+- A file outside the areas and outside `works/` is free.
 
 The Stop hook:
 - It holds the lead while a blocking question of its item is open.
@@ -396,7 +396,7 @@ The templates are in `plugins/engineering/templates/`:
 - `spec.md`, `plan.md`, `tasks.md`, `findings.md`, `handoff.md`: the documents of section 6.
 
 `settings.json`:
-- allow `Bash(nook eng *)`, `Bash(git switch -c nook/*)`, `Edit(work/**)`, `Edit(backlog/**)`, `Edit(docs/adr/**)`;
+- allow `Bash(nook eng *)`, `Bash(git switch -c nook/*)`, `Edit(works/**)`, `Edit(backlog/**)`, `Edit(docs/adr/**)`;
 - ask `Bash(git commit *)`, `Bash(git worktree *)` and the install commands;
 - deny the owner moves;
 - env `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` and `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=4`.

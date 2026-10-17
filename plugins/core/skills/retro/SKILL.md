@@ -10,7 +10,7 @@ Goal: the next span loses less time, from changes that the owner picked, each wi
 ## Order
 1. Run `nook retro --json`. It gives the span, the file of today and the facts, each with its item and its time.
 2. No fact: write the file with "Nothing went wrong in the span." and a Kept section, ask nothing, and report in one line.
-3. Group the facts that share a cause. For each group, read what explains it: the reason of the event, the documents of the item in `work/<id>/`, the slice and its proof. Write the cause in one line, from that evidence.
+3. Group the facts that share a cause. For each group, read what explains it: the reason of the event, the documents of the item in `works/<id>/`, the slice and its proof. Write the cause in one line, from that evidence.
 4. For each cause, propose one change that stops it, and where it goes: a rule of the owner, a Nook skill or hook, or a habit. Name the file. A change with no fact behind it is not a change.
 5. Ask the owner once with AskUserQuestion, more than one answer allowed: which changes to make. The recommended ones first.
 6. Write `docs/retro/<date>.md` (the shape is below). The file of today exists already: add a section "Later the same day" to it. Never edit the file of another day.

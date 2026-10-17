@@ -53,7 +53,7 @@ const kindOf = (name: string): DocumentKind =>
     .with('findings.md', 'handoff.md', P.string.startsWith('walkthrough.'), () => 'free' as const)
     .otherwise(() => 'other' as const)
 
-/** `work/<id>/<name>`: spec.md opens in framing, plan.md and tasks.md in planning. */
+/** `<item folder>/<id>/<name>`: spec.md opens in framing, plan.md and tasks.md in planning. */
 function documentRule(eng: Engineering, caller: Caller, parts: string[]): HookResult {
   const [id, name] = parts
   if (!id || !name || parts.length !== 2) return pass
@@ -79,7 +79,7 @@ function documentRule(eng: Engineering, caller: Caller, parts: string[]): HookRe
     .with('free', () => pass)
     .with('other', () =>
       block(
-        `${name} is not a document of ${id}: work/${id}/ holds spec.md, plan.md, tasks.md, findings.md, walkthrough.md and handoff.md.`,
+        `${name} is not a document of ${id}: ${eng.home.config.dir}/${id}/ holds spec.md, plan.md, tasks.md, findings.md, walkthrough.md and handoff.md.`,
       ),
     )
     .exhaustive()

@@ -43,7 +43,7 @@ packages/core · engineering · wiki · learn      each imports only shared and 
 packages/shared · desk                          the CLI router, the hook I/O, desks, nook.yml
    │
    ▼
-the desk on disk         nook.yml, CLAUDE.md, .claude/rules/nook/, .nook/engineering.db, work/, docs/wiki/, learn/
+the desk on disk         nook.yml, CLAUDE.md, .claude/rules/nook/, .nook/engineering.db, works/, docs/wiki/, learn/
 ```
 
 | Layer | Facts |

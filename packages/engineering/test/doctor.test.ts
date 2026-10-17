@@ -19,7 +19,7 @@ describe('doctor', () => {
     lead.newItem({ id: 'SHOP-2', title: 'b', areas: ['bff'], state: 'cooking' })
     lead.moveSlice('start', 'SHOP-1', 'T1')
     lead.moveSlice('wait', 'SHOP-1', 'T1', { reason: 'the schema' })
-    const plan = join(t.root, 'work', 'SHOP-1', 'plan.md')
+    const plan = join(t.root, 'works', 'SHOP-1', 'plan.md')
     writeFileSync(plan, `${readFileSync(plan, 'utf8')}\nchanged\n`)
     lead.ask('SHOP-2', 'what?', true)
     lead.ledger.run("UPDATE question SET asked_at = '2026-01-01T00:00:00.000Z'")

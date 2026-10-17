@@ -34,7 +34,8 @@ export type TestHome = {
   cleanup(): void
 }
 
-export function makeHome(options: { section?: boolean; checks?: boolean } = {}): TestHome {
+/** `dir: null` leaves the item folder out of nook.yml, so the default holds. */
+export function makeHome(options: { section?: boolean; checks?: boolean; dir?: string | null } = {}): TestHome {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'nook-eng-')))
   const areas = ['bff', 'web']
   for (const name of areas) {
@@ -48,16 +49,16 @@ export function makeHome(options: { section?: boolean; checks?: boolean } = {}):
     run(dir, 'git', 'commit', '-q', '-m', 'init')
   }
   const checks = options.checks === false ? '' : 'checks: [sh test.sh]'
+  const dir = options.dir === undefined ? 'works' : options.dir
   const section = options.section === false ? '' : `engineering:
-  dir: work
-  backlog: backlog
+${dir ? `  dir: ${dir}\n` : ''}  backlog: backlog
   protected: [main, master]
   areas:
     - { name: bff, path: projects/bff, kind: backend, ${checks ? `${checks}, ` : ''}test: "sh test.sh {files}" }
     - { name: web, path: projects/web, kind: frontend, checks: [sh test.sh], test: "sh test.sh {files}" }
 `
   writeFileSync(join(root, 'nook.yml'), `packs: [engineering]\n${section}`)
-  mkdirSync(join(root, 'work'), { recursive: true })
+  mkdirSync(join(root, dir ?? 'works'), { recursive: true })
   const home = Home.find(root)!
   return {
     root,
@@ -95,8 +96,8 @@ export const TASKS = (slices: { id: string; area?: string; depends?: string; acs
   `---\nid: SHOP-1\ncreated: 2026-10-14\nupdated: 2026-10-15\n---\n\n# SHOP-1: the slices\n\n${slices.map(s => `## ${s.id}: ${s.title ?? `slice ${s.id}`}\n\n- area: ${s.area ?? 'bff'}\n- depends: ${s.depends ?? 'none'}\n- acs: ${s.acs ?? '1, 2'}\n- size: S\n- done when: the test passes\n${s.proof ? `- proof: ${s.proof}\n` : ''}`).join('\n')}`
 
 export const writeDoc = (t: TestHome, id: string, name: string, text: string) => {
-  mkdirSync(join(t.root, 'work', id), { recursive: true })
-  writeFileSync(join(t.root, 'work', id, name), text)
+  mkdirSync(t.home.workDir(id), { recursive: true })
+  writeFileSync(join(t.home.workDir(id), name), text)
 }
 
 /** An item taken to a state through the real moves, with one slice T1 in bff. */

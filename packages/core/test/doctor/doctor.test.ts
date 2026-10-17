@@ -24,7 +24,7 @@ const fakePack = (gap: boolean, configured = true): PackModule => ({
   name: 'engineering',
   setup: () => [],
   configured: () => configured,
-  doctor: dir => [gap ? { level: 'warn', where: dir, text: 'work/ is missing', fix: 'nook init --update' } : { level: 'ok', where: dir, text: 'no gap' }],
+  doctor: dir => [gap ? { level: 'warn', where: dir, text: 'works/ is missing', fix: 'nook init --update' } : { level: 'ok', where: dir, text: 'no gap' }],
 })
 
 describe('Doctor', () => {
@@ -96,7 +96,7 @@ describe('Doctor: the gaps of a pack', () => {
     initIn(root)
     writeFileSync(join(root, 'nook.yml'), 'packs: [engineering]\n')
     expect(report([fakePack(true)]).findings).toEqual([
-      { level: 'warn', where: root, text: 'engineering: work/ is missing', fix: 'nook init --update' },
+      { level: 'warn', where: root, text: 'engineering: works/ is missing', fix: 'nook init --update' },
     ])
   })
 

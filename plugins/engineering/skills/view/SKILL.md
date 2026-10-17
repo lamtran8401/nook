@@ -1,6 +1,6 @@
 ---
 name: view
-description: "Show the owner an item, or the answer to a question about the code, as one local page in the Bench UI kit: work/<id>/page.html, open on the tab of the state. Writes the walkthrough first when the work is built. Use when the owner types /view."
+description: "Show the owner an item, or the answer to a question about the code, as one local page in the Bench UI kit: works/<id>/page.html, open on the tab of the state. Writes the walkthrough first when the work is built. Use when the owner types /view."
 argument-hint: "[item id] or a question about the code"
 disable-model-invocation: true
 allowed-tools: Bash(nook eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Write, Edit
@@ -15,14 +15,14 @@ The Markdown files are the source, for the agents. The page is the view of them,
    - other words: a question about the code. Go to "A question" below.
 2. Run `nook eng item brief <id>`. The item needs at least `spec.md`.
 3. In `review` or `done`, the page opens on the walkthrough. Write it with `write-walkthrough` when it is missing, or when the code changed after its `updated` date.
-4. Build the page: `nook eng item page <id> --out work/<id>/page.html`.
+4. Build the page: `nook eng item page <id> --out works/<id>/page.html`.
    It opens on the tab of the state: Spec in framing, Plan in planning and ready, Tasks in cooking, Walkthrough in review and done.
    The owner named a tab, as "/view IT-3 plan": add `--tab plan`.
 5. Report in two lines: the path of `page.html`, and what it holds (the tabs, and the date of the last change of each file).
 
 ## A question
-1. Write the walkthrough of the question with `write-walkthrough`, into `work/<date>-<slug>/walkthrough.md`.
-2. Build its page: `nook eng doc page work/<date>-<slug>/walkthrough.md --out work/<date>-<slug>/page.html`.
+1. Write the walkthrough of the question with `write-walkthrough`, into `works/<date>-<slug>/walkthrough.md`.
+2. Build its page: `nook eng doc page works/<date>-<slug>/walkthrough.md --out works/<date>-<slug>/page.html`.
 3. Report the path of `page.html`.
 
 ## What the page holds

@@ -50,7 +50,7 @@ The command writes these files. Each other line in the folder stays yours.
 | `.claude/settings.json` | the Nook keys: permissions, the output style, agent teams |
 | `.nook/` | the state, such as the ledger of engineering |
 
-A pack also makes its folders: `work/`, `backlog/` and `docs/adr/` for engineering, `docs/wiki/` and `docs/references/` for the wiki, `learn/` for learn.
+A pack also makes its folders: `works/`, `backlog/` and `docs/adr/` for engineering, `docs/wiki/` and `docs/references/` for the wiki, `learn/` for learn.
 
 ## Set up the desk
 

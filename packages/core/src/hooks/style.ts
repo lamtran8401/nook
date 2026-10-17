@@ -1,31 +1,41 @@
 import { readFileSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 
-import { nearestDesk } from '@nook/desk/desks.ts'
+import { nearestDesk, type PackModule } from '@nook/desk/desks.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { score } from '../ste.ts'
 
-/** The folders of the record that the writing check reads, relative to the desk. */
-const CHECKED_FOLDERS = ['docs', 'work', 'backlog']
+export type StyleDeps = { modules: PackModule[] }
+
 /** Old work: read it, never rewrite it to the standard. */
 const SKIPPED = join('docs', 'archive')
 
-function recordPath(input: HookInput): { full: string; rel: string } | null {
+/** The folders of the record: `docs/` of the desk, and the folders that each pack names as its record. */
+const recordFolders = (deskDir: string, modules: PackModule[]): string[] => [
+  join(deskDir, 'docs'),
+  ...modules.flatMap(module => module.records?.(deskDir) ?? []),
+]
+
+const inside = (folder: string, file: string) => {
+  const rel = relative(folder, file)
+  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel)
+}
+
+function recordPath(input: HookInput, modules: PackModule[]): { full: string; rel: string } | null {
   const cwd = input.cwd ?? process.cwd()
   const desk = nearestDesk(cwd)
   const target = String(input.tool_input?.file_path ?? '')
   if (!desk || !target.endsWith('.md')) return null
   const full = resolve(cwd, target)
   const rel = relative(desk.dir, full)
-  if (!rel || rel.startsWith('..') || isAbsolute(rel)) return null
-  if (!CHECKED_FOLDERS.includes(rel.split(sep)[0] ?? '') || rel.startsWith(SKIPPED)) return null
+  if (!recordFolders(desk.dir, modules).some(folder => inside(folder, full)) || rel.startsWith(SKIPPED + sep)) return null
   return { full, rel }
 }
 
 /** PostToolUse Edit, Write: a Markdown file of the record passes the writing standard, or its sentences come back. */
-export function styleCheck(input: HookInput): HookResult {
-  const path = recordPath(input)
+export function styleCheck(input: HookInput, deps: StyleDeps = { modules: [] }): HookResult {
+  const path = recordPath(input, deps.modules)
   if (!path) return pass
   let text: string
   try {

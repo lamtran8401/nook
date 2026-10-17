@@ -1,6 +1,6 @@
 ---
 name: write-plan
-description: "Write work/<id>/plan.md for the owner's approve: In short, Today and Approach with a diagram each, Impact, Flow for size L, Proof, Risks. Decisions and evidence, not code. Use in /recipe or when the owner asks how to build it. Not the slices."
+description: "Write works/<id>/plan.md for the owner's approve: In short, Today and Approach with a diagram each, Impact, Flow for size L, Proof, Risks. Decisions and evidence, not code. Use in /recipe or when the owner asks how to build it. Not the slices."
 argument-hint: "<item id>"
 allowed-tools: Bash(nook eng *), Read, Glob, Grep, Edit, Write
 ---
@@ -10,7 +10,7 @@ The reader is the owner on the tech side. The builder reads the code and its sli
 Fill the file that `agree` scaffolded. The sections, their sizes, the diagrams and two snippets: `sections.md` (this folder).
 
 ## Read first
-- `nook eng item brief <id>` and `work/<id>/spec.md`: the criteria and Out of scope. The plan meets each criterion and adds nothing outside the scope.
+- `nook eng item brief <id>` and `works/<id>/spec.md`: the criteria and Out of scope. The plan meets each criterion and adds nothing outside the scope.
 - The live ADRs (`nook eng adr list`): follow each one, or say why this item must break it. With the wiki pack on, the pages that name the areas.
 
 ## Order

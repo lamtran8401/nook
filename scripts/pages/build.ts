@@ -162,7 +162,7 @@ function archDiagram(): string {
         pack('core', 1, 'core', 'init, doctor, guards', 'neutral'), pack('eng', 2, 'engineering', 'ledger, machine, git', 'primary'),
         pack('wiki', 3, 'wiki', 'shelves, indexes', 'success'), pack('learn', 4, 'learn', 'courses, cards', 'warning'),
         wide('base', 5, 'box', 'shared · desk', 'CLI router, hook I/O, desks, nook.yml'),
-        wide('disk', 6, 'folder', 'the desk on disk', 'nook.yml · .claude/ · .nook/engineering.db · work/ · docs/wiki/ · learn/', { fill: 'soft' }),
+        wide('disk', 6, 'folder', 'the desk on disk', 'nook.yml · .claude/ · .nook/engineering.db · works/ · docs/wiki/ · learn/', { fill: 'soft' }),
       ],
       edges: [
         { from: 'session', to: 'plugins', label: 'hooks, skills, agents' }, { from: 'plugins', to: 'app', label: 'bin/nook' },
@@ -230,7 +230,7 @@ export const DRAWN: Record<string, Source> = {
   pathsDiagram: { file: 'guide/04-work.md', heading: 'Pick a path', kind: 'table', fingerprint: '167c69b0cf6d' },
   deskDiagram: { file: 'guide/02-desks.md', heading: 'Nested desks', kind: 'block', fingerprint: '7a9853e7354a' },
   learnLoopDiagram: { file: 'guide/06-learn.md', heading: 'Each day', kind: 'table', fingerprint: '65e0a38b5168' },
-  archDiagram: { file: 'report.md', heading: 'How it is built', kind: 'block', fingerprint: 'b9e1176fd8a3' },
+  archDiagram: { file: 'report.md', heading: 'How it is built', kind: 'block', fingerprint: '267fdd1dbb2a' },
 }
 
 /** The first fenced block or table in the `## heading` section of a Markdown file, or null. */

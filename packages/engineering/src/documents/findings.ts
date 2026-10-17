@@ -1,6 +1,6 @@
 import { sections } from './markdown.ts'
 
-/** `work/<id>/findings.md`: the questions with an Answer and an Evidence line under `## Q<n>`. */
+/** `works/<id>/findings.md`: the questions with an Answer and an Evidence line under `## Q<n>`. */
 export function answeredQuestions(text: string): Set<number> {
   const answered = new Set<number>()
   for (const [name, lines] of sections(text)) {

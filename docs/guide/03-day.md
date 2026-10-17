@@ -41,8 +41,8 @@ The chat follows your language. Files, code and commit messages are in English.
 ## Three levels of output
 
 1. **Chat:** the answer in a few lines, and what waits for you.
-2. **The Markdown record:** always, in full. Agents read it. Examples: `work/SHOP-12/spec.md`, `learn/english/mistakes.md`.
-3. **A page:** only when you ask, when a step calls for it, or when the content has a shape that words hide. `/view SHOP-12` builds `work/SHOP-12/page.html`, a local page in the Bench design system.
+2. **The Markdown record:** always, in full. Agents read it. Examples: `works/SHOP-12/spec.md`, `learn/english/mistakes.md`.
+3. **A page:** only when you ask, when a step calls for it, or when the content has a shape that words hide. `/view SHOP-12` builds `works/SHOP-12/page.html`, a local page in the Bench design system.
 
 ## Decide at a gate
 

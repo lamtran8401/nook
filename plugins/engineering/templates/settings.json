@@ -3,7 +3,7 @@
     "allow": [
       "Bash(nook eng *)",
       "Bash(git switch -c nook/*)",
-      "Edit(work/**)",
+      "Edit(works/**)",
       "Edit(backlog/**)",
       "Edit(docs/adr/**)"
     ],

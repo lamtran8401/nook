@@ -17,7 +17,7 @@ Run it again after a pack is turned on: `nook init` then says which pack needs i
 5. Write the sections into `nook.yml`: one section for each pack that is on, by its name (`engineering:`, `wiki:`, `learn:`), with the facts from steps 3 and 4. Keep every line the owner wrote.
    For `wiki:`, list each shelf that exists in `docs/wiki/` with its use in one sentence, and `index: false` for a shelf of dated notes such as `daily/`. Move no page; then run `nook wiki index --fix`.
    For `learn:`, write `dir: learn`, the folder of the courses. A course gets its files later, with `/learn-setup <course>`.
-6. Make `projects/` only when the owner wants it. `nook init --update` in step 8 makes the folders of each pack (`work/`, `backlog/`, `docs/adr/` for engineering).
+6. Make `projects/` only when the owner wants it. `nook init --update` in step 8 makes the folders of each pack (`works/`, `backlog/`, `docs/adr/` for engineering).
 7. Write the map of the folder into `CLAUDE.md`, outside the Nook block: what each top folder is for, the areas, and the conventions that the owner named. Short, in plain words.
 8. Run `nook init --update`, then `nook doctor`. Report: what the disk settled, what the owner decided, what you wrote, and every gap that doctor still lists. A pack gap that is left is not done: say why.
 
