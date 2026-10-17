@@ -5,7 +5,8 @@
     "templates/rules/writing.md",
     "templates/rules/safety.md",
     "templates/rules/questions.md",
-    "templates/rules/approach.md"
+    "templates/rules/approach.md",
+    "templates/rules/comments.md"
   ],
   "settings": "templates/settings.json",
   "state": []

@@ -13,7 +13,7 @@ This file states the build of today. Update its numbers in the same commit as th
 | skills | 45: core 6, engineering 29, wiki 4, learn 6 | `ls plugins/*/skills` |
 | agents | 12: engineering 10, wiki 1, learn 1 | `ls plugins/*/agents` |
 | hooks | 12: core 6, engineering 6 | `plugins/*/hooks/hooks.json` |
-| base rules | 8: writing, safety, questions, approach, engineering, testing, wiki, learn | `ls plugins/*/templates/rules` |
+| base rules | 9: writing, safety, questions, approach, comments, engineering, testing, wiki, learn | `ls plugins/*/templates/rules` |
 | tests | 569 in 65 files, 0 failures | `bun run check` |
 | source | about 9,800 lines of TypeScript in 6 packages | `find packages/*/src -name '*.ts' \| xargs cat \| wc -l` |
 | runtime dependencies | 2: `yaml` 2.9.1, `ts-pattern` 5.9.0 | `packages/*/package.json` |
