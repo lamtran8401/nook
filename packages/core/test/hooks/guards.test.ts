@@ -43,6 +43,11 @@ describe('bashGuard', () => {
     command => expect(bash(command)).toBe('block'),
   )
 
+  test.each(['grep -n process.env src', "sed -i '' 's/...env.packs/...desk.packs/' f.ts", 'cat app.env.ts'])(
+    'lets a word that only contains .env pass: %s',
+    command => expect(bash(command)).toBe('pass'),
+  )
+
   test.each(['sqlite3 .nook/engineering.db', 'cat .nook/x.db'])('blocks a command on a state database: %s', command => {
     expect(bash(command)).toBe('block')
   })

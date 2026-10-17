@@ -23,9 +23,9 @@ export class SecretPolicy {
   }
 
   wordProblem(word: string): string | null {
-    if (/^[~./\w-]*\/?\.env(\..+)?$/.test(word) && !word.endsWith('.env.example')) return `the command names ${word}: Nook does not read or write secrets.`
+    if (/^(?:[~.\w-]*\/)*\.env(?:\.[\w.-]+)?$/.test(word) && !word.endsWith('.env.example')) return `the command names ${word}: Nook does not read or write secrets.`
     if (/(^|\/)\.npmrc$/.test(word) || /(^|\/)\.(ssh|aws)(\/|$)/.test(word)) return `the command touches ${word}: Nook does not read secrets.`
-    if (/(^|\/)\.(nook|kit)\/.*\.db/.test(word) || /^sqlite3?$/.test(word)) return 'the state databases are not for the shell: use the nook commands.'
+    if (/(^|\/)\.nook\/.*\.db/.test(word) || /^sqlite3?$/.test(word)) return 'the state databases are not for the shell: use the nook commands.'
     return null
   }
 
