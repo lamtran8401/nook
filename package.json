@@ -11,7 +11,8 @@
   "scripts": {
     "check": "bun run typecheck && bun run test",
     "typecheck": "tsc --noEmit",
-    "test": "bun test --timeout 30000"
+    "test": "bun test --timeout 30000",
+    "pages": "bun scripts/pages/build.ts"
   },
   "devDependencies": {
     "@types/bun": "1.4.2",

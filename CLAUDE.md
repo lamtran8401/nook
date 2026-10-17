@@ -16,12 +16,14 @@ docs/guide/            the guide book: how to use Nook, one chapter for each tas
 docs/reference/        the contract of each pack: core, engineering, wiki, learn
 docs/report.md         the current build: the parts, the numbers, the limits, the next steps
 docs/expect/           what the current step must do before it is done
+scripts/pages/         builds the two pages of the docs (guide book, build report) from the Markdown
 ```
 The packs are core, engineering, wiki and learn. `nook eng …` runs the commands of engineering, `nook wiki …` those of the wiki, `nook learn …` those of learn.
 A desk is a folder with `nook.yml`. Desks nest: `company/` is a top desk, and `company/shop/` is a child desk inside it.
 
 ## Checks
 - A change to a command, a skill, an agent or a hook changes its doc in the same commit: the reference of its pack, the guide when the use changes, the numbers of `docs/report.md`.
+- After a change to `docs/guide/` or `docs/report.md`, run `bun run pages <out dir> <report url>` and publish both pages again to their links.
 - `bun run check`: `tsc --noEmit` and `bun test`. Commit only when it passes.
 - `nook ste <file.md>` on each Markdown file of `plugins/` and `docs/`: above 80%. Run the tool by its name; the guard blocks a path to the binary.
 - `claude plugin validate .` after a change to a manifest.
