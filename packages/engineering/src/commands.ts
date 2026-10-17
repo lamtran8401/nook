@@ -603,7 +603,7 @@ const homeCommands: Command[] = [
   },
   {
     path: ['init'],
-    summary: 'make work/, backlog/ and docs/adr/ in the home',
+    summary: 'make works/, backlog/ and docs/adr/ in the home',
     run(c) {
       const home = Home.require()
       const made = engineeringModule.setup(home.dir)
