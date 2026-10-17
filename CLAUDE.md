@@ -24,6 +24,7 @@ A desk is a folder with `nook.yml`. Desks nest: `company/` is a top desk, and `c
 ## Checks
 - A change to a command, a skill, an agent or a hook changes its doc in the same commit: the reference of its pack, the guide when the use changes, the numbers of `docs/report.md`.
 - After a change to `docs/guide/` or `docs/report.md`, run `bun run pages <out dir> <report url>` and publish both pages again to their links.
+- Five diagrams of the pages are drawn by hand in `scripts/pages/build.ts`. When the doc text of one changes, `bun run pages` and its test stop and name the diagram: redraw it, then set its new fingerprint in `DRAWN`.
 - `bun run check`: `tsc --noEmit` and `bun test`. Commit only when it passes.
 - `nook ste <file.md>` on each Markdown file of `plugins/` and `docs/`: above 80%. Run the tool by its name; the guard blocks a path to the binary.
 - `claude plugin validate .` after a change to a manifest.

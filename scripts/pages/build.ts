@@ -126,7 +126,7 @@ function archDiagram(): string {
   return diagram('dg-arch', inner, edges, 'The layers. A pack package imports only <code>shared</code> and <code>desk</code>; a plugin holds no code.')
 }
 
-/** A text block whose first line names a diagram becomes that diagram; any other ASCII tree becomes a folder tree. */
+/** A text block whose first line names a diagram becomes that diagram; any other ASCII tree becomes a folder tree. `DRAWN` keeps each diagram in step with its doc text. */
 function figureFor(text: string): string | null {
   if (text.startsWith('backlog ──/spec──▶')) return flowDiagram()
   if (text.startsWith('company/              a top desk')) return deskDiagram()
@@ -169,6 +169,40 @@ export function tableAfter(markdown: string, heading: string): string[][] {
     rows.push(line.slice(1, -1).split(/(?<!\\)\|/).map(cell => cell.trim().replace(/\\\|/g, '|').replace(/`/g, '')))
   }
   return rows
+}
+
+type Source = { file: string; heading: string; kind: 'block' | 'table'; fingerprint: string }
+
+/** The doc text that each hand-drawn diagram shows. When that text changes, the build stops until the diagram is redrawn. */
+export const DRAWN: Record<string, Source> = {
+  flowDiagram: { file: 'guide/04-work.md', heading: 'The flow', kind: 'block', fingerprint: 'f1b21a777f92' },
+  pathsDiagram: { file: 'guide/04-work.md', heading: 'Pick a path', kind: 'table', fingerprint: '37d3812a5536' },
+  deskDiagram: { file: 'guide/02-desks.md', heading: 'Nested desks', kind: 'block', fingerprint: '7a9853e7354a' },
+  learnLoopDiagram: { file: 'guide/06-learn.md', heading: 'Each day', kind: 'table', fingerprint: '65e0a38b5168' },
+  archDiagram: { file: 'report.md', heading: 'How it is built', kind: 'block', fingerprint: 'b9e1176fd8a3' },
+}
+
+/** The first fenced block or table in the `## heading` section of a Markdown file, or null. */
+export function sourceText(markdown: string, heading: string, kind: Source['kind']): string | null {
+  const start = markdown.indexOf(`\n## ${heading}\n`)
+  if (start < 0) return null
+  const body = markdown.slice(start + heading.length + 5)
+  const section = body.slice(0, body.search(/\n## |$/))
+  const found = kind === 'block' ? section.match(/^```[^\n]*\n[\s\S]*?\n```$/m) : section.match(/^\|.*\|$(?:\n^\|.*\|$)+/m)
+  return found?.[0] ?? null
+}
+
+export const fingerprint = (text: string) => new Bun.CryptoHasher('sha256').update(text).digest('hex').slice(0, 12)
+
+/** One line for each diagram whose doc text changed since it was drawn. */
+export function staleDiagrams(docs: string): string[] {
+  return Object.entries(DRAWN).flatMap(([draw, source]) => {
+    const text = sourceText(readFileSync(join(docs, source.file), 'utf8'), source.heading, source.kind)
+    const now = text === null ? 'none' : fingerprint(text)
+    if (now === source.fingerprint) return []
+    const what = text === null ? `has no ${source.kind}` : `changed (fingerprint ${now})`
+    return [`the ${source.kind} under "## ${source.heading}" of docs/${source.file} ${what}: redraw ${draw}() in scripts/pages/build.ts, then set its fingerprint in DRAWN to ${now}`]
+  })
 }
 
 const firstNumber = (cell: string) => cell.match(/[\d,]+/)?.[0]?.replace(/,/g, '') ?? '?'
@@ -280,6 +314,8 @@ function reportPage(report: string, now: Date): string {
 }
 
 export function buildPages(docs: string, reportUrl = '', now = new Date()): Pages {
+  const stale = staleDiagrams(docs)
+  if (stale.length) throw new Error(stale.join('\n'))
   const report = readFileSync(join(docs, 'report.md'), 'utf8')
   return { guide: guidePage(docs, report, reportUrl, now), report: reportPage(report, now) }
 }

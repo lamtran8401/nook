@@ -1,9 +1,16 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { buildPages, tableAfter, tree } from './build.ts'
+import { buildPages, DRAWN, sourceText, staleDiagrams, tableAfter, tree } from './build.ts'
+
+const REPO_DOCS = join(import.meta.dir, '../../docs')
+/** The doc text of a drawn diagram, as the repo docs hold it, so a fixture passes the diagram check. */
+function drawnText(draw: string): string {
+  const source = DRAWN[draw]!
+  return sourceText(readFileSync(join(REPO_DOCS, source.file), 'utf8'), source.heading, source.kind)!
+}
 
 let docs: string
 beforeEach(() => {
@@ -13,11 +20,11 @@ beforeEach(() => {
   const files: Record<string, string> = {
     'README.md': '# The guide book\n\nRead [chapter 2](02-desks.md), [the report](../report.md) and [the reference](../reference/core.md).\n',
     '01-start.md': chapter(1),
-    '02-desks.md': chapter(2),
+    '02-desks.md': chapter(2, `## Nested desks\n\n${drawnText('deskDiagram')}\n`),
     '03-day.md': chapter(3),
-    '04-work.md': chapter(4, '## Pick a path\n\n| Path | Use |\n|---|---|\n| quick | a fix |\n'),
+    '04-work.md': chapter(4, `## The flow\n\n${drawnText('flowDiagram')}\n\n## Pick a path\n\n${drawnText('pathsDiagram')}\n`),
     '05-wiki.md': chapter(5),
-    '06-learn.md': chapter(6, '## Each day\n\n| Part | What |\n|---|---|\n| cards | due |\n'),
+    '06-learn.md': chapter(6, `## Each day\n\n${drawnText('learnLoopDiagram')}\n`),
     '07-blocks.md': chapter(7),
   }
   for (const [file, text] of Object.entries(files)) writeFileSync(join(docs, 'guide', file), text)
@@ -29,6 +36,7 @@ beforeEach(() => {
       '| packs | 4: core, engineering, wiki, learn | `nook packs` |', '| tests | 560 in 64 files, 0 failures | `bun run check` |', '',
       '## Tests', '', '| Package | Tests | Files |', '|---|---|---|',
       '| core | 158 | 14 |', '| wiki | 21 | 2 |', '| total | 179 | 16 |', '',
+      '## How it is built', '', drawnText('archDiagram'), '',
     ].join('\n'),
   )
 })
@@ -71,5 +79,24 @@ describe('buildPages', () => {
     expect(guide).toContain('<a href="https://claude.ai/artifact/REPORT" target="_blank" rel="noopener">the report</a>')
     expect(guide).toContain('the reference (<code>docs/reference/core.md</code>)')
     expect(guide).toContain('4 packs: core, engineering, wiki, learn')
+  })
+})
+
+describe('the drawn diagrams', () => {
+  test('match the docs of the repo', () => {
+    expect(staleDiagrams(REPO_DOCS)).toEqual([])
+  })
+
+  test('stop the build when the doc text of a diagram changed, and name the diagram to redraw', () => {
+    const work = join(docs, 'guide', '04-work.md')
+    writeFileSync(work, readFileSync(work, 'utf8').replace('──▶ framing', '──▶ shaping'))
+    expect(() => buildPages(docs)).toThrow('the block under "## The flow" of docs/guide/04-work.md changed')
+    expect(() => buildPages(docs)).toThrow('redraw flowDiagram() in scripts/pages/build.ts')
+  })
+
+  test('stop the build when the doc drops the text of a diagram', () => {
+    const learn = join(docs, 'guide', '06-learn.md')
+    writeFileSync(learn, '# 6. Chapter 6\n\n## Each day\n\nNo table now.\n')
+    expect(() => buildPages(docs)).toThrow('the table under "## Each day" of docs/guide/06-learn.md has no table')
   })
 })
