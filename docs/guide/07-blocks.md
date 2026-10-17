@@ -28,7 +28,7 @@
 The Stop hook holds the lead in two cases:
 
 - A blocking question of its item is open. Answer it.
-- An auto run waits for the next stage of the lead. The reason names the skill file.
+- A yolo run waits for the next stage of the lead. The reason names the skill file.
 
 It lets go after six holds in a row, so a loop cannot run forever.
 

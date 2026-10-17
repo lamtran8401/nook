@@ -71,7 +71,7 @@ function pathsDiagram(): string {
   const PHASE: Record<string, string> = {
     '/intake': 'core', '/spec': 'plan', '/recipe': 'plan', 'one criterion': 'plan', spec: 'plan', plan: 'plan', proceed: 'plan',
     '/cook': 'build', '/quick': 'build', 'test first': 'build', build: 'build',
-    '/deep-review': 'check', proof: 'check', review: 'check', '/guesses': 'check', '/close': 'done', '/auto': 'core',
+    '/deep-review': 'check', proof: 'check', review: 'check', '/guesses': 'check', '/close': 'done', '/yolo': 'core',
   }
   const step = (s: string) => `<span class="step shape${s.startsWith('★') ? ' is-gate' : ` tone-${PHASE[s] ?? 'core'}`}">${s}</span>`
   const lane = (title: string, note: string, steps: string[]) =>
@@ -79,7 +79,7 @@ function pathsDiagram(): string {
   const lanes = [
     lane('Full', 'a feature, two areas, a contract', ['/intake', '/spec', '/recipe', '★ approve', '/cook', '/deep-review', '★ accept', '/close']),
     lane('Quick', 'one area, size S, low risk', ['/quick', 'one criterion', 'test first', 'proof', '★ accept', '/close']),
-    lane('Auto', 'the companion runs it alone', ['/auto', 'spec', 'plan', 'proceed', 'build', 'review', '★ accept', '/guesses']),
+    lane('Yolo', 'the companion runs it alone', ['/yolo', 'spec', 'plan', 'proceed', 'build', 'review', '★ accept', '/guesses']),
   ]
   return `<figure class="fig"><div class="scroll-x"><div class="lanes">${lanes.join('')}</div></div><figcaption>Three paths for one item, in the colours of the flow above. Each one ends at your accept.</figcaption></figure>`
 }
@@ -187,7 +187,7 @@ type Source = { file: string; heading: string; kind: 'block' | 'table'; fingerpr
 /** The doc text that each hand-drawn diagram shows. When that text changes, the build stops until the diagram is redrawn. */
 export const DRAWN: Record<string, Source> = {
   flowDiagram: { file: 'guide/04-work.md', heading: 'The flow', kind: 'block', fingerprint: 'f1b21a777f92' },
-  pathsDiagram: { file: 'guide/04-work.md', heading: 'Pick a path', kind: 'table', fingerprint: '37d3812a5536' },
+  pathsDiagram: { file: 'guide/04-work.md', heading: 'Pick a path', kind: 'table', fingerprint: '167c69b0cf6d' },
   deskDiagram: { file: 'guide/02-desks.md', heading: 'Nested desks', kind: 'block', fingerprint: '7a9853e7354a' },
   learnLoopDiagram: { file: 'guide/06-learn.md', heading: 'Each day', kind: 'table', fingerprint: '65e0a38b5168' },
   archDiagram: { file: 'report.md', heading: 'How it is built', kind: 'block', fingerprint: 'b9e1176fd8a3' },

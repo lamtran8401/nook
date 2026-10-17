@@ -53,7 +53,7 @@ A fault in the section stops the command and names the fix: a kind that does not
 The owner is one of these:
 - a process that Claude Code did not start: `CLAUDECODE` is not set;
 - a move that the owner typed as `/gate <move> <id>`, with the actor `owner via /gate`;
-- an `/auto` that the owner typed, with the actor `owner via /auto`.
+- an `/yolo` that the owner typed, with the actor `owner via /yolo`.
 
 The Bash hook reads the role of an agent from the hook input:
 - No `agent_type` and no `agent_id`: the lead.
@@ -68,7 +68,7 @@ The hook drops a role flag that the model wrote, then adds its own flags right a
 
 ```
 backlog ─start→ framing ─agree→ planning ─approve★→ ready ─begin→ cooking ─submit→ review ─accept★→ done
-                                 └──proceed (auto run)──┘
+                                 └──proceed (yolo run)──┘
 review ─reject→ cooking            done ─reopen→ cooking         ready | cooking | review ─replan→ planning
 planning | ready | cooking | review ─reframe→ framing            any open ─block→ blocked ─unblock→ the state before
 any open ─cancel→ cancelled ─restore→ backlog                    ★ only the owner
@@ -79,7 +79,7 @@ any open ─cancel→ cancelled ─restore→ backlog                    ★ onl
 | start | lead, owner | none; writes `spec.md` from its template |
 | agree | lead, owner | see the agree list below |
 | approve | owner | see the approve list below |
-| proceed | lead | the item is in mode `auto`, and the owner made the last mode change; then the approve list |
+| proceed | lead | the item is in mode `yolo`, and the owner made the last mode change; then the approve list |
 | begin | lead, owner | see the begin list below |
 | submit | lead, owner | see the submit list below |
 | accept | owner | see the accept list below |
@@ -135,13 +135,13 @@ accept:
 Rules:
 - `kind`, `size`, `areas` and the criteria come from the front matter and the AC lines of `spec.md`. `agree`, `approve` and `proceed` copy them into the item.
 - A move back (`reject`, `replan`, `reframe`, `reopen`, `restore`) clears the approval. It also sets `evidence_from` to the last check run, so only a later verify counts.
-- `reopen` sets the mode back to `normal`. An auto run ends at the accept, and only the owner starts the next one.
+- `reopen` sets the mode back to `normal`. A yolo run ends at the accept, and only the owner starts the next one.
 - `reopen` and `restore` bring an archived ticket folder back to `backlog/<id>/`.
 - From `ready` on, the slices, the criteria, and the fields `kind`, `size` and `areas` are frozen. A change stops with exit 3 and the fix `nook eng item replan <id>`.
 - `item ac add` writes the new line into `spec.md` too. A quick item can add a criterion in any state.
 - `quick <id|title> --area <a>` makes an item in `cooking` with one running slice for the lead. It has no spec and no plan.
 - Kind `investigate` has Questions in place of ACs and no slices. It writes `findings.md`.
-- Mode `auto`: only the owner sets it, with `/gate mode <id> auto` or `/auto`. The Stop hook keeps the lead on the next stage; the accept stays the owner's.
+- Mode `yolo`: only the owner sets it, with `/gate mode <id> yolo` or `/yolo`. The Stop hook keeps the lead on the next stage; the accept stays the owner's.
 
 ## 5. The ledger: `<home>/.nook/engineering.db`
 
@@ -162,7 +162,7 @@ Rules:
 |---|---|
 | kind | `feature`, `fix`, `chore`, `investigate` |
 | size | `S`, `M`, `L` |
-| mode | `normal`, `auto` |
+| mode | `normal`, `yolo` |
 | grade | `run`, `sourced`, `judged`, `owner` |
 | proof | `none`, `proven`, `weak`, `skipped` |
 | impact | `low`, `med`, `high` |
@@ -324,14 +324,14 @@ The Edit hook:
 
 The Stop hook:
 - It holds the lead while a blocking question of its item is open.
-- It holds the lead in an auto run that the owner started, while the next stage is the lead's. The reason names the skill file of the stage.
-- It holds only the session that leads the item, or the one auto item that no session leads.
+- It holds the lead in a yolo run that the owner started, while the next stage is the lead's. The reason names the skill file of the stage.
+- It holds only the session that leads the item, or the one yolo item that no session leads.
 - It lets go while a background task runs, unless a blocking question is open.
 - It lets go after 6 holds in a row; a move of the item starts the count again.
 - In review, it lets go after 2 rejects, or when accept has no gap.
 - In cooking, it lets go while a slice runs, or when each slice ended and one failed.
 
-The `/gate` and `/auto` hook is in the core (`UserPromptExpansion`). It runs an owner move of a pack because the owner typed it.
+The `/gate` and `/yolo` hook is in the core (`UserPromptExpansion`). It runs an owner move of a pack because the owner typed it.
 It refuses inside an agent, and in a session that a tool started. `/gate` alone lists the moves that wait for the owner.
 
 ## 10. Skills
@@ -346,7 +346,7 @@ Stage skills, which the owner types (`disable-model-invocation: true`):
 | `/cook` | cooking |
 | `/deep-review`, `/view` | review |
 | `/close` | done |
-| `/quick`, `/auto`, `/guesses`, `/handoff`, `/pickup` | any |
+| `/quick`, `/yolo`, `/guesses`, `/handoff`, `/pickup` | any |
 
 Craft skills, which the model starts:
 

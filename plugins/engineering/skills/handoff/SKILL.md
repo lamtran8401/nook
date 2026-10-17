@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: "End a session: write work/<id>/handoff.md, at most 40 lines, with State, Done, Next, Open, Guesses and Watch. Use when the owner says handoff, wrap up the session, save state or stop for today, or when an auto run stops."
+description: "End a session: write work/<id>/handoff.md, at most 40 lines, with State, Done, Next, Open, Guesses and Watch. Use when the owner says handoff, wrap up the session, save state or stop for today, or when a yolo run stops."
 argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(nook eng *), Bash(git status *), Read, Write, Edit
@@ -21,7 +21,7 @@ Write facts about the state, not a diary.
 ## The six sections
 ```
 # Hand-over: SHOP-12
-## State      the state, the mode, the slices by state; the stop reason when an auto run stopped
+## State      the state, the mode, the slices by state; the stop reason when a yolo run stopped
 ## Done       what changed since the last note, with the file paths; not the story of how
 ## Next       one command and one slice; at a gate, the `/gate` command that the owner types
 ## Open       each open question (nook eng questions <id> --open) and each failed slice, with the reason and what you tried
@@ -33,5 +33,5 @@ Write facts about the state, not a diary.
 - A note that says "all good" is not a note. Say what is done and what is next.
 - Do not copy the spec or the plan into the note. Name the section.
 - Dirty files in an area go under Watch. The next session sees them as drift otherwise.
-- Name the stop reason of an auto run in State: a gate, a failed slice, a question with no safe default.
+- Name the stop reason of a yolo run in State: a gate, a failed slice, a question with no safe default.
 - Over 40 lines, cut Done first. The ledger holds the history.

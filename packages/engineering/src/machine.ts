@@ -65,7 +65,7 @@ export type Move = {
   copiesSpec?: boolean
   /** Stores the fingerprints of the three documents. */
   approves?: boolean
-  /** Sets the mode back to normal: an auto run ends at the accept, and only the owner starts the next one. */
+  /** Sets the mode back to normal: a yolo run ends at the accept, and only the owner starts the next one. */
   endsAuto?: boolean
   /** Brings an archived ticket folder back to the backlog: the item is open again and its stages read the ticket. */
   unarchives?: boolean

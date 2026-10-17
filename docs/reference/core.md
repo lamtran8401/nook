@@ -96,7 +96,7 @@ The file is `plugins/core/hooks/hooks.json`. Each hook runs `nook hook <name>` a
 | PreToolUse Edit, Write | `edit` | blocks a secret file, the state folder, `.claude/settings*.json` | blocks |
 | PostToolUse Edit, Write | `style` | scores a Markdown file under `docs/`, `work/` or `backlog/` of the desk; sends back the failing sentences | lets go |
 | SessionStart | `start` | the desk, its packs and the hint `nook doctor`, as context | lets go |
-| UserPromptExpansion `/gate`, `/auto` | `gate` | runs the owner move that the owner typed | lets go |
+| UserPromptExpansion `/gate`, `/yolo` | `gate` | runs the owner move that the owner typed | lets go |
 
 The secret files, the same for the read, shell and edit guards:
 
@@ -119,7 +119,7 @@ The plugin shim `bin/nook` runs the binary of the repo that holds the plugin, th
 |---|---|
 | `/setup [what changed]` | reads the disk, asks what it cannot settle, writes the section of each pack and the map in `CLAUDE.md` |
 | `/checkup` | runs `nook doctor`, fixes the agent's gaps, lists the owner's |
-| `/gate [approve\|accept\|mode] [<id>] [auto\|normal]` | the owner's moves; a hook runs the move before the skill text |
+| `/gate [approve\|accept\|mode] [<id>] [yolo\|normal]` | the owner's moves; a hook runs the move before the skill text |
 | `/brief` | the daily brief in chat; writes no file |
 | `/retro` | the causes since the last retro, the change for each, picked by the owner; writes `docs/retro/<date>.md` |
 | `/grill-me <the decision>` | one open question at a time, an example for each adjective; writes `docs/grill/<date>-<slug>.md` |

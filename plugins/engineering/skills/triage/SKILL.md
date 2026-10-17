@@ -20,7 +20,7 @@ size       S one area · M two areas · L three or more, or a step that is hard 
 areas      the areas of nook.yml that change; run find-repos when two readings exist
 contract   yes when a shared interface changes: a proto, GraphQL, OpenAPI or event schema, even in one area
 risk       data migration · shared contract · many consumers · unclear requirement · no tests today · hard to undo
-path       quick (fix or chore, one area, S, no contract) · standard · auto when the mode is auto · investigate
+path       quick (fix or chore, one area, S, no contract) · standard · yolo when the mode is yolo · investigate
 challenge  skip (S, no risk) · one skeptic pass (M) · full round (L, every contract change); each risk tick raises it one step
 ```
 4. For an item that exists, write the result into the spec front matter (`kind`, `size`, `areas`): it is the source. Before `agree`, `nook eng item edit <id> kind|size|areas <value>` keeps the ledger in step.

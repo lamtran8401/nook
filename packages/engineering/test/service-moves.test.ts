@@ -291,7 +291,7 @@ describe('Engineering.moveItem: the moves back, block, cancel and versions', () 
     itemAt(t, 'backlog')
     fails(() => t.eng(READER).moveItem('start', 'SHOP-1'), Exit.denied, 'move: only the owner or the lead can do this (you are reader)')
     fails(() => t.eng(BUILDER).newItem({ id: 'SHOP-2', title: 'x' }), Exit.denied, /item new/)
-    fails(() => t.eng(LEAD).setMode('SHOP-1', 'auto'), Exit.denied, 'mode: only the owner can do this (you are lead)')
+    fails(() => t.eng(LEAD).setMode('SHOP-1', 'yolo'), Exit.denied, 'mode: only the owner can do this (you are lead)')
   })
 })
 
@@ -344,20 +344,20 @@ describe('Engineering.moveItem on an investigation', () => {
 })
 
 describe('Engineering.moveItem: proceed', () => {
-  test('proceed passes the approve gate only in an auto run that the owner set', () => {
+  test('proceed passes the approve gate only in a yolo run that the owner set', () => {
     itemAt(t, 'planning')
     const lead = t.eng(LEAD)
     const owner = t.eng(OWNER)
     writeDoc(t, 'SHOP-1', 'plan.md', PLAN)
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }]))
     lead.importTasks('SHOP-1')
-    fails(() => lead.moveItem('proceed', 'SHOP-1'), Exit.refused, 'SHOP-1 is not in an auto run that the owner started (mode normal)', 'owner: /gate mode SHOP-1 auto')
+    fails(() => lead.moveItem('proceed', 'SHOP-1'), Exit.refused, 'SHOP-1 is not in a yolo run that the owner started (mode normal)', 'owner: /gate mode SHOP-1 yolo')
     fails(() => owner.moveItem('proceed', 'SHOP-1'), Exit.denied, 'proceed: only the lead can do this (you are owner)')
-    owner.setMode('SHOP-1', 'auto')
-    // a mode event by another role does not count, even with the mode column at auto
-    lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-1', 'mode', 'auto', 'auto', 'lead', 'lead', '2026-01-01T00:00:00Z')")
-    fails(() => lead.moveItem('proceed', 'SHOP-1'), Exit.refused, /not in an auto run that the owner started/)
-    owner.setMode('SHOP-1', 'auto')
+    owner.setMode('SHOP-1', 'yolo')
+    // a mode event by another role does not count, even with the mode column at yolo
+    lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-1', 'mode', 'yolo', 'yolo', 'lead', 'lead', '2026-01-01T00:00:00Z')")
+    fails(() => lead.moveItem('proceed', 'SHOP-1'), Exit.refused, /not in a yolo run that the owner started/)
+    owner.setMode('SHOP-1', 'yolo')
     expect(lead.moveItem('proceed', 'SHOP-1').item.state).toBe('ready')
     expect(lead.stores.approvals.hashes('SHOP-1').size).toBe(3)
   })
@@ -391,22 +391,22 @@ describe('Engineering.archive', () => {
   })
 })
 
-describe('Engineering.moveItem: reopen ends an auto run', () => {
-  test('a reopened item is back in mode normal: the auto run ended at the accept', () => {
+describe('Engineering.moveItem: reopen ends a yolo run', () => {
+  test('a reopened item is back in mode normal: the yolo run ended at the accept', () => {
     itemAt(t, 'cooking')
     const lead = t.eng(LEAD)
-    t.eng(OWNER).setMode('SHOP-1', 'auto')
+    t.eng(OWNER).setMode('SHOP-1', 'yolo')
     lead.ledger.run("UPDATE item SET state = 'done' WHERE id = 'SHOP-1'")
     lead.moveItem('reopen', 'SHOP-1', { reason: 'a gap of the page' })
     expect([lead.item('SHOP-1').state, lead.item('SHOP-1').mode]).toEqual(['cooking', 'normal'])
   })
 
-  test('a reject inside an auto run keeps the mode auto', () => {
+  test('a reject inside a yolo run keeps the mode yolo', () => {
     itemAt(t, 'cooking')
     const lead = t.eng(LEAD)
-    t.eng(OWNER).setMode('SHOP-1', 'auto')
+    t.eng(OWNER).setMode('SHOP-1', 'yolo')
     lead.ledger.run("UPDATE item SET state = 'review' WHERE id = 'SHOP-1'")
     lead.moveItem('reject', 'SHOP-1', { reason: 'AC 1 not met' })
-    expect(lead.item('SHOP-1').mode).toBe('auto')
+    expect(lead.item('SHOP-1').mode).toBe('yolo')
   })
 })

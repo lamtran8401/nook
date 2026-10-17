@@ -18,7 +18,7 @@ export type Impact = (typeof IMPACTS)[number]
 export const PROOFS = ['none', 'proven', 'weak', 'skipped'] as const
 export type Proof = (typeof PROOFS)[number]
 
-export const MODES = ['normal', 'auto'] as const
+export const MODES = ['normal', 'yolo'] as const
 export type Mode = (typeof MODES)[number]
 
 export const isOneOf = <T extends string>(values: readonly T[], value: string | undefined): value is T =>

@@ -54,4 +54,9 @@ export const MIGRATIONS: string[] = [
   UPDATE event SET from_state = 'review' WHERE from_state = 'checking';
   UPDATE event SET to_state = 'review' WHERE to_state = 'checking';
   `,
+  `
+  UPDATE item SET mode = 'yolo' WHERE mode = 'auto';
+  UPDATE event SET from_state = 'yolo' WHERE type = 'mode' AND from_state = 'auto';
+  UPDATE event SET to_state = 'yolo' WHERE type = 'mode' AND to_state = 'auto';
+  `,
 ]

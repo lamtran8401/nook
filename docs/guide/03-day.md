@@ -53,8 +53,8 @@ Some moves belong only to you. You type them in the prompt; a Nook hook runs the
 | `/gate` | lists each move that waits for you |
 | `/gate approve SHOP-12` | approves the plan; the build can start |
 | `/gate accept SHOP-12` | accepts the result; the item is done |
-| `/gate mode SHOP-12 auto` | lets the companion run the next stages alone |
-| `/auto SHOP-12` | sets the mode `auto` and starts the run |
+| `/gate mode SHOP-12 yolo` | lets the companion run the next stages alone |
+| `/yolo SHOP-12` | sets the mode `yolo` and starts the run |
 
 An agent never runs these moves. The guard blocks a gate move by the model, inside an agent, or in a session that a tool started.
 

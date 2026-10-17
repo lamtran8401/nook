@@ -34,10 +34,10 @@ const itemIds = () => ledger.all<{ id: string }>('SELECT id FROM item ORDER BY i
 
 describe('Ledger', () => {
   test('open makes the folder of the file and runs the migrations once', () => {
-    expect(ledger.get<{ n: number }>('SELECT MAX(n) AS n FROM migration')).toEqual({ n: 2 })
+    expect(ledger.get<{ n: number }>('SELECT MAX(n) AS n FROM migration')).toEqual({ n: 3 })
     ledger.close()
     ledger = Ledger.open(join(dir, 'state', 'engineering.db'))
-    expect(ledger.all('SELECT n FROM migration')).toEqual([{ n: 1 }, { n: 2 }])
+    expect(ledger.all('SELECT n FROM migration')).toEqual([{ n: 1 }, { n: 2 }, { n: 3 }])
   })
 
   test('open renames the old state checking to review in the items and the events, and keeps the history', () => {
@@ -56,6 +56,26 @@ describe('Ledger', () => {
     expect(old.all('SELECT type, from_state, to_state FROM event ORDER BY id')).toEqual([
       { type: 'submit', from_state: 'cooking', to_state: 'review' },
       { type: 'reject', from_state: 'review', to_state: 'cooking' },
+    ])
+    old.close()
+  })
+
+  test('open renames the old mode auto to yolo in the items and the mode events', () => {
+    const file = join(dir, 'old-mode', 'engineering.db')
+    writeFirstSchema(file, [
+      "INSERT INTO item (id, title, state, mode, mode_by, created, updated) VALUES ('SHOP-1', 'x', 'cooking', 'auto', 'owner', 'now', 'now')",
+      "INSERT INTO item (id, title, state, created, updated) VALUES ('SHOP-2', 'x', 'backlog', 'now', 'now')",
+      "INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-1', 'mode', 'normal', 'auto', 'owner', 'owner', '1')",
+      "INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-1', 'begin', 'ready', 'cooking', 'lead', 'lead', '2')",
+    ])
+    const old = Ledger.open(file)
+    expect(old.all('SELECT id, mode FROM item ORDER BY id')).toEqual([
+      { id: 'SHOP-1', mode: 'yolo' },
+      { id: 'SHOP-2', mode: 'normal' },
+    ])
+    expect(old.all('SELECT type, from_state, to_state FROM event ORDER BY id')).toEqual([
+      { type: 'mode', from_state: 'normal', to_state: 'yolo' },
+      { type: 'begin', from_state: 'ready', to_state: 'cooking' },
     ])
     old.close()
   })

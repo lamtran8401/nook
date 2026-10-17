@@ -4,7 +4,7 @@ import { block, context, type HookInput, type HookResult, pass } from '@nook/sha
 import { ancestorCommands, inBackground, startedByTool } from './session.ts'
 
 /**
- * UserPromptExpansion of /gate and of the typed commands of a pack, as /auto: they run as the owner because the owner
+ * UserPromptExpansion of /gate and of the typed commands of a pack, as /yolo: they run as the owner because the owner
  * typed them. Claude Code fires this event only for a command that a person types, never for a skill that the model
  * calls; the hook also refuses an agent and a session that a tool started.
  */

@@ -12,7 +12,7 @@
       { "matcher": "startup|resume|compact", "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" hook start", "timeout": 20 }] }
     ],
     "UserPromptExpansion": [
-      { "matcher": ".*(gate|auto)", "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" hook gate", "timeout": 30 }] }
+      { "matcher": ".*(gate|yolo)", "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" hook gate", "timeout": 30 }] }
     ]
   }
 }

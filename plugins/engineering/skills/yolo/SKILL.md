@@ -1,6 +1,6 @@
 ---
-name: auto
-description: "Run an item alone from its state to the owner's accept: the lead runs the phases, records each guess, passes the plan gate with proceed, and stops at a stop rule. Use when the owner types /auto with an id, a prompt, or nothing."
+name: yolo
+description: "Run an item alone from its state to the owner's accept: the lead runs the phases, records each guess, passes the plan gate with proceed, and stops at a stop rule. Use when the owner types /yolo with an id, a prompt, or nothing."
 argument-hint: "[item id | what to build] [context for the lead]"
 disable-model-invocation: true
 allowed-tools: Bash(nook eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Edit, Write
@@ -11,17 +11,17 @@ The gain is time; the cost is guesses, so each one is small and recorded.
 The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 
 ## Start
-1. Read the lines that start with "Nook auto". A Nook hook ran when the owner typed `/auto`: it named the item and set its mode `auto` as the owner.
-   - "It was refused": show the lines, and stop. With several open items, ask with AskUserQuestion which one, and tell the owner to type `/auto <id>`.
-   - No "Nook auto" line: the hook did not run. Run `nook doctor`, report each gap, and stop. Never set the mode yourself.
+1. Read the lines that start with "Nook yolo". A Nook hook ran when the owner typed `/yolo`: it named the item and set its mode `yolo` as the owner.
+   - "It was refused": show the lines, and stop. With several open items, ask with AskUserQuestion which one, and tell the owner to type `/yolo <id>`.
+   - No "Nook yolo" line: the hook did not run. Run `nook doctor`, report each gap, and stop. Never set the mode yourself.
    - A line "Nook session: background": this session can edit only inside a worktree, and the build of an area happens in place on the branch of the item. Tell the owner before the first stage, in plain words, and ask with AskUserQuestion: go on in a normal session (recommended), or run the spec and the plan here and stop before the build.
-2. Run `nook eng item show <id> --json`. The mode must be `auto`, set by the owner (`mode_by`).
+2. Run `nook eng item show <id> --json`. The mode must be `yolo`, set by the owner (`mode_by`).
 3. An item that the hook "made from the prompt": the words of the owner are the ticket. Write `backlog/<id>/ticket.md` from them, then run intake from its step 3.
 4. The words after an id are the owner's context; they win over the ticket, cited as `(owner)`.
 
 ## The stages
 Run `nook eng next <id>`: it names the stage. Read `${CLAUDE_PLUGIN_ROOT}/skills/<stage>/SKILL.md` and follow it from step 1, with these changes:
-| Stage | In an auto run |
+| Stage | In a yolo run |
 |---|---|
 | intake | pull the ticket, no rank |
 | spec | take the recommended answer of each blocking question and record it as a guess; no confirm question; run `agree` yourself |
@@ -45,7 +45,7 @@ Stop, write `handoff.md` (`/handoff`), and report, when:
 - the accept: say "accept: type `/gate accept <id>`"; offer `/guesses <id>` and `/view <id>`.
 
 ## Gotchas
-- An auto run that the model started is a breach: check `mode_by` first.
+- A yolo run that the model started is a breach: check `mode_by` first.
 - An unrecorded guess is a decision that nobody made; record it before the next step.
 - Do not skip a step because the item looks small.
 - Do not stack a guess on a high-impact guess; finish the slices that do not depend on it first.

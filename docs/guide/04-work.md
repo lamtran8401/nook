@@ -27,7 +27,7 @@ backlog ──/spec──▶ framing ──agree──▶ planning ──★ app
 |---|---|---|
 | full | a feature, a change in two areas, a contract change | the six commands of the table above |
 | quick | a small fix in one area: size S, no contract, a clear result, low risk | `/quick SHOP-30 the export uses the wrong date` |
-| auto | an item that you trust the companion to run alone up to your accept | `/auto SHOP-12` |
+| yolo | an item that you trust the companion to run alone up to your accept | `/yolo SHOP-12` |
 
 `/quick` skips the spec and the plan, not the test. It writes one criterion, builds one slice test first, proves the test, and stops at your accept. When the fix is not small, it sends you to `/spec`.
 
@@ -113,9 +113,9 @@ A criterion that is not met, or a blocking finding, sends the item back to `cook
 
 In `/guesses`, you accept each guess or flip it. A flip sends the slices of that guess back to `todo`; the other slices stay done.
 
-## The auto run
+## The yolo run
 
-`/auto SHOP-12` sets the mode `auto` as the owner and runs the stages alone. It takes the recommended answer of each question and records it as a guess. It passes the plan gate with `proceed`, so it needs no approve from you.
+`/yolo SHOP-12` sets the mode `yolo` as the owner and runs the stages alone. It takes the recommended answer of each question and records it as a guess. It passes the plan gate with `proceed`, so it needs no approve from you.
 
 It stops and asks when:
 
@@ -126,7 +126,7 @@ It stops and asks when:
 - two review rounds did not meet each criterion;
 - the item waits for your accept.
 
-After the run, review its guesses with `/guesses SHOP-12`. Only you set the mode. An agent never starts an auto run.
+After the run, review its guesses with `/guesses SHOP-12`. Only you set the mode. An agent never starts a yolo run.
 
 ## Sessions
 

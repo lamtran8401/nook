@@ -66,12 +66,12 @@ export const engineeringModule: PackModule = {
     const home = Home.find(dir)
     if (!home) return { ok: false, lines: ['the engineering pack is not on here'] }
     const [move, id, value] = words
-    if (!id) return { ok: false, lines: [`give the item: /gate ${move} <id>${move === 'mode' ? ' auto|normal' : ''}`] }
+    if (!id) return { ok: false, lines: [`give the item: /gate ${move} <id>${move === 'mode' ? ' yolo|normal' : ''}`] }
     // the owner typed the move, so it runs as the owner; the actor marks it in the ledger
     const eng = Engineering.open(home, new Who('owner', 'owner via /gate', session))
     return refusedAsLines(() => {
       if (move === 'mode') {
-        if (!value) return { ok: false, lines: [`give the mode: /gate mode ${id} auto|normal`] }
+        if (!value) return { ok: false, lines: [`give the mode: /gate mode ${id} yolo|normal`] }
         return { ok: true, lines: [`${id} mode ${eng.setMode(id, value).mode}`] }
       }
       const result = eng.moveItem(move!, id)
@@ -91,16 +91,16 @@ export const engineeringModule: PackModule = {
       .map(n => ({ words: n.skill.slice(OWNER_STEP.length), why: `${n.id} is ${n.state}, no gap` }))
   },
 
-  commands: ['auto'],
+  commands: ['yolo'],
 
   command(dir, _name, args, session) {
     const home = Home.find(dir)
     if (!home) return { ok: false, lines: ['the engineering pack is not on here'] }
-    const eng = Engineering.open(home, new Who('owner', 'owner via /auto', session))
+    const eng = Engineering.open(home, new Who('owner', 'owner via /yolo', session))
     return refusedAsLines(() => {
       const target = autoTarget(eng, args)
       if ('ok' in target) return target
-      const item = eng.setMode(target.id, 'auto')
+      const item = eng.setMode(target.id, 'yolo')
       const after = next(eng, target.id)[0]
       return { ok: true, lines: [...target.lines, `${item.id} mode ${item.mode}`, ...(after ? [`next: ${after.skill}`] : [])] }
     })
@@ -109,11 +109,11 @@ export const engineeringModule: PackModule = {
 
 const KEY = /^[A-Z][A-Z0-9]*-\d+$/
 
-/** The item of a typed /auto: the item that the owner named, a new item from the prompt, or the one open item. */
+/** The item of a typed /yolo: the item that the owner named, a new item from the prompt, or the one open item. */
 function autoTarget(eng: Engineering, args: string): { id: string; lines: string[] } | GateResult {
   const first = args.split(/\s+/)[0] ?? ''
   const named = first && eng.stores.items.find(first)
-  if (named) return isOpen(named.state) ? { id: named.id, lines: [] } : { ok: false, lines: [`${named.id} is ${named.state}: /auto runs an open item`] }
+  if (named) return isOpen(named.state) ? { id: named.id, lines: [] } : { ok: false, lines: [`${named.id} is ${named.state}: /yolo runs an open item`] }
   if (args) {
     const rest = args.slice(first.length).trim()
     const made = eng.newItem(KEY.test(first) ? { id: first, title: rest || first } : { title: args })
@@ -121,8 +121,8 @@ function autoTarget(eng: Engineering, args: string): { id: string; lines: string
   }
   const open = eng.stores.items.open()
   if (open.length === 1) return { id: open[0]!.id, lines: [] }
-  if (!open.length) return { ok: false, lines: ['no open item: type /auto <id>, or /auto and what to build'] }
-  return { ok: false, lines: [`several open items: type /auto with one of ${open.map(i => i.id).join(', ')}`] }
+  if (!open.length) return { ok: false, lines: ['no open item: type /yolo <id>, or /yolo and what to build'] }
+  return { ok: false, lines: [`several open items: type /yolo with one of ${open.map(i => i.id).join(', ')}`] }
 }
 
 /** A refusal of the tool becomes lines for the owner: the reason, then its fix. */

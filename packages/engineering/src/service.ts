@@ -222,7 +222,7 @@ export class Engineering {
 
   setMode(id: string, mode: string): Item {
     this.permissions.assert('mode')
-    if (!isOneOf(MODES, mode)) throw usage('mode must be auto or normal')
+    if (!isOneOf(MODES, mode)) throw usage('mode must be yolo or normal')
     const item = this.item(id)
     this.ledger.write(() => {
       this.stores.items.update(id, { mode, mode_by: this.who.role })

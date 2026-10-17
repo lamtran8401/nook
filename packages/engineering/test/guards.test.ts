@@ -3,7 +3,7 @@ import { rmSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { AreaFree, BranchNotProtected, EachArea } from '../src/guards/areas.ts'
-import { AutoByOwner } from '../src/guards/auto.ts'
+import { AutoByOwner } from '../src/guards/yolo.ts'
 import { CriteriaMarked } from '../src/guards/criteria.ts'
 import { DatesWritten } from '../src/guards/dates.ts'
 import { FindingsFilled, QuestionsAnswered } from '../src/guards/findings.ts'
@@ -227,13 +227,13 @@ describe('AutoByOwner', () => {
   test('an item in mode normal is a gap whose fix is an owner command', () => {
     itemAt(t, 'planning')
     expect(new AutoByOwner().check(ctx())).toEqual([
-      { text: 'SHOP-1 is not in an auto run that the owner started (mode normal)', fix: 'owner: /gate mode SHOP-1 auto, or owner: /gate approve SHOP-1' },
+      { text: 'SHOP-1 is not in a yolo run that the owner started (mode normal)', fix: 'owner: /gate mode SHOP-1 yolo, or owner: /gate approve SHOP-1' },
     ])
   })
 
-  test('mode auto set by the owner is no gap', () => {
+  test('mode yolo set by the owner is no gap', () => {
     itemAt(t, 'planning')
-    t.eng(OWNER).setMode('SHOP-1', 'auto')
+    t.eng(OWNER).setMode('SHOP-1', 'yolo')
     expect(new AutoByOwner().check(ctx())).toEqual([])
   })
 })
@@ -381,7 +381,7 @@ describe('CriteriaMarked', () => {
 describe('the guard table', () => {
   const names = (move: keyof typeof GUARDS) => GUARDS[move].map(g => g.constructor.name)
 
-  test('proceed runs the owner-auto guard first, then the guards of approve in their order', () => {
+  test('proceed runs the owner-yolo guard first, then the guards of approve in their order', () => {
     expect(names('proceed')).toEqual(['AutoByOwner', 'PlanFilled', 'DatesWritten', 'SlicesImported', 'EveryAcInSlice', 'SliceAreasOfItem', 'NoDependsCycle', 'NoOpenBlockingQuestion'])
   })
 

@@ -33,7 +33,7 @@ export interface PackModule {
   /** Runs one owner move; `words` are the words that the owner typed after /gate. */
   gate?(dir: string, words: string[], session: string | null): GateResult
   waiting?(dir: string): WaitingGate[]
-  /** The commands of the pack that run as the owner when the owner types them, as `auto` for /auto. */
+  /** The commands of the pack that run as the owner when the owner types them, as `yolo` for /yolo. */
   readonly commands?: readonly string[]
   /** Runs one typed command; `args` is the text that the owner typed after it. */
   command?(dir: string, name: string, args: string, session: string | null): GateResult

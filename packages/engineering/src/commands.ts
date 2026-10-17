@@ -228,8 +228,8 @@ const itemCommands: Command[] = [
   },
   {
     path: ['item', 'mode'],
-    summary: 'set the mode of an item: auto runs the stages alone (owner only)',
-    usage: '<id> auto|normal',
+    summary: 'set the mode of an item: yolo runs the stages alone (owner only)',
+    usage: '<id> yolo|normal',
     run(c) {
       c.out(eng().setMode(arg(c, 0, 'item id'), arg(c, 1, 'mode')), i => `${i.id} mode ${i.mode}`)
     },

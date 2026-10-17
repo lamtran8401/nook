@@ -21,7 +21,7 @@ const bash = (command: string, extra: Partial<HookInput> = {}) => bashGuard({ cw
 describe('bashGuard: the owner moves and the plain name of the tool', () => {
   test('approve, accept and mode through nook eng and nook engineering, with quotes and backslashes', () => {
     for (const c of [
-      'nook eng item approve SHOP-1', 'nook eng item accept SHOP-1', 'nook engineering item approve SHOP-1', 'nook eng item mode SHOP-1 auto',
+      'nook eng item approve SHOP-1', 'nook eng item accept SHOP-1', 'nook engineering item approve SHOP-1', 'nook eng item mode SHOP-1 yolo',
       'nook eng "item" appr\\ove SHOP-1', "nook   eng item 'approve' SHOP-1", 'cd work && nook eng item approve SHOP-1', 'nook eng item accept SHOP-1 --json',
     ]) {
       const result = bash(c)
@@ -46,7 +46,7 @@ describe('bashGuard: the owner moves and the plain name of the tool', () => {
   })
 
   test('an owner move under the short name is still the owner move', () => {
-    for (const c of ['nk eng item approve SHOP-1', 'nk eng item accept SHOP-1', 'nk engineering item mode SHOP-1 auto', 'echo $(nk eng item approve A)']) {
+    for (const c of ['nk eng item approve SHOP-1', 'nk eng item accept SHOP-1', 'nk engineering item mode SHOP-1 yolo', 'echo $(nk eng item approve A)']) {
       expect(reason(bash(c))).toMatch(/owner's move/)
     }
   })

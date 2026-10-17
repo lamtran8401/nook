@@ -1,6 +1,6 @@
 import type { MoveName } from '../machine.ts'
 import { AreaFree, BranchNotProtected, EachArea } from './areas.ts'
-import { AutoByOwner } from './auto.ts'
+import { AutoByOwner } from './yolo.ts'
 import { CriteriaMarked } from './criteria.ts'
 import { DatesWritten } from './dates.ts'
 import { FindingsFilled, QuestionsAnswered } from './findings.ts'

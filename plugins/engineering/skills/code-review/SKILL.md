@@ -38,7 +38,7 @@ Nits for the owner: StatusFilter.tsx:18 `d` reads better as `status`.
 
 ## Gotchas
 - Do not fix the code yourself. The builder that knows the slice fixes it. A builder that is gone gets a new one with the brief and the finding.
-- A nit never sends work back, also in an auto run.
+- A nit never sends work back, also in a yolo run.
 - A test that cannot fail is on the blocking list. It is the finding that a green suite hides best.
 - A dependency that the plan did not name is a finding, also when it works. The plan is the agreement.
 - The agent reads the whole function, not only the changed lines. Give it the folder and the base, not a pasted diff.

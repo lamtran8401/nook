@@ -21,9 +21,9 @@ describe('Engineering.addNote', () => {
 })
 
 describe('Engineering.setMode', () => {
-  test('the owner sets mode auto, and the item records the owner as the one who set it', () => {
+  test('the owner sets mode yolo, and the item records the owner as the one who set it', () => {
     itemAt(t, 'cooking')
-    expect(t.eng(OWNER).setMode('SHOP-1', 'auto')).toMatchObject({ mode: 'auto', mode_by: 'owner' })
+    expect(t.eng(OWNER).setMode('SHOP-1', 'yolo')).toMatchObject({ mode: 'yolo', mode_by: 'owner' })
   })
 })
 

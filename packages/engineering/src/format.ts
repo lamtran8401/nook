@@ -26,7 +26,7 @@ const orNone = (lines: string[], none: string) => lines.join('\n') || none
 export const cut = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1)}…` : text)
 
 export const itemLine = (i: Item) =>
-  `${i.id.padEnd(10)} ${i.state.padEnd(9)} ${i.kind} ${i.size}  ${i.title}${i.areas.length ? `  [${i.areas.join(', ')}]` : ''}${i.mode === 'auto' ? '  (auto)' : ''}`
+  `${i.id.padEnd(10)} ${i.state.padEnd(9)} ${i.kind} ${i.size}  ${i.title}${i.areas.length ? `  [${i.areas.join(', ')}]` : ''}${i.mode === 'yolo' ? '  (yolo)' : ''}`
 
 export const itemList = (items: Item[]) => (items.length ? items.map(itemLine).join('\n') : 'no items')
 

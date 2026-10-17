@@ -3,14 +3,14 @@ import { match } from 'ts-pattern'
 import { pluginDir } from '@nook/desk/pack.ts'
 import { hold, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
-import { ownerStartedAuto } from '../guards/auto.ts'
+import { ownerStartedAuto } from '../guards/yolo.ts'
 import { Home } from '../home.ts'
 import { isOpen } from '../machine.ts'
 import { Engineering } from '../service.ts'
 import type { Item } from '../stores/items.ts'
 import { Caller, whoOf } from './caller.ts'
 
-/** Stop: hold the lead on a blocking question, or on the next stage of an auto run that the owner started. */
+/** Stop: hold the lead on a blocking question, or on the next stage of a yolo run that the owner started. */
 
 export const MAX_HOLDS = 6
 const MAX_REJECTS = 2
@@ -59,14 +59,14 @@ function countHold(eng: Engineering, session: string, item: string): number {
   })
 }
 
-/** The item that a session leads: its recorded item while it is the lead, else the single auto item that no session leads. */
+/** The item that a session leads: its recorded item while it is the lead, else the single yolo item that no session leads. */
 export function sessionItem(eng: Engineering, session?: string): Item | null {
   const { sessions, items } = eng.stores
   const recordedId = session ? sessions.itemOf(session) : null
   const recorded = recordedId ? items.find(recordedId) : null
   if (recorded) return sessions.leaderOf(recorded.id) === session ? recorded : null
-  const auto = items.list().filter(i => i.mode === 'auto' && isOpen(i.state) && !sessions.leaderOf(i.id))
-  return auto.length === 1 ? auto[0]! : null
+  const yolo = items.list().filter(i => i.mode === 'yolo' && isOpen(i.state) && !sessions.leaderOf(i.id))
+  return yolo.length === 1 ? yolo[0]! : null
 }
 
 export function holdReasons(eng: Engineering, item: Item): string[] {
@@ -81,12 +81,12 @@ export function holdReasons(eng: Engineering, item: Item): string[] {
   const stage = autoStage(eng, item)
   if (stage)
     reasons.push(
-      `auto run (the owner set mode auto): ${stage.note}read \`${skillFile(stage.skill)}\` and follow it for ${item.id}`,
+      `yolo run (the owner set mode yolo): ${stage.note}read \`${skillFile(stage.skill)}\` and follow it for ${item.id}`,
     )
   return reasons
 }
 
-/** The next stage of the lead in an auto run, or null when the stage is a builder's or the owner's. */
+/** The next stage of the lead in a yolo run, or null when the stage is a builder's or the owner's. */
 function autoStage(eng: Engineering, item: Item): Stage | null {
   const plain = (skill: string): Stage => ({ skill, note: '' })
   return match(item.state)

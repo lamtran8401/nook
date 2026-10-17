@@ -8,7 +8,7 @@ The tool `nook eng` holds the ledger and refuses a move with a gap; each gap com
 ## States and moves
 ```
 backlog ─start→ framing ─agree→ planning ─approve★→ ready ─begin→ cooking ─submit→ review ─accept★→ done
-                                 └──────proceed (auto run)────┘
+                                 └──────proceed (yolo run)────┘
 review ─reject→ cooking      done ─reopen→ cooking      ready | cooking | review ─replan→ planning
 planning | ready | cooking | review ─reframe→ framing      any open ─block→ blocked ─unblock→ the state before
 any open ─cancel→ cancelled ─restore→ backlog                 ★ only the owner
@@ -39,7 +39,7 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 |---|---|---|
 | quick | a fix or chore in one area, size S, no contract change | `/quick`: one slice, no spec, no plan, test first, the owner accepts |
 | standard | everything else | intake, spec, recipe, cook, deep-review, close |
-| auto | a standard item in mode `auto` | `/auto`: the lead runs the phases, records each guess, passes the plan gate with `proceed`, stops at the accept |
+| yolo | a standard item in mode `yolo` | `/yolo`: the lead runs the phases, records each guess, passes the plan gate with `proceed`, stops at the accept |
 
 Kind `investigate` follows the standard path with Questions in place of criteria: `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
 

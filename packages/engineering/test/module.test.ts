@@ -88,7 +88,7 @@ describe('engineeringModule: the owner moves of /gate', () => {
   test('mode sets the mode of the item as the owner', () => {
     t = makeHome()
     itemAt(t, 'planning')
-    expect(engineeringModule.gate!(t.root, ['mode', 'SHOP-1', 'auto'], 's-1')).toEqual({ ok: true, lines: ['SHOP-1 mode auto'] })
+    expect(engineeringModule.gate!(t.root, ['mode', 'SHOP-1', 'yolo'], 's-1')).toEqual({ ok: true, lines: ['SHOP-1 mode yolo'] })
   })
 
   test('a move with no id asks for it', () => {
@@ -103,42 +103,42 @@ describe('engineeringModule: the owner moves of /gate', () => {
   })
 })
 
-describe('engineeringModule: a typed /auto', () => {
-  const auto = (args: string) => engineeringModule.command!(t.root, 'auto', args, 's-1')
+describe('engineeringModule: a typed /yolo', () => {
+  const yolo = (args: string) => engineeringModule.command!(t.root, 'yolo', args, 's-1')
 
-  test('an id sets the mode of that item as the owner, with the actor owner via /auto', () => {
+  test('an id sets the mode of that item as the owner, with the actor owner via /yolo', () => {
     t = makeHome()
     itemAt(t, 'framing')
-    expect(auto('SHOP-1 keep the old export')).toEqual({ ok: true, lines: ['SHOP-1 mode auto', 'next: /spec SHOP-1'] })
+    expect(yolo('SHOP-1 keep the old export')).toEqual({ ok: true, lines: ['SHOP-1 mode yolo', 'next: /spec SHOP-1'] })
     const last = t.eng(LEAD).stores.events.history('SHOP-1').at(-1)!
-    expect([last.type, last.actor, last.role]).toEqual(['mode', 'owner via /auto', 'owner'])
+    expect([last.type, last.actor, last.role]).toEqual(['mode', 'owner via /yolo', 'owner'])
   })
 
   test('a prompt makes a new item with the words as its title, and sets its mode', () => {
     t = makeHome()
-    expect(auto('add a CSV export to the shipments page')).toEqual({
+    expect(yolo('add a CSV export to the shipments page')).toEqual({
       ok: true,
-      lines: ['IT-001 made from the prompt', 'IT-001 mode auto', 'next: /spec IT-001'],
+      lines: ['IT-001 made from the prompt', 'IT-001 mode yolo', 'next: /spec IT-001'],
     })
     expect(t.eng(LEAD).item('IT-001').title).toBe('add a CSV export to the shipments page')
   })
 
   test('a key that is no item yet makes the item with that key', () => {
     t = makeHome()
-    expect(auto('SHOP-12').lines).toEqual(['SHOP-12 made from the prompt', 'SHOP-12 mode auto', 'next: /spec SHOP-12'])
+    expect(yolo('SHOP-12').lines).toEqual(['SHOP-12 made from the prompt', 'SHOP-12 mode yolo', 'next: /spec SHOP-12'])
   })
 
   test('no words take the one open item', () => {
     t = makeHome()
     itemAt(t, 'framing')
-    expect(auto('').lines[0]).toBe('SHOP-1 mode auto')
+    expect(yolo('').lines[0]).toBe('SHOP-1 mode yolo')
   })
 
   test('no words with two open items names them and sets no mode', () => {
     t = makeHome()
     itemAt(t, 'framing')
     itemAt(t, 'framing', 'SHOP-2')
-    expect(auto('')).toEqual({ ok: false, lines: ['several open items: type /auto with one of SHOP-1, SHOP-2'] })
+    expect(yolo('')).toEqual({ ok: false, lines: ['several open items: type /yolo with one of SHOP-1, SHOP-2'] })
     expect(t.eng(LEAD).item('SHOP-1').mode).toBe('normal')
   })
 
@@ -146,7 +146,7 @@ describe('engineeringModule: a typed /auto', () => {
     t = makeHome()
     itemAt(t, 'framing')
     t.eng(LEAD).moveItem('cancel', 'SHOP-1', { reason: 'not worth it' })
-    expect(auto('SHOP-1')).toEqual({ ok: false, lines: ['SHOP-1 is cancelled: /auto runs an open item'] })
+    expect(yolo('SHOP-1')).toEqual({ ok: false, lines: ['SHOP-1 is cancelled: /yolo runs an open item'] })
   })
 })
 
