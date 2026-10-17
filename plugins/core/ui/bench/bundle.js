@@ -1,4 +1,4 @@
-/* Bench — vanilla behaviour layer. Không phụ thuộc thư viện. Gán window.Bench. */
+/* Bench — vanilla behaviour layer. No library dependency. Sets window.Bench. */
 (function () {
   'use strict';
   var P = {
@@ -83,7 +83,7 @@
     el.className = 'bn-toast';
     el.setAttribute('data-tone', tone);
     el.setAttribute('role', 'status');
-    el.innerHTML = '<span class="bn-toast__icon"><span class="bn-icon">' + icon(glyph) + '</span></span><div><div class="bn-toast__title"></div><div class="bn-toast__body"></div></div><button class="bn-toast__close" aria-label="Đóng"><span class="bn-icon">' + icon('x') + '</span></button>';
+    el.innerHTML = '<span class="bn-toast__icon"><span class="bn-icon">' + icon(glyph) + '</span></span><div><div class="bn-toast__title"></div><div class="bn-toast__body"></div></div><button class="bn-toast__close" aria-label="Close"><span class="bn-icon">' + icon('x') + '</span></button>';
     el.querySelector('.bn-toast__title').textContent = opts.title || '';
     var b = el.querySelector('.bn-toast__body');
     if (opts.body) b.textContent = opts.body; else b.remove();
@@ -180,7 +180,7 @@
         var src = btn.closest('.bn-code, .bn-terminal, .bn-approval');
         var pre = src && src.querySelector('pre, .bn-approval__cmd');
         if (!pre) return;
-        var done = function () { toast({ title: 'Đã sao chép', tone: 'success', timeout: 1800 }); };
+        var done = function () { toast({ title: 'Copied', tone: 'success', timeout: 1800 }); };
         if (navigator.clipboard) navigator.clipboard.writeText(pre.innerText).then(done, function () {}); else done();
       });
     });
@@ -608,11 +608,13 @@
     })
     var kindOf = function (e) { return e.route || spec.route || 'curve' }
     var pathEl = function (d, e) {
-      s('path', { d: d, class: 'dg-e' + (e.main ? ' dg-e--main' : '') + (e.dash ? ' dg-e--dash' : '') + (e.flow ? ' dg-e--flow' : ''), 'data-tone': e.tone }, layer)
+      s('path', { d: d, class: 'dg-e' + (e.main ? ' dg-e--main' : '') + (e.dash ? ' dg-e--dash' : '') + (e.flow ? ' dg-e--flow' : ''), 'data-tone': e.tone, 'data-from': e.from, 'data-to': e.to }, layer)
     }
     var label = function (e, at) {
       if (!e.label) return
       var l = h('span', 'dg-elabel', esc(e.label))
+      l.setAttribute('data-from', e.from)
+      l.setAttribute('data-to', e.to)
       if (e.tone) l.setAttribute('data-tone', e.tone)
       l.style.left = at[0] + 'px'
       l.style.top = (at[1] + (e.labelDy || 0)) + 'px'
@@ -645,7 +647,8 @@
         var r = route(J, na, end, nb, kindOf(e), e.bend)
         pathEl('M' + p0.join(' ') + 'L' + J.join(' ') + r.d.replace(/^M[^A-Za-z]*/, ''), e)
         marker(layer, e.end || 'arrow', tipP, [-nb[0], -nb[1]], e.tone)
-        label(e, r.mid)
+        // the branches leave one stem side by side, so each label sits by its target, where they are apart
+        label(e, add(end, nb, 20))
         drawn[e.i] = 1
       })
     })

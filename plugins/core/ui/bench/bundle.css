@@ -1,12 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
-/* Bench — component styles. Prefix bn-. Mọi giá trị đọc từ tokens.
-   Lớp: primitives → actions → form → data → feedback → overlay → navigation → layout → content → code → activity → placeholder */
+/* Bench — component styles. Prefix bn-. Every value reads a token.
+   Layers: primitives → actions → form → data → feedback → overlay → navigation → layout → content → code → activity → placeholder */
 
 .bn-root { background: var(--bg); color: var(--fg); font-family: var(--font-sans); font-size: 16px; line-height: 26px; -webkit-font-smoothing: antialiased; }
 .bn-root :focus-visible { outline: var(--stroke-3) solid var(--focus-ring); outline-offset: 2px; }
 
-/* tone plumbing: --t (chữ/viền/nền đặc) + --t-subtle (nền nhạt). Mặc định neutral, độ ưu tiên 0. */
+/* tone plumbing: --t (text, border, solid fill) + --t-subtle (pale fill). Neutral by default, specificity 0. */
 :where(.bn-badge, .bn-alert, .bn-node, .bn-log-item, .bn-edge, .bn-flow__step, .bn-delta, .bn-toast, .bn-compare__col, .bn-tl-item, .bn-avatar, .bn-tree__row) { --t: var(--fg-muted); --t-subtle: var(--bg-muted); }
 [data-tone="neutral"], [data-status="idle"] { --t: var(--fg-muted); --t-subtle: var(--bg-muted); }
 [data-tone="primary"], [data-tone="info"], [data-status="run"] { --t: var(--primary); --t-subtle: var(--primary-subtle); }
@@ -603,7 +603,7 @@ dialog.bn-command::backdrop { background: var(--overlay); backdrop-filter: blur(
 .bn-ph-frame__bar { display: flex; gap: 6px; padding-bottom: var(--space-3); border-bottom: var(--stroke-1) solid var(--border); }
 .bn-ph-frame__bar i { width: 10px; height: 10px; border-radius: var(--radius-full); background: var(--border); }
 
-/* wireframe theme: mọi khối nổi chuyển sang nét, bóng bỏ */
+/* wireframe theme: raised blocks become outlines, with no shadow */
 [data-theme="wire"] .bn-card, [data-theme="wire"] .bn-stat, [data-theme="wire"] .bn-node, [data-theme="wire"] .bn-kanban__card, [data-theme="wire"] .bn-tl-item__card { border-color: var(--border-strong); }
 [data-theme="wire"] .bn-mark { background: transparent; box-shadow: inset 0 -6px 0 var(--accent); }
 
@@ -658,7 +658,7 @@ a.bn-list__item:hover, button.bn-list__item:hover { background: var(--bg-muted);
 /* =====================================================================
    v5 — MATERIAL & SHAPE LAYER
    Capsule controls · concentric corners · liquid-glass chrome · spring motion.
-   Ghi đè các lớp phía trên; đọc tokens radius-*, glass*, hairline, blur-*, shadow-*.
+   Overrides the layers above; reads the tokens radius-*, glass*, hairline, blur-*, shadow-*.
    ===================================================================== */
 :root { --bn-spring: linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017 19.4%, 1.067, 1.094 24.6%, 1.1 26.9%, 1.096, 1.077 32.3%, 1.017 39.2%, 0.998 42.7%, 0.991 46.2%, 0.994 54.5%, 1.001 66.4%, 1); --bn-ease: cubic-bezier(.2,.8,.2,1); }
 .bn-root { letter-spacing: -.006em; font-feature-settings: "ss01", "cv11"; }
@@ -803,16 +803,16 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 .bn-check > span small, .bn-radio > span small { display: block; color: var(--fg-muted); font-size: 13px; }
 
 /* v5.1 — refinements */
-/* Alert: icon tròn như ký hiệu .circle.fill, đồng bộ với Toast */
+/* Alert: a round icon like the .circle.fill symbol, the same as Toast */
 .bn-alert { grid-template-columns: 30px 1fr; align-items: start; }
 .bn-alert__icon { width: 30px; height: 30px; border-radius: var(--radius-full); corner-shape: round; font-size: 13px; }
 .bn-alert__icon .bn-icon { width: 15px; height: 15px; }
-/* ActivityLog: căn giữa dot với dòng tiêu đề của thẻ (padding 10 + nửa line-height 10 = 20) */
+/* ActivityLog: centre the dot on the title line of the card (padding 10 + half line-height 10 = 20) */
 .bn-log-item__dot { width: 24px; height: 24px; margin-top: 8px; margin-left: 2px; font-size: 12px; }
 .bn-log-item__dot .bn-icon { width: 13px; height: 13px; }
 .bn-log-item:not(:last-child)::after { top: 38px; bottom: -2px; left: 13.25px; }
 .bn-log-item[data-status="run"] .bn-log-item__dot { box-shadow: 0 0 0 4px var(--t-subtle); }
-/* Diagram: node có chiều sâu, node gốc và node active nổi hơn */
+/* Diagram: nodes have depth; the root and the active node lift higher */
 .bn-node { box-shadow: 0 0 0 0.5px var(--hairline), 0 1px 2px rgba(22,23,26,.05), 0 10px 24px -12px rgba(22,23,26,.22); }
 .bn-node[data-variant="soft"] { box-shadow: 0 0 0 0.5px color-mix(in oklab, var(--t) 18%, transparent), 0 8px 20px -12px color-mix(in oklab, var(--t) 45%, transparent); }
 .bn-node[data-variant="root"] { box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 2px 4px rgba(22,23,26,.08), 0 18px 40px -14px rgba(22,23,26,.45); }
@@ -825,10 +825,10 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 
 /* =====================================================================
    v5.2 — refinements
-   1) Nút đặc phẳng: bỏ gradient, highlight trong và quầng màu (giữ viên nang + nhấn lò xo).
-   2) Focus: một vòng 2px offset 2px, chỉ :focus-visible; ô nhập/select không còn quầng.
-   3) Topbar: không bo, rộng hết; bỏ biến thể nổi.
-   4) Placeholder dùng token riêng.
+   1) Solid buttons are flat: no gradient, inner highlight or glow (capsule and spring press stay).
+   2) Focus: one 2px ring at a 2px offset, on :focus-visible only; inputs and selects have no glow.
+   3) Topbar: square corners, full width, no floating variant.
+   4) Placeholder text uses its own token.
    ===================================================================== */
 .bn-btn { box-shadow: none; }
 .bn-btn[data-variant="primary"] { background: var(--primary); box-shadow: none; }
