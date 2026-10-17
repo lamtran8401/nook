@@ -5,7 +5,7 @@ disable-model-invocation: true
 allowed-tools: Bash(nook *), Bash(cat *), Read, Glob
 ---
 
-Goal: the owner knows what is wrong in this environment and what to do, in one short report.
+Goal: the owner knows what is wrong in this desk and what to do, in one short report.
 
 ## Order
 1. Run `nook doctor --json` and `nook doctor`.
@@ -15,6 +15,6 @@ Goal: the owner knows what is wrong in this environment and what to do, in one s
 5. Run `nook doctor` again and report what is left.
 
 ## Gotchas
-- A doctor that reports no gap and a guard that does not run is a broken environment. Always do step 4.
+- A doctor that reports no gap and a guard that does not run is a broken desk. Always do step 4.
 - A hook that cannot start (a wrong path) does not block. When the canary read goes through, say that the plugin is not installed or not enabled for this user.
 - The report starts with what waits for the owner, or "Nothing waits for you".

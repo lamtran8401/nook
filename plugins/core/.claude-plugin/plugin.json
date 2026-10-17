@@ -1,7 +1,7 @@
 {
   "name": "nook",
   "version": "0.1.0",
-  "description": "Nook core: the nook tool, the base rules, the persona, the secret guards and the writing check. Init any folder to make an environment.",
+  "description": "Nook core: the nook tool, the base rules, the persona, the secret guards and the writing check. Init any folder to make a desk.",
   "author": { "name": "Lam" },
   "license": "MIT"
 }

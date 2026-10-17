@@ -40,4 +40,4 @@ The answer is in the owner's head already. The interview finds it and sorts it. 
 - Quote the words of the owner for the reasons. Do not make them yours.
 - One question in each turn. A list of five questions gets five short answers.
 - An adjective with no example is an open point, not an answer.
-- The record holds personal facts. It stays in the environment of the owner, never in the Nook repo.
+- The record holds personal facts. It stays in the desk of the owner, never in the Nook repo.

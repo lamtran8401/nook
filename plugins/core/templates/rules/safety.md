@@ -1,6 +1,6 @@
 # Safety
 
-These rules hold for every agent in this environment. Hooks enforce the first three.
+These rules hold for every agent in this desk. Hooks enforce the first three.
 
 - Never read a secret: every `.env` file except `.env.example`, `~/.ssh`, `~/.aws`, `.npmrc`, and the `secrets` list of `nook.yml`. Never write a `.env` file.
 - Never edit the state folder `.nook/`, a database inside it, or `.claude/settings*.json`. The `nook` tool writes them.
