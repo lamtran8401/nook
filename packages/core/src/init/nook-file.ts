@@ -4,8 +4,8 @@ import { usage } from '@nook/shared/errors.ts'
 
 export function nookYaml(packs: string[]): string {
   return [
-    '# Nook: this folder is an environment. The folders inside it get its packs and its rules.',
-    '# packs: the packs on here, in addition to the ones of the environments above. packs.off turns one off.',
+    '# Nook: this folder is a desk. The folders inside it get its packs and its rules.',
+    '# packs: the packs on here, in addition to the ones of the desks above. packs.off turns one off.',
     '# rules.off: base rules that you do not want written. Each pack reads its own section by its name.',
     `packs: [${packs.join(', ')}]`,
     '',

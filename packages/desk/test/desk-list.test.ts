@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync,
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { EnvironmentList } from '../src/environment-list.ts'
+import { DeskList } from '../src/desk-list.ts'
 
 let root: string
 beforeEach(() => {
@@ -17,10 +17,10 @@ const folder = (name: string) => {
   return dir
 }
 
-describe('EnvironmentList', () => {
+describe('DeskList', () => {
   test('adds a folder once, in the order of the first add, and writes one path on each line', () => {
-    const file = join(root, 'config', 'nook', 'environments')
-    const list = new EnvironmentList(file)
+    const file = join(root, 'config', 'nook', 'desks')
+    const list = new DeskList(file)
     const personal = folder('personal')
     const company = folder('company')
     list.add(personal)
@@ -31,8 +31,8 @@ describe('EnvironmentList', () => {
   })
 
   test('drops a folder that no longer exists, and writes the list without it', () => {
-    const file = join(root, 'environments')
-    const list = new EnvironmentList(file)
+    const file = join(root, 'desks')
+    const list = new DeskList(file)
     const kept = folder('kept')
     const gone = folder('gone')
     list.add(kept)
@@ -43,13 +43,13 @@ describe('EnvironmentList', () => {
   })
 
   test('a list with no file is empty, and reading it writes nothing', () => {
-    const file = join(root, 'none', 'environments')
-    expect(new EnvironmentList(file).dirs()).toEqual([])
+    const file = join(root, 'none', 'desks')
+    expect(new DeskList(file).dirs()).toEqual([])
     expect(existsSync(file)).toBe(false)
   })
 
   test('the list of the owner lives under the config folder of the home', () => {
-    expect(EnvironmentList.pathFor({ HOME: '/home/a' })).toBe('/home/a/.config/nook/environments')
-    expect(EnvironmentList.pathFor({ HOME: '/home/a', XDG_CONFIG_HOME: '/cfg' })).toBe('/cfg/nook/environments')
+    expect(DeskList.pathFor({ HOME: '/home/a' })).toBe('/home/a/.config/nook/desks')
+    expect(DeskList.pathFor({ HOME: '/home/a', XDG_CONFIG_HOME: '/cfg' })).toBe('/cfg/nook/desks')
   })
 })

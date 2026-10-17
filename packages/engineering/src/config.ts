@@ -3,7 +3,7 @@ import { join } from 'node:path'
 
 import { parse } from 'yaml'
 
-import { NOOK_FILE } from '@nook/env/env.ts'
+import { NOOK_FILE } from '@nook/desk/desks.ts'
 import { usage } from '@nook/shared/errors.ts'
 
 /** The `engineering` section of nook.yml (docs/engineering.md section 2). Each fault names its fix. */

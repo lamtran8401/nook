@@ -30,7 +30,7 @@ describe('readGuard', () => {
     expect(read(file)).toBe('pass')
   })
 
-  test('does nothing outside an environment', () => {
+  test('does nothing outside a desk', () => {
     const outside = tempDir('nook-outside-')
     expect(read('.env', outside)).toBe('pass')
     removeDir(outside)
@@ -76,7 +76,7 @@ describe('bashGuard', () => {
     expect(bash('claude plugin validate . && cat plugins/core/skills/gate/SKILL.md')).toBe('pass')
   })
 
-  test('does nothing outside an environment', () => {
+  test('does nothing outside a desk', () => {
     const outside = tempDir('nook-outside-')
     expect(bash('cat .env', outside)).toBe('pass')
     removeDir(outside)

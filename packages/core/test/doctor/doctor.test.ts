@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { PackModule } from '@nook/env/env.ts'
+import type { PackModule } from '@nook/desk/desks.ts'
 
 import { doctor } from '../../src/doctor/doctor.ts'
 import { formatDoctor } from '../../src/doctor/format.ts'
@@ -28,15 +28,15 @@ const fakePack = (gap: boolean, configured = true): PackModule => ({
 })
 
 describe('Doctor', () => {
-  test('outside an environment it reports one error with the fix to init', () => {
+  test('outside a desk it reports one error with the fix to init', () => {
     expect(report().findings).toEqual([
-      { level: 'error', where: root, text: 'not inside an environment: no nook.yml here or above', fix: 'run `nook init` in this folder or in one above it' },
+      { level: 'error', where: root, text: 'not inside a desk: no nook.yml here or above', fix: 'run `nook init` in this folder or in one above it' },
     ])
   })
 
-  test('a fresh environment with its plugin on has no gap', () => {
+  test('a fresh desk with its plugin on has no gap', () => {
     initIn(root)
-    expect(texts()).toEqual(['1 environment above, 1 packs on, no gap'])
+    expect(texts()).toEqual(['1 desk above, 1 packs on, no gap'])
   })
 
   test('a rule of the owner with the name of a base rule is a gap with the fix to turn one off', () => {
@@ -81,13 +81,13 @@ describe('Doctor: the plugins of Claude Code', () => {
     expect(texts()).toEqual(['the plugin nook-engineering@nook of the pack engineering is off: its hooks and skills do not run'])
   })
 
-  test('a plugin that the settings of the environment turn on counts', () => {
+  test('a plugin that the settings of the desk turn on counts', () => {
     initIn(root)
     claudeDir = claudeDirWith(root, [])
     const settings = join(root, '.claude', 'settings.local.json')
     mkdirSync(join(root, '.claude'), { recursive: true })
     writeFileSync(settings, JSON.stringify({ enabledPlugins: { 'nook@nook': true } }))
-    expect(texts()).toEqual(['1 environment above, 1 packs on, no gap'])
+    expect(texts()).toEqual(['1 desk above, 1 packs on, no gap'])
   })
 })
 
@@ -103,7 +103,7 @@ describe('Doctor: the gaps of a pack', () => {
   test('the health line of a pack is not a gap', () => {
     initIn(root)
     writeFileSync(join(root, 'nook.yml'), 'packs: [engineering]\n')
-    expect(texts([fakePack(false)])).toEqual(['1 environment above, 2 packs on, no gap'])
+    expect(texts([fakePack(false)])).toEqual(['1 desk above, 2 packs on, no gap'])
   })
 
   test('a pack on here with no section of nook.yml is a gap with the fix to run /setup', () => {
@@ -116,7 +116,7 @@ describe('Doctor: the gaps of a pack', () => {
 })
 
 describe('formatDoctor', () => {
-  test('the line of each environment lists core first', () => {
+  test('the line of each desk lists core first', () => {
     initIn(root)
     expect(formatDoctor(report(), root).split('\n')[1]).toBe(`  • ${root}  packs: core`)
   })

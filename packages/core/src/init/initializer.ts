@@ -1,9 +1,9 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
-import { Environment, NOOK_FILE, NookConfig, type PackModule, STATE_DIR } from '@nook/env/env.ts'
-import type { EnvironmentList } from '@nook/env/environment-list.ts'
-import { Catalog, type Plugin } from '@nook/env/pack.ts'
+import { Desk, NOOK_FILE, NookConfig, type PackModule, STATE_DIR } from '@nook/desk/desks.ts'
+import type { DeskList } from '@nook/desk/desk-list.ts'
+import { Catalog, type Plugin } from '@nook/desk/pack.ts'
 import { usage } from '@nook/shared/errors.ts'
 
 import { placeBlock } from './claude-block.ts'
@@ -14,8 +14,8 @@ const RULES_DIR = join('.claude', 'rules', 'nook')
 const STYLE_FILE = join('.claude', 'output-styles', 'nook-companion.md')
 const SETTINGS_FILE = join('.claude', 'settings.json')
 
-/** `list`: the list of environments of the owner, which init adds the folder to; a test leaves it out. */
-export type InitOptions = { dir: string; packs: string[]; update: boolean; coreDir: string; modules?: PackModule[]; list?: EnvironmentList }
+/** `list`: the list of desks of the owner, which init adds the folder to; a test leaves it out. */
+export type InitOptions = { dir: string; packs: string[]; update: boolean; coreDir: string; modules?: PackModule[]; list?: DeskList }
 /** `unset`: the packs on here whose section of nook.yml /setup has not written yet. */
 export type InitReport = { wrote: string[]; kept: string[]; packs: string[]; unset: string[] }
 
@@ -39,11 +39,11 @@ export class Initializer {
   run(): InitReport {
     this.checkPacks()
     this.writeNookFile()
-    const env = Environment.read(this.options.dir)
-    this.report.packs = ['core', ...env.config.packs]
+    const desk = Desk.read(this.options.dir)
+    this.report.packs = ['core', ...desk.config.packs]
     this.writeStateDir()
     this.writeClaudeBlock()
-    this.writeRules(env.config)
+    this.writeRules(desk.config)
     this.writeStyle()
     this.writeSettings()
     this.setupPacks()

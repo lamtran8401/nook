@@ -33,8 +33,8 @@
         "yaml": "2.9.1",
       },
     },
-    "packages/env": {
-      "name": "@nook/env",
+    "packages/desk": {
+      "name": "@nook/desk",
       "version": "0.1.0",
       "dependencies": {
         "yaml": "2.9.1",
@@ -63,7 +63,7 @@
 
     "@nook/engineering": ["@nook/engineering@workspace:packages/engineering"],
 
-    "@nook/env": ["@nook/env@workspace:packages/env"],
+    "@nook/desk": ["@nook/desk@workspace:packages/desk"],
 
     "@nook/learn": ["@nook/learn@workspace:packages/learn"],
 

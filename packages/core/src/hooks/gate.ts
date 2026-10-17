@@ -1,4 +1,4 @@
-import { activePacks, type PackModule } from '@nook/env/env.ts'
+import { activePacks, type PackModule } from '@nook/desk/desks.ts'
 import { block, context, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { ancestorCommands, inBackground, startedByTool } from './session.ts'

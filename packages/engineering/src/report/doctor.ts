@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 
-import type { Finding } from '@nook/env/env.ts'
+import type { Finding } from '@nook/desk/desks.ts'
 
 import { cut } from '../format.ts'
 import { FingerprintsUnchanged } from '../guards/fingerprints.ts'
@@ -10,7 +10,7 @@ import type { Item } from '../stores/items.ts'
 
 /** `doctor`: the gaps of the pack in this home, each with its fix. */
 
-export type { Finding } from '@nook/env/env.ts'
+export type { Finding } from '@nook/desk/desks.ts'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const drift = new FingerprintsUnchanged()

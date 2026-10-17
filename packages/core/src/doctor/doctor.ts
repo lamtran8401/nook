@@ -2,61 +2,61 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { basename, join } from 'node:path'
 
-import { activePacks, type ActivePack, Environment, type Finding, NOOK_FILE, type PackModule, STATE_DIR } from '@nook/env/env.ts'
-import { Catalog } from '@nook/env/pack.ts'
+import { activePacks, type ActivePack, Desk, type Finding, NOOK_FILE, type PackModule, STATE_DIR } from '@nook/desk/desks.ts'
+import { Catalog } from '@nook/desk/pack.ts'
 
 import { hasBlock } from '../init/claude-block.ts'
 
-export type { Finding } from '@nook/env/env.ts'
+export type { Finding } from '@nook/desk/desks.ts'
 export type DoctorReport = {
-  environments: { dir: string; packs: string[]; off: string[] }[]
+  desks: { dir: string; packs: string[]; off: string[] }[]
   packs: { name: string; home: string }[]
   findings: Finding[]
 }
 
-type Check = (env: Environment, catalog: Catalog) => Finding[]
+type Check = (desk: Desk, catalog: Catalog) => Finding[]
 
-const update = (env: Environment) => `run \`nook init --update\` in ${env.dir}`
-const warn = (env: Environment, text: string, fix: string): Finding => ({ level: 'warn', where: env.dir, text, fix })
+const update = (desk: Desk) => `run \`nook init --update\` in ${desk.dir}`
+const warn = (desk: Desk, text: string, fix: string): Finding => ({ level: 'warn', where: desk.dir, text, fix })
 
-const unknownPacks: Check = (env, catalog) =>
-  env.config.packs
+const unknownPacks: Check = (desk, catalog) =>
+  desk.config.packs
     .filter(name => name !== 'core' && !catalog.has(name))
-    .map(name => ({ level: 'error', where: env.dir, text: `nook.yml names a pack that does not exist: ${name}`, fix: `remove it, or install a nook that ships "${name}"` }))
+    .map(name => ({ level: 'error', where: desk.dir, text: `nook.yml names a pack that does not exist: ${name}`, fix: `remove it, or install a nook that ships "${name}"` }))
 
-const claudeBlock: Check = env => {
-  const file = join(env.dir, 'CLAUDE.md')
+const claudeBlock: Check = desk => {
+  const file = join(desk.dir, 'CLAUDE.md')
   const text = existsSync(file) ? readFileSync(file, 'utf8') : ''
-  return hasBlock(text) ? [] : [warn(env, 'CLAUDE.md has no nook block', update(env))]
+  return hasBlock(text) ? [] : [warn(desk, 'CLAUDE.md has no nook block', update(desk))]
 }
 
 /** A rule of the owner with the name of a base rule reads as a second voice on the same subject. */
-const baseRules: Check = env => {
-  const nookDir = join(env.dir, '.claude', 'rules', 'nook')
-  if (!existsSync(nookDir)) return [warn(env, 'the base rules are missing (.claude/rules/nook/)', update(env))]
+const baseRules: Check = desk => {
+  const nookDir = join(desk.dir, '.claude', 'rules', 'nook')
+  if (!existsSync(nookDir)) return [warn(desk, 'the base rules are missing (.claude/rules/nook/)', update(desk))]
   const nookRules = new Set(readdirSync(nookDir).map(file => basename(file, '.md')))
-  return readdirSync(join(env.dir, '.claude', 'rules'))
+  return readdirSync(join(desk.dir, '.claude', 'rules'))
     .filter(file => file.endsWith('.md') && nookRules.has(basename(file, '.md')))
     .map(file => basename(file, '.md'))
-    .map(rule => warn(env, `two rules named "${rule}": yours and Nook's; Claude can follow either`, `turn the nook rule off (rules: { off: [${rule}] }) or rename yours`))
+    .map(rule => warn(desk, `two rules named "${rule}": yours and Nook's; Claude can follow either`, `turn the nook rule off (rules: { off: [${rule}] }) or rename yours`))
 }
 
-const stateDir: Check = env =>
-  existsSync(join(env.dir, STATE_DIR)) ? [] : [warn(env, `the state folder ${STATE_DIR}/ is missing`, update(env))]
+const stateDir: Check = desk =>
+  existsSync(join(desk.dir, STATE_DIR)) ? [] : [warn(desk, `the state folder ${STATE_DIR}/ is missing`, update(desk))]
 
-const settings: Check = env =>
-  existsSync(join(env.dir, '.claude', 'settings.json'))
+const settings: Check = desk =>
+  existsSync(join(desk.dir, '.claude', 'settings.json'))
     ? []
-    : [warn(env, '.claude/settings.json is missing: the nook permissions do not apply to a session that starts here', update(env))]
+    : [warn(desk, '.claude/settings.json is missing: the nook permissions do not apply to a session that starts here', update(desk))]
 
-const secrets: Check = env =>
-  env.config.secrets
-    .filter(secret => !existsSync(join(env.dir, secret)))
-    .map(secret => warn(env, `a secret of nook.yml does not exist: ${secret}`, 'remove it from `secrets`, or check the path'))
+const secrets: Check = desk =>
+  desk.config.secrets
+    .filter(secret => !existsSync(join(desk.dir, secret)))
+    .map(secret => warn(desk, `a secret of nook.yml does not exist: ${secret}`, 'remove it from `secrets`, or check the path'))
 
-const emptyPacksKey: Check = env =>
-  /^\s*packs:\s*$/m.test(readFileSync(join(env.dir, NOOK_FILE), 'utf8'))
-    ? [warn(env, 'nook.yml has an empty `packs:` key', 'write `packs: []` or list the packs')]
+const emptyPacksKey: Check = desk =>
+  /^\s*packs:\s*$/m.test(readFileSync(join(desk.dir, NOOK_FILE), 'utf8'))
+    ? [warn(desk, 'nook.yml has an empty `packs:` key', 'write `packs: []` or list the packs')]
     : []
 
 const CHECKS: Check[] = [unknownPacks, claudeBlock, baseRules, stateDir, settings, secrets, emptyPacksKey]
@@ -86,26 +86,26 @@ export class Doctor {
   }
 
   run(): DoctorReport {
-    const envs = Environment.above(this.from)
-    if (!envs.length) return { environments: [], packs: [], findings: [this.outside()] }
+    const desks = Desk.above(this.from)
+    if (!desks.length) return { desks: [], packs: [], findings: [this.outside()] }
     const active = activePacks(this.from)
     const findings = [
-      ...envs.flatMap(env => CHECKS.flatMap(check => check(env, this.catalog))),
-      ...this.pluginsOff(envs, active),
+      ...desks.flatMap(desk => CHECKS.flatMap(check => check(desk, this.catalog))),
+      ...this.pluginsOff(desks, active),
       ...active.flatMap(pack => this.packGaps(pack)),
     ]
     const packs = active.map(p => ({ name: p.name, home: p.home.dir }))
-    if (!findings.length) findings.push(this.healthy(envs.length, packs.length + 1))
+    if (!findings.length) findings.push(this.healthy(desks.length, packs.length + 1))
     return {
-      environments: envs.map(e => ({ dir: e.dir, packs: e.config.packs, off: e.config.off })),
-      packs: [{ name: 'core', home: envs[0]!.dir }, ...packs],
+      desks: desks.map(e => ({ dir: e.dir, packs: e.config.packs, off: e.config.off })),
+      packs: [{ name: 'core', home: desks[0]!.dir }, ...packs],
       findings,
     }
   }
 
   /** A pack whose plugin Claude Code does not load has no hooks and no skills, so each guard is off. */
-  private pluginsOff(envs: Environment[], active: ActivePack[]): Finding[] {
-    const on = enabledPlugins([join(this.claudeDir, 'settings.json'), ...envs.flatMap(settingsFiles)])
+  private pluginsOff(desks: Desk[], active: ActivePack[]): Finding[] {
+    const on = enabledPlugins([join(this.claudeDir, 'settings.json'), ...desks.flatMap(settingsFiles)])
     return ['core', ...active.map(p => p.name)].flatMap(pack => {
       const id = this.catalog.pluginId(pack)
       if (!id || on.has(id)) return []
@@ -124,17 +124,17 @@ export class Doctor {
   }
 
   private outside(): Finding {
-    return { level: 'error', where: this.from, text: 'not inside an environment: no nook.yml here or above', fix: 'run `nook init` in this folder or in one above it' }
+    return { level: 'error', where: this.from, text: 'not inside a desk: no nook.yml here or above', fix: 'run `nook init` in this folder or in one above it' }
   }
 
-  private healthy(envs: number, packs: number): Finding {
-    return { level: 'ok', where: this.from, text: `${envs} environment${envs > 1 ? 's' : ''} above, ${packs} packs on, no gap` }
+  private healthy(desks: number, packs: number): Finding {
+    return { level: 'ok', where: this.from, text: `${desks} desk${desks > 1 ? 's' : ''} above, ${packs} packs on, no gap` }
   }
 }
 
 export const doctor = (from: string, options: DoctorOptions = {}): DoctorReport => new Doctor(from, options).run()
 
-const settingsFiles = (env: Environment) => ['settings.json', 'settings.local.json'].map(name => join(env.dir, '.claude', name))
+const settingsFiles = (desk: Desk) => ['settings.json', 'settings.local.json'].map(name => join(desk.dir, '.claude', name))
 
 /** The plugin ids that are on in any of the settings files: a later file can turn one off again. */
 function enabledPlugins(files: string[]): Set<string> {

@@ -2,21 +2,21 @@ import { basename, resolve, sep } from 'node:path'
 
 import { match } from 'ts-pattern'
 
-import { nearestEnvironment, STATE_DIR } from '@nook/env/env.ts'
+import { nearestDesk, STATE_DIR } from '@nook/desk/desks.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 import { ROLE_VAR } from '@nook/shared/names.ts'
 
 import { SecretPolicy } from './secrets.ts'
 import { plainWords } from './shell.ts'
 
-/** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside an environment they do nothing. */
+/** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside a desk they do nothing. */
 
 const cwdOf = (input: HookInput) => input.cwd ?? process.cwd()
-const inEnvironment = (input: HookInput) => nearestEnvironment(cwdOf(input)) !== null
+const inDesk = (input: HookInput) => nearestDesk(cwdOf(input)) !== null
 
 /** PreToolUse Read, Grep, Glob. */
 export function readGuard(input: HookInput): HookResult {
-  if (!inEnvironment(input)) return pass
+  if (!inDesk(input)) return pass
   const target = String(input.tool_input?.file_path ?? input.tool_input?.path ?? '')
   if (!target || !new SecretPolicy(cwdOf(input)).isSecretPath(target)) return pass
   return block(`${target} is a secret file: Nook does not read secrets. Ask the owner for the value you need, or use .env.example.`)
@@ -26,7 +26,7 @@ export function readGuard(input: HookInput): HookResult {
 const ROLE_SET = new RegExp(`\\b${ROLE_VAR}\\s*=`)
 
 export function bashGuard(input: HookInput): HookResult {
-  if (!inEnvironment(input)) return pass
+  if (!inDesk(input)) return pass
   const policy = new SecretPolicy(cwdOf(input))
   const { plain, words } = plainWords(String(input.tool_input?.command ?? ''))
   for (const word of words) {
@@ -54,7 +54,7 @@ function editTarget(full: string): EditTarget {
 
 /** PreToolUse Edit, Write: no secret file, no state folder, no settings. */
 export function editGuard(input: HookInput): HookResult {
-  if (!inEnvironment(input)) return pass
+  if (!inDesk(input)) return pass
   const target = String(input.tool_input?.file_path ?? '')
   if (!target) return pass
   return match(editTarget(resolve(cwdOf(input), target)))

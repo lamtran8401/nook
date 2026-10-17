@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { PackModule } from '@nook/env/env.ts'
-import { EnvironmentList } from '@nook/env/environment-list.ts'
+import type { PackModule } from '@nook/desk/desks.ts'
+import { DeskList } from '@nook/desk/desk-list.ts'
 
 import { init } from '../../src/init/initializer.ts'
 import { CORE_DIR, initIn, removeDir, tempDir } from '../helpers.ts'
@@ -94,9 +94,9 @@ describe('Initializer', () => {
   })
 })
 
-describe('Initializer: the list of environments', () => {
+describe('Initializer: the list of desks', () => {
   test('init adds its folder to the list of the owner, once', () => {
-    const list = new EnvironmentList(join(root, 'home', '.config', 'nook', 'environments'))
+    const list = new DeskList(join(root, 'home', '.config', 'nook', 'desks'))
     init({ dir: root, packs: [], update: false, coreDir: CORE_DIR, list })
     init({ dir: root, packs: [], update: true, coreDir: CORE_DIR, list })
     expect(list.dirs()).toEqual([root])

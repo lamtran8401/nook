@@ -2,18 +2,18 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 
-/** The folders that the owner made environments with `nook init`, one path on each line of a file in the home. */
-export class EnvironmentList {
+/** The folders that the owner made desks with `nook init`, one path on each line of a file in the home. */
+export class DeskList {
   constructor(readonly file: string) {}
 
   static pathFor(env: Record<string, string | undefined> = process.env): string {
     const config = env.XDG_CONFIG_HOME || join(env.HOME || homedir(), '.config')
-    return join(config, 'nook', 'environments')
+    return join(config, 'nook', 'desks')
   }
 
   /** The list of the owner. */
-  static mine(env: Record<string, string | undefined> = process.env): EnvironmentList {
-    return new EnvironmentList(EnvironmentList.pathFor(env))
+  static mine(env: Record<string, string | undefined> = process.env): DeskList {
+    return new DeskList(DeskList.pathFor(env))
   }
 
   add(dir: string): void {

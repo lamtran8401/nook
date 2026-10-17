@@ -1,12 +1,12 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { activePacks } from '@nook/env/env.ts'
+import { activePacks } from '@nook/desk/desks.ts'
 import { EvError, Exit, usage } from '@nook/shared/errors.ts'
 
 import { Course } from './course.ts'
 
-/** The courses of one environment, in the folder that the `learn` section of nook.yml names. */
+/** The courses of one desk, in the folder that the `learn` section of nook.yml names. */
 export class Learn {
   constructor(
     readonly home: string,
@@ -50,7 +50,7 @@ const folderOf = (section: unknown): string | null => {
   return typeof dir === 'string' && dir.trim() ? dir.trim() : 'learn'
 }
 
-/** The courses of the nearest environment above `cwd` that turns the pack on. */
+/** The courses of the nearest desk above `cwd` that turns the pack on. */
 export function findLearn(cwd = process.cwd()): Learn | null {
   const pack = activePacks(cwd).find(p => p.name === 'learn')
   return pack ? new Learn(pack.home.dir, folderOf(pack.home.config.section('learn')) ?? 'learn') : null
@@ -59,7 +59,7 @@ export function findLearn(cwd = process.cwd()): Learn | null {
 export function requireLearn(cwd = process.cwd()): Learn {
   const learn = findLearn(cwd)
   if (learn) return learn
-  throw new EvError('not inside an environment that turns the learn pack on', Exit.error, 'add `learn` to `packs:` in nook.yml, then run /setup')
+  throw new EvError('not inside a desk that turns the learn pack on', Exit.error, 'add `learn` to `packs:` in nook.yml, then run /setup')
 }
 
 /** The learn of `dir` only when `dir` itself turns the pack on, and whether its section of nook.yml exists. */

@@ -37,7 +37,7 @@ describe('nookYaml', () => {
     expect(nookYaml(['a', 'b']).endsWith('\npacks: [a, b]\n')).toBe(true)
   })
 
-  test('an environment with no pack gets an empty list, not an empty key', () => {
+  test('a desk with no pack gets an empty list, not an empty key', () => {
     expect(nookYaml([]).endsWith('\npacks: []\n')).toBe(true)
   })
 })

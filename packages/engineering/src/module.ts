@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { relative } from 'node:path'
 
-import type { GateResult, PackModule } from '@nook/env/env.ts'
+import type { GateResult, PackModule } from '@nook/desk/desks.ts'
 import { EvError } from '@nook/shared/errors.ts'
 
 import { Home } from './home.ts'

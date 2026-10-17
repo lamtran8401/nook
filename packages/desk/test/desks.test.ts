@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { Catalog } from '../src/catalog.ts'
-import { Environment } from '../src/environment.ts'
+import { Desk } from '../src/desk.ts'
 import { NookConfig } from '../src/nook-config.ts'
 import { activePacks } from '../src/packs.ts'
 
@@ -30,20 +30,20 @@ describe('NookConfig', () => {
   })
 })
 
-describe('Environment', () => {
-  test('the environments above a folder come outermost first; the nearest is the last', () => {
+describe('Desk', () => {
+  test('the desks above a folder come outermost first; the nearest is the last', () => {
     const inner = join(root, 'company', 'projects', 'shop')
     mkdirSync(inner, { recursive: true })
     writeFileSync(join(root, 'nook.yml'), 'packs: []\n')
     writeFileSync(join(root, 'company', 'nook.yml'), 'packs: [engineering]\nsecrets: [infra.yaml]\n')
-    expect(Environment.above(inner).map(e => e.dir)).toEqual([root, join(root, 'company')])
-    expect(Environment.nearest(inner)?.dir).toBe(join(root, 'company'))
-    expect(Environment.nearest(inner)?.secretFiles()).toEqual([join(root, 'company', 'infra.yaml')])
+    expect(Desk.above(inner).map(e => e.dir)).toEqual([root, join(root, 'company')])
+    expect(Desk.nearest(inner)?.dir).toBe(join(root, 'company'))
+    expect(Desk.nearest(inner)?.secretFiles()).toEqual([join(root, 'company', 'infra.yaml')])
   })
 })
 
 describe('activePacks', () => {
-  test('a pack flows down to every folder inside its environment, which holds its record', () => {
+  test('a pack flows down to every folder inside its desk, which holds its record', () => {
     const shop = join(root, 'projects', 'shop')
     mkdirSync(shop, { recursive: true })
     writeFileSync(join(root, 'nook.yml'), 'packs: [engineering, wiki]\n')

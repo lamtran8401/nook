@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { relative } from 'node:path'
 
-import type { BriefLine, PackModule } from '@nook/env/env.ts'
+import type { BriefLine, PackModule } from '@nook/desk/desks.ts'
 
 import { dayOf, learnAt } from './learn.ts'
 

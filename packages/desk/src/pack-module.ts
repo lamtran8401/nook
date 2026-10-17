@@ -15,7 +15,7 @@ export type WaitingGate = { words: string; why: string }
 
 /**
  * What a pack package gives the core, so that the core needs no import of it. Each method takes the folder of the
- * environment that turns the pack on.
+ * desk that turns the pack on.
  */
 export interface PackModule {
   readonly name: string

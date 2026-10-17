@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern'
 
-import { pluginDir } from '@nook/env/pack.ts'
+import { pluginDir } from '@nook/desk/pack.ts'
 import { hold, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { ownerStartedAuto } from '../guards/auto.ts'

@@ -27,7 +27,7 @@ export const learnProgram: Program = {
   commands: [
     {
       path: ['courses'],
-      summary: 'the courses of this environment, each with its cards due today',
+      summary: 'the courses of this desk, each with its cards due today',
       run(c) {
         const today = dayOf()
         const list = requireLearn()

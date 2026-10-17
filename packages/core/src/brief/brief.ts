@@ -1,6 +1,6 @@
 import { basename } from 'node:path'
 
-import type { BriefLine, Finding } from '@nook/env/env.ts'
+import type { BriefLine, Finding } from '@nook/desk/desks.ts'
 
 /** `nook brief`: what waits for the owner, what is done since yesterday and what runs, in every folder of the list. */
 

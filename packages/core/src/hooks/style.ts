@@ -1,23 +1,23 @@
 import { readFileSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 
-import { nearestEnvironment } from '@nook/env/env.ts'
+import { nearestDesk } from '@nook/desk/desks.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { score } from '../ste.ts'
 
-/** The folders of the record that the writing check reads, relative to the environment. */
+/** The folders of the record that the writing check reads, relative to the desk. */
 const CHECKED_FOLDERS = ['docs', 'work', 'backlog']
 /** Old work: read it, never rewrite it to the standard. */
 const SKIPPED = join('docs', 'archive')
 
 function recordPath(input: HookInput): { full: string; rel: string } | null {
   const cwd = input.cwd ?? process.cwd()
-  const env = nearestEnvironment(cwd)
+  const desk = nearestDesk(cwd)
   const target = String(input.tool_input?.file_path ?? '')
-  if (!env || !target.endsWith('.md')) return null
+  if (!desk || !target.endsWith('.md')) return null
   const full = resolve(cwd, target)
-  const rel = relative(env.dir, full)
+  const rel = relative(desk.dir, full)
   if (!rel || rel.startsWith('..') || isAbsolute(rel)) return null
   if (!CHECKED_FOLDERS.includes(rel.split(sep)[0] ?? '') || rel.startsWith(SKIPPED)) return null
   return { full, rel }

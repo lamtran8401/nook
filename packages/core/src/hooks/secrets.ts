@@ -1,6 +1,6 @@
 import { basename, relative, resolve, sep } from 'node:path'
 
-import { secretsAbove } from '@nook/env/env.ts'
+import { secretsAbove } from '@nook/desk/desks.ts'
 
 const SECRET_NAMES = [/^\.env(\..+)?$/, /^\.npmrc$/]
 const SECRET_DIRS = ['.ssh', '.aws']

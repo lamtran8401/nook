@@ -16,7 +16,7 @@
     "verbatimModuleSyntax": true,
     "paths": {
       "@nook/shared/*": ["./packages/shared/src/*"],
-      "@nook/env/*": ["./packages/env/src/*"],
+      "@nook/desk/*": ["./packages/desk/src/*"],
       "@nook/core/*": ["./packages/core/src/*"],
       "@nook/engineering/*": ["./packages/engineering/src/*"],
       "@nook/wiki/*": ["./packages/wiki/src/*"],

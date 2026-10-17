@@ -6,7 +6,7 @@ import { EvError, usage } from '@nook/shared/errors.ts'
 export class NookConfig {
   private constructor(
     readonly packs: string[],
-    /** Packs of a parent environment that this one turns off. */
+    /** Packs of a parent desk that this one turns off. */
     readonly off: string[],
     readonly rules: { off: string[] },
     readonly secrets: string[],

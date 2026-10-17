@@ -1,12 +1,12 @@
 import { existsSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve } from 'node:path'
 
-import { activePacks, STATE_DIR } from '@nook/env/env.ts'
+import { activePacks, STATE_DIR } from '@nook/desk/desks.ts'
 import { EvError, Exit, refused } from '@nook/shared/errors.ts'
 
 import { type Area, EngineeringConfig } from './config.ts'
 
-/** The nearest environment above a folder that turns `engineering` on, with its config and its paths. */
+/** The nearest desk above a folder that turns `engineering` on, with its config and its paths. */
 export class Home {
   constructor(
     readonly dir: string,
@@ -23,7 +23,7 @@ export class Home {
     const home = Home.find(cwd)
     if (home) return home
     throw new EvError(
-      'not inside an environment that turns the engineering pack on',
+      'not inside a desk that turns the engineering pack on',
       Exit.error,
       'run `nook init --pack engineering` in the folder of the project, or add `engineering` to `packs:` in its nook.yml',
     )

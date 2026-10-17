@@ -1,11 +1,11 @@
 import { resolve } from 'node:path'
 
 import { arg, list, type Program } from '@nook/shared/cli.ts'
-import { activePacks, environmentsAbove, nearestEnvironment, type PackModule, projectRoot } from '@nook/env/env.ts'
-import { EnvironmentList } from '@nook/env/environment-list.ts'
+import { activePacks, desksAbove, nearestDesk, type PackModule, projectRoot } from '@nook/desk/desks.ts'
+import { DeskList } from '@nook/desk/desk-list.ts'
 import { Exit, usage } from '@nook/shared/errors.ts'
 import { readInput, runHook } from '@nook/shared/hook.ts'
-import { Catalog } from '@nook/env/pack.ts'
+import { Catalog } from '@nook/desk/pack.ts'
 
 import { collectBrief, formatBrief, startOfYesterday } from './brief/brief.ts'
 import { doctor } from './doctor/doctor.ts'
@@ -18,10 +18,10 @@ import { markdownFiles, scoreFile } from './ste.ts'
 
 const coreDir = () => Catalog.load().dirOf('core')
 
-/** The folders of the brief: the list of the owner, and the environment of `cwd` when the list lacks it. */
+/** The folders of the brief: the list of the owner, and the desk of `cwd` when the list lacks it. */
 const briefDirs = (cwd: string): string[] => {
-  const dirs = EnvironmentList.mine().dirs()
-  const here = nearestEnvironment(cwd)?.dir
+  const dirs = DeskList.mine().dirs()
+  const here = nearestDesk(cwd)?.dir
   return here && !dirs.includes(here) ? [...dirs, here] : dirs
 }
 
@@ -32,11 +32,11 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
   commands: [
     {
       path: ['init'],
-      summary: 'make this folder an environment: nook.yml, the nook block of CLAUDE.md, the base rules, the nook settings keys, .nook/',
+      summary: 'make this folder a desk: nook.yml, the nook block of CLAUDE.md, the base rules, the nook settings keys, .nook/',
       usage: '[--pack a,b] [--update]',
       flags: { pack: { type: 'string', list: true, help: 'a pack to turn on here; repeat it, or join names with a comma' }, update: { type: 'boolean', help: 'replace what Nook owns; never a line of yours' } },
       run(c) {
-        const report = init({ dir: process.cwd(), packs: list(c, 'pack'), update: c.flags.update === true, coreDir: coreDir(), modules, list: EnvironmentList.mine() })
+        const report = init({ dir: process.cwd(), packs: list(c, 'pack'), update: c.flags.update === true, coreDir: coreDir(), modules, list: DeskList.mine() })
         c.out(report, r => {
           const lines = [`packs on here: ${r.packs.join(', ')}`]
           if (r.wrote.length) lines.push(`wrote: ${r.wrote.join(', ')}`)
@@ -49,7 +49,7 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
     },
     {
       path: ['doctor'],
-      summary: 'the environments above this folder, the packs each one gives, and every gap with its fix',
+      summary: 'the desks above this folder, the packs each one gives, and every gap with its fix',
       run(c) {
         const from = process.cwd()
         const report = doctor(from, { modules })
@@ -65,7 +65,7 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
         const shipped = Catalog.load().all().map(p => ({ name: p.manifest.name, description: p.manifest.description }))
         c.out({ on, shipped }, () => [
           'on here:',
-          '  core         (every environment)',
+          '  core         (every desk)',
           ...on.map(p => `  ${p.name.padEnd(12)} ${p.home.dir}`),
           'shipped by this nook:',
           ...shipped.map(p => `  ${p.name.padEnd(12)} ${p.description}`),
@@ -88,26 +88,26 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
     },
     {
       path: ['retro'],
-      summary: 'the facts since the last retro of this environment: items sent back, guesses flipped, slow questions, weak proofs',
+      summary: 'the facts since the last retro of this desk: items sent back, guesses flipped, slow questions, weak proofs',
       run(c) {
-        const env = nearestEnvironment(process.cwd())
-        if (!env) throw usage('not inside an environment', 'run nook init in a folder first')
-        const since = retroSince(env.dir)
-        const facts = activePacks(env.dir)
-          .filter(p => p.home.dir === env.dir)
-          .flatMap(p => modules.find(m => m.name === p.name)?.retro?.(env.dir, since) ?? [])
-        const file = retroFile(env.dir)
-        c.out({ env: env.dir, since: since.toISOString(), file, facts }, r =>
+        const desk = nearestDesk(process.cwd())
+        if (!desk) throw usage('not inside a desk', 'run nook init in a folder first')
+        const since = retroSince(desk.dir)
+        const facts = activePacks(desk.dir)
+          .filter(p => p.home.dir === desk.dir)
+          .flatMap(p => modules.find(m => m.name === p.name)?.retro?.(desk.dir, since) ?? [])
+        const file = retroFile(desk.dir)
+        c.out({ desk: desk.dir, since: since.toISOString(), file, facts }, r =>
           [`since ${r.since}; the file of today: ${r.file.path}${r.file.exists ? ' (exists)' : ''}`, '', formatFacts(r.facts)].join('\n'),
         )
       },
     },
     {
       path: ['where'],
-      summary: 'the environments above this folder and the nook project',
+      summary: 'the desks above this folder and the nook project',
       run(c) {
-        const envs = environmentsAbove(process.cwd())
-        c.out({ environments: envs.map(e => e.dir), project: projectRoot() }, r => [...r.environments.map(d => `env: ${d}`), `project: ${r.project}`].join('\n'))
+        const desks = desksAbove(process.cwd())
+        c.out({ desks: desks.map(d => d.dir), project: projectRoot() }, r => [...r.desks.map(d => `desk: ${d}`), `project: ${r.project}`].join('\n'))
       },
     },
     {
