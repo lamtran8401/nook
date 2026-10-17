@@ -16,7 +16,7 @@
 | `… is in the state folder: the nook commands write it, not an edit.` | `.nook/` holds the ledger | Use a `nook` command. |
 | `… holds the permissions: the owner edits it, or nook init --update.` | `.claude/settings*.json` changes only by you or by Nook | Edit it yourself, or run `nook init --update`. |
 | a block on an owner move | approve, accept and mode are yours | Type `/gate <move> <id>` in the prompt. |
-| a block on `nk` | the engineering guard blocks the short form in each shell call of Claude Code | Claude Code runs `nook`. Type `nk` only in your own terminal. |
+| a block on `nk` | the one name of the tool is `nook`; the engineering guard blocks `nk` in each shell call of Claude Code | Run `nook`. |
 | `a reader never writes a file.` | read-only agents report; they do not edit | The lead or a builder makes the change. |
 | a block on `spec.md`, `plan.md` or `tasks.md` | a document opens only in its state, and the approve freezes it | `nook eng item replan <id>` or `reframe <id>` with a reason. |
 | a block on a file of an area | an area changes only while one of its slices runs | Start the slice through `/cook` or `/quick`. |

@@ -154,7 +154,7 @@ Only the owner starts these skills.
 | Name | Use |
 |---|---|
 | `nook` | the command; hooks and agents run it by this name only |
-| `nk` | the short form for the owner; the engineering guard blocks it in each shell call of Claude Code |
+| `nk` | not a command of Nook; the engineering guard blocks it in each shell call of Claude Code, so an alias of yours cannot run as an agent |
 | `NOOK_ROLE`, `NOOK_ACTOR`, `NOOK_SESSION` | set by the hooks only; a command that sets one is blocked |
 | `NOOK_PROJECT` | the Nook repo, for a shim that cannot find it |
 | `.nook/` | the state folder of a desk |

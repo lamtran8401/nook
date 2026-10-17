@@ -37,7 +37,7 @@ const OWNER_TEXT = (move: string) => `${move} is the owner's move: tell the owne
 const WRAP_TEXT = 'run `nook eng` by its plain name: no env, exec, xargs, eval or sh -c around the tool.'
 const CODE_TEXT = 'run `nook eng` by its plain name, not by a path to its code.'
 const ROLE_TEXT = 'the role of an agent is set by nook, not by a command.'
-const NAME_TEXT = 'run the tool as `nook`: `nk` is the short form for the owner.'
+const NAME_TEXT = 'run the tool as `nook`: it is the one name of the tool.'
 
 const WRAPPERS = new Set(['env', 'exec', 'xargs', 'eval', 'command', 'nohup', 'time', 'sudo', 'timeout', 'nice', 'stdbuf'])
 const SHELLS = new Set(['sh', 'bash', 'zsh', 'dash'])

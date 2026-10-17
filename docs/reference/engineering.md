@@ -310,7 +310,7 @@ The Bash hook:
 - The code of `sh -c`, of a shell that reads a heredoc or a pipe, and of `$( )` and backticks counts too.
 - It blocks an owner move by the model, under `nook` or `nk`.
 - It blocks `nook` inside `env`, `exec`, `xargs`, `eval`, `sh -c` and the like, and a call by a path to its code.
-- It blocks a call as `nk`: the short form is for the owner. It blocks a command that sets `NOOK_ROLE`, `NOOK_ACTOR` or `NOOK_SESSION`, or unsets `CLAUDECODE`.
+- It blocks a call as `nk`: the one name of the tool is `nook`. It blocks a command that sets `NOOK_ROLE`, `NOOK_ACTOR` or `NOOK_SESSION`, or unsets `CLAUDECODE`.
 - It adds `--as`, `--actor` and `--session` to each call by an agent, so the rule `Bash(nook eng *)` still matches.
 - A reader runs only reads: shell reads such as `ls`, `cat`, `grep` and `find`, and `git status`, `diff`, `log` and `show`.
 - A reader also runs the read commands of the tool. The verifier adds `task prove` and `item verify`; the reviewer adds `item ac done`.

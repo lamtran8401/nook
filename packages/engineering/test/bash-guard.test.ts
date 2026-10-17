@@ -55,7 +55,7 @@ describe('bashGuard: the owner moves and the plain name of the tool', () => {
     for (const c of ['nk eng next', 'nk eng item show A', 'cd work && nk doctor', 'echo `nk eng next`', 'env nk eng next', '/x/apps/nook/bin/nk eng next']) {
       expect(bash(c).kind).toBe('block')
     }
-    expect(reason(bash('nk eng next'))).toBe('run the tool as `nook`: `nk` is the short form for the owner.')
+    expect(reason(bash('nk eng next'))).toBe('run the tool as `nook`: it is the one name of the tool.')
     expect(bash('echo "nk is the short name"').kind).not.toBe('block')
   })
 

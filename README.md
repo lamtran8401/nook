@@ -11,7 +11,6 @@ You need [Bun](https://bun.sh) and Claude Code.
 ```
 git clone <this repo> nook && cd nook && bun install
 ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nook     # the hooks and the agents run nook
-ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nk       # optional: a short form for you; Claude Code cannot run it
 claude plugin marketplace add "$PWD"
 claude plugin install nook@nook                       # the core: always
 claude plugin install nk-eng@nook                     # one plugin for each pack that you use
