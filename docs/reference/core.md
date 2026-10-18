@@ -202,6 +202,37 @@ The web app uses the same files. Its layout puts the tokens and `bundle.css` inl
 | `Gap` | a gap of the desk with its fix, in place of the data |
 | `TabLinks`, `PackNav` | Home, and a tab for each pack on in the desk that has a page |
 
+A document becomes a page in two steps: `apps/web/lib/blocks.ts` turns its Markdown into blocks, and `apps/web/components/blocks/` renders each block with one Bench component.
+
+| Block | Markdown | Component |
+|---|---|---|
+| prose | headings, paragraphs, lists, dividers | Prose |
+| table | a GFM table | Table |
+| quote | `>` | Quote |
+| code | a fence with a language | CodeBlock |
+| panel | `:::info`, `:::note`, `:::success`, `:::warning`, `:::error` | Alert |
+| decision | `:::decision` | Alert with a decision mark |
+| expand | `:::expand Title` | Accordion |
+| columns | `:::columns`, with `---` between the columns | Grid |
+| task list | `- [ ]` and `- [x]` | Checklist |
+| status, date | `{status:done}`, `{date:2026-10-18}` in a line | Badge, date chip |
+| diagram | a fence `bench` with a JSON spec | Diagram |
+
+A `:::` block ends at a line with `:::` alone, and may hold another block. An unknown block, a broken `bench` block and an unclosed `:::` show as a warning that names the line. Raw HTML shows as text. A link to a site other than `http` or `https` shows as its words.
+
+The first list under one of these headings follows the heading:
+
+| Heading | Becomes |
+|---|---|
+| `## Acceptance criteria` | records, each with its kind, its sources and its state from the ledger |
+| `## Details` | rules, each with its sources; a guess shows its impact |
+| `## What works now` | piece cards in plain words |
+| `## Where to start reading`, `## Try it` | step lists; a step of Try it splits into what to do and what you see |
+| `## Out of scope`, `## Heads up`, `## Requirements met` | an out list, an alert of things to know, a met checklist |
+| `## T1: title` with `- key: value` lines | a task card |
+
+A quote that opens with `In short:` or `Need to know:` is a callout, and a line `None: Cache, Consistency.` gives the chips of no impact. A `mermaid` fence shows as code until Bench lays out a graph with no grid places.
+
 A component never uses `data-bn-diagram` or `data-bn-icon`: `bundle.js` changes those nodes at load, before React hydrates them. `Diagram` keeps its spec in `data-nook-diagram` and draws after hydration.
 
 ## 12. The repo
