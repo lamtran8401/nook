@@ -194,6 +194,8 @@ The read paths of the web app are in `packages/engineering/src/read/reader.ts`. 
 - The changed files of an area come from git: each file that differs from the merge base with the main branch, with its state and its added and removed lines. An area still on its main branch has none.
 - A ledger that needs a migration is a gap: any `nook eng` command migrates it.
 
+The pack gives `nook doctor`, `nook brief`, `nook retro` and the waiting gates through the same read-only open. A missing ledger, or one that needs a migration, is one doctor gap with its fix; the config and folder checks still run, and the brief, the retro and the gates show nothing from the ledger.
+
 ## 6. Documents: `<home>/work/<id>/`
 
 | File | Made at | Sections |

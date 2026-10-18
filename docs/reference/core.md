@@ -49,6 +49,8 @@ A fault stops the command and names the key: `packs.on must be a list of strings
 
 Each pack adds its commands under its name: `nook eng …`, `nook wiki …`, `nook learn …`. `nook --help` lists all 90 commands.
 
+`nook doctor` and `nook brief` only read. `readHome(desk, modules)` in `packages/core/src/read.ts` gives the same brief of one desk and the findings of its doctor, for the home page of the web app.
+
 The exit codes hold for every command except the hooks. A hook exits 0 to let a call go and 2 to block it, as Claude Code reads them.
 
 | Exit | Meaning |

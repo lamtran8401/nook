@@ -10,7 +10,7 @@ import { Ledger } from './ledger.ts'
 import { isOpen } from './machine.ts'
 import { OWNER_STEP } from './owner-step.ts'
 import { brief, doneSince, runs } from './report/brief.ts'
-import { doctor } from './report/doctor.ts'
+import { doctor, doctorWithoutLedger } from './report/doctor.ts'
 import { retroFacts } from './report/retro.ts'
 import { next } from './report/next.ts'
 import { Engineering } from './service.ts'
@@ -31,6 +31,22 @@ function moveLegacyWork(home: Home): string[] {
 }
 
 const GATES = ['approve', 'accept', 'mode'] as const
+
+/** A read of the pack: the ledger opens read-only and closes after. A missing ledger, or one that needs a migration, gives `onGap`. */
+function reading<T>(home: Home, read: (eng: Engineering) => T, onGap: (gap: EvError) => T): T {
+  let ledger: Ledger
+  try {
+    ledger = Ledger.openReadOnly(home.dbFile)
+  } catch (error) {
+    if (error instanceof EvError) return onGap(error)
+    throw error
+  }
+  try {
+    return read(new Engineering(home, ledger, Who.fromEnv()))
+  } finally {
+    ledger.close()
+  }
+}
 
 export const engineeringModule: PackModule = {
   name: 'engineering',
@@ -56,23 +72,28 @@ export const engineeringModule: PackModule = {
 
   doctor(dir) {
     const home = homeAt(dir)
-    return home ? doctor(Engineering.open(home, Who.fromEnv())) : []
+    if (!home) return []
+    return reading(home, doctor, gap => doctorWithoutLedger(home, { level: 'error', where: home.dir, text: gap.message, ...(gap.fix ? { fix: gap.fix } : {}) }))
   },
 
+  // a ledger gap shows once, from the doctor, so these reads give nothing for it
   retro(dir, since) {
     const home = homeAt(dir)
-    return home ? retroFacts(Engineering.open(home, Who.fromEnv()), since) : []
+    return home ? reading(home, eng => retroFacts(eng, since), () => []) : []
   },
 
   brief(dir, since) {
     const home = homeAt(dir)
     if (!home) return []
-    const eng = Engineering.open(home, Who.fromEnv())
-    return [
-      ...brief(eng).map(l => ({ part: 'waits' as const, urgent: l.urgency === 'now', text: l.text, action: l.action })),
-      ...doneSince(eng, since).map(l => ({ part: 'done' as const, text: l.text })),
-      ...runs(eng).map(l => ({ part: 'runs' as const, text: l.text, action: l.action })),
-    ]
+    return reading(
+      home,
+      eng => [
+        ...brief(eng).map(l => ({ part: 'waits' as const, urgent: l.urgency === 'now', text: l.text, action: l.action })),
+        ...doneSince(eng, since).map(l => ({ part: 'done' as const, text: l.text })),
+        ...runs(eng).map(l => ({ part: 'runs' as const, text: l.text, action: l.action })),
+      ],
+      () => [],
+    )
   },
 
   gates: GATES,
@@ -101,9 +122,11 @@ export const engineeringModule: PackModule = {
   waiting(dir) {
     const home = Home.find(dir)
     if (!home) return []
-    return next(Engineering.open(home, Who.fromEnv()))
-      .filter(n => n.skill.startsWith(OWNER_STEP))
-      .map(n => ({ words: n.skill.slice(OWNER_STEP.length), why: `${n.id} is ${n.state}, no gap` }))
+    const waits = (eng: Engineering) =>
+      next(eng)
+        .filter(n => n.skill.startsWith(OWNER_STEP))
+        .map(n => ({ words: n.skill.slice(OWNER_STEP.length), why: `${n.id} is ${n.state}, no gap` }))
+    return reading(home, waits, () => [])
   },
 
   commands: ['yolo'],

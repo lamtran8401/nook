@@ -6,6 +6,7 @@ import { DEFAULTS, LEGACY_DIR } from '../config.ts'
 import { cut } from '../format.ts'
 import { FingerprintsUnchanged } from '../guards/fingerprints.ts'
 import { GuardContext } from '../guards/guard.ts'
+import type { Home } from '../home.ts'
 import type { Engineering } from '../service.ts'
 import type { Item } from '../stores/items.ts'
 
@@ -18,7 +19,7 @@ const drift = new FingerprintsUnchanged()
 
 export function doctor(eng: Engineering): Finding[] {
   const found = [
-    ...configFindings(eng),
+    ...configFindings(eng.home),
     ...eng.stores.items.open().flatMap(item => itemFindings(eng, item)),
     ...sharedAreas(eng),
   ]
@@ -32,9 +33,14 @@ export function doctor(eng: Engineering): Finding[] {
   ]
 }
 
-function configFindings(eng: Engineering): Finding[] {
-  const home = eng.home.dir
-  const config = eng.home.config
+/** The doctor of a home whose ledger cannot open: the gaps of its config and folders, and the gap of the ledger. */
+export function doctorWithoutLedger(home: Home, ledgerGap: Finding): Finding[] {
+  return [...configFindings(home), ledgerGap]
+}
+
+function configFindings(at: Home): Finding[] {
+  const home = at.dir
+  const config = at.config
   const found: Finding[] = []
   if (config.missing)
     found.push({
@@ -44,7 +50,7 @@ function configFindings(eng: Engineering): Finding[] {
       fix: 'add areas to nook.yml with /setup',
     })
   for (const area of config.areas) {
-    if (!existsSync(eng.home.areaDir(area)))
+    if (!existsSync(at.areaDir(area)))
       found.push({
         level: 'error',
         where: area.name,

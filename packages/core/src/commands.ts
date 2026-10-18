@@ -7,7 +7,7 @@ import { Exit, usage } from '@nook/shared/errors.ts'
 import { readInput, runHook } from '@nook/shared/hook.ts'
 import { Catalog } from '@nook/desk/pack.ts'
 
-import { collectBrief, formatBrief, startOfYesterday } from './brief/brief.ts'
+import { briefSources, collectBrief, formatBrief, startOfYesterday } from './brief/brief.ts'
 import { doctor } from './doctor/doctor.ts'
 import { formatFacts, retroFile, retroSince } from './retro/retro.ts'
 import { formatDoctor } from './doctor/format.ts'
@@ -77,13 +77,7 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
       path: ['brief'],
       summary: 'what waits for you, what is done since yesterday and what runs, in every folder that you init',
       run(c) {
-        const folders = collectBrief(briefDirs(process.cwd()), startOfYesterday(), {
-          gaps: dir => doctor(dir, { modules }).findings,
-          lines: (dir, since) =>
-            activePacks(dir)
-              .filter(p => p.home.dir === dir)
-              .flatMap(p => modules.find(m => m.name === p.name)?.brief?.(dir, since) ?? []),
-        })
+        const folders = collectBrief(briefDirs(process.cwd()), startOfYesterday(), briefSources(modules))
         c.out({ folders }, r => formatBrief(r.folders))
       },
     },

@@ -205,3 +205,38 @@ describe('engineeringModule: the daily brief', () => {
     ])
   })
 })
+
+describe('engineeringModule: the reads of doctor, brief, retro and waiting', () => {
+  const MIGRATE = 'run any `nook eng` command in the desk'
+  const dropLastMigration = () => {
+    const lead = t.eng(LEAD)
+    lead.ledger.run('DELETE FROM migration WHERE n = (SELECT MAX(n) FROM migration)')
+    return () => lead.ledger.get<{ n: number }>('SELECT COUNT(*) AS n FROM migration')!.n
+  }
+
+  test('doctor of a ledger that needs a migration names the gap with its fix, and runs no migration', () => {
+    t = makeHome()
+    itemAt(t, 'planning')
+    const migrations = dropLastMigration()
+    const before = migrations()
+    expect(engineeringModule.doctor(t.root)).toContainEqual({ level: 'error', where: t.root, text: 'the ledger needs 1 migration', fix: MIGRATE })
+    expect(migrations()).toBe(before)
+  })
+
+  test('brief, retro and waiting of a ledger that needs a migration give nothing, and run no migration', () => {
+    t = makeHome()
+    itemAt(t, 'planning')
+    const migrations = dropLastMigration()
+    const before = migrations()
+    expect(engineeringModule.brief!(t.root, new Date(0))).toEqual([])
+    expect(engineeringModule.retro!(t.root, new Date(0))).toEqual([])
+    expect(engineeringModule.waiting!(t.root)).toEqual([])
+    expect(migrations()).toBe(before)
+  })
+
+  test('doctor of a home with no ledger yet names the gap, and makes no ledger', () => {
+    t = makeHome()
+    expect(engineeringModule.doctor(t.root)).toContainEqual({ level: 'error', where: t.root, text: `no ledger at ${t.home.dbFile}`, fix: MIGRATE })
+    expect(existsSync(t.home.dbFile)).toBe(false)
+  })
+})
