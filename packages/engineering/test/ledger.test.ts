@@ -1,8 +1,10 @@
-import { Database } from 'bun:sqlite'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
+
+import { Exit } from '@nook/shared/errors.ts'
+import { SqlFile } from '@nook/shared/sql.ts'
 
 import { Ledger } from '../src/ledger.ts'
 import { MIGRATIONS } from '../src/migrations.ts'
@@ -23,11 +25,11 @@ const addItem = (id: string) =>
 /** A ledger as the first migration left it, with `rows` written into it. */
 function writeFirstSchema(file: string, rows: string[]): void {
   mkdirSync(dirname(file), { recursive: true })
-  const db = new Database(file, { create: true })
+  const db = SqlFile.open(file)
   db.exec('CREATE TABLE migration (n INTEGER PRIMARY KEY, at TEXT NOT NULL)')
   db.exec(MIGRATIONS[0]!)
   db.run("INSERT INTO migration (n, at) VALUES (1, 'now')")
-  for (const row of rows) db.run(row)
+  for (const row of rows) db.exec(row)
   db.close()
 }
 const itemIds = () => ledger.all<{ id: string }>('SELECT id FROM item ORDER BY id').map(r => r.id)
@@ -105,4 +107,50 @@ describe('Ledger', () => {
   test('get returns null when no row matches', () => {
     expect(ledger.get('SELECT id FROM item WHERE id = ?', 'none')).toBeNull()
   })
+
+  test('openReadOnly reads what a writer wrote, while the writer is open', () => {
+    addItem('A-1')
+    const reader = Ledger.openReadOnly(join(dir, 'state', 'engineering.db'))
+    expect(reader.all('SELECT id FROM item')).toEqual([{ id: 'A-1' }])
+    reader.close()
+  })
+
+  test('openReadOnly reads a ledger after its writer has closed', () => {
+    addItem('A-1')
+    ledger.close()
+    const reader = Ledger.openReadOnly(join(dir, 'state', 'engineering.db'))
+    expect(reader.all('SELECT id FROM item')).toEqual([{ id: 'A-1' }])
+    reader.close()
+    ledger = Ledger.open(join(dir, 'state', 'engineering.db'))
+  })
+
+  test('openReadOnly refuses a write', () => {
+    const reader = Ledger.openReadOnly(join(dir, 'state', 'engineering.db'))
+    expect(() => reader.run("INSERT INTO item (id, title, state, created, updated) VALUES ('A-1', 'x', 'backlog', 'now', 'now')")).toThrow('readonly')
+    reader.close()
+    expect(itemIds()).toEqual([])
+  })
+
+  test('openReadOnly of a missing ledger is a gap with its fix, and makes no folder', () => {
+    const file = join(dir, 'none', 'engineering.db')
+    const error = catchError(() => Ledger.openReadOnly(file))
+    expect(error).toMatchObject({ code: Exit.refused, fix: 'run any `nook eng` command in the desk' })
+    expect(existsSync(join(dir, 'none'))).toBe(false)
+  })
+
+  test('openReadOnly of a ledger that needs a migration is a gap, and runs no migration', () => {
+    ledger.run('DELETE FROM migration WHERE n = ?', MIGRATIONS.length)
+    const error = catchError(() => Ledger.openReadOnly(join(dir, 'state', 'engineering.db')))
+    expect(error).toMatchObject({ code: Exit.refused, message: 'the ledger needs 1 migration', fix: 'run any `nook eng` command in the desk' })
+    expect(ledger.all('SELECT n FROM migration')).toEqual([{ n: 1 }, { n: 2 }])
+  })
 })
+
+function catchError(work: () => unknown): unknown {
+  try {
+    work()
+  } catch (error) {
+    return error
+  }
+  throw new Error('no error was thrown')
+}

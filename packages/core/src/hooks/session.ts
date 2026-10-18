@@ -4,6 +4,8 @@
  * terminal has no Claude process above it, and a background session has only the daemon and the pty host of Claude.
  */
 
+import { runCommand } from '@nook/shared/run.ts'
+
 const CLAUDE = /(^|\/)claude(\s|$)|\/claude\/versions\/|claude-code\//
 const INFRA = /\s(?:daemon|bg-pty-host)(\s|$)/
 
@@ -11,8 +13,7 @@ const INFRA = /\s(?:daemon|bg-pty-host)(\s|$)/
 export function ancestorCommands(pid = process.ppid, limit = 40): string[] {
   const chain: string[] = []
   for (let current = pid, i = 0; current > 1 && i < limit; i++) {
-    const result = Bun.spawnSync(['ps', '-o', 'ppid=,command=', '-p', String(current)], { stdout: 'pipe', stderr: 'pipe' })
-    const m = /^\s*(\d+)\s+(.*)$/.exec(result.stdout.toString().trim())
+    const m = /^\s*(\d+)\s+(.*)$/.exec(runCommand(['ps', '-o', 'ppid=,command=', '-p', String(current)]).out.trim())
     if (!m) break
     chain.push(m[2]!)
     current = Number(m[1])

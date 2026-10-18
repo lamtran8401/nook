@@ -1,5 +1,7 @@
 import { existsSync, rmSync } from 'node:fs'
 
+import { runCommand } from '@nook/shared/run.ts'
+
 /** One git checkout: the commands that the pack runs in it. */
 
 export type GitRun = { ok: boolean; out: string; err: string }
@@ -8,13 +10,8 @@ export class GitRepo {
   constructor(readonly dir: string) {}
 
   run(...args: string[]): GitRun {
-    const run = Bun.spawnSync(['git', ...args], {
-      cwd: this.dir,
-      stdout: 'pipe',
-      stderr: 'pipe',
-      env: process.env,
-    })
-    return { ok: run.exitCode === 0, out: run.stdout.toString().trim(), err: run.stderr.toString().trim() }
+    const run = runCommand(['git', ...args], { cwd: this.dir })
+    return { ok: run.code === 0, out: run.out.trim(), err: run.err.trim() }
   }
 
   isRepo(): boolean {

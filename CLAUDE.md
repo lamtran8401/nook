@@ -5,7 +5,7 @@ This repo builds Nook itself. Read `docs/report.md` for the current build, `docs
 ## Map
 ```
 apps/nook/             the one binary `nook`: it joins the commands of each package and runs them. No logic.
-packages/shared/       the CLI router, the exit codes, the hook input and output, the names of the tool
+packages/shared/       the CLI router, the exit codes, the hook input and output, the names of the tool, the SQLite file, the command runner
 packages/desk/         desks, nook.yml, the desk list of the owner, the pack manifests, the plugin folders, the UI kit
 packages/core/         init, doctor, packs, where, the writing check, brief, retro, the core hooks
 packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks

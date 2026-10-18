@@ -21,7 +21,9 @@ export type HookInput = {
 }
 
 export async function readInput(): Promise<HookInput> {
-  const raw = await Bun.stdin.text()
+  const chunks: Buffer[] = []
+  for await (const chunk of process.stdin) chunks.push(Buffer.from(chunk))
+  const raw = Buffer.concat(chunks).toString('utf8')
   if (!raw.trim()) return {}
   return JSON.parse(raw) as HookInput
 }

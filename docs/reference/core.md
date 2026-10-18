@@ -174,7 +174,7 @@ Only the owner starts these skills.
 nook/
 ├── apps/nook/            the binary nook: it joins the commands of each package; no logic
 ├── packages/
-│   ├── shared/           the CLI router, the exit codes, the hook input and output, the names
+│   ├── shared/           the CLI router, the exit codes, the hook input and output, the names, the SQLite file, the command runner
 │   ├── desk/             desks, nook.yml, the desk list, the pack manifests, the plugin folders, the UI kit
 │   ├── core/             init, doctor, packs, where, ste, brief, retro, the core hooks
 │   ├── engineering/      the ledger, the item machine, the guards, the documents, git, the hooks
@@ -186,5 +186,7 @@ nook/
 ```
 
 The dependency rule: `apps/nook` imports the packages. A package imports `@nook/shared/*` and `@nook/desk/*` only, never another pack. A plugin holds no code: its hooks call `bin/nook`.
+
+Every package runs under Bun and under Node, so the web app can import it. The SQLite file and the command runner of `shared` use `node:sqlite` and `node:child_process`. A test fails when a package source uses a Bun API.
 
 `pack.json` of a plugin names its rules, its settings file and its state files. `nook init` reads it.
