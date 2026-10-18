@@ -18,7 +18,7 @@ const bash = (command: string, cwd = root) => bashGuard({ cwd, tool_name: 'Bash'
 const edit = (file_path: string) => editGuard({ cwd: root, tool_name: 'Edit', tool_input: { file_path } }).kind
 
 describe('readGuard', () => {
-  test.each(['.env', 'app/.env.local', '.env.bak~', 'prod.env', 'config/app.env', 'process.env', '.npmrc', '~/.ssh/id_rsa', 'config/infra.local.yaml'])('blocks a read of %s', file => {
+  test.each(['.env', 'app/.env.local', '.env.bak~', 'prod.env', 'config/app.env', 'process.env', '.npmrc', '~/.ssh/id_rsa', '~/.config/twg/auth.conf', '~/.config/gh/hosts.yml', 'config/infra.local.yaml'])('blocks a read of %s', file => {
     expect(read(file)).toBe('block')
   })
 
@@ -26,7 +26,7 @@ describe('readGuard', () => {
     expect(read(join(root, 'config/infra.local.yaml'))).toBe('block')
   })
 
-  test.each(['.env.example', 'src/app.ts'])('lets a read of %s pass', file => {
+  test.each(['.env.example', 'src/app.ts', '~/.config/git/config'])('lets a read of %s pass', file => {
     expect(read(file)).toBe('pass')
   })
 
@@ -38,7 +38,7 @@ describe('readGuard', () => {
 })
 
 describe('bashGuard', () => {
-  test.each(['cat .env', "cat '.env'", 'cat .env.local', 'cat ./app/.env.local', 'cat $HOME/.env', 'cat ${HOME}/.env', 'docker run --env-file=.env app', 'cat prod.env', 'cat config/app.env', 'cat ~/.aws/credentials', 'cat config/infra.local.yaml'])(
+  test.each(['cat .env', "cat '.env'", 'cat .env.local', 'cat ./app/.env.local', 'cat $HOME/.env', 'cat ${HOME}/.env', 'docker run --env-file=.env app', 'cat prod.env', 'cat config/app.env', 'cat ~/.aws/credentials', 'cat ~/.config/twg/auth.conf', 'cat $HOME/.config/gh/hosts.yml', 'cat config/infra.local.yaml'])(
     'blocks a command that reaches a secret: %s',
     command => expect(bash(command)).toBe('block'),
   )
@@ -65,7 +65,7 @@ describe('bashGuard', () => {
     expect(bash('cat > note.md <<EOF\nnever read .env\nEOF\ncat .env')).toBe('block')
   })
 
-  test.each(['cat .env.example', 'git status', 'nook doctor'])('lets %s pass', command => {
+  test.each(['cat .env.example', 'git status', 'nook doctor', 'gh issue view 12', 'cat ~/.config/git/config'])('lets %s pass', command => {
     expect(bash(command)).toBe('pass')
   })
 
@@ -93,7 +93,7 @@ describe('editGuard', () => {
     expect(edit(file)).toBe('block')
   })
 
-  test.each(['.npmrc', 'app/.npmrc', '~/.ssh/config', '~/.aws/credentials', 'config/infra.local.yaml'])('blocks an edit of the secret file %s', file => {
+  test.each(['.npmrc', 'app/.npmrc', '~/.ssh/config', '~/.aws/credentials', '~/.config/gh/hosts.yml', 'config/infra.local.yaml'])('blocks an edit of the secret file %s', file => {
     expect(edit(file)).toBe('block')
   })
 

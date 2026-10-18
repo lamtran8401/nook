@@ -3,10 +3,10 @@ import { basename, resolve, sep } from 'node:path'
 import { match } from 'ts-pattern'
 
 import { nearestDesk, STATE_DIR } from '@nook/desk/desks.ts'
+import { SecretPolicy } from '@nook/desk/secrets.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 import { ROLE_VAR } from '@nook/shared/names.ts'
 
-import { SecretPolicy } from './secrets.ts'
 import { plainWords } from './shell.ts'
 
 /** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside a desk they do nothing. */

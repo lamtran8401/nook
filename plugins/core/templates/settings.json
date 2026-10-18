@@ -27,6 +27,8 @@
       "Read(**/.npmrc)",
       "Read(~/.ssh/**)",
       "Read(~/.aws/**)",
+      "Read(~/.config/twg/**)",
+      "Read(~/.config/gh/**)",
       "Edit(**/.env*)",
       "Edit(.nook/**)",
       "Edit(.claude/settings*.json)"

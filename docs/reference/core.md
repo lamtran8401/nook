@@ -103,9 +103,11 @@ The file is `plugins/core/hooks/hooks.json`. Each hook runs `nook hook <name>` a
 The secret files, the same for the read, shell and edit guards:
 
 - `.env`, `.env.local`, `.env.<name>` and `<name>.env`; `.env.example` passes.
-- `.npmrc`, each file under `~/.ssh` and `~/.aws`.
+- `.npmrc`, each file under `~/.ssh`, `~/.aws`, `~/.config/twg` and `~/.config/gh`.
 - Each path in `secrets` of a `nook.yml` above.
 - In a command, `process.env` and `Bun.env` are code, not files. `$HOME/.env` and `--env-file=.env` name a file and block.
+
+The list lives in `packages/desk/src/secrets.ts`, so the guards and the read paths of every pack use the same one.
 
 The gate hook:
 
@@ -136,7 +138,7 @@ Only the owner starts these skills.
 |---|---|
 | allow | `Bash(nook *)`, `git status`, `git diff`, `git log`, `git show`, `git branch --list`, `rg` |
 | ask | `git commit`, `git push`, `git pull`, `git fetch`, `git worktree`, `docker` |
-| deny | a forced push, `git reset --hard`, `git clean`, reads of env files, `.npmrc`, `~/.ssh` and `~/.aws`, edits of env files, `.nook/` and the settings files |
+| deny | a forced push, `git reset --hard`, `git clean`, reads of env files, `.npmrc`, `~/.ssh`, `~/.aws`, `~/.config/twg` and `~/.config/gh`, edits of env files, `.nook/` and the settings files |
 | `outputStyle` | `nook-companion` |
 | `env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` | `1` |
 | `teammateMode` | `auto` |

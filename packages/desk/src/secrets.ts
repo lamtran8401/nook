@@ -1,10 +1,11 @@
 import { basename, relative, resolve, sep } from 'node:path'
 
-import { secretsAbove } from '@nook/desk/desks.ts'
+import { secretsAbove } from './desks.ts'
 
 const ENV_FILE = /^(?:\.env(?:\..+)?|[\w-][\w.-]*\.env)$/
 const CODE_ENV = /^(?:process|Bun|Deno|import\.meta)\.env$/
-const SECRET_DIRS = ['.ssh', '.aws']
+// the folders of keys and logins: ssh and aws, and the logins of the trackers twg and gh
+const SECRET_DIR = /(^|\/)(?:\.ssh|\.aws|\.config\/(?:twg|gh))(\/|$)/
 
 /** `.env`, `.env.local`, `prod.env`; not `.env.example`. */
 const isEnvFile = (name: string): boolean => ENV_FILE.test(name) && !name.endsWith('.env.example')
@@ -15,7 +16,7 @@ const namesEnvFile = (word: string): boolean => {
   return isEnvFile(name) && !CODE_ENV.test(name)
 }
 
-/** The secret files: env files except `.env.example`, `.npmrc`, `~/.ssh`, `~/.aws`, and the `secrets` of nook.yml. */
+/** The secret files: env files except `.env.example`, `.npmrc`, `~/.ssh`, `~/.aws`, `~/.config/twg`, `~/.config/gh`, and the `secrets` of nook.yml. */
 export class SecretPolicy {
   private readonly listed: string[]
 
@@ -27,13 +28,13 @@ export class SecretPolicy {
     const name = basename(path)
     if (isEnvFile(name) || name === '.npmrc') return true
     const full = resolve(this.cwd, path.replace(/^~(?=\/|$)/, process.env.HOME ?? '~'))
-    if (SECRET_DIRS.some(dir => full.split(sep).includes(dir))) return true
+    if (SECRET_DIR.test(full.split(sep).join('/'))) return true
     return this.listed.some(secret => full === secret || full.startsWith(`${secret}${sep}`))
   }
 
   wordProblem(word: string): string | null {
     if (namesEnvFile(word)) return `the command names ${word}: Nook does not read or write secrets.`
-    if (/(^|\/)\.npmrc$/.test(word) || /(^|\/)\.(ssh|aws)(\/|$)/.test(word)) return `the command touches ${word}: Nook does not read secrets.`
+    if (/(^|\/)\.npmrc$/.test(word) || SECRET_DIR.test(word)) return `the command touches ${word}: Nook does not read secrets.`
     if (/(^|\/)\.nook\/.*\.db/.test(word) || /^sqlite3?$/.test(word)) return 'the state databases are not for the shell: use the nook commands.'
     return null
   }
