@@ -19,24 +19,21 @@ updated: {{today}}
 
 ## What changes
 
-<!-- One line for each area: `- **<area>:** the change in plain words`. -->
-<!-- Add one line `- **Stays as it is:** ...` for the parts that do not change. -->
+<!-- One line for each area: `- **<area>:** the change in plain words`. The parts that stay as they are go to Out of scope. -->
 
 ## Acceptance criteria
 
 <!-- One line for each criterion: `- [ADD|CHANGE|REMOVE|NONE] text (source)`. The n-th line is AC n. -->
-<!-- The source is the question, the guess or the ticket line that the criterion comes from: (Q1), (G1), (ticket). -->
+<!-- An answer or a guess rewrites the criterion that it touches; the source names it: (ticket AC1, Q1, G2). -->
 <!-- A test must be able to check each criterion. One criterion for each thing that the owner sees work, with its edge cases in the same line. -->
-<!-- Proposed cap: the criteria of the ticket + 2, in the range S 1-3, M 3-6, L 5-10. Over it, say why in the Decisions table. -->
+<!-- Proposed cap: the criteria of the ticket + 2, in the range S 1-3, M 3-6, L 5-10. Over it, say why in Details. -->
 <!-- Plain words: what a person or a caller gets. No endpoint, query, code, field or file name; the plan's Proof holds the exact check. -->
 
-## Decisions
+## Details
 
-<!-- The answers that shape the item, one row each. From: the question or the guess, for example Q1 or G1, med. -->
-
-| Point | Answer | From |
-|---|---|---|
+<!-- The rules behind the criteria, one line each, in plain words with one example and the source: -->
+<!-- `- **Rule:** text, such as an example. (Q1)` or `(G2, med)`. A rule that waits for an answer says so: `(open)`. -->
 
 ## Out of scope
 
-<!-- One line for each thing that this item does not change. -->
+<!-- One line for each thing that this item does not change, the parts that stay as they are first. -->

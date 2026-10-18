@@ -1,6 +1,6 @@
 ---
 name: write-spec
-description: "Write works/<id>/spec.md from the ticket and the answers: front matter with dates, In short, Why, What changes, checkable criteria, Decisions, Out of scope. Use in /spec or when the owner says draft the spec. Not for checking it: spec-check."
+description: "Write works/<id>/spec.md from the ticket and the answers: front matter with dates, In short, Why, What changes, checkable criteria, Details, Out of scope. Use in /spec or when the owner says draft the spec. Not for checking it: spec-check."
 argument-hint: "<item id>"
 allowed-tools: Bash(nook eng *), Read, Glob, Grep, Edit, Write
 ---
@@ -18,10 +18,10 @@ The clarify step and the bar for a criterion: `criteria.md` (this folder). A ful
 1. Front matter: `kind`, `size`, `areas` from `triage`. It is the source; `agree` copies it into the item. Keep `created`; set `updated` to today on each edit (YYYY-MM-DD).
 2. In short: one line under the title, the change and who gains. Why: one short paragraph, who is stuck and why the item exists. Not the title again.
 3. Clarify before you write a criterion: list each requirement of the ticket in your own words with its source; for each, look for a gap, an edge case, a conflict and the impact on a related feature. Resolve each finding with a question, a guess, or name it as open. How: `criteria.md`.
-4. What changes: one line for each area in plain words, and one line for what stays as it is.
-5. Decisions: a table `Point | Answer | From`, one row for each finding, with `Q<n>`, `G<n>` and its impact, or `open`.
-6. Acceptance criteria: one line each, `- [ADD|CHANGE|REMOVE|NONE] text (source)`. The n-th line is AC n.
-7. Out of scope: what a reader could assume, and each edge case left out.
+4. What changes: one line for each area in plain words. The parts that stay as they are go to Out of scope.
+5. Acceptance criteria: one line each, `- [ADD|CHANGE|REMOVE|NONE] text (source)`. The n-th line is AC n. An answer or a guess rewrites the criterion that it touches, and the source names it: `(ticket AC1, Q2, G1)`.
+6. Details: one line for each rule behind the criteria, in plain words with one example and its source: `- **CVC:** not asked below 200 EUR; an order of 250 EUR asks for it. (Q2)`. A guess shows its impact: `(G5, high)`. A rule that waits for an answer ends with `(open)`.
+7. Out of scope: the parts that stay as they are, what a reader could assume, and each edge case left out.
 8. Kind `investigate`: `## Questions` in place of the criteria, one bullet each.
 
 ## Gotchas

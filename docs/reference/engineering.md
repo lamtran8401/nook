@@ -187,7 +187,7 @@ Each write is one transaction. `--if-version <n>` on a write of an item or a sli
 `spec.md`:
 - Front matter `id`, `kind`, `size`, `areas`, `created`, `updated`.
 - `# <id>: <title>`, then one `> In short:` line.
-- `## Why`, `## What changes`, `## Acceptance criteria`, `## Decisions` (a table: Point, Answer, From), `## Out of scope`.
+- `## Why`, `## What changes`, `## Acceptance criteria` (an answer or a guess rewrites the criterion it touches, with its source), `## Details` (one line for each rule, with an example and its source: `Q1`, `G2, med` or `open`), `## Out of scope` (the parts that stay as they are first).
 - One AC line is `- [TAG] text (source)`. The n-th line is AC n.
 - Kind `investigate`: `## Questions` in place of the criteria.
 
@@ -195,7 +195,16 @@ Each write is one transaction. `--if-version <n>` on a write of an item or a sli
 - Front matter `id`, `approach`, `created`, `updated`.
 - `# <id>: the plan`, then one `> In short:` line.
 - `## Today`, `## Approach`, `## Impact`, `## Flow` (size L only), `## Proof`, `## Risks`.
-- No code, no function signature, no path with a line number.
+- When they apply: `## System design` (size L in two places or more: a mermaid flowchart with one `subgraph` for each place), `## Data model` (a mermaid `erDiagram` of the tables that change), `## Rollout` (the stages of shipping, each with its check).
+- No code, no function signature, no path with a line number. Facts only: no question, no answer, no state.
+
+`tasks.md` holds facts only: the ledger holds the state of each slice.
+
+`walkthrough.md`:
+- `> In short:`, then `## What works now`, `## Where to start reading`, `## How it is built` (short excerpts of code), `## Try it`, `## Heads up`.
+- The page adds the files that changed (from the branch), the criteria that are met (from the ledger) and the test counts (from the last verify run).
+- With no item, it also holds `## What changed` and `## How it works`.
+- It copies nothing from the plan. A build that left the plan runs `nook eng item replan` before the review.
 
 `tasks.md`:
 - Front matter `id`, `created`, `updated`; then `# <id>: the slices` and an optional `> In short:` line.
