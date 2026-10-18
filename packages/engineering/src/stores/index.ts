@@ -7,6 +7,7 @@ import { CheckStore } from './checks.ts'
 import { CriterionStore } from './criteria.ts'
 import { EventStore } from './events.ts'
 import { GuessStore } from './guesses.ts'
+import { InstallStore } from './installs.ts'
 import { ItemStore } from './items.ts'
 import { NoteStore } from './notes.ts'
 import { QuestionStore } from './questions.ts'
@@ -23,6 +24,7 @@ export class Stores {
   readonly questions: QuestionStore
   readonly guesses: GuessStore
   readonly checks: CheckStore
+  readonly installs: InstallStore
   readonly notes: NoteStore
   readonly sessions: SessionStore
   readonly adrs: AdrStore
@@ -36,6 +38,7 @@ export class Stores {
     this.questions = new QuestionStore(ledger)
     this.guesses = new GuessStore(ledger)
     this.checks = new CheckStore(ledger)
+    this.installs = new InstallStore(ledger)
     this.notes = new NoteStore(ledger)
     this.sessions = new SessionStore(ledger, who)
     this.adrs = new AdrStore(home.adrDir)

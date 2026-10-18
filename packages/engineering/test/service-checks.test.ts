@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { EvError, Exit } from '@nook/shared/errors.ts'
@@ -58,6 +58,69 @@ describe('Engineering.verify', () => {
     } finally {
       noChecks.cleanup()
     }
+  })
+})
+
+describe('Engineering.verify with an area install', () => {
+  // the install makes node_modules and logs one line for each run; the lockfile is bun.lock
+  const INSTALL_SH = 'mkdir -p node_modules && echo run >> installs.log\n'
+  const installs = () => readFileSync(join(t.area('bff'), 'installs.log'), 'utf8').split('\n').filter(Boolean).length
+  const rows = (run: { area: string; check: string; result: string }[]) => run.map(r => [r.area, r.check, r.result])
+  const withInstall = (script = INSTALL_SH) => {
+    t.cleanup()
+    t = makeHome({ install: 'sh install.sh' })
+    writeFileSync(join(t.area('bff'), 'install.sh'), script)
+    writeFileSync(join(t.area('bff'), 'bun.lock'), 'lock v1\n')
+    itemAt(t, 'cooking', 'SHOP-1', SPEC({ areas: ['bff', 'web'] }), TASKS([{ id: 'T1' }, { id: 'T2', area: 'web' }]))
+  }
+
+  test('an area with no dependencies installs first, and the run records the install before the checks', () => {
+    withInstall()
+    const run = t.eng(LEAD).verify('SHOP-1')
+    expect(rows(run)).toEqual([['bff', 'install: sh install.sh', 'pass'], ['bff', 'sh test.sh', 'pass'], ['web', 'sh test.sh', 'pass']])
+    expect(installs()).toBe(1)
+  })
+
+  test('no install runs when the lockfile has not changed since the last install', () => {
+    withInstall()
+    const lead = t.eng(LEAD)
+    lead.verify('SHOP-1')
+    expect(rows(lead.verify('SHOP-1'))).toEqual([['bff', 'sh test.sh', 'pass'], ['web', 'sh test.sh', 'pass']])
+    expect(installs()).toBe(1)
+  })
+
+  test('the install runs again after the lockfile changes, and after its dependency folder goes', () => {
+    withInstall()
+    const lead = t.eng(LEAD)
+    lead.verify('SHOP-1')
+    writeFileSync(join(t.area('bff'), 'bun.lock'), 'lock v2\n')
+    expect(rows(lead.verify('SHOP-1'))[0]).toEqual(['bff', 'install: sh install.sh', 'pass'])
+    rmSync(join(t.area('bff'), 'node_modules'), { recursive: true })
+    lead.verify('SHOP-1')
+    expect(installs()).toBe(3)
+  })
+
+  test('a failed install runs no check of its area, and the run names the install with its error lines', () => {
+    withInstall('echo resolving\necho "error: bun.lock is broken" >&2\nexit 1\n')
+    const lead = t.eng(LEAD)
+    const run = lead.verify('SHOP-1')
+    expect(rows(run)).toEqual([['bff', 'install: sh install.sh', 'fail'], ['web', 'sh test.sh', 'pass']])
+    expect(run[0]!.output).toBe('error: bun.lock is broken')
+    expect(lead.stores.checks.verifiedAt(lead.item('SHOP-1'))).toBeNull()
+  })
+
+  test('task prove installs a changed area before the proof, and refuses when the install fails', () => {
+    withInstall()
+    const lead = t.eng(LEAD)
+    lead.moveSlice('start', 'SHOP-1', 'T1')
+    mkdirSync(join(t.area('bff'), 'tests'), { recursive: true })
+    writeFileSync(join(t.area('bff'), 'tests', 'deps.test.sh'), 'test -d node_modules && test -f feature.txt')
+    expect(lead.prove('SHOP-1', 'T1', ['tests/deps.test.sh']).proof).toBe('proven')
+    expect(installs()).toBe(1)
+    writeFileSync(join(t.area('bff'), 'install.sh'), 'echo "error: no network" >&2\nexit 1\n')
+    writeFileSync(join(t.area('bff'), 'bun.lock'), 'lock v2\n')
+    const error = failure(() => lead.prove('SHOP-1', 'T1', ['tests/deps.test.sh']))
+    expect(error).toMatchObject({ code: Exit.refused, message: 'the install of area bff failed: error: no network' })
   })
 })
 

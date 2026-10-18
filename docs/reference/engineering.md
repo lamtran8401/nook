@@ -34,12 +34,20 @@ engineering:
       kind: backend                      # frontend | backend | docs | data | tool
       checks: [bun test]                 # run in the area folder; [] is none; no key: verify fails until set
       test: "bun test {files}"           # the test command of a proof; {files} is replaced
-      install: bun install               # read, not used yet
+      install: bun install               # run before the checks and the proof when the dependencies are missing or old
       git: true                          # false: no branch and no commit
 ```
 
 The defaults are `dir: works`, `backlog: backlog` and the three protected branches. A home that keeps the default and still has the `work/` of an older Nook gets it moved to `works/` by `nook init --update`; `nook doctor` names a home that has both.
 A fault in the section stops the command and names the fix: a kind that does not exist, two areas with one name, an area with no path.
+
+The `install` of an area runs before `item verify` and `task prove`, and only when one of these is true:
+
+- The area has no good install in the ledger yet.
+- The lockfile changed since the last good install. The lockfile is the first of `bun.lock`, `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `uv.lock`, `poetry.lock`, `Gemfile.lock`, `go.sum` and `Cargo.lock`.
+- The folder that the lockfile fills is gone: `node_modules` for the JavaScript lockfiles, `.venv` for `uv.lock` and `poetry.lock`.
+
+The table `area_install` keeps the hash of the lockfile of the last good install of each area. An area with no `install` never installs.
 
 ## 3. Roles
 
@@ -255,7 +263,7 @@ What the commands do:
 - `item brief`: the context of an item for an agent, about 1800 characters at most. It holds the state, the next step, the areas, the ACs, the slices, the open questions and guesses, and the mode.
 - `next [<id>]`: the next step of each item and the skill to type, the owner's steps first.
 - `pickup <id>`: this session leads the item. It prints the brief and the last `handoff.md`.
-- `item verify`: runs the checks of each area of the item in the area folder, and writes one `check_run` for each check. `--last` prints the last run.
+- `item verify`: runs the checks of each area of the item in the area folder, and writes one `check_run` for each check. An install that runs first is a row `install: <command>` of the same run. A failed install runs no check of its area, and its row keeps the lines that name the error. `--last` prints the last run.
 - `task prove <id> <T> --files <tests>`: see the proof list below.
 - `item branch`: makes `nook/<id>-<slug>` in each git area of the item and switches to it. It refuses an area that another item in cooking uses.
 - `item commit --run`: one commit for each done slice from its recorded files, on the branch of the item. It refuses a protected branch and never pushes. With no `--run`, it prints the plan.
@@ -267,6 +275,7 @@ What the commands do:
 - `init`: makes `works/`, `backlog/` and `docs/adr/` in the home. `nook init` runs it too.
 
 The proof of `task prove`:
+- The area installs first when it needs to. A failed install stops the proof with its error lines, and records no proof.
 - The tool makes a git worktree of the area at the merge base of the branch and the first protected branch.
 - It copies the new test files into it, links the installed dependencies, and runs the `test` command of the area with `{files}`. A run stops after 4 minutes.
 - A failure there is `proven`. A pass there is `weak`: the tests cannot fail.

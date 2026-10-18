@@ -35,7 +35,7 @@ export type TestHome = {
 }
 
 /** `dir: null` leaves the item folder out of nook.yml, so the default holds. */
-export function makeHome(options: { section?: boolean; checks?: boolean; dir?: string | null } = {}): TestHome {
+export function makeHome(options: { section?: boolean; checks?: boolean; dir?: string | null; install?: string } = {}): TestHome {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'nook-eng-')))
   const areas = ['bff', 'web']
   for (const name of areas) {
@@ -54,7 +54,7 @@ export function makeHome(options: { section?: boolean; checks?: boolean; dir?: s
 ${dir ? `  dir: ${dir}\n` : ''}  backlog: backlog
   protected: [main, master]
   areas:
-    - { name: bff, path: projects/bff, kind: backend, ${checks ? `${checks}, ` : ''}test: "sh test.sh {files}" }
+    - { name: bff, path: projects/bff, kind: backend, ${checks ? `${checks}, ` : ''}${options.install ? `install: "${options.install}", ` : ''}test: "sh test.sh {files}" }
     - { name: web, path: projects/web, kind: frontend, checks: [sh test.sh], test: "sh test.sh {files}" }
 `
   writeFileSync(join(root, 'nook.yml'), `packs: [engineering]\n${section}`)

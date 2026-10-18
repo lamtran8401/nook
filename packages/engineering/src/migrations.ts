@@ -59,4 +59,7 @@ export const MIGRATIONS: string[] = [
   UPDATE event SET from_state = 'yolo' WHERE type = 'mode' AND from_state = 'auto';
   UPDATE event SET to_state = 'yolo' WHERE type = 'mode' AND to_state = 'auto';
   `,
+  `
+  CREATE TABLE area_install (area TEXT PRIMARY KEY, lock TEXT NOT NULL, at TEXT NOT NULL);
+  `,
 ]

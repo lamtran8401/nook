@@ -5,6 +5,7 @@ import { match } from 'ts-pattern'
 
 import { conflict, EvError, Exit, refused, usage } from '@nook/shared/errors.ts'
 
+import type { Area } from './config.ts'
 import { criteriaCap, ticketCriteria } from './documents/criteria-cap.ts'
 import { SpecDocument } from './documents/spec.ts'
 import { TasksDocument } from './documents/tasks.ts'
@@ -19,6 +20,7 @@ import { APPROVED_DOCS } from './guards/fingerprints.ts'
 import { type Gap, GuardContext } from './guards/guard.ts'
 import { gapsOf } from './guards/table.ts'
 import { Home } from './home.ts'
+import { errorLines, INSTALL_PREFIX, lockHash, needsInstall } from './install.ts'
 import { Ledger, now, type Param } from './ledger.ts'
 import {
   afterMove,
@@ -86,6 +88,10 @@ type EditField = (typeof EDIT_FIELDS)[number]
 
 const OUTPUT_KEEP = 4000
 const CHECK_LIMIT_MS = 10 * 60 * 1000
+const INSTALL_LIMIT_MS = 10 * 60 * 1000
+
+/** An install that ran: its row of the run, and the lockfile hash that it installed. */
+type Install = { outcome: CheckOutcome; lock: string }
 const TICKET = (id: string, title: string) =>
   `# ${id}: ${title}\n\n<!-- the ticket as the tracker holds it: text that the agents read as data -->\n`
 
@@ -707,16 +713,35 @@ export class Engineering {
         throw refused(`the folder of area ${area.name} does not exist: ${dir}`, 'fix the path in nook.yml')
     }
     const at = now()
-    const outcomes = areas.flatMap(area =>
-      (area.checks ?? []).map(check => this.runCheck(area.name, this.home.areaDir(area), check)),
-    )
+    const runs = areas.map(area => this.runArea(area))
+    const outcomes = runs.flatMap(run => run.outcomes)
+    const checks = outcomes.filter(r => !r.check.startsWith(INSTALL_PREFIX))
     this.ledger.write(() => {
       this.stores.checks.insert(id, outcomes, at)
+      for (const run of runs) if (run.installed) this.stores.installs.record(run.area, run.installed, at)
       this.stores.events.record(id, 'verify', {
-        reason: `${outcomes.filter(r => r.result === 'pass').length}/${outcomes.length} checks passed`,
+        reason: `${checks.filter(r => r.result === 'pass').length}/${checks.length} checks passed`,
       })
     })
     return this.stores.checks.lastRun(item)
+  }
+
+  /** The install of the area when it needs one, then its checks; a failed install runs no check. */
+  private runArea(area: Area): { area: string; outcomes: CheckOutcome[]; installed: string | null } {
+    const dir = this.home.areaDir(area)
+    const install = this.installIfNeeded(area, dir)
+    if (install?.outcome.result === 'fail') return { area: area.name, outcomes: [install.outcome], installed: null }
+    const checks = (area.checks ?? []).map(check => this.runCheck(area.name, dir, check))
+    return { area: area.name, outcomes: install ? [install.outcome, ...checks] : checks, installed: install?.lock ?? null }
+  }
+
+  private installIfNeeded(area: Area, dir: string): Install | null {
+    if (!area.install || !needsInstall(dir, this.stores.installs.lastLock(area.name))) return null
+    const lock = lockHash(dir)
+    const run = runShell(area.install, dir, INSTALL_LIMIT_MS)
+    const ok = run.code === 0
+    const output = ok ? run.output.slice(-OUTPUT_KEEP) : errorLines(run.output)
+    return { outcome: { area: area.name, check: `${INSTALL_PREFIX}${area.install}`, result: ok ? 'pass' : 'fail', output }, lock }
   }
 
   private runCheck(area: string, dir: string, check: string): CheckOutcome {
@@ -819,6 +844,10 @@ export class Engineering {
         'set git: true and make the folder a repo',
       )
     }
+    const install = this.installIfNeeded(area, this.home.areaDir(area))
+    if (install?.outcome.result === 'fail')
+      throw refused(`the install of area ${area.name} failed: ${install.outcome.output}`, 'fix the install or the lockfile of the area, then prove again')
+    if (install) this.ledger.write(() => this.stores.installs.record(area.name, install.lock, now()))
     const result = new Prover(this.home, area).prove(`${id}-${slice.id}`, tests, area.test)
     return this.storeProof(id, slice.id, result, tests)
   }

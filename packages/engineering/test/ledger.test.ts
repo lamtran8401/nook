@@ -36,10 +36,10 @@ const itemIds = () => ledger.all<{ id: string }>('SELECT id FROM item ORDER BY i
 
 describe('Ledger', () => {
   test('open makes the folder of the file and runs the migrations once', () => {
-    expect(ledger.get<{ n: number }>('SELECT MAX(n) AS n FROM migration')).toEqual({ n: 3 })
+    expect(ledger.get<{ n: number }>('SELECT MAX(n) AS n FROM migration')).toEqual({ n: 4 })
     ledger.close()
     ledger = Ledger.open(join(dir, 'state', 'engineering.db'))
-    expect(ledger.all('SELECT n FROM migration')).toEqual([{ n: 1 }, { n: 2 }, { n: 3 }])
+    expect(ledger.all('SELECT n FROM migration')).toEqual([{ n: 1 }, { n: 2 }, { n: 3 }, { n: 4 }])
   })
 
   test('open renames the old state checking to review in the items and the events, and keeps the history', () => {
@@ -142,7 +142,7 @@ describe('Ledger', () => {
     ledger.run('DELETE FROM migration WHERE n = ?', MIGRATIONS.length)
     const error = catchError(() => Ledger.openReadOnly(join(dir, 'state', 'engineering.db')))
     expect(error).toMatchObject({ code: Exit.refused, message: 'the ledger needs 1 migration', fix: 'run any `nook eng` command in the desk' })
-    expect(ledger.all('SELECT n FROM migration')).toEqual([{ n: 1 }, { n: 2 }])
+    expect(ledger.all('SELECT n FROM migration')).toEqual([{ n: 1 }, { n: 2 }, { n: 3 }])
   })
 })
 
