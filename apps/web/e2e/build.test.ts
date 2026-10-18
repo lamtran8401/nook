@@ -47,7 +47,11 @@ describe('the web app', () => {
     expect(html).toContain('href="/works/SHOP-12" data-item="SHOP-12"')
     expect(html).toContain('<span class="nk-card__title">Filter shipments by status</span>')
     expect(html).toContain('<section class="nk-col" data-state="backlog">')
-    expect(html).toContain('<a href="/works">Works</a>')
+    expect(html).toContain('<a href="/works" aria-current="page">Works</a>')
+    expect(answer.home.status).toBe(200)
+    const home = String(answer.home.body).replaceAll('<!-- -->', '')
+    expect(home).toContain('<b>engineering: works/ is missing</b><small>nook init --update</small>')
+    expect(home).toContain('<b>SHOP-12 backlog: Filter shipments by status</b><small>/spec SHOP-12</small>')
     expect(answer.stranger.status).toBe(401)
   })
 

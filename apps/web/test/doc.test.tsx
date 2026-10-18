@@ -3,11 +3,11 @@ import { renderToStaticMarkup } from 'react-dom/server'
 
 import { Blocks } from '../components/blocks/Blocks.tsx'
 import { parseDoc } from '../lib/blocks.ts'
+import { text } from './markup.ts'
 
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 
 const render = (md: string, criteria?: Criterion[]) => renderToStaticMarkup(<Blocks blocks={parseDoc(md).blocks} context={{ criteria }} />)
-const text = (markup: string) => markup.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
 
 describe('Blocks', () => {
   test('renders prose as plain HTML: headings, paragraphs, lists and dividers', () => {

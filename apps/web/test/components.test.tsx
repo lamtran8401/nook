@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test'
-import { renderToStaticMarkup } from 'react-dom/server'
 
 import type { BoardCard, ItemView } from '@nook/engineering/read/reader.ts'
 import { refused } from '@nook/shared/errors.ts'
@@ -11,12 +10,11 @@ import { Gap } from '../components/Gap.tsx'
 import { ItemCard } from '../components/ItemCard.tsx'
 import { ItemHeader } from '../components/ItemHeader.tsx'
 import { TabLinks } from '../components/TabLinks.tsx'
+import { html, text } from './markup.ts'
 
 const card = (fields: Partial<BoardCard> = {}): BoardCard => ({
   id: 'SHOP-12', title: 'Filter shipments by status', kind: 'feature', size: 'M', state: 'cooking', areas: ['api', 'web'], criteria: { met: 1, total: 3 }, ...fields,
 })
-const html = (node: React.ReactElement) => renderToStaticMarkup(node)
-const text = (markup: string) => markup.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
 
 describe('ItemCard', () => {
   test('shows the id, the title, the kind, the size, the areas and the criteria met, and links to the item', () => {

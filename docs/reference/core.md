@@ -64,6 +64,13 @@ The server lets a request in only on its own host `127.0.0.1:<port>`. The token 
 
 The shell guard blocks a call to the port in `.nook/web.json` on any spelling of this machine, such as `127.1:<port>`, `localhost <port>` or `/dev/tcp/127.0.0.1/<port>`. A broken `web.json` blocks each shell call until the owner deletes it.
 
+Each page of the web app reads the desk when the browser asks for it. A gap of the desk, such as a ledger that needs a migration, shows with its fix in place of the data.
+
+| Page | It shows |
+|---|---|
+| `/` | the parts of `nook brief`: what waits, with each gap of `nook doctor` on top, then what is done and what runs |
+| `/works` | the board: one column for each state that holds an item |
+
 `nook doctor` and `nook brief` only read. `readHome(desk, modules)` in `packages/core/src/read.ts` gives the same brief of one desk and the findings of its doctor, for the home page of the web app.
 
 The exit codes hold for every command except the hooks. A hook exits 0 to let a call go and 2 to block it, as Claude Code reads them.

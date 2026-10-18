@@ -1,5 +1,9 @@
+import { type HomeView, readHome } from '@nook/core/read.ts'
 import { activePacks } from '@nook/desk/desks.ts'
+import { engineeringModule } from '@nook/engineering/module.ts'
 import { type BoardCard, readBoard } from '@nook/engineering/read/reader.ts'
+import { learnModule } from '@nook/learn/module.ts'
+import { wikiModule } from '@nook/wiki/module.ts'
 
 import type { Tab } from '../components/TabLinks.tsx'
 
@@ -23,4 +27,8 @@ export function packTabs(desk: string): Tab[] {
   return [{ href: '/', label: 'Home' }, ...Object.entries(PAGES).filter(([name]) => on.has(name)).map(([, tab]) => tab)]
 }
 
+// the same packs as the nook binary, so the home page gives what `nook brief` and `nook doctor` give
+const MODULES = [engineeringModule, wikiModule, learnModule]
+
+export const home = (): HomeView => readHome(deskDir(), MODULES)
 export const board = (): BoardCard[] => readBoard(deskDir())

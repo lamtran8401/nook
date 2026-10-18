@@ -23,3 +23,7 @@ body { margin: 0; background: var(--bg); color: var(--fg); }
 .nk-none { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--fg-muted); font-size: 13px; }
 .nk-figure { margin: 0; display: grid; gap: 10px; }
 .nk-figure figcaption { display: flex; justify-content: center; }
+.nk-sec { display: grid; gap: 12px; }
+.nk-h2 { margin: 0; font: 600 19px/26px var(--font-sans); }
+.nk-lead { margin: 0; font: 500 17px/26px var(--font-sans); }
+.nk-rows { padding: 2px 20px; }

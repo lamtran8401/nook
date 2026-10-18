@@ -1,0 +1,9 @@
+import type { ReactElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+
+const ENTITY: Record<string, string> = { '&quot;': '"', '&lt;': '<', '&gt;': '>', '&amp;': '&', '&#x27;': "'" }
+
+export const html = (node: ReactElement) => renderToStaticMarkup(node)
+
+/** The words that a reader sees in the markup: no tags, entities decoded, one space between words. */
+export const text = (markup: string) => markup.replace(/<[^>]+>/g, ' ').replace(/&(quot|lt|gt|amp|#x27);/g, e => ENTITY[e]!).replace(/\s+/g, ' ').trim()
