@@ -1,10 +1,10 @@
-import { readItems } from '../lib/desk.ts'
+import { board } from '../lib/desk.ts'
 
 // the spike renders at build time, so `next build` runs the read path under Node
 export const dynamic = 'force-static'
 
 export default function Home() {
-  const items = readItems()
+  const items = board()
   return (
     <main>
       <p data-runtime>{'Bun' in globalThis ? 'bun' : `node ${process.version}`}</p>

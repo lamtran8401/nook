@@ -1,10 +1,17 @@
-import { existsSync, rmSync } from 'node:fs'
+import { existsSync, readFileSync, rmSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { runCommand } from '@nook/shared/run.ts'
 
 /** One git checkout: the commands that the pack runs in it. */
 
 export type GitRun = { ok: boolean; out: string; err: string }
+export type FileState = 'new' | 'changed' | 'deleted' | 'moved'
+export type FileChange = { path: string; state: FileState; add: number; del: number }
+
+const STATE_OF: Record<string, FileState> = { A: 'new', M: 'changed', D: 'deleted', R: 'moved', C: 'new', T: 'changed' }
+const fields = (run: GitRun) => (run.ok ? run.out.split('\0').filter(Boolean) : [])
+const count = (n: string | undefined) => Number(n) || 0
 
 export class GitRepo {
   constructor(readonly dir: string) {}
@@ -48,6 +55,41 @@ export class GitRepo {
     return this.run('merge-base', a, b)
   }
 
+  /** The first of the protected branches that exists in the repo, or null. */
+  mainBranch(protectedNames: string[]): string | null {
+    return protectedNames.find(name => this.hasBranch(name)) ?? null
+  }
+
+  /** The merge base of HEAD and the main branch: where the work of the branch starts. */
+  mainBase(protectedNames: string[]): string | null {
+    const main = this.mainBranch(protectedNames)
+    const base = main ? this.mergeBase('HEAD', main) : null
+    return base?.ok ? base.out : null
+  }
+
+  /** Each file of the working tree that differs from `rev`, the untracked ones as new, with its added and removed lines. */
+  changedFiles(rev: string): FileChange[] {
+    const files = new Map<string, FileChange>()
+    const status = fields(this.run('diff', '--name-status', '-M', '-z', rev))
+    for (let i = 0; i < status.length; ) {
+      const code = status[i++]!
+      if (/^[RC]/.test(code)) i++
+      const path = status[i++]!
+      files.set(path, { path, state: STATE_OF[code[0]!] ?? 'changed', add: 0, del: 0 })
+    }
+    // a rename gives its counts with an empty path, then the old and the new path
+    const numbers = fields(this.run('diff', '--numstat', '-M', '-z', rev))
+    for (let i = 0; i < numbers.length; ) {
+      const [add, del, path] = numbers[i++]!.split('\t')
+      const name = path || (i++, numbers[i++]!)
+      const file = files.get(name)
+      if (file) Object.assign(file, { add: count(add), del: count(del) })
+    }
+    for (const path of fields(this.run('ls-files', '--others', '--exclude-standard', '-z')))
+      files.set(path, { path, state: 'new', add: lineCount(join(this.dir, path)), del: 0 })
+    return [...files.values()].sort((a, b) => a.path.localeCompare(b.path))
+  }
+
   add(files: string[]): GitRun {
     return this.run('add', '-A', '--', ...files)
   }
@@ -70,4 +112,10 @@ export class GitRepo {
     rmSync(path, { recursive: true, force: true })
     this.run('worktree', 'prune')
   }
+}
+
+function lineCount(file: string): number {
+  const text = readFileSync(file, 'utf8')
+  if (!text) return 0
+  return text.split('\n').length - (text.endsWith('\n') ? 1 : 0)
 }

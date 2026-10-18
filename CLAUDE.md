@@ -9,7 +9,7 @@ apps/web/              the web app of `nook web`: Next.js on Node; its pages cal
 packages/shared/       the CLI router, the exit codes, the hook input and output, the names of the tool, the SQLite file, the command runner
 packages/desk/         desks, nook.yml, the desk list of the owner, the pack manifests, the plugin folders, the UI kit
 packages/core/         init, doctor, packs, where, the writing check, brief, retro, the core hooks
-packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks
+packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks, the read paths of the web app
 packages/wiki/         the shelves of the wiki, their indexes, the link check
 packages/learn/        the courses: roadmap, cards, mistakes, scores, the study log
 plugins/<pack>/        one Claude Code plugin each: pack.json, .claude-plugin/, bin/nook (a shim), hooks/, skills/, agents/, templates/. No code.

@@ -181,6 +181,19 @@ A slice starts only when the item is in `cooking` and each slice of its `depends
 A running slice belongs to its builder. `check_run.output` keeps the last 4000 characters.
 Each write is one transaction. `--if-version <n>` on a write of an item or a slice stops with exit 4 when the version changed.
 
+The read paths of the web app are in `packages/engineering/src/read/reader.ts`. Each one opens the ledger read-only as a reader, so it never migrates and never writes:
+
+| Function | Gives |
+|---|---|
+| `readBoard(desk)` | each open item, and each done item not yet archived, with its kind, size, state, areas and criteria met out of all |
+| `readItem(desk, id)` | the item, its next step and owner, what waits for the owner, the criteria, slices, questions, guesses, events, last verify run and changed files |
+| `readDocs(desk, id)` | the text of `spec.md`, `plan.md`, `tasks.md` and `walkthrough.md`, or null for one not written yet |
+
+- What waits for the owner: the open questions, the blocking ones first, then the open guesses.
+- Each event reads as a sentence, such as "You approved the plan" or "The lead began the build", with a tone for its mark.
+- The changed files of an area come from git: each file that differs from the merge base with the main branch, with its state and its added and removed lines. An area still on its main branch has none.
+- A ledger that needs a migration is a gap: any `nook eng` command migrates it.
+
 ## 6. Documents: `<home>/work/<id>/`
 
 | File | Made at | Sections |

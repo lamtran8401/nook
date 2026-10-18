@@ -1,7 +1,4 @@
-import { Home } from '@nook/engineering/home.ts'
-import { Ledger } from '@nook/engineering/ledger.ts'
-
-export type ItemRow = { id: string; title: string; state: string }
+import { type BoardCard, readBoard } from '@nook/engineering/read/reader.ts'
 
 /** The folder of the desk that the web app shows, from `NOOK_DESK`. */
 export function deskDir(): string {
@@ -10,12 +7,4 @@ export function deskDir(): string {
   return dir
 }
 
-/** The items of the desk, read through the read-only ledger. */
-export function readItems(desk = deskDir()): ItemRow[] {
-  const ledger = Ledger.openReadOnly(Home.require(desk).dbFile)
-  try {
-    return ledger.all<ItemRow>('SELECT id, title, state FROM item ORDER BY id')
-  } finally {
-    ledger.close()
-  }
-}
+export const board = (): BoardCard[] => readBoard(deskDir())

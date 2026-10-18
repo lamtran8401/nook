@@ -100,7 +100,7 @@ export class Prover {
   /** The merge base of HEAD and the first protected branch that exists in the repo. */
   private mergeBase(): string {
     const config = this.home.config
-    const main = config.protected.find(name => this.repo.hasBranch(name))
+    const main = this.repo.mainBranch(config.protected)
     if (!main)
       throw refused(
         `no protected branch exists in the repo (${config.protected.join(', ')})`,
