@@ -3,6 +3,9 @@ import type { CheckRun } from '@nook/engineering/stores/checks.ts'
 
 import { clock } from '../../lib/time.ts'
 import { EmptyState } from '../EmptyState.tsx'
+import { Icon } from '../Icon.tsx'
+
+const toneOf = (runs: CheckRun[]) => (!runs.length ? undefined : runs.some(r => r.result === 'fail') ? 'danger' : 'success')
 
 function Checks({ runs }: { runs: CheckRun[] }) {
   if (!runs.length) return <span className="bn-changes__checks"><small>no check yet</small></span>
@@ -17,25 +20,38 @@ function Checks({ runs }: { runs: CheckRun[] }) {
   )
 }
 
+function Change({ change, runs }: { change: AreaChange; runs: CheckRun[] }) {
+  const add = change.files.reduce((n, f) => n + f.add, 0)
+  const del = change.files.reduce((n, f) => n + f.del, 0)
+  const share = add + del ? Math.round((add / (add + del)) * 100) : 100
+  return (
+    <li>
+      <span className="bn-changes__ico" data-tone={toneOf(runs)}><Icon name="branch" size={17} /></span>
+      <div>
+        <div className="bn-changes__head">
+          <span className="bn-badge">{change.area}</span>
+          <code className="bn-inline-code">{change.branch}</code>
+        </div>
+        <div className="bn-changes__diff">
+          <span><b>{change.files.length}</b> files</span>
+          {add ? <span className="bn-changes__add">+{add}</span> : null}
+          {del ? <span className="bn-changes__del">−{del}</span> : null}
+          {add + del ? <span className="bn-changes__bar" style={{ '--add': `${share}%` } as React.CSSProperties} /> : null}
+        </div>
+      </div>
+      <Checks runs={runs} />
+    </li>
+  )
+}
+
 /** The branch of each area of the item, its changed files and lines against the main branch, and its last checks. */
 export function Branches({ changes, checks }: { changes: AreaChange[]; checks: CheckRun[] }) {
   if (!changes.length) return <EmptyState compact icon="branch" title="No branch yet">The build makes one for each area.</EmptyState>
   return (
-    <ul className="bn-card bn-changes">
-      {changes.map(change => {
-        const add = change.files.reduce((n, f) => n + f.add, 0)
-        const del = change.files.reduce((n, f) => n + f.del, 0)
-        return (
-          <li key={change.area}>
-            <span className="bn-badge">{change.area}</span>
-            <code className="bn-inline-code">{change.branch}</code>
-            <span className="bn-changes__diff">
-              <b>{change.files.length}</b> files {add ? <span className="bn-changes__add">+{add}</span> : null} {del ? <span className="bn-changes__del">−{del}</span> : null}
-            </span>
-            <Checks runs={checks.filter(c => c.area === change.area)} />
-          </li>
-        )
-      })}
+    <ul className="bn-changes">
+      {changes.map(change => (
+        <Change key={change.area} change={change} runs={checks.filter(c => c.area === change.area)} />
+      ))}
     </ul>
   )
 }

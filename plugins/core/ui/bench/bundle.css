@@ -481,8 +481,8 @@ dialog.bn-command::backdrop { background: var(--overlay); backdrop-filter: blur(
 .bn-compare__col { border-radius: var(--radius-lg); background: var(--surface); border: var(--stroke-1) solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
 .bn-compare__head { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--t-subtle); color: var(--t); font: 600 14px/20px var(--font-sans); }
 .bn-compare__head .bn-icon-dot { width: 20px; height: 20px; border-radius: var(--radius-full); background: var(--t); color: var(--primary-fg); display: grid; place-items: center; font: 700 12px/1 var(--font-sans); }
-.bn-compare__list { list-style: none; margin: 0; padding: var(--space-2) var(--space-4) var(--space-4); display: flex; flex-direction: column; }
-.bn-compare__list li { padding: 10px 0; font-size: 14px; line-height: 22px; border-bottom: var(--stroke-1) solid var(--border); }
+.bn-compare__list { list-style: none; margin: 0; padding: 0 var(--space-4); display: flex; flex-direction: column; }
+.bn-compare__list li { padding: 14px 0; font-size: 14px; line-height: 22px; border-bottom: var(--stroke-1) solid var(--border); }
 .bn-compare__list li:last-child { border-bottom: 0; }
 .bn-compare__list li b { display: block; font-weight: 600; }
 .bn-compare__list li span { color: var(--fg-muted); }
@@ -1384,39 +1384,41 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 /* =====================================================================
    RECORDS AND WORK — rows and cards for the record of a piece of work
    ===================================================================== */
-/* records: one row for each record with an id, such as a criterion, a question or a guess */
-.bn-records { list-style: none; margin: 0; padding: 8px 20px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
-.bn-records > li { display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 14px 0; border-bottom: var(--stroke-1) solid var(--border); }
-.bn-records > li:last-child { border-bottom: 0; }
-.bn-records__id { width: 36px; height: 36px; border-radius: 10px; background: var(--bg-muted); display: grid; place-items: center; font: 600 11px/1 var(--font-mono); color: var(--fg-muted); }
+/* one rhythm for every list of rows: the card has no padding above or below and each row has 14px, so the first and
+   the last row sit as far from the edge as from the line between two rows */
+.bn-records, .bn-rules, .bn-outlist, .bn-changes { list-style: none; margin: 0; padding: 0 20px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
+.bn-actions { list-style: none; margin: 0; padding: 0; }
+:where(.bn-records, .bn-actions, .bn-rules, .bn-outlist, .bn-changes) > li { padding: 14px 0; border-bottom: var(--stroke-1) solid var(--border); }
+:where(.bn-records, .bn-actions, .bn-rules, .bn-outlist, .bn-changes) > li:last-child { border-bottom: 0; }
+/* a row: a lead tile, the words and an end, on one centre line, also when the words wrap */
+:where(.bn-records, .bn-actions, .bn-rules, .bn-changes) > li { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.bn-records__id, .bn-actions__ico, .bn-rules__ico, .bn-changes__ico { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; }
+.bn-actions__ico, .bn-rules__ico, .bn-changes__ico { background: var(--t-subtle); color: var(--t); font-weight: 700; }
+.bn-rules__ico { font: 600 16px/1 var(--font-sans); }
+:where(.bn-actions__ico, .bn-rules__ico, .bn-changes__ico):not([data-tone]) { --t: var(--fg-muted); --t-subtle: var(--bg-muted); }
+.bn-rules__ico svg, .bn-changes__ico svg, .bn-rules__ico .bn-icon, .bn-changes__ico .bn-icon { width: 17px; height: 17px; }
+
+/* records: one row for each record with an id, such as a criterion, a question or a guess; its state at the end */
+.bn-records__id { background: var(--bg-muted); font: 600 11px/1 var(--font-mono); color: var(--fg-muted); }
 .bn-records__head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-bottom: 4px; }
 .bn-records__meta { font: 400 12px/16px var(--font-mono); color: var(--fg-muted); }
-.bn-records__state { margin-left: auto; }
-.bn-records p { margin: 0; font-size: 15px; line-height: 24px; }
-.bn-records .bn-records__sub { margin-top: 4px; font-size: 14px; color: var(--fg-muted); }
+.bn-records p { margin: 0; font-size: 15px; line-height: 22px; }
+.bn-records p > .bn-badge:first-child { margin-right: 8px; vertical-align: 1px; }
+.bn-records .bn-records__sub { margin-top: 2px; font-size: 13.5px; line-height: 20px; color: var(--fg-muted); }
+.bn-records__end, .bn-rules__src, .bn-changes__checks { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: flex-end; }
 
 /* actions: what waits for a person, each row with the move that answers it */
-.bn-actions { list-style: none; margin: 0; padding: 0; }
-.bn-actions > li { display: grid; grid-template-columns: 34px 1fr auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: var(--stroke-1) solid var(--border); }
-.bn-actions > li:last-child { border-bottom: 0; }
-.bn-actions__ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--t-subtle); color: var(--t); font-weight: 700; }
-.bn-actions__ico:not([data-tone]) { --t: var(--fg-muted); --t-subtle: var(--bg-muted); }
-.bn-actions b { display: block; font-size: 14.5px; line-height: 21px; }
+.bn-actions b, .bn-rules b { display: block; font-size: 14.5px; line-height: 21px; font-weight: 600; }
 .bn-actions small { display: block; color: var(--fg-muted); font-size: 13px; line-height: 19px; }
 .bn-actions__act { display: flex; gap: 6px; }
 .bn-actions__group { display: flex; align-items: center; gap: 8px; margin: 16px 0 2px; font: 600 13px/18px var(--font-sans); color: var(--fg-muted); text-transform: uppercase; letter-spacing: .04em; }
 
-/* rules: a named rule, its words with an example, and where it comes from */
-.bn-rules { list-style: none; margin: 0; padding: 4px 20px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
-.bn-rules > li { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 14px; align-items: baseline; padding: 11px 0; border-bottom: var(--stroke-1) solid var(--border); font-size: 14.5px; line-height: 22px; }
-.bn-rules > li:last-child { border-bottom: 0; }
-.bn-rules p { margin: 0; }
-.bn-rules__src { display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; }
+/* rules: a named rule, its words with an example, and where it comes from; the tile takes the tone of the source */
+.bn-rules p { margin: 2px 0 0; font-size: 14px; line-height: 21px; color: var(--fg); }
+@media (max-width: 760px) { .bn-rules > li { grid-template-columns: 36px minmax(0, 1fr); } .bn-rules__src { grid-column: 2; justify-content: flex-start; } }
 
 /* outlist: the things that a piece of work does not do */
-.bn-outlist { list-style: none; margin: 0; padding: 6px 18px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
-.bn-outlist > li { display: flex; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: var(--stroke-1) solid var(--border); font-size: 14.5px; line-height: 22px; }
-.bn-outlist > li:last-child { border-bottom: 0; }
+.bn-outlist > li { display: flex; gap: 12px; align-items: baseline; font-size: 14.5px; line-height: 22px; }
 .bn-outlist > li::before { content: "✕"; flex: none; color: var(--fg-muted); font-size: 12px; }
 
 /* task: one unit of work with its fields and what it waits for */
@@ -1453,19 +1455,17 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 .bn-next__text { flex: 1; }
 .bn-next__text small { display: block; color: var(--fg-muted); font-size: 12.5px; }
 
-/* changes: the branch of each area, its size of change and its last checks */
-.bn-changes { list-style: none; margin: 0; padding: 4px 18px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
-.bn-changes > li { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto auto; gap: 6px 14px; align-items: center; padding: 12px 0; border-bottom: var(--stroke-1) solid var(--border); font-size: 13.5px; }
-.bn-changes > li:last-child { border-bottom: 0; }
-.bn-changes > li > .bn-badge { justify-self: start; }
-.bn-changes code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; justify-self: start; max-width: 100%; }
-.bn-changes__diff { color: var(--fg-muted); white-space: nowrap; }
+/* changes: the branch of each area, its size of change and its last checks; the tile takes the tone of the checks */
+.bn-changes__head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.bn-changes code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.bn-changes__diff { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 13px; color: var(--fg-muted); white-space: nowrap; }
 .bn-changes__diff b { color: var(--fg); }
 .bn-changes__add { color: var(--success); font-family: var(--font-mono); }
 .bn-changes__del { color: var(--danger); font-family: var(--font-mono); }
-.bn-changes__checks { display: flex; gap: 6px; align-items: center; justify-content: flex-end; }
+/* the share of added and removed lines: --add is the added part, such as 89% */
+.bn-changes__bar { width: 56px; height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--success) var(--add, 100%), var(--danger) var(--add, 100%)); opacity: .8; }
 .bn-changes__checks small, .bn-changes__note { color: var(--fg-muted); font: 400 12px/16px var(--font-mono); }
-.bn-changes__note { grid-column: 2 / -1; color: var(--danger); }
+.bn-changes__note { grid-column: 2 / -1; color: var(--danger); margin-top: -6px; }
 
 /* checklist "met": every line is done, readable, with no strike and no progress bar */
 .bn-checklist[data-variant="met"] .bn-checklist__item[data-state="done"] { color: var(--fg); }
@@ -1483,7 +1483,7 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 .bn-tabs__bar .bn-tabs__list { transition: box-shadow .2s, background-color .2s; }
 .bn-tabs__bar.is-stuck .bn-tabs__list { background: color-mix(in oklab, var(--bg-muted) 55%, transparent); -webkit-backdrop-filter: blur(var(--blur-md)) saturate(180%); backdrop-filter: blur(var(--blur-md)) saturate(180%); box-shadow: inset 0 0 0 1px var(--glass-edge), 0 0 0 1px var(--hairline), var(--shadow-2); }
 
-@media (max-width: 760px) { .bn-rules > li, .bn-changes > li { grid-template-columns: 1fr; } .bn-task__rows { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .bn-changes > li { grid-template-columns: 36px minmax(0, 1fr); } .bn-changes__checks { grid-column: 2; justify-content: flex-start; } .bn-task__rows { grid-template-columns: 1fr; } }
 
 /* stepper: the steps of a flow on one line; done is green, current is the primary ring, upcoming is muted */
 .bn-stepper { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }

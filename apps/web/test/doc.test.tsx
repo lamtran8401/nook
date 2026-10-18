@@ -73,14 +73,14 @@ describe('Blocks of the heading rules', () => {
 
   test('renders each criterion as a record with its kind, its sources, and its state from the ledger', () => {
     const markup = render('## Acceptance criteria\n\n- [ADD] A person pays in one click. (ticket AC1, Q2)\n- [CHANGE] A decline shows the reason.\n', [criterion(1, true), criterion(2, false)])
-    expect(markup).toContain('<ol class="bn-records nk-records"><li><span class="bn-records__id">AC1</span><div class="nk-records__main"><p><span class="bn-badge" data-tone="success">ADD</span>A person pays in one click.<span class="bn-records__meta"> ticket AC1, Q2</span></p></div><span class="nk-records__end"><span class="bn-badge" data-tone="success">met</span></span></li>')
+    expect(markup).toContain('<ol class="bn-records"><li><span class="bn-records__id">AC1</span><div><p><span class="bn-badge" data-tone="success">ADD</span>A person pays in one click.<span class="bn-records__meta"> ticket AC1, Q2</span></p></div><span class="bn-records__end"><span class="bn-badge" data-tone="success">met</span></span></li>')
     expect(text(markup)).toContain('AC2 CHANGE A decline shows the reason. open')
   })
 
-  test('renders each rule with its label, its words and its sources, a guess with its impact', () => {
-    expect(render('## Details\n\n- **Retries:** after 1, 5 and 30 minutes. (G5, high)\n')).toContain(
-      '<ul class="bn-rules"><li><b>Retries</b><p>after 1, 5 and 30 minutes.</p><span class="bn-rules__src"><span class="bn-badge" data-tone="danger">G5 · high</span></span></li></ul>',
-    )
+  test('renders each rule with its label, its words and its sources; a guess gives the tile the tone of its impact', () => {
+    const markup = render('## Details\n\n- **Retries:** after 1, 5 and 30 minutes. (G5, high)\n- **Zone:** UTC. (Q1)\n')
+    expect([...markup.matchAll(/<span class="bn-rules__ico"( data-tone="(\w+)")?>/g)].map(m => m[2] ?? 'none')).toEqual(['danger', 'none'])
+    expect(markup).toContain('<div><b>Retries</b><p>after 1, 5 and 30 minutes.</p></div><span class="bn-rules__src"><span class="bn-badge" data-tone="danger">G5 · high</span></span></li>')
   })
 
   test('renders a walkthrough with each part in its component', () => {

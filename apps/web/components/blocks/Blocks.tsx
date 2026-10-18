@@ -16,6 +16,14 @@ export type DocContext = { criteria?: Criterion[] }
 
 const LEVEL_TONE: Record<string, string> = { low: 'neutral', med: 'warning', high: 'danger' }
 
+/** A rule takes the tone of its strongest source: a guess by its impact, an open question in warning. */
+function ruleTone(sources: Source[]): string | undefined {
+  const levels = sources.flatMap(s => (s.level ? [s.level] : []))
+  if (levels.includes('high')) return 'danger'
+  if (levels.includes('med') || sources.some(s => s.text === 'open')) return 'warning'
+  return undefined
+}
+
 function SourceBadge({ source }: { source: Source }) {
   if (source.level) return <span className="bn-badge" data-tone={LEVEL_TONE[source.level]}>{`${source.text} · ${source.level}`}</span>
   return <span className="bn-badge" data-tone={source.text === 'open' ? 'warning' : undefined} data-variant={source.text === 'open' ? undefined : 'plain'}>{source.text}</span>
@@ -103,8 +111,11 @@ function BlockView({ block, context }: { block: Block; context: DocContext }) {
       <ul className="bn-rules">
         {b.items.map((item, i) => (
           <li key={i}>
-            <b>{item.label}</b>
-            <p><Inline content={item.content} /></p>
+            <span className="bn-rules__ico" data-tone={ruleTone(item.sources)}>§</span>
+            <div>
+              <b>{item.label}</b>
+              <p><Inline content={item.content} /></p>
+            </div>
             <span className="bn-rules__src">{item.sources.map((source, j) => <SourceBadge source={source} key={j} />)}</span>
           </li>
         ))}

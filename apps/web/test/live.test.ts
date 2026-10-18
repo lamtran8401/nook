@@ -21,6 +21,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 /** The number of changes that the watch reports while `act` runs and for 1.5 s after. */
 async function changesDuring(act: () => void): Promise<number> {
   let count = 0
+  // the folders that beforeEach made can still send their events; let them land before the watch starts
+  await wait(400)
   const stop = watchDesk(desk, () => count++, 200)
   await wait(100)
   act()
