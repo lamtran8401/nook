@@ -59,8 +59,8 @@ describe('Criteria', () => {
 
 describe('Diagram', () => {
   test('holds its spec for the Bench library, safe inside the page', () => {
-    const markup = html(<Diagram spec={{ type: 'tree', items: [{ name: '</script><b>x' }] }} />)
-    expect(markup).toBe('<div class="nk-diagram" data-nook-diagram="{&quot;type&quot;:&quot;tree&quot;,&quot;items&quot;:[{&quot;name&quot;:&quot;&lt;/script&gt;&lt;b&gt;x&quot;}]}"></div>')
+    const markup = html(<Diagram spec={{ type: 'filetree', items: [{ name: '</script><b>x' }] }} />)
+    expect(markup).toBe('<div class="nk-diagram" data-nook-diagram="{&quot;type&quot;:&quot;filetree&quot;,&quot;items&quot;:[{&quot;name&quot;:&quot;&lt;/script&gt;&lt;b&gt;x&quot;}]}"></div>')
   })
 })
 

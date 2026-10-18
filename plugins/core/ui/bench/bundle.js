@@ -1133,17 +1133,14 @@
     })
   }
 
-  /* ---------- tree: folders open by default, files in mono ---------- */
+  /* ---------- filetree: the markup of the FileTree component; folders open by default ---------- */
   function treeRow(n) {
     var leaf = !(n.children && n.children.length)
     var isFile = n.icon ? n.icon === 'file' : leaf
-    var code = n.code == null ? isFile : n.code
-    var name = code ? '<code class="dg-tree__name">' + esc(n.name) + '</code>' : '<b class="dg-tree__name">' + esc(n.name) + '</b>'
-    var note = n.note ? '<span class="dg-tree__note">' + esc(n.note) + '</span>' : ''
-    var badge = n.badge ? '<small' + tone(n.badge.tone || 'neutral') + '>' + esc(n.badge.text) + '</small>' : ''
-    var chev = '<span class="dg-chev' + (leaf ? ' dg-chev--leaf' : '') + '">' + (leaf ? '' : icon('chevron')) + '</span>'
+    var note = n.note ? '<span class="bn-tree__note">' + esc(n.note) + '</span>' : ''
+    var badge = n.badge ? '<small' + tone(n.badge.tone || 'neutral') + (n.badge.title ? ' title="' + esc(n.badge.title) + '"' : '') + '>' + esc(n.badge.text) + '</small>' : ''
     var title = n.note ? ' title="' + esc(n.note) + '"' : ''
-    return '<span class="bn-tree__row"' + title + '>' + chev + '<span class="bn-icon">' + icon(n.icon || (isFile ? 'file' : 'folder')) + '</span>' + name + note + badge + '</span>'
+    return '<span class="bn-tree__row"' + title + '><span class="bn-icon">' + icon(n.icon || (isFile ? 'file' : 'folder')) + '</span><span class="bn-tree__name">' + esc(n.name) + '</span>' + note + badge + '</span>'
   }
   function treeItems(list) {
     return '<ul>' + list.map(function (n) {
@@ -1706,7 +1703,7 @@
   // drawn diagrams gain from zoom; a board, tree, timeline or chart is HTML that scrolls on its own
   var ZOOMABLE = { graph: 1, sequence: 1, mind: 1, links: 1 }
   // a list of cards or rows needs no card around it; drawings, charts and boards do
-  var FRAMELESS = { timeline: 1, tree: 1, compare: 1 }
+  var FRAMELESS = { timeline: 1, filetree: 1, compare: 1 }
   function expandMode(spec) {
     if (spec.expand === 'zoom' || spec.expand === 'view') return spec.expand
     if (spec.expand === false) return ''
@@ -1949,7 +1946,7 @@
 
   /* ---------- render: draw when visible, again on resize and when fonts arrive ---------- */
   /* a fixed type draws once; a sized type draws again when its width changes */
-  var FIXED = { tree: renderTree, timeline: renderTimeline, board: renderBoard, space: renderSpace, compare: renderCompare }
+  var FIXED = { filetree: renderTree, timeline: renderTimeline, board: renderBoard, space: renderSpace, compare: renderCompare }
   var SIZED = { sequence: renderSequence, mind: renderMind, links: renderForce, force: renderForce, chart: renderChart }
   function render(el, spec) {
     if (!el || !spec) throw new Error('BenchDiagrams.render needs an element and a spec')

@@ -34,7 +34,7 @@ The bundle mounts each diagram when the page loads. A diagram draws when its ele
 
 ## Frame
 
-A drawing sits in a raised card: the surface colour, a 1px ring and a soft shadow. The labels on its edges sit on the same colour. A `graph`, `sequence`, `mind`, `links`, `space`, `board` and `chart` get the card. A `timeline`, `tree` and `compare` are rows or cards already, so they get none. Set `"frame"` to `true` or `false` in the spec to change this.
+A drawing sits in a raised card: the surface colour, a 1px ring and a soft shadow. The labels on its edges sit on the same colour. A `graph`, `sequence`, `mind`, `links`, `space`, `board` and `chart` get the card. A `timeline`, `filetree` and `compare` are rows or cards already, so they get none. Set `"frame"` to `true` or `false` in the spec to change this.
 
 ## Open large
 
@@ -45,7 +45,7 @@ A button in the top right corner opens a block large, in a dialog over the page.
 | `zoom` | a drawn diagram | Hand mode first, zoom, pan, Fit |
 | `view` | HTML: a table, code, a log, a board | normal scroll, the text can be chosen |
 
-A `graph`, `sequence`, `mind` or `links` diagram gets the `zoom` button. A board, a tree, a timeline, a space map, a compare and a chart scroll on their own and get no button. Set `"expand"` in the spec to change this: `"zoom"`, `"view"`, `true` (the default mode) or `false`.
+A `graph`, `sequence`, `mind` or `links` diagram gets the `zoom` button. A board, a file tree, a timeline, a space map, a compare and a chart scroll on their own and get no button. Set `"expand"` in the spec to change this: `"zoom"`, `"view"`, `true` (the default mode) or `false`.
 
 Any other element gets the button with the attribute `data-bn-expand`. Its value is `view` (the default) or `zoom`. `data-bn-expand-title` gives the title of the dialog. With no title, the dialog uses the caption of the figure or the `aria-label`. From a script, call `Bench.expand(el, 'view')`.
 
@@ -290,32 +290,33 @@ The dot of a pill grows with its number of links. A pill with 5 links or more ge
   "links": [["item", "spec"], ["item", "page"]] }
 ```
 
-## tree
+## filetree
 
-A tree shows what lives under what. Use it for the files of a change or a folder level by level. It uses `bn-tree` from `bundle.css`.
+A file tree shows the folders and files of a change, or of a folder. It draws the FileTree component, `bn-tree` of `bundle.css`, so a drawn tree and a tree written in HTML look the same. A tree of levels that is not files is a `graph`.
 
 | Field | Default | Meaning |
 |---|---|---|
-| `type` | required | `"tree"` |
+| `type` | required | `"filetree"` |
 | `items` | required | The top entries. |
 
 | Entry field | Default | Meaning |
 |---|---|---|
 | `name` | required | The name. |
-| `children` | none | The entries under it. An entry with children opens and closes. |
-| `open` | `true` | `false` closes the entry at the start. |
+| `children` | none | The entries under it. An entry with children is a folder that opens and closes. |
+| `open` | `true` | `false` closes the folder at the start. |
 | `icon` | `folder` or `file` | A leaf is a file, an entry with children is a folder. |
-| `code` | `true` for a file | Show the name in mono. |
 | `note` | none | A muted note after the name. It is also the tooltip. |
-| `badge` | none | A chip at the end: `{ text, tone }`. |
+| `badge` | none | A chip at the end: `{ text, tone, title }`, such as `A` for a new file with the title `new`. |
+
+Every row keeps a slot for the arrow, so a file lines up with the folders beside it. The arrow of a folder turns down when it opens.
 
 ### Example
 
 ```json
-{ "type": "tree",
-  "items": [{ "name": "api", "children": [
-    { "name": "src/shipments.ts", "note": "cuts the list into pages", "badge": { "text": "changed", "tone": "warning" } },
-    { "name": "test/store.ts", "badge": { "text": "new", "tone": "success" } }
+{ "type": "filetree",
+  "items": [{ "name": "api/", "children": [
+    { "name": "src/shipments.ts", "note": "cuts the list into pages", "badge": { "text": "M", "tone": "warning", "title": "changed" } },
+    { "name": "test/store.ts", "badge": { "text": "A", "tone": "success", "title": "new" } }
   ] }] }
 ```
 

@@ -634,7 +634,7 @@ a.bn-list__item:hover, button.bn-list__item:hover { background: var(--bg-muted);
 .bn-list__item > .bn-icon:last-child { color: var(--fg-muted); }
 
 .bn-tree { margin: 0; padding: 6px; font: 400 13px/1 var(--font-sans); border: var(--stroke-1) solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-1); }
-.bn-tree ul { list-style: none; margin: 0; padding: 0 0 0 16px; }
+.bn-tree ul { list-style: none; margin: 0; padding: 0 0 0 22px; }
 .bn-tree details > summary { list-style: none; }
 .bn-tree details > summary::-webkit-details-marker { display: none; }
 .bn-tree__row { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 8px; border-radius: var(--radius-sm); cursor: pointer; color: var(--fg); }
@@ -643,8 +643,14 @@ a.bn-list__item:hover, button.bn-list__item:hover { background: var(--bg-muted);
 .bn-tree__row .bn-icon { color: var(--fg-muted); width: 15px; height: 15px; }
 .bn-tree__row[aria-selected="true"] .bn-icon { color: var(--primary); }
 .bn-tree__row > small { margin-left: auto; min-width: 18px; height: 18px; border-radius: var(--radius-xs); display: grid; place-items: center; font: 600 11px/1 var(--font-mono); color: var(--t); background: var(--t-subtle); }
-.bn-tree details > summary .bn-tree__row::before { content: ""; width: 5px; height: 5px; border-right: 1.5px solid var(--fg-muted); border-bottom: 1.5px solid var(--fg-muted); transform: rotate(-45deg); margin: 0 1px 0 -2px; transition: transform .15s; }
-.bn-tree details[open] > summary .bn-tree__row::before { transform: rotate(45deg); }
+.bn-tree > ul { padding-left: 0; }
+/* every row keeps a slot for the arrow, so a file lines up with the folders beside it; a folder's arrow turns around its centre */
+.bn-tree__row::before { content: ""; flex: none; width: 14px; height: 14px; margin-right: -2px; }
+.bn-tree summary .bn-tree__row::before { background: var(--fg-muted); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 3.5l4.5 4.5L6 12.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 3.5l4.5 4.5L6 12.5' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; transition: transform .15s; }
+.bn-tree details[open] > summary .bn-tree__row::before { transform: rotate(90deg); }
+.bn-tree__name { flex: none; white-space: nowrap; }
+.bn-tree__note { flex: 1 1 auto; min-width: 0; color: var(--fg-muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (prefers-reduced-motion: reduce) { .bn-tree summary .bn-tree__row::before { transition: none; } }
 
 .bn-flow[data-direction="vertical"] { flex-direction: column; }
 .bn-flow[data-direction="vertical"] .bn-flow__arrow { flex-basis: 24px; transform: rotate(90deg); }
@@ -1130,26 +1136,15 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 .dg-tip b { font-weight: 700; }
 .dg-tip small { display: block; color: var(--inverse-fg-muted); font-size: 11.5px; }
 
-/* ===== tree: a bn-tree of folders and files ===== */
+/* ===== filetree: the FileTree component, drawn from a spec ===== */
 .dg-tree { overflow-x: auto; }
-.dg-tree > ul { padding-left: 0; }
 .dg:not(.dg--bare) .dg-tree { border: 0; box-shadow: none; background: transparent; padding: 0; }
-.dg-tree .bn-tree__row { height: 32px; min-width: 0; cursor: default; }
+.dg-tree .bn-tree__row { min-width: 0; cursor: default; }
 .dg-tree .bn-tree__row:hover { background: none; }
 .dg-tree summary .bn-tree__row { cursor: pointer; }
 .dg-tree summary .bn-tree__row:hover { background: var(--bg-muted); }
-.dg-tree details > summary .bn-tree__row::before { display: none; }
 .dg-tree .bn-icon { display: inline-flex; color: var(--fg-muted); }
 .dg-tree .bn-icon .dg-i { width: 15px; height: 15px; }
-.dg-chev { display: inline-flex; flex: none; width: 14px; height: 14px; align-items: center; justify-content: center; color: var(--fg-muted); transition: transform .15s; }
-.dg-chev svg { width: 14px; height: 14px; }
-.dg-chev--leaf { visibility: hidden; }
-.dg-tree details[open] > summary .dg-chev { transform: rotate(90deg); }
-b.dg-tree__name { flex: none; font-weight: 600; }
-code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: var(--fg); white-space: nowrap; }
-.dg-tree__note { flex: 1 1 auto; min-width: 0; color: var(--fg-muted); font-size: 12.5px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dg-tree .bn-tree__row > small { flex: none; padding: 0 6px; }
-@media (prefers-reduced-motion: reduce) { .dg-chev { transition: none; } }
 
 /* ===== timeline, events: the time, an icon on a rail, the card; the time can also sit on the right of the card ===== */
 .tl-switch { display: inline-flex; gap: 2px; padding: 3px; margin-bottom: var(--space-3); border-radius: var(--radius-md); background: var(--bg-muted); align-self: flex-start; }

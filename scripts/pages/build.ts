@@ -22,7 +22,7 @@ const stripTags = (s: string) => unesc(s.replace(/<[^>]+>/g, '')).trim()
 const md = (text: string) => Bun.markdown.html(text)
 
 type Spec = Record<string, unknown>
-type TreeItem = { name: string; note?: string; icon?: string; code?: boolean; children?: TreeItem[] }
+type TreeItem = { name: string; note?: string; icon?: string; children?: TreeItem[] }
 
 /** One diagram of the Bench bundle: the spec rides in the page, and `Bench.diagram` draws it. */
 const figure = (spec: Spec, caption = '') =>
@@ -31,7 +31,7 @@ const legend = (items: [tone: string, text: string][]) =>
   `<span class="bn-legend">${items.map(([tone, text]) => `<span data-tone="${tone}">${text}</span>`).join('')}</span>`
 
 /** An ASCII tree (├── └── │) as the spec of a Bench tree. A row is a name, two spaces or more, then a note. */
-export function treeSpec(text: string): { type: 'tree'; items: TreeItem[] } {
+export function treeSpec(text: string): { type: 'filetree'; items: TreeItem[] } {
   const root: TreeItem[] = []
   const stack: { depth: number; items: TreeItem[] }[] = [{ depth: -1, items: root }]
   for (const line of text.replace(/\n$/, '').split('\n')) {
@@ -49,8 +49,8 @@ export function treeSpec(text: string): { type: 'tree'; items: TreeItem[] } {
     items.map(i =>
       i.children?.length
         ? { ...i, children: prune(i.children) }
-        : { name: i.name, ...(i.note ? { note: i.note } : {}), ...(i.name.endsWith('/') ? { icon: 'folder', code: false } : {}) })
-  return { type: 'tree', items: prune(root) }
+        : { name: i.name, ...(i.note ? { note: i.note } : {}), ...(i.name.endsWith('/') ? { icon: 'folder' } : {}) })
+  return { type: 'filetree', items: prune(root) }
 }
 
 /** The tones of the phases of an item, the same in the flow and the paths. */

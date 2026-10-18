@@ -45,8 +45,8 @@ afterEach(() => rmSync(docs, { recursive: true, force: true }))
 describe('treeSpec', () => {
   test('nests each row under the row above it, and keeps the note', () => {
     expect(treeSpec('docs/\n├── a.md      the first page\n├── sub/\n│   └── b.md\n└── empty/\n')).toEqual({
-      type: 'tree',
-      items: [{ name: 'docs/', children: [{ name: 'a.md', note: 'the first page' }, { name: 'sub/', children: [{ name: 'b.md' }] }, { name: 'empty/', icon: 'folder', code: false }] }],
+      type: 'filetree',
+      items: [{ name: 'docs/', children: [{ name: 'a.md', note: 'the first page' }, { name: 'sub/', children: [{ name: 'b.md' }] }, { name: 'empty/', icon: 'folder' }] }],
     })
   })
 

@@ -37,7 +37,7 @@ describe('parseDoc', () => {
   })
 
   test('reads a bench fence as a diagram, and a broken one as an unknown block that names its line', () => {
-    expect(only('```bench\n{"type":"tree","items":[]}\n```\n')).toEqual({ kind: 'diagram', spec: { type: 'tree', items: [] } })
+    expect(only('```bench\n{"type":"filetree","items":[]}\n```\n')).toEqual({ kind: 'diagram', spec: { type: 'filetree', items: [] } })
     expect(parseDoc('Text.\n\n```bench\n{ broken\n```\n').blocks[1]).toMatchObject({ kind: 'unknown', line: 3, reason: 'the bench block is not valid JSON' })
   })
 

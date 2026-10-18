@@ -75,10 +75,10 @@ describe('the other mermaid kinds', () => {
     expect(spec.edges).toEqual([{ from: 'order.id', to: 'payment.order_id', start: 'one-one', end: 'zero-many' }])
   })
 
-  test('a tree fence becomes a Bench tree, each file with its state and note', () => {
+  test('a tree fence becomes a Bench file tree, each file with the chip of its state and its note', () => {
     expect(diagram(fence('tree', 'api/\n  src/\n    keys.ts  new  makes the key once\n    cart.ts  changed')).spec).toEqual({
-      type: 'tree',
-      items: [{ name: 'api/', children: [{ name: 'src/', children: [{ name: 'keys.ts', badge: { text: 'new', tone: 'success' }, note: 'makes the key once' }, { name: 'cart.ts', badge: { text: 'changed', tone: 'warning' } }] }] }],
+      type: 'filetree',
+      items: [{ name: 'api/', children: [{ name: 'src/', children: [{ name: 'keys.ts', badge: { text: 'A', tone: 'success', title: 'new' }, note: 'makes the key once' }, { name: 'cart.ts', badge: { text: 'M', tone: 'warning', title: 'changed' } }] }] }],
     })
   })
 

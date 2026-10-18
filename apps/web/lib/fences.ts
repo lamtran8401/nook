@@ -156,24 +156,26 @@ function erSpec(text: string): DiagramSpec {
   return { type: 'graph', cols, colGap: 84, rowGap: 40, pad: '12px 46px', nodes, edges }
 }
 
-const FILE_TONE: Record<string, string> = { new: 'success', changed: 'warning', deleted: 'danger', moved: 'primary' }
+// the chip of each state, a letter as git writes it, with the word as its tooltip
+const FILE_STATE: Record<string, { text: string; tone: string }> = { new: { text: 'A', tone: 'success' }, changed: { text: 'M', tone: 'warning' }, deleted: { text: 'D', tone: 'danger' }, moved: { text: 'R', tone: 'primary' } }
 
-/** A ```tree fence: two spaces of indent for each level; a line is `name  state  note`, the state and the note optional. */
+/** A ```tree fence, drawn as a filetree: two spaces of indent for each level; a line is `name  state  note`, the state and the note optional. */
 function treeSpec(text: string): DiagramSpec {
-  type Entry = { name: string; children: Entry[]; badge?: { text: string; tone: string }; note?: string }
+  type Entry = { name: string; children: Entry[]; badge?: { text: string; tone: string; title: string }; note?: string }
   const root: Entry[] = []
   const stack: { depth: number; children: Entry[] }[] = [{ depth: -1, children: root }]
   for (const line of text.replace(/\n$/, '').split('\n')) {
     const depth = (/^ */.exec(line)?.[0].length ?? 0) / 2
     const [name = '', state = '', ...rest] = line.trim().split(/\s{2,}/)
     const entry: Entry = { name, children: [] }
-    const words = FILE_TONE[state] ? rest : [state, ...rest].filter(Boolean)
-    if (FILE_TONE[state]) entry.badge = { text: state, tone: FILE_TONE[state] }
+    const chip = FILE_STATE[state]
+    const words = chip ? rest : [state, ...rest].filter(Boolean)
+    if (chip) entry.badge = { ...chip, title: state }
     if (words.length) entry.note = words.join(' ')
     while (stack.at(-1)!.depth >= depth) stack.pop()
     stack.at(-1)!.children.push(entry)
     stack.push({ depth, children: entry.children })
   }
   const prune = (entries: Entry[]): object[] => entries.map(({ children, ...entry }) => (children.length ? { ...entry, children: prune(children) } : entry))
-  return { type: 'tree', items: prune(root) }
+  return { type: 'filetree', items: prune(root) }
 }
