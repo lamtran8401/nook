@@ -1,17 +1,44 @@
 /** The words that the shell runs: heredoc bodies and comments are text, not commands. */
 export function commandOnly(command: string): string {
+  return splitHeredocs(command).code
+}
+
+/** The command lines with their comments gone, and the bodies of their heredocs; a `#` or `<<` inside quotes is text. */
+function splitHeredocs(command: string): { code: string; bodies: string[] } {
   const kept: string[] = []
+  const bodies: string[] = []
   let end: string | null = null
   for (const line of command.split('\n')) {
     if (end !== null) {
       if (line.trim() === end) end = null
+      else bodies.push(line)
       continue
     }
-    const here = line.match(/<<-?\s*['"]?([A-Za-z_][\w-]*)['"]?/)
-    kept.push(line.replace(/(^|\s)#.*$/, ''))
-    if (here) end = here[1] ?? null
+    const { code, heredoc } = scanLine(line)
+    kept.push(code)
+    end = heredoc
   }
-  return kept.join('\n')
+  return { code: kept.join('\n'), bodies }
+}
+
+function scanLine(line: string): { code: string; heredoc: string | null } {
+  let quote: string | null = null
+  let heredoc: string | null = null
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i]!
+    if (quote) {
+      if (char === quote) quote = null
+      else if (char === '\\' && quote === '"') i++
+    } else if (char === '\\') i++
+    else if (char === '"' || char === "'") quote = char
+    else if (char === '#' && (i === 0 || /\s/.test(line[i - 1]!))) return { code: line.slice(0, Math.max(0, i - 1)), heredoc }
+    else if (char === '<' && line[i + 1] === '<') {
+      const here = /^<<-?\s*['"]?([A-Za-z_][\w-]*)['"]?/.exec(line.slice(i))
+      if (here) heredoc = here[1]!
+      i += here ? here[0].length - 1 : 1
+    }
+  }
+  return { code: line, heredoc }
 }
 
 /** The command with its quotes and backslashes gone, so a spelling trick reads as the plain word. */
@@ -21,49 +48,66 @@ export const plainWords = (command: string): { plain: string; words: string[] } 
 }
 
 const SHELL = /(^|\/)(?:sh|bash|zsh|dash|ksh)$/
+const SCRIPT_FLAG = /^-\w*c\w*$/
 
 /**
  * The words of a command as the shell reads them: quotes join a word and go. The code that the command runs adds
- * its own words: a `$(...)` or backtick substitution, the words after `eval`, and the script of `sh -c`.
+ * its own words: a `$(...)` or backtick substitution, the words after `eval`, and the script of `sh -c`. A shell with
+ * no `-c` runs its stdin or a file, so then each quoted word and each heredoc body of the command counts as code.
  */
 export function shellWords(command: string): string[] {
-  const { words, code } = splitWords(commandOnly(command))
+  const { code: text, bodies } = splitHeredocs(command)
+  const { words, quoted, code } = splitWords(text)
   const nested = [...code]
+  let readsInput = false
   words.forEach((word, i) => {
-    if (SHELL.test(word) && /^-\w*c\w*$/.test(words[i + 1] ?? '')) nested.push(words[i + 2] ?? '')
     if (/(^|\/)eval$/.test(word)) nested.push(words.slice(i + 1).join(' '))
+    if (!SHELL.test(word)) return
+    let flag = i + 1
+    while (words[flag]?.startsWith('-') && !SCRIPT_FLAG.test(words[flag]!)) flag++
+    if (SCRIPT_FLAG.test(words[flag] ?? '')) nested.push(words[flag + 1] ?? '')
+    else readsInput = true
   })
+  if (readsInput) nested.push(...quoted, ...bodies)
   return [...words, ...nested.flatMap(shellWords)]
 }
 
-/** One pass over the text: its words, and the code of each substitution outside single quotes. */
-function splitWords(text: string): { words: string[]; code: string[] } {
+/** One pass over the text: its words, the ones that held a quote, and the code of each substitution outside single quotes. */
+function splitWords(text: string): { words: string[]; quoted: string[]; code: string[] } {
   const words: string[] = []
+  const quoted: string[] = []
   const code: string[] = []
   let word = ''
   let quote: string | null = null
+  let held = false
   const endWord = () => {
     if (word) words.push(word)
+    if (word && held) quoted.push(word)
     word = ''
+    held = false
   }
   for (let i = 0; i < text.length; i++) {
     const char = text[i]!
-    if (quote !== "'" && (char === '`' || (char === '$' && text[i + 1] === '('))) {
+    if (quote === "'") {
+      if (char === "'") quote = null
+      else word += char
+    } else if (char === '\\') word += text[++i] ?? ''
+    else if (char === '`' || (char === '$' && text[i + 1] === '(')) {
       const close = char === '`' ? text.indexOf('`', i + 1) : closingParen(text, i + 1)
       const stop = close === -1 ? text.length : close
       code.push(text.slice(char === '`' ? i + 1 : i + 2, stop))
       i = stop
-    } else if (quote) {
-      if (char === quote) quote = null
-      else if (char === '\\' && quote === '"') word += text[++i] ?? ''
+    } else if (quote === '"') {
+      if (char === '"') quote = null
       else word += char
-    } else if (char === '"' || char === "'") quote = char
-    else if (char === '\\') word += text[++i] ?? ''
-    else if (/[\s;|&()<>{}!]/.test(char)) endWord()
+    } else if (char === '"' || char === "'") {
+      quote = char
+      held = true
+    } else if (/[\s;|&()<>{}!]/.test(char)) endWord()
     else word += char
   }
   endWord()
-  return { words, code }
+  return { words, quoted, code }
 }
 
 function closingParen(text: string, open: number): number {

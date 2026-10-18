@@ -22,6 +22,14 @@ describe('lockHash', () => {
   test('is empty for a folder with no lockfile', () => {
     expect(lockHash(dir)).toBe('')
   })
+
+  test('changes when any lockfile of the folder changes', () => {
+    writeFileSync(join(dir, 'bun.lock'), 'a')
+    writeFileSync(join(dir, 'uv.lock'), 'b')
+    const before = lockHash(dir)
+    writeFileSync(join(dir, 'uv.lock'), 'c')
+    expect(lockHash(dir)).not.toBe(before)
+  })
 })
 
 describe('lockHash of a workspace member', () => {

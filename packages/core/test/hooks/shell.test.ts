@@ -6,6 +6,10 @@ describe('commandOnly', () => {
   test('drops heredoc bodies and comments, and keeps the commands', () => {
     expect(commandOnly("cat > a <<'EOF'\nbody .env\nEOF\nls # note .env\ncat .env")).toBe("cat > a <<'EOF'\nls\ncat .env")
   })
+
+  test('keeps a # and a << inside quotes as text', () => {
+    expect(commandOnly(`echo " #"; ls\necho '<<X'\ncat .env`)).toBe(`echo " #"; ls\necho '<<X'\ncat .env`)
+  })
 })
 
 describe('shellWords', () => {
@@ -27,6 +31,15 @@ describe('shellWords', () => {
 
   test('adds the words of the script of sh -c', () => {
     expect(shellWords('bash -lc "cd x && pwd"')).toEqual(['bash', '-lc', 'cd x && pwd', 'cd', 'x', 'pwd'])
+  })
+
+  test('finds the script of sh -c after other flags', () => {
+    expect(shellWords("sh -e --norc -c 'id -u'")).toEqual(['sh', '-e', '--norc', '-c', 'id -u', 'id', '-u'])
+  })
+
+  test('reads each quoted word and heredoc body as code when a shell runs its input', () => {
+    expect(shellWords("printf 'id -u' | bash")).toEqual(['printf', 'id -u', 'bash', 'id', '-u'])
+    expect(shellWords('bash <<EOF\nwhoami\nEOF')).toEqual(['bash', 'EOF', 'whoami'])
   })
 
   test('adds the words that eval runs', () => {

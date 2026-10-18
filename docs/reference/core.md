@@ -109,7 +109,9 @@ The secret files, the same for the read, shell and edit guards:
 
 The list lives in `packages/desk/src/secrets.ts`, so the guards and the read paths of every pack use the same one.
 
-The shell guard blocks a state database in two ways: a word that names a `.db` file under `.nook/`, and a word that is the SQLite shell. The guard reads the words as the shell does: quotes join a word, and the code inside `$(...)`, backticks, `eval` and `sh -c` adds its words. A word that only contains the name, such as the search pattern `"x\|sqlite"`, passes.
+The shell guard blocks a state database in two ways: a word that names a `.db` file under `.nook/`, and a word that is the SQLite shell. The guard reads the words as the shell does: quotes join a word, and the code inside `$(...)`, backticks, `eval` and `sh -c` adds its words. A shell with no `-c` runs its input, so then each quoted word and each heredoc body of the command counts as code. A word that only contains the name, such as the search pattern `"x\|sqlite"`, passes.
+
+Every shell guard reads a `#` or a `<<` inside quotes as text, so a comment or a heredoc never hides the rest of a line.
 
 The gate hook:
 

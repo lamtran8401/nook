@@ -29,28 +29,31 @@ function upToRepoRoot(dir: string): string[] {
   return chain
 }
 
-/** The lockfile of a folder: the nearest one in it or above it, so a workspace member gets the lockfile of the repo. */
-function lockfileOf(dir: string): string | null {
+/** The lockfiles of the nearest folder that has one, in the folder or above it, so a workspace member gets those of the repo. */
+function lockfilesOf(dir: string): string[] {
   for (const folder of upToRepoRoot(dir)) {
-    const name = LOCKFILES.find(file => existsSync(join(folder, file)))
-    if (name) return join(folder, name)
+    const found = LOCKFILES.filter(file => existsSync(join(folder, file))).map(file => join(folder, file))
+    if (found.length) return found
   }
-  return null
+  return []
 }
 
-/** The hash of the lockfile of the folder, or '' when it has none. */
+/** The hash of the lockfiles of the folder, or '' when it has none. */
 export function lockHash(dir: string): string {
-  const lockfile = lockfileOf(dir)
-  return lockfile ? createHash('sha256').update(readFileSync(lockfile)).digest('hex') : ''
+  const lockfiles = lockfilesOf(dir)
+  if (!lockfiles.length) return ''
+  const hash = createHash('sha256')
+  for (const lockfile of lockfiles) hash.update(readFileSync(lockfile))
+  return hash.digest('hex')
 }
 
-/** True when the area never installed, its lockfile changed since `lastLock`, or the folder that its lockfile fills is gone. */
+/** True when the area never installed, a lockfile changed since `lastLock`, or a folder that a lockfile fills is gone. */
 export function needsInstall(dir: string, lastLock: string | null): boolean {
   if (lastLock === null || lastLock !== lockHash(dir)) return true
-  const lockfile = lockfileOf(dir)
-  if (!lockfile) return false
-  const folder = DEPENDENCY_DIR[basename(lockfile)]
-  return folder !== undefined && !existsSync(join(dirname(lockfile), folder))
+  return lockfilesOf(dir).some(lockfile => {
+    const folder = DEPENDENCY_DIR[basename(lockfile)]
+    return folder !== undefined && !existsSync(join(dirname(lockfile), folder))
+  })
 }
 
 /** The lines of a failed install that name an error, else its last lines. */

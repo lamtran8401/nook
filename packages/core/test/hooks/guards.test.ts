@@ -38,6 +38,10 @@ describe('readGuard', () => {
 })
 
 describe('bashGuard', () => {
+  test('reads a # inside quotes as text, so a secret after it still blocks', () => {
+    expect(bash('echo " #"; cat .env')).toBe('block')
+  })
+
   test.each(['cat .env', "cat '.env'", 'cat .env.local', 'cat ./app/.env.local', 'cat $HOME/.env', 'cat ${HOME}/.env', 'docker run --env-file=.env app', 'cat prod.env', 'cat config/app.env', 'cat ~/.aws/credentials', 'cat ~/.config/twg/auth.conf', 'cat $HOME/.config/gh/hosts.yml', 'cat config/infra.local.yaml'])(
     'blocks a command that reaches a secret: %s',
     command => expect(bash(command)).toBe('block'),
@@ -53,11 +57,13 @@ describe('bashGuard', () => {
     'bash -c "cd .nook && sqlite3 ledger.db"', 'bash -lc "sqlite3 x"', 'find . -name a.db -exec sqlite3 {} .dump \\;', 'X="a b" sqlite3 /tmp/x.db',
     'timeout 5 sqlite3 x', 'nice sqlite3 x', 'sudo -u root sqlite3 x', 'if true; then sqlite3 x; fi', '{ sqlite3 x; }', '! sqlite3 x',
     'echo `sqlite3 x`', 'echo "$(sqlite3 x)"', 'eval "sqlite3 x"',
+    "bash --norc -c 'sqlite3 x'", "sh -e -c 'sqlite3 x'", "echo 'sqlite3 x' | sh", "printf 'sqlite3 x\\n' | bash", 'bash <<EOF\nsqlite3 x\nEOF',
+    'echo " #"; sqlite3 x', "echo '<<X'\nsqlite3 x",
   ])('blocks a command on a state database: %s', command => {
     expect(bash(command)).toBe('block')
   })
 
-  test.each(['grep -rn "bun:sqlite" src', 'grep -n "sqlite interface\\|command runner" docs/plan.md', "grep -e 'x|sqlite' f"])('lets a search pattern that only contains sqlite pass: %s', command => {
+  test.each(['grep -rn "bun:sqlite" src', 'grep -n "sqlite interface\\|command runner" docs/plan.md', "grep -e 'x|sqlite' f", 'echo "\\$(sqlite3 x)"'])('lets a search pattern or escaped text that only contains sqlite pass: %s', command => {
     expect(bash(command)).toBe('pass')
   })
 
