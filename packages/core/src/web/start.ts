@@ -1,5 +1,4 @@
 import { spawn } from 'node:child_process'
-import { randomBytes } from 'node:crypto'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -9,13 +8,15 @@ import { type CommandRun, errorLines, runCommand } from '@nook/shared/run.ts'
 
 import { ancestorCommands, underClaude } from '../hooks/session.ts'
 import { nodeGap, type WebGap } from './node-version.ts'
+import { Pairs } from './pairs.ts'
 import { freePort } from './port.ts'
 import { needsBuild, sourceHash, writeStamp } from './source-hash.ts'
-import { readWebState, removeWebState, type WebState, writeWebState } from './web-state.ts'
+import { readWebState, type WebState, writeWebState } from './web-state.ts'
 
 /**
- * `nook web`: the desk in the browser. It refuses inside Claude Code, so only the owner holds the token. It builds the
- * web app when its sources changed, starts the server under Node on 127.0.0.1, and gives it the token on stdin.
+ * `nook web`: the desk in the browser. It refuses inside Claude Code, so only the owner holds a pair token. It builds
+ * the web app when its sources changed, starts the server under Node on 127.0.0.1 at the port of the desk, and pairs
+ * the default browser. `nook web pair` pairs one more browser, and `nook web forget` removes each pair.
  */
 
 export type ServerChild = { pid: number; listening: Promise<void>; exited: Promise<number> }
@@ -27,12 +28,12 @@ export type WebDeps = {
   build: () => CommandRun
   writeStamp: (hash: string) => void
   freePort: (preferred?: number) => Promise<number>
-  newToken: () => string
-  spawnServer: (options: { port: number; token: string; desk: string }) => ServerChild
+  offerPair: () => string
+  forgetPairs: () => number
+  spawnServer: (options: { port: number; desk: string }) => ServerChild
   open: (url: string) => void
   readState: () => WebState | null
   writeState: (state: WebState) => void
-  removeState: () => void
   say: (line: string) => void
   now: () => Date
 }
@@ -41,7 +42,7 @@ export type WebDeps = {
 export async function startWeb(desk: string, rebuild: boolean, deps: WebDeps): Promise<number> {
   if (deps.insideClaude()) throw refused('nook web starts only in your own terminal, not in Claude Code', 'open a terminal in the desk and run `nook web`')
   const last = deps.readState()
-  if (last && deps.alive(last.pid)) throw refused(`nook web already runs for this desk on port ${last.port}`, 'use its tab, or stop it with Ctrl-C in its terminal')
+  if (last?.pid && deps.alive(last.pid)) throw refused(`nook web already runs for this desk on port ${last.port}`, 'use its tab, or stop it with Ctrl-C in its terminal')
   const gap = deps.nodeGap()
   if (gap) throw refused(gap.text, gap.fix)
   const sources = deps.sources()
@@ -52,17 +53,34 @@ export async function startWeb(desk: string, rebuild: boolean, deps: WebDeps): P
     deps.writeStamp(sources.hash)
   }
   const port = await deps.freePort(last?.port)
-  const token = deps.newToken()
-  const server = deps.spawnServer({ port, token, desk })
+  if (last && last.port !== port) deps.say(`nook web: another program holds port ${last.port}, so the address is now http://127.0.0.1:${port}`)
+  const server = deps.spawnServer({ port, desk })
   deps.writeState({ port, pid: server.pid, started: deps.now().toISOString() })
   try {
     await server.listening
     deps.say(`nook web: http://127.0.0.1:${port} for ${desk}; Ctrl-C stops it`)
-    deps.open(`http://127.0.0.1:${port}/?t=${token}`)
+    deps.open(`http://127.0.0.1:${port}/?t=${deps.offerPair()}`)
     return await server.exited
   } finally {
-    deps.removeState()
+    deps.writeState({ port })
   }
+}
+
+/** `nook web pair`: a new pair link for one more browser, on the server that runs for the desk. */
+export function pairWeb(deps: WebDeps): number {
+  if (deps.insideClaude()) throw refused('nook web pair runs only in your own terminal, not in Claude Code', 'open a terminal in the desk and run `nook web pair`')
+  const state = deps.readState()
+  if (!state?.pid || !deps.alive(state.pid)) throw refused('nook web does not run for this desk', 'run `nook web` first, then `nook web pair` in another terminal')
+  const token = deps.offerPair()
+  deps.say(`Open this link in the browser to pair, within 2 minutes; it works once:\nhttp://127.0.0.1:${state.port}/?t=${token}`)
+  return 0
+}
+
+/** `nook web forget`: each paired browser loses its session at its next request. */
+export function forgetWeb(deps: WebDeps): number {
+  if (deps.insideClaude()) throw refused('nook web forget runs only in your own terminal, not in Claude Code', 'open a terminal in the desk and run `nook web forget`')
+  deps.say(`nook web: removed ${deps.forgetPairs()} paired browsers; nook web pairs your browser again`)
+  return 0
 }
 
 const OPENER: Record<string, string> = { darwin: 'open', win32: 'explorer' }
@@ -106,12 +124,12 @@ export function webDeps(root: string, desk: string): WebDeps {
     build: () => runCommand(['node', join(web, 'node_modules', 'next', 'dist', 'bin', 'next'), 'build'], { cwd: web, env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1' } }),
     writeStamp: hash => writeStamp(root, hash),
     freePort,
-    newToken: () => randomBytes(32).toString('base64url'),
+    offerPair: () => new Pairs(desk).offer(),
+    forgetPairs: () => new Pairs(desk).forget(),
     spawnServer: options => spawnServer(web, options),
     open: openPrivately,
     readState: () => readWebState(desk),
     writeState: state => writeWebState(desk, state),
-    removeState: () => removeWebState(desk),
     say: line => console.log(line),
     now: () => new Date(),
   }
@@ -125,10 +143,9 @@ export function serverEnv(desk: string, port: number, base: NodeJS.ProcessEnv = 
   return { ...base, NOOK_DESK: desk, NOOK_WEB_PORT: String(port), NOOK_CLI: JSON.stringify(self) }
 }
 
-function spawnServer(web: string, { port, token, desk }: { port: number; token: string; desk: string }): ServerChild {
-  const child = spawn('node', ['server.ts'], { cwd: web, env: serverEnv(desk, port), stdio: ['pipe', 'pipe', 'inherit'] })
+function spawnServer(web: string, { port, desk }: { port: number; desk: string }): ServerChild {
   // stdin stays open while nook web runs: when it closes, as when the terminal goes, the server stops too
-  child.stdin.write(`${token}\n`)
+  const child = spawn('node', ['server.ts'], { cwd: web, env: serverEnv(desk, port), stdio: ['pipe', 'pipe', 'inherit'] })
   const exited = new Promise<number>(resolve => child.once('exit', code => resolve(code ?? 1)))
   const listening = new Promise<void>((resolve, reject) => {
     child.stdout.on('data', (chunk: Buffer) => {

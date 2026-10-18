@@ -16,7 +16,7 @@ import { styleCheck } from './hooks/style.ts'
 import { CORE_HOOKS, type CoreHook } from './hooks/table.ts'
 import { init } from './init/initializer.ts'
 import { markdownFiles, scoreFile } from './ste.ts'
-import { startWeb, webDeps } from './web/start.ts'
+import { forgetWeb, pairWeb, startWeb, webDeps } from './web/start.ts'
 
 const coreDir = () => Catalog.load().dirOf('core')
 
@@ -28,7 +28,14 @@ const briefDirs = (cwd: string): string[] => {
 }
 
 /** The commands of the core. `modules` are the pack packages that `nook init` and `nook doctor` reach. */
-export const coreProgram = (modules: PackModule[] = []): Program => ({
+/** The desk of the web commands: the nearest one above the folder. */
+function webDesk(): string {
+  const desk = nearestDesk(process.cwd())
+  if (!desk) throw usage('not inside a desk', 'run nook web in a desk, or nook init first')
+  return desk.dir
+}
+
+export const coreProgram =(modules: PackModule[] = []): Program => ({
   name: 'nook',
   summary: 'Nook: a base layer for Claude Code that you init into any folder',
   commands: [
@@ -65,9 +72,22 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
       usage: '[--build]',
       flags: { build: { type: 'boolean', help: 'build again, even with no change of the code' } },
       async run(c) {
-        const desk = nearestDesk(process.cwd())
-        if (!desk) throw usage('not inside a desk', 'run nook web in a desk, or nook init first')
-        return startWeb(desk.dir, c.flags.build === true, webDeps(projectRoot(), desk.dir))
+        const desk = webDesk()
+        return startWeb(desk, c.flags.build === true, webDeps(projectRoot(), desk))
+      },
+    },
+    {
+      path: ['web', 'pair'],
+      summary: 'prints a one-time link that pairs one more browser with the web app that runs, so its owner moves run',
+      run() {
+        return pairWeb(webDeps(projectRoot(), webDesk()))
+      },
+    },
+    {
+      path: ['web', 'forget'],
+      summary: 'removes each paired browser of the web app; the pages stay free to read',
+      run() {
+        return forgetWeb(webDeps(projectRoot(), webDesk()))
       },
     },
     {

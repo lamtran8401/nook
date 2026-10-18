@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path'
 import { freePort } from '../../src/web/port.ts'
 import { nodeGap } from '../../src/web/node-version.ts'
 import { needsBuild, sourceHash, writeStamp } from '../../src/web/source-hash.ts'
-import { readWebState, removeWebState, writeWebState } from '../../src/web/web-state.ts'
+import { readWebState, writeWebState } from '../../src/web/web-state.ts'
 
 let root: string
 const write = (path: string, text: string) => {
@@ -98,12 +98,12 @@ describe('sourceHash and the build stamp', () => {
 })
 
 describe('web.json', () => {
-  test('keeps the port and the process of the server, and goes when the server stops', () => {
+  test('keeps the port and the process of the server, and the port alone after a stop', () => {
     expect(readWebState(root)).toBeNull()
     writeWebState(root, { port: 4321, pid: 99, started: '2026-10-18T10:00:00.000Z' })
     expect(readWebState(root)).toEqual({ port: 4321, pid: 99, started: '2026-10-18T10:00:00.000Z' })
-    removeWebState(root)
-    expect(readWebState(root)).toBeNull()
+    writeWebState(root, { port: 4321 })
+    expect(readWebState(root)).toEqual({ port: 4321 })
   })
 })
 

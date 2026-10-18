@@ -43,24 +43,38 @@ A fault stops the command and names the key: `packs.on must be a list of strings
 | `nook packs` | the packs on here, where each keeps its record, and the packs that Nook ships |
 | `nook brief` | what waits for you, what is done since yesterday and what runs, for each desk of the desk list |
 | `nook web [--build]` | the desk in the browser: builds the web app when the Nook code changed, then serves it on `127.0.0.1` until Ctrl-C |
+| `nook web pair` | prints a one-time link that pairs one more browser with the web app that runs |
+| `nook web forget` | removes each paired browser; the pages stay free to read |
 | `nook retro` | the facts since the last retro of this desk: items sent back, guesses flipped, slow questions, weak proofs |
 | `nook where` | the desks above this folder and the Nook repo |
 | `nook ste <file\|folder...> [--min N] [--quiet]` | the writing score of Markdown files; a file passes above `N`, default 80 |
 | `nook hook <name>` | one core hook, with the Claude Code event on stdin |
 
-Each pack adds its commands under its name: `nook eng …`, `nook wiki …`, `nook learn …`. `nook --help` lists all 91 commands.
+Each pack adds its commands under its name: `nook eng …`, `nook wiki …`, `nook learn …`. `nook --help` lists all 93 commands.
 
 `nook web` runs only in the owner's terminal:
 
-1. It refuses when `CLAUDECODE` is set or a Claude session stands above it, so no agent starts the app or holds its token. The shell guard also blocks `nook web` from an agent.
+1. It refuses when `CLAUDECODE` is set or a Claude session stands above it, so no agent starts the app or holds a pair token. The shell guard also blocks `nook web` from an agent.
 2. It refuses while the server of an earlier start still runs for the desk.
 3. It stops when Node 24 or later is not on the path, and names the install.
 4. It builds `apps/web` when the hash of the sources differs from the stamp of the last build, or with `--build`. The hash covers the web app, the package sources, the `package.json` and `tsconfig` files and `bun.lock`. A failed build names its error lines and starts no server.
-5. It takes the last port of the desk when it is free, else a free one, and makes a one-time token.
-6. It starts `apps/web/server.ts` under Node and writes the token to its stdin. The token is never in an argument, a variable, a file that others can read, or the terminal.
-7. It writes the port and the process to `.nook/web.json`, opens the browser through a page that only the owner can read, and removes the file when the server stops. The server stops when `nook web` ends, also when its terminal closes.
+5. It takes the last port of the desk when it is free. When another program holds it, it takes a free port and prints the new address.
+6. It starts `apps/web/server.ts` under Node and keeps its stdin open. The server stops when `nook web` ends, also when its terminal closes.
+7. It writes the port and the process to `.nook/web.json`. After the stop, the file keeps the port, so a bookmark keeps working.
+8. It pairs the default browser: it opens a link with a new pair token, through a page that only the owner can read.
 
-The server lets a request in only on its own host `127.0.0.1:<port>`. The token works once, within 2 minutes, and becomes an HttpOnly, SameSite=Strict cookie whose name holds the port. The answer to the token is a page that sets the cookie and then moves to the address itself. A browser sends no Strict cookie on a navigation that another site started, and the page on the disk that holds the token counts as another site. A write needs the origin of the page.
+Each page is free to read on the host `127.0.0.1:<port>`; the server refuses each other host. An owner move needs a paired browser:
+
+| Part | Rule |
+|---|---|
+| pair token | works once, within 2 minutes; only its hash is in `.nook/web-pairs.json` |
+| session | an HttpOnly, SameSite=Strict cookie of 30 days, whose name holds the port; it stays through a restart |
+| read with no pair | the page shows, with a View only note; each owner button is off and names `nook web pair` |
+| write | needs a session and the origin of the page; with no session, the answer is 401 |
+
+The answer to a pair token is a page that sets the cookie and then moves to the address itself. A browser sends no Strict cookie on a navigation that another site started, and the page on the disk that holds the token counts as another site.
+
+`nook web pair` pairs one more browser, such as Safari: it prints a pair link on the port of the server that runs. `nook web forget` removes each pair; each browser loses its session at its next request. Both refuse in Claude Code, as `nook web` does.
 
 The shell guard blocks a call to the port in `.nook/web.json` on any spelling of this machine, such as `127.1:<port>`, `localhost <port>` or `/dev/tcp/127.0.0.1/<port>`. A broken `web.json` blocks each shell call until the owner deletes it.
 

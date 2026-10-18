@@ -1,14 +1,24 @@
 import { describe, expect, test } from 'bun:test'
 
-import { Gate, gateAnswer, type GateRequest } from '../lib/gate.ts'
+import { Gate, gateAnswer, type GateRequest, type PairStore } from '../lib/gate.ts'
 
 const PORT = 4321
 const HOST = `127.0.0.1:${PORT}`
-let clock = 0
-const gate = (token = 'token-abc') => {
-  let n = 0
-  clock = 0
-  return new Gate(token, PORT, { newId: () => `session-${++n}`, now: () => clock })
+const COOKIE = 'nook_session_4321=session-1'
+
+/** A store with one open token, `token-abc`, that gives `session-1` once. */
+function store(): PairStore {
+  const tokens = new Set(['token-abc'])
+  const sessions = new Set<string>()
+  return {
+    redeem: token => (tokens.delete(token) ? (sessions.add('session-1'), 'session-1') : null),
+    holds: session => sessions.has(session),
+  }
+}
+const paired = () => {
+  const gate = new Gate(PORT, store())
+  gate.admit(request('/?t=token-abc'))
+  return gate
 }
 const request = (url: string, headers: GateRequest['headers'] = {}, method = 'GET'): GateRequest => ({ method, url, headers: { host: HOST, ...headers } })
 
@@ -22,69 +32,55 @@ describe('gateAnswer', () => {
   })
 
   test('a denial is its reason as plain text', () => {
-    expect(gateAnswer({ kind: 'deny', status: 401, reason: 'open the web app with `nook web`' })).toEqual({ status: 401, headers: { 'Content-Type': 'text/plain; charset=utf-8' }, body: 'open the web app with `nook web`' })
+    expect(gateAnswer({ kind: 'deny', status: 401, reason: 'pair this browser' })).toEqual({ status: 401, headers: { 'Content-Type': 'text/plain; charset=utf-8' }, body: 'pair this browser' })
   })
 })
 
 describe('Gate', () => {
-  test('the first open with the token sets the session cookie and drops the token from the address', () => {
-    expect(gate().admit(request('/works?t=token-abc&tab=plan'))).toEqual({
+  test('a pair token sets a session cookie of 30 days and drops the token from the address', () => {
+    expect(new Gate(PORT, store()).admit(request('/works?t=token-abc&tab=plan'))).toEqual({
       kind: 'login',
-      cookie: 'nook_session_4321=session-1; HttpOnly; SameSite=Strict; Path=/',
+      cookie: 'nook_session_4321=session-1; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000',
       location: '/works?tab=plan',
     })
   })
 
-  test('the token works once', () => {
-    const g = gate()
-    g.admit(request('/?t=token-abc'))
-    expect(g.admit(request('/?t=token-abc'))).toMatchObject({ kind: 'deny', status: 401 })
+  test('a spent or wrong token is refused with the command for a new link', () => {
+    const gate = paired()
+    expect(gate.admit(request('/?t=token-abc'))).toEqual({ kind: 'deny', status: 401, reason: 'this link was used, is old or is wrong: run `nook web pair` for a new one' })
+    expect(gate.admit(request('/?t=token-xyz'))).toMatchObject({ kind: 'deny', status: 401 })
   })
 
-  test('a wrong token is refused', () => {
-    expect(gate().admit(request('/?t=token-xyz'))).toMatchObject({ kind: 'deny', status: 401 })
+  test('a read passes with no session, and says that the browser is not paired', () => {
+    expect(new Gate(PORT, store()).admit(request('/works'))).toEqual({ kind: 'pass', owner: false })
+    expect(paired().admit(request('/works', { cookie: 'nook_session_4321=session-9' }))).toEqual({ kind: 'pass', owner: false })
   })
 
-  test('a request with the session cookie passes, and one with none or another is refused', () => {
-    const g = gate()
-    g.admit(request('/?t=token-abc'))
-    expect(g.admit(request('/works', { cookie: 'theme=dark; nook_session_4321=session-1' }))).toEqual({ kind: 'pass' })
-    expect(g.admit(request('/works'))).toMatchObject({ kind: 'deny', status: 401 })
-    expect(g.admit(request('/works', { cookie: 'nook_session_4321=session-9' }))).toMatchObject({ kind: 'deny', status: 401 })
+  test('a read with the session cookie passes as the owner', () => {
+    expect(paired().admit(request('/works', { cookie: `theme=dark; ${COOKIE}` }))).toEqual({ kind: 'pass', owner: true })
   })
 
-  test('a write passes only from the origin of the page', () => {
-    const g = gate()
-    g.admit(request('/?t=token-abc'))
-    const cookie = 'nook_session_4321=session-1'
-    expect(g.admit(request('/works/SHOP-12', { cookie, origin: `http://${HOST}` }, 'POST'))).toEqual({ kind: 'pass' })
-    expect(g.admit(request('/works/SHOP-12', { cookie, origin: 'http://evil.test' }, 'POST'))).toMatchObject({ kind: 'deny', status: 403 })
-    expect(g.admit(request('/works/SHOP-12', { cookie }, 'POST'))).toMatchObject({ kind: 'deny', status: 403 })
+  test('a write with no session is refused with the command that pairs', () => {
+    expect(paired().admit(request('/works/SHOP-12', { origin: `http://${HOST}` }, 'POST'))).toEqual({ kind: 'deny', status: 401, reason: 'pair this browser first: run `nook web pair` in your terminal' })
+  })
+
+  test('a write of the owner passes only from the origin of the page', () => {
+    const gate = paired()
+    expect(gate.admit(request('/works/SHOP-12', { cookie: COOKIE, origin: `http://${HOST}` }, 'POST'))).toEqual({ kind: 'pass', owner: true })
+    expect(gate.admit(request('/works/SHOP-12', { cookie: COOKIE, origin: 'http://evil.test' }, 'POST'))).toMatchObject({ kind: 'deny', status: 403 })
+    expect(gate.admit(request('/works/SHOP-12', { cookie: COOKIE }, 'POST'))).toMatchObject({ kind: 'deny', status: 403 })
   })
 
   test('a request for another host is refused, so a renamed address cannot reach the server', () => {
-    expect(gate().admit({ method: 'GET', url: '/?t=token-abc', headers: { host: `evil.test:${PORT}` } })).toMatchObject({ kind: 'deny', status: 403 })
+    expect(new Gate(PORT, store()).admit({ method: 'GET', url: '/?t=token-abc', headers: { host: `evil.test:${PORT}` } })).toMatchObject({ kind: 'deny', status: 403 })
+    expect(new Gate(PORT, store()).admit({ method: 'GET', url: '/works', headers: { host: `evil.test:${PORT}` } })).toMatchObject({ kind: 'deny', status: 403 })
   })
 
-  test('an empty token never logs in', () => {
-    expect(gate('').admit(request('/?t='))).toMatchObject({ kind: 'deny', status: 401 })
+  test('a paired browser passes, also when its address has its own t', () => {
+    expect(paired().admit(request('/search?t=wiki', { cookie: COOKIE }))).toEqual({ kind: 'pass', owner: true })
   })
 
-  test('the token stops working two minutes after the start', () => {
-    const g = gate()
-    clock = 120_001
-    expect(g.admit(request('/?t=token-abc'))).toMatchObject({ kind: 'deny', status: 401 })
-  })
-
-  test('a request with a valid cookie passes, also when its address has its own t', () => {
-    const g = gate()
-    g.admit(request('/?t=token-abc'))
-    expect(g.admit(request('/search?t=wiki', { cookie: 'nook_session_4321=session-1' }))).toEqual({ kind: 'pass' })
-  })
-
-  test('the cookie of another port does not open this server', () => {
-    const g = gate()
-    g.admit(request('/?t=token-abc'))
-    expect(g.admit(request('/', { cookie: 'nook_session_5001=session-1' }))).toMatchObject({ kind: 'deny', status: 401 })
+  test('the cookie of another port is no session here', () => {
+    expect(paired().admit(request('/', { cookie: 'nook_session_5001=session-1' }))).toEqual({ kind: 'pass', owner: false })
   })
 })

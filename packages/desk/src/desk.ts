@@ -1,10 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 
+import { STATE_DIR } from '@nook/shared/names.ts'
+
 import { NookConfig } from './nook-config.ts'
 
+export { STATE_DIR }
 export const NOOK_FILE = 'nook.yml'
-export const STATE_DIR = '.nook'
 
 /** A folder with a `nook.yml`: its packs and rules reach every folder inside it. */
 export class Desk {

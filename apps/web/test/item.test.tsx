@@ -12,6 +12,7 @@ import { ItemHeader } from '../components/item/ItemHeader.tsx'
 import { ItemPage, tabOf } from '../components/item/ItemPage.tsx'
 import { NeedsYou } from '../components/item/NeedsYou.tsx'
 import { NextStep } from '../components/item/NextStep.tsx'
+import { Owner, ViewerNote } from '../components/Owner.tsx'
 import { SliceBoard } from '../components/item/SliceBoard.tsx'
 import { Stats } from '../components/item/Stats.tsx'
 import { Stepper } from '../components/item/Stepper.tsx'
@@ -87,6 +88,27 @@ describe('NextStep', () => {
     const markup = html(<NextStep next={view.next} />)
     expect(markup).not.toContain('<button')
     expect(text(markup)).toBe('Next step The lead runs /cook SHOP-42 Nothing waits for you.')
+  })
+})
+
+describe('the owner moves on a page', () => {
+  const approve = { ...view.next, state: 'planning' as const, owner: true, skill: 'owner: /gate approve SHOP-42' }
+
+  test('a browser with no pair gets each button off, and the form names the command that pairs it', () => {
+    const markup = html(<NextStep next={approve} />)
+    expect(markup).toContain('title="Pair this browser to run your moves: nook web pair"')
+    expect(markup).toContain('<fieldset class="nk-move__controls" disabled="">')
+  })
+
+  test('a paired browser gets the buttons on', () => {
+    const markup = html(<Owner paired><NextStep next={approve} /></Owner>)
+    expect(markup).toContain('<fieldset class="nk-move__controls">')
+    expect(markup).not.toContain('title="Pair this browser')
+  })
+
+  test('the note of a browser with no pair says how to pair it, and a paired browser gets none', () => {
+    expect(text(html(<ViewerNote />))).toBe('View only. To run your moves here, run nook web pair in your terminal and open its link in this browser.')
+    expect(html(<Owner paired><ViewerNote /></Owner>)).toBe('')
   })
 })
 

@@ -1,6 +1,9 @@
 /** The command of the tool. An agent runs it by this name only, so the guards can see each call. */
 export const TOOL = 'nook'
 
+/** The state folder of a desk: the ledger, the web state and the pairs. Only the tool writes it. */
+export const STATE_DIR = '.nook'
+
 /** An old short form that is not the tool: the guards block it, so an alias of the owner never runs as an agent. */
 export const SHORT_NAME = 'nk'
 

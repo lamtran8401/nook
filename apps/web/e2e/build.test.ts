@@ -28,19 +28,19 @@ beforeAll(() => {
   build = runCommand(['node', join(web, 'node_modules', 'next', 'dist', 'bin', 'next'), 'build'], { cwd: web, env: noDesk, timeoutMs: 300_000 })
 })
 type Answer = { status: number; body: string }
-type Answers = Record<'home' | 'page' | 'item' | 'dialog', Answer> & { login: { status: number; body: string; cookie: string }; stranger: { status: number } }
+type Answers = Record<'home' | 'page' | 'item' | 'dialog' | 'again' | 'stranger' | 'strangerWrite', Answer> & { login: Answer & { cookie: string } }
 let rendered: Answers | null = null
 
 /** The answers of the real request handler under Node, rendered once for the tests that read them. */
 function answer(): Answers {
   if (rendered) return rendered
-  const run = runCommand(['node', join(web, 'e2e', 'render.ts'), 'token-e2e'], { cwd: web, env: { ...env, NOOK_DESK: desk }, timeoutMs: 120_000 })
+  const run = runCommand(['node', join(web, 'e2e', 'render.ts')], { cwd: web, env: { ...env, NOOK_DESK: desk }, timeoutMs: 120_000 })
   rendered = JSON.parse(run.out.trim().split('\n').at(-1) ?? '{}') as Answers
   return rendered
 }
 
 /** The page of one answer, after a check that it came with 200. */
-function body(name: 'home' | 'page' | 'item' | 'dialog'): string {
+function body(name: 'home' | 'page' | 'item' | 'dialog' | 'stranger'): string {
   expect(answer()[name].status).toBe(200)
   return answer()[name].body.replaceAll('<!-- -->', '')
 }
@@ -55,10 +55,23 @@ describe('the web app', () => {
     expect(build.code).toBe(0)
   })
 
-  test('swaps the one-time token for a cookie and refuses a request with none', () => {
+  test('swaps the pair token of the desk for a cookie, once', () => {
     expect(answer().login).toMatchObject({ status: 200, body: expect.stringContaining('<script>location.replace("/")</script>') })
     expect(answer().login.cookie).toMatch(/^nook_session_4321=.+/)
-    expect(answer().stranger.status).toBe(401)
+    expect(answer().again).toEqual({ status: 401, body: 'this link was used, is old or is wrong: run `nook web pair` for a new one' })
+  })
+
+  test('a browser with no pair reads the page with the owner buttons off, and its move is refused', () => {
+    const page = body('stranger')
+    expect(page).toContain('<b>View only.</b>')
+    expect(page).toContain('<fieldset class="nk-move__controls" disabled="">')
+    expect(answer().strangerWrite).toEqual({ status: 401, body: 'pair this browser first: run `nook web pair` in your terminal' })
+  })
+
+  test('the paired browser gets the owner buttons on, with no view-only note', () => {
+    const item = body('item')
+    expect(item).not.toContain('View only.')
+    expect(item).toContain('<fieldset class="nk-move__controls">')
   })
 
   test('the home page gives the brief of the desk, each gap of the doctor with its fix', () => {
@@ -87,9 +100,16 @@ describe('the web app', () => {
     expect(body('dialog')).toContain('Open in new tab')
   })
 
-  test('the server refuses to start when no token comes on stdin, and listens on nothing', () => {
-    const run = runCommand(['node', join(web, 'server.ts')], { cwd: web, env: { ...env, NOOK_DESK: desk, NOOK_WEB_PORT: '4321' }, timeoutMs: 60_000 })
+  test('the server refuses to start with no desk, and listens on nothing', () => {
+    const noDesk = Object.fromEntries(Object.entries(env).filter(([name]) => name !== 'NOOK_DESK'))
+    const run = runCommand(['node', join(web, 'server.ts')], { cwd: web, env: { ...noDesk, NOOK_WEB_PORT: '4321' }, timeoutMs: 60_000 })
     expect(run.code).not.toBe(0)
-    expect(run.err).toContain('no token came on stdin')
+    expect(run.err).toContain('start the web app with `nook web`')
+    expect(run.out).not.toContain('listening')
+  })
+
+  test('the server stops when its stdin ends, as when nook web goes', () => {
+    const run = runCommand(['node', join(web, 'server.ts')], { cwd: web, env: { ...env, NOOK_DESK: desk, NOOK_WEB_PORT: '4321' }, timeoutMs: 60_000 })
+    expect(run.code).toBe(0)
   })
 })

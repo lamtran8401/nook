@@ -1,17 +1,19 @@
 // Calls the request handler of the web app under Node with requests made in memory: no port opens.
-// Run: node render.ts <token>; NOOK_DESK names the desk. Prints the answers as JSON.
+// Run: node render.ts; NOOK_DESK names the desk, which gets one pair token. Prints the answers as JSON.
 import { IncomingMessage, type OutgoingHttpHeaders, ServerResponse } from 'node:http'
 import { Socket } from 'node:net'
 import { join } from 'node:path'
+
+import { Pairs } from '@nook/core/web/pairs.ts'
 
 import { createHandler, type WebHandler } from '../lib/handler.ts'
 
 const PORT = 4321
 type Answer = { status: number; headers: OutgoingHttpHeaders; body: string }
 
-async function call(handler: WebHandler, url: string, headers: Record<string, string>): Promise<Answer> {
+async function call(handler: WebHandler, url: string, headers: Record<string, string>, method = 'GET'): Promise<Answer> {
   const req = new IncomingMessage(new Socket())
-  Object.assign(req, { method: 'GET', url, headers: { host: `127.0.0.1:${PORT}`, ...headers } })
+  Object.assign(req, { method, url, headers: { host: `127.0.0.1:${PORT}`, ...headers } })
   req.push(null)
   const res = new ServerResponse(req)
   const chunks: Buffer[] = []
@@ -30,8 +32,9 @@ async function call(handler: WebHandler, url: string, headers: Record<string, st
 
 // the packages find the Nook repo by this variable: in the bundle of Next.js a file has no folder of its own
 process.env.NOOK_PROJECT ??= join(import.meta.dirname, '..', '..', '..')
-const token = process.argv[2] ?? ''
-const handler = await createHandler({ dir: join(import.meta.dirname, '..'), port: PORT, token })
+const pairs = new Pairs(process.env.NOOK_DESK ?? '')
+const token = pairs.offer()
+const handler = await createHandler({ dir: join(import.meta.dirname, '..'), port: PORT, pairs })
 const login = await call(handler, `/?t=${token}`, {})
 const cookie = String(login.headers['set-cookie'] ?? '').split(';')[0] ?? ''
 const home = await call(handler, '/', { cookie })
@@ -42,6 +45,9 @@ const routerHeaders = { cookie, rsc: '1', 'next-url': '/works' }
 const asked = await call(handler, '/works/SHOP-12', routerHeaders)
 // Next sends the router to the same address with the cache key of these headers first
 const dialog = asked.status === 307 ? await call(handler, String(asked.headers.location), routerHeaders) : asked
-const stranger = await call(handler, '/', {})
-console.log(JSON.stringify({ login: { status: login.status, body: login.body, cookie }, home: { status: home.status, body: home.body }, page: { status: page.status, body: page.body }, item: { status: item.status, body: item.body }, dialog: { status: dialog.status, body: dialog.body }, stranger: { status: stranger.status } }))
+const again = await call(handler, `/?t=${token}`, {})
+const stranger = await call(handler, '/works/SHOP-12', {})
+const strangerWrite = await call(handler, '/works/SHOP-12', { origin: `http://127.0.0.1:${PORT}` }, 'POST')
+const plain = ({ status, body }: Answer) => ({ status, body })
+console.log(JSON.stringify({ login: { ...plain(login), cookie }, again: plain(again), home: plain(home), page: plain(page), item: plain(item), dialog: plain(dialog), stranger: plain(stranger), strangerWrite: plain(strangerWrite) }))
 process.exit(0)

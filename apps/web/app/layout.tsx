@@ -1,19 +1,26 @@
 import { basename } from 'node:path'
 
+import { headers } from 'next/headers'
 import type { ReactNode } from 'react'
 
 import { uiKit } from '@nook/desk/ui-kit.ts'
 
 import { Live } from '../components/Live.tsx'
+import { Owner, ViewerNote } from '../components/Owner.tsx'
 import { PackNav } from '../components/PackNav.tsx'
 import { deskDir, packTabs } from '../lib/desk.ts'
+import { OWNER_HEADER } from '../lib/gate.ts'
 import './app.css'
 
 export const dynamic = 'force-dynamic'
 
-/** The shell of each page: the Bench tokens and styles, the desk name and the pack tabs; the Bench script draws the diagrams. */
-export default function RootLayout({ children }: { children: ReactNode }) {
+/**
+ * The shell of each page: the Bench tokens and styles, the desk name and the pack tabs; the Bench script draws the
+ * diagrams. The gate says if the browser is paired, and the owner moves below follow it.
+ */
+export default async function RootLayout({ children }: { children: ReactNode }) {
   const desk = deskDir()
+  const paired = (await headers()).get(OWNER_HEADER) === '1'
   const kit = uiKit()
   return (
     <html lang="en">
@@ -29,7 +36,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <input className="bn-input" type="search" name="q" placeholder="Search the desk" aria-label="Search the desk" />
           </form>
         </header>
-        <main className="nk-main">{children}</main>
+        <Owner paired={paired}>
+          <ViewerNote />
+          <main className="nk-main">{children}</main>
+        </Owner>
         <Live />
         <script dangerouslySetInnerHTML={{ __html: kit.js }} />
       </body>

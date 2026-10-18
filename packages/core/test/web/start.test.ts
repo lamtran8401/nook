@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 
 import { statSync, readFileSync, rmSync } from 'node:fs'
 
-import { serverEnv, startWeb, type WebDeps, writeOpenPage } from '../../src/web/start.ts'
+import { forgetWeb, pairWeb, serverEnv, startWeb, type WebDeps, writeOpenPage } from '../../src/web/start.ts'
 import type { WebState } from '../../src/web/web-state.ts'
 
 /** Fake parts that log each step; `done` ends the server. */
@@ -18,15 +18,15 @@ function fakes(overrides: Partial<WebDeps> = {}) {
     build: () => (log.push('build'), { code: 0, out: 'Compiled', err: '' }),
     writeStamp: hash => log.push(`stamp ${hash}`),
     freePort: async preferred => (log.push(`port ${preferred}`), preferred ?? 5000),
-    newToken: () => 'tok-secret',
-    spawnServer: ({ port, token, desk }) => {
-      log.push(`spawn ${port} ${token} ${desk}`)
+    offerPair: () => (log.push('pair offered'), 'tok-secret'),
+    forgetPairs: () => 2,
+    spawnServer: ({ port, desk }) => {
+      log.push(`spawn ${port} ${desk}`)
       return { pid: 77, listening: Promise.resolve(), exited: new Promise<number>(resolve => (stop = resolve)) }
     },
     open: url => log.push(`open ${url}`),
     readState: () => state,
-    writeState: next => ((state = next), log.push(`state ${next.port} ${next.pid}`)),
-    removeState: () => ((state = null), log.push('state removed')),
+    writeState: next => ((state = next), log.push(`state ${JSON.stringify(next)}`)),
     say: line => log.push(`say ${line}`),
     now: () => new Date('2026-10-18T10:00:00.000Z'),
     ...overrides,
@@ -70,7 +70,7 @@ describe('startWeb', () => {
     expect(f.log).not.toContain('build')
   })
 
-  test('starts the server on the last port of the desk, keeps its process, opens the address with the token, and never says the token', async () => {
+  test('starts the server on the last port of the desk, opens the address with a new pair token, never says the token, and keeps the port after the stop', async () => {
     const f = fakes()
     const run = startWeb('/desk', false, f.deps)
     await Bun.sleep(0)
@@ -81,10 +81,11 @@ describe('startWeb', () => {
       'build',
       'stamp h1',
       'port 4321',
-      'spawn 4321 tok-secret /desk',
-      'state 4321 77',
+      'spawn 4321 /desk',
+      'state {"port":4321,"pid":77,"started":"2026-10-18T10:00:00.000Z"}',
+      'pair offered',
       'open http://127.0.0.1:4321/?t=tok-secret',
-      'state removed',
+      'state {"port":4321}',
     ])
     expect(f.log.filter(l => l.startsWith('say')).join('\n')).not.toContain('tok-secret')
   })
@@ -98,10 +99,53 @@ describe('startWeb', () => {
     expect(f.log).toContain('build')
   })
 
+  test('says so when another program holds the last port, and takes a free one', async () => {
+    const f = fakes({ sources: () => ({ hash: 'h1', built: true }), freePort: async () => 5000 })
+    const run = startWeb('/desk', false, f.deps)
+    await Bun.sleep(0)
+    f.done()
+    await run
+    expect(f.log).toContain('say nook web: another program holds port 4321, so the address is now http://127.0.0.1:5000')
+    expect(f.state()).toEqual({ port: 5000 })
+  })
+
   test('refuses while the server of an earlier start still runs for the desk', async () => {
     const f = fakes({ alive: pid => pid === 1 })
     await expect(startWeb('/desk', false, f.deps)).rejects.toMatchObject({ message: 'nook web already runs for this desk on port 4321', fix: 'use its tab, or stop it with Ctrl-C in its terminal' })
     expect(f.log).toEqual([])
+  })
+})
+
+describe('pairWeb', () => {
+  test('prints a new pair link on the port of the server that runs', () => {
+    const f = fakes({ alive: pid => pid === 1 })
+    expect(pairWeb(f.deps)).toBe(0)
+    expect(f.log).toEqual(['pair offered', 'say Open this link in the browser to pair, within 2 minutes; it works once:\nhttp://127.0.0.1:4321/?t=tok-secret'])
+  })
+
+  test('refuses inside Claude Code, and offers no token', () => {
+    const f = fakes({ insideClaude: () => true, alive: () => true })
+    expect(() => pairWeb(f.deps)).toThrow(expect.objectContaining({ message: 'nook web pair runs only in your own terminal, not in Claude Code' }))
+    expect(f.log).toEqual([])
+  })
+
+  test('refuses when nook web does not run for the desk', () => {
+    const f = fakes()
+    expect(() => pairWeb(f.deps)).toThrow(expect.objectContaining({ message: 'nook web does not run for this desk', fix: 'run `nook web` first, then `nook web pair` in another terminal' }))
+    expect(f.log).toEqual([])
+  })
+})
+
+describe('forgetWeb', () => {
+  test('removes each pair and says how many', () => {
+    const f = fakes()
+    expect(forgetWeb(f.deps)).toBe(0)
+    expect(f.log).toEqual(['say nook web: removed 2 paired browsers; nook web pairs your browser again'])
+  })
+
+  test('refuses inside Claude Code', () => {
+    const f = fakes({ insideClaude: () => true, forgetPairs: () => { throw new Error('forgot') } })
+    expect(() => forgetWeb(f.deps)).toThrow(expect.objectContaining({ message: 'nook web forget runs only in your own terminal, not in Claude Code' }))
   })
 })
 
