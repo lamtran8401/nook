@@ -68,6 +68,15 @@ The gaps of `nook wiki index`:
 
 `nook doctor` lists the gaps of the indexes under the wiki pack.
 
+## Read paths
+
+`packages/wiki/src/read.ts` gives the web app two reads, and writes nothing:
+
+- `readWiki(desk)`: each shelf with its use and the lines of its index, and the drafts that wait for a yes.
+- `readPage(desk, path)`: the text of one page or draft, and each link with the page that it reaches, or null for a broken link. A path outside the wiki, a file that is not Markdown, a missing file and a secret file are refused.
+
+`nook wiki links` and `readPage` read the links with the same code.
+
 ## Skills and agent
 
 | Name | Who starts it | What it does |

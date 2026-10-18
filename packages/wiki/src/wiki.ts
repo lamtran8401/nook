@@ -19,6 +19,11 @@ const DRAFTS = 'drafts'
 const SHELF_TYPES: Record<string, string> = { ideas: 'idea', areas: 'area', resources: 'resource' }
 
 export type BrokenLink = { page: string; link: string }
+/** A link of a page, and the path in the wiki that it reaches, or null when it reaches nothing. */
+export type PageLink = { link: string; target: string | null }
+
+const WIKI_LINK = /\[\[([^\]|#]+)(?:[|#][^\]]*)?\]\]/g
+const MD_LINK = /\]\(([^)\s]+\.md)(?:#[^)]*)?\)/g
 
 export class Wiki {
   constructor(
@@ -101,20 +106,34 @@ export class Wiki {
 
   /** Each `[[name]]` with no page of that name, and each relative Markdown link to a file that does not exist. */
   brokenLinks(): BrokenLink[] {
-    const all = this.allPages()
-    const names = new Set(all.map(page => basename(page, '.md')))
-    const broken: BrokenLink[] = []
-    for (const page of all) {
-      const text = readFileSync(join(this.dir, page), 'utf8')
-      for (const m of text.matchAll(/\[\[([^\]|#]+)(?:[|#][^\]]*)?\]\]/g))
-        if (!names.has(m[1]!.trim())) broken.push({ page, link: `[[${m[1]!.trim()}]]` })
-      for (const m of text.matchAll(/\]\(([^)\s]+\.md)(?:#[^)]*)?\)/g)) {
-        const target = m[1]!
-        if (/^[a-z]+:\/\//i.test(target)) continue
-        if (!existsSync(join(this.dir, dirname(page), target))) broken.push({ page, link: target })
-      }
-    }
-    return broken
+    const byName = this.pagesByName()
+    return this.allPages().flatMap(page =>
+      this.linksIn(page, byName)
+        .filter(l => l.target === null)
+        .map(l => ({ page, link: l.link })),
+    )
+  }
+
+  /** The links of a page (a path in the wiki), each with the page that it reaches. */
+  links(page: string): PageLink[] {
+    return this.linksIn(page, this.pagesByName())
+  }
+
+  private pagesByName(): Map<string, string> {
+    return new Map(this.allPages().map(page => [basename(page, '.md'), page]))
+  }
+
+  private linksIn(page: string, byName: Map<string, string>): PageLink[] {
+    const text = readFileSync(join(this.dir, page), 'utf8')
+    const named = [...text.matchAll(WIKI_LINK)].map(m => m[1]!.trim()).map(name => ({ link: `[[${name}]]`, target: byName.get(name) ?? null }))
+    const relative = [...text.matchAll(MD_LINK)]
+      .map(m => m[1]!)
+      .filter(target => !/^[a-z]+:\/\//i.test(target))
+      .map(target => {
+        const path = normalize(join(dirname(page), target))
+        return { link: target, target: existsSync(join(this.dir, path)) ? path : null }
+      })
+    return [...named, ...relative]
   }
 
   /**

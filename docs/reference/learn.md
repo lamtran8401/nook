@@ -57,6 +57,10 @@ The course argument can go when the desk has one course.
 | `nook learn score add [course] --task <name> --criterion <name> --band <n> --evidence <words>` | logs a score on one criterion, with the owner's words that it rests on |
 | `nook learn study add [course] --topic <text> --page <path>` | logs a topic, with its page in the wiki |
 
+## Read path
+
+`readLearn(desk, today)` in `packages/learn/src/read.ts` gives the web app each course with its cards due, its top 5 patterns, and the bands of each criterion in date order. It writes nothing.
+
 ## Skills and agent
 
 | Name | Who starts it | What it does |
