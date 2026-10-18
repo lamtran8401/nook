@@ -7,7 +7,7 @@ import { SecretPolicy } from '@nook/desk/secrets.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 import { ROLE_VAR } from '@nook/shared/names.ts'
 
-import { plainWords } from './shell.ts'
+import { commandNames, plainWords } from './shell.ts'
 
 /** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside a desk they do nothing. */
 
@@ -24,15 +24,20 @@ export function readGuard(input: HookInput): HookResult {
 
 /** PreToolUse Bash: no secret, no state database, no role set by a command. */
 const ROLE_SET = new RegExp(`\\b${ROLE_VAR}\\s*=`)
+const STATE_DB = /(^|\/)\.nook\/.*\.db/
+const SQLITE = /(^|\/)sqlite3?$/
 
 export function bashGuard(input: HookInput): HookResult {
   if (!inDesk(input)) return pass
   const policy = new SecretPolicy(cwdOf(input))
-  const { plain, words } = plainWords(String(input.tool_input?.command ?? ''))
+  const command = String(input.tool_input?.command ?? '')
+  const { plain, words } = plainWords(command)
   for (const word of words) {
     const problem = policy.wordProblem(word)
     if (problem) return block(problem)
   }
+  if (words.some(w => STATE_DB.test(w)) || commandNames(command).some(name => SQLITE.test(name)))
+    return block('the state databases are not for the shell: use the nook commands.')
   const listed = policy.listedIn(plain)
   if (listed) return block(`the command names ${listed}, a secret of nook.yml.`)
   if (ROLE_SET.test(plain) || /env\s+-u\s+CLAUDECODE/.test(plain)) return block('the role of an agent is set by nook, not by a command.')

@@ -109,6 +109,8 @@ The secret files, the same for the read, shell and edit guards:
 
 The list lives in `packages/desk/src/secrets.ts`, so the guards and the read paths of every pack use the same one.
 
+The shell guard blocks a state database in two ways: a word that names a `.db` file under `.nook/`, and a command whose program is the SQLite shell, also after `sudo` or `env`. A command that only names SQLite as text, such as a search pattern, passes.
+
 The gate hook:
 
 - `/gate` alone lists the owner moves that wait.

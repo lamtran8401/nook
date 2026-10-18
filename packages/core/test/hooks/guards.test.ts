@@ -48,8 +48,12 @@ describe('bashGuard', () => {
     command => expect(bash(command)).toBe('pass'),
   )
 
-  test.each(['sqlite3 .nook/engineering.db', 'cat .nook/x.db'])('blocks a command on a state database: %s', command => {
+  test.each(['sqlite3 .nook/engineering.db', 'cat .nook/x.db', 'cd db && sqlite3 a.db', '/usr/bin/sqlite3 a.db', 'X=1 sqlite3 a.db', 'sudo sqlite a.db', 'echo .q | sqlite3 a.db'])('blocks a command on a state database: %s', command => {
     expect(bash(command)).toBe('block')
+  })
+
+  test.each(['grep -rn "bun:sqlite" src', 'grep -n "sqlite interface\\|command runner" docs/plan.md', "grep -e 'x|sqlite' f", 'echo sqlite'])('lets a command that only names sqlite as text pass: %s', command => {
+    expect(bash(command)).toBe('pass')
   })
 
   test.each(['NOOK_ROLE=owner nook eng item approve A-1', 'NOOK_ACTOR=x nook doctor', 'env -u CLAUDECODE nook doctor'])('blocks a command that sets a role: %s', command => {

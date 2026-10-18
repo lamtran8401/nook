@@ -35,7 +35,6 @@ export class SecretPolicy {
   wordProblem(word: string): string | null {
     if (namesEnvFile(word)) return `the command names ${word}: Nook does not read or write secrets.`
     if (/(^|\/)\.npmrc$/.test(word) || SECRET_DIR.test(word)) return `the command touches ${word}: Nook does not read secrets.`
-    if (/(^|\/)\.nook\/.*\.db/.test(word) || /^sqlite3?$/.test(word)) return 'the state databases are not for the shell: use the nook commands.'
     return null
   }
 
