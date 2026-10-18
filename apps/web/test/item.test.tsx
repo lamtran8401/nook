@@ -7,6 +7,7 @@ import type { Slice } from '@nook/engineering/stores/slices.ts'
 
 import { Branches } from '../components/item/Branches.tsx'
 import { DocTab } from '../components/item/DocTab.tsx'
+import { ItemDialog } from '../components/item/ItemDialog.tsx'
 import { ItemHeader } from '../components/item/ItemHeader.tsx'
 import { ItemPage, tabOf } from '../components/item/ItemPage.tsx'
 import { NeedsYou } from '../components/item/NeedsYou.tsx'
@@ -190,5 +191,19 @@ describe('ItemPage', () => {
 
   test('takes an unknown tab as the Overview', () => {
     expect([tabOf('plan'), tabOf('secrets'), tabOf(undefined)]).toEqual(['plan', 'overview', 'overview'])
+  })
+})
+
+describe('ItemDialog', () => {
+  test('shows the head, the criteria, the slices and the last events, newest first, with the link to the full page', () => {
+    const markup = html(<ItemDialog view={view} />)
+    expect(markup).toContain('<a class="bn-btn" data-variant="primary" href="/works/SHOP-42" target="_blank" rel="noopener">Open in new tab</a>')
+    expect(text(markup)).toBe(
+      'SHOP-42 Pay for an order with a saved card cooking feature size L api web ' +
+        'Criteria AC1 met A saved card pays in one click. api test passes AC2 open A decline shows the reason. ' +
+        'Slices T1 slice T1 done T7 slice T7 waiting T9 slice T9 failed T10 slice T10 todo ' +
+        'Last events 16 Oct 11:12 The lead asked or answered a question · Q3 15 Oct 16:30 The lead ran the checks · 1/2 checks passed 15 Oct 09:40 You approved the plan ' +
+        'Open in new tab',
+    )
   })
 })

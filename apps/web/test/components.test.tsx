@@ -49,6 +49,12 @@ describe('Criteria', () => {
     )
     expect(text(markup)).toBe('AC1 met The filter lists the 5 statuses. api test passes AC2 open An empty filter shows every shipment.')
   })
+
+  test('draws the tag that the ledger keeps before a criterion as a badge', () => {
+    const markup = html(<Criteria criteria={[{ item: 'SHOP-12', n: 1, text: '[ADD] the export has the right date', done: false, evidence: null, grade: null, by: null, at: null }]} />)
+    expect(markup).toContain('<span class="bn-badge" data-tone="success">ADD</span>')
+    expect(text(markup)).toBe('AC1 ADD open the export has the right date')
+  })
 })
 
 describe('Diagram', () => {

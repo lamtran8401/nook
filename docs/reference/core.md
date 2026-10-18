@@ -69,7 +69,7 @@ Each page of the web app reads the desk when the browser asks for it. A gap of t
 | Page | It shows |
 |---|---|
 | `/` | the parts of `nook brief`: what waits, with each gap of `nook doctor` on top, then what is done and what runs |
-| `/works` | the board: one column for each state that holds an item |
+| `/works` | the board: one column for each state that holds an item; a click on a card opens the item in a dialog over the board, with its criteria, slices, last events and the link Open in new tab |
 | `/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document |
 
 The Overview of an item gives the states of the flow with their times, the next step and its owner, four numbers, Needs you, the slices on a board, the branch and checks of each area, and the events. Needs you lists the blocking questions first, then the open questions, the guesses to check and the gate. A document tab renders its file block by block; a document not written yet names the command that writes it, such as `/view SHOP-12` for the walkthrough. Each tab has its own address, such as `/works/SHOP-12?tab=plan`.

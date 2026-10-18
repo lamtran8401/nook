@@ -7,13 +7,13 @@ import type { Block, Source } from '../../lib/blocks.ts'
 import { capitalized } from '../../lib/inline.ts'
 import { Alert, PANEL } from '../Alert.tsx'
 import { Diagram } from '../Diagram.tsx'
+import { CRITERION_TONE } from '../tones.ts'
 import { Inline } from './Inline.tsx'
 
 /** One Bench template for each kind of block. The context brings what the ledger knows, such as the state of each criterion. */
 
 export type DocContext = { criteria?: Criterion[] }
 
-const KIND_TONE: Record<string, string> = { ADD: 'success', CHANGE: 'primary', REMOVE: 'danger', NONE: 'neutral' }
 const LEVEL_TONE: Record<string, string> = { low: 'neutral', med: 'warning', high: 'danger' }
 
 function SourceBadge({ source }: { source: Source }) {
@@ -100,7 +100,7 @@ function BlockView({ block, context }: { block: Block; context: DocContext }) {
               <span className="bn-records__id">AC{item.n}</span>
               <div>
                 <div className="bn-records__head">
-                  {item.tag ? <span className="bn-badge" data-tone={KIND_TONE[item.tag]}>{item.tag}</span> : null}
+                  {item.tag ? <span className="bn-badge" data-tone={CRITERION_TONE[item.tag]}>{item.tag}</span> : null}
                   {item.refs.length ? <span className="bn-records__meta">{item.refs.join(', ')}</span> : null}
                   {state ? <span className="bn-badge bn-records__state" data-variant="solid" data-tone={state.done ? 'success' : 'neutral'}>{state.done ? 'met' : 'open'}</span> : null}
                 </div>

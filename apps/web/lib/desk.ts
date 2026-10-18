@@ -32,4 +32,5 @@ const MODULES = [engineeringModule, wikiModule, learnModule]
 
 export const home = (): HomeView => readHome(deskDir(), MODULES)
 export const board = (): BoardCard[] => readBoard(deskDir())
-export const item = (id: string): { view: ItemView; docs: ItemDocs } => ({ view: readItem(deskDir(), id), docs: readDocs(deskDir(), id) })
+export const itemView = (id: string): ItemView => readItem(deskDir(), id)
+export const item = (id: string): { view: ItemView; docs: ItemDocs } => ({ view: itemView(id), docs: readDocs(deskDir(), id) })

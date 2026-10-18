@@ -1,9 +1,11 @@
+import Link from 'next/link'
+
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 
-/** One item on the board: a link to its page. */
+/** One item on the board: a link that opens the item in a dialog over the board; a reload opens its full page. */
 export function ItemCard({ card }: { card: BoardCard }) {
   return (
-    <a className="bn-card nk-card" href={`/works/${card.id}`} data-item={card.id}>
+    <Link className="bn-card nk-card" href={`/works/${card.id}`} data-item={card.id}>
       <span className="nk-card__id">{card.id}</span>
       <span className="nk-card__title">{card.title}</span>
       <span className="nk-chips">
@@ -16,6 +18,6 @@ export function ItemCard({ card }: { card: BoardCard }) {
       <span className="nk-card__criteria">
         {card.criteria.total ? `${card.criteria.met}/${card.criteria.total} criteria` : 'no criteria yet'}
       </span>
-    </a>
+    </Link>
   )
 }

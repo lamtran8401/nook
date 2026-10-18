@@ -1,6 +1,9 @@
 import type { Block, Source } from './blocks.ts'
 import { capitalized, type Inline, plainText, splitSentence, takePrefix, takeSuffix } from './inline.ts'
 
+/** The tag before a criterion, such as `[ADD]`, in a spec and in the ledger. */
+export const CRITERION_TAG = /^\[(ADD|CHANGE|REMOVE|NONE)\]\s*/
+
 /**
  * The heading rules: the first list under a known heading of a document becomes the block of that heading, as the item
  * page shows it. A quote that opens with In short or Need to know is a callout, and `None: a, b.` names the kinds with
@@ -47,7 +50,7 @@ const RULES: Record<string, (list: ListBlock) => Block> = {
   'Acceptance criteria': list => ({
     kind: 'criteria',
     items: itemWords(list).map((content, i) => {
-      const tagged = takePrefix(content, /^\[(ADD|CHANGE|REMOVE|NONE)\]\s*/)
+      const tagged = takePrefix(content, CRITERION_TAG)
       const { words, refs } = withRefs(tagged.rest)
       return { n: i + 1, tag: tagged.found?.[1] ?? '', content: words, refs: refs ? refs.split(/,\s*/) : [] }
     }),

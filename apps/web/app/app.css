@@ -54,3 +54,14 @@ body { margin: 0; background: var(--bg); color: var(--fg); }
 .nk-doc__meta { margin: 0; font: 400 12px/18px var(--font-mono); color: var(--fg-muted); }
 .nk-doc__title { margin: 0; font: 700 24px/32px var(--font-sans); letter-spacing: -.01em; }
 @media (max-width: 760px) { .nk-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.nk-dialog { width: min(720px, calc(100vw - 32px)); position: relative; }
+.nk-dialog__close { all: unset; position: absolute; top: 14px; right: 16px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: var(--radius-full); font-size: 20px; color: var(--fg-muted); cursor: pointer; }
+.nk-dialog__close:hover { background: var(--bg-muted); color: var(--fg); }
+.nk-dialog .bn-actions__group { margin: 4px 0 -6px; }
+.nk-head__kicker { margin: 0 0 2px; font: 600 12px/16px var(--font-mono); color: var(--fg-muted); }
+.nk-dialog .nk-chips { margin-top: 10px; }
+.nk-slices, .nk-events { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14px; line-height: 20px; }
+.nk-slices li { display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; align-items: center; }
+.nk-slices__id, .nk-events__at { font: 500 12px/18px var(--font-mono); color: var(--fg-muted); }
+.nk-events li { display: grid; grid-template-columns: 110px 1fr; gap: 10px; }
+.nk-events small { color: var(--fg-muted); font-size: 13px; }

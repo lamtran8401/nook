@@ -37,6 +37,11 @@ const cookie = String(login.headers['set-cookie'] ?? '').split(';')[0] ?? ''
 const home = await call(handler, '/', { cookie })
 const page = await call(handler, '/works', { cookie })
 const item = await call(handler, '/works/SHOP-12?tab=walkthrough', { cookie })
+// the request of the client router after a click on a card of the board: Next renders the dialog slot
+const routerHeaders = { cookie, rsc: '1', 'next-url': '/works' }
+const asked = await call(handler, '/works/SHOP-12', routerHeaders)
+// Next sends the router to the same address with the cache key of these headers first
+const dialog = asked.status === 307 ? await call(handler, String(asked.headers.location), routerHeaders) : asked
 const stranger = await call(handler, '/', {})
-console.log(JSON.stringify({ login: { status: login.status, location: login.headers.location, cookie }, home: { status: home.status, body: home.body }, page: { status: page.status, body: page.body }, item: { status: item.status, body: item.body }, stranger: { status: stranger.status } }))
+console.log(JSON.stringify({ login: { status: login.status, location: login.headers.location, cookie }, home: { status: home.status, body: home.body }, page: { status: page.status, body: page.body }, item: { status: item.status, body: item.body }, dialog: { status: dialog.status, body: dialog.body }, stranger: { status: stranger.status } }))
 process.exit(0)
