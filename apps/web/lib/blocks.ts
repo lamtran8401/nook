@@ -1,4 +1,4 @@
-import type { RootContent } from 'mdast'
+import type { PhrasingContent, RootContent } from 'mdast'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import { unified } from 'unified'
@@ -45,8 +45,11 @@ export type Block =
 /** Where a rule or a criterion comes from, such as Q2, or G5 with its impact. */
 export type Source = { text: string; level?: 'low' | 'med' | 'high' }
 export type Doc = { meta: Record<string, string>; title: string; blocks: Block[] }
-/** `places` are words such as the areas of an item: before a colon in a flowchart node they become its kicker. */
-export type DocOptions = { places?: string[] }
+/**
+ * `places` are words such as the areas of an item: before a colon in a flowchart node they become its kicker.
+ * `links` gives the address of each `[[name]]` that the page links to, such as `/wiki/resources/orders-api.md`.
+ */
+export type DocOptions = { places?: string[]; links?: Record<string, string> }
 
 const PANELS: readonly string[] = ['info', 'note', 'success', 'warning', 'error']
 const OPEN = /^:::\s*([a-z][\w-]*)\s*(.*)$/
@@ -104,14 +107,14 @@ function closingLine(lines: string[], open: number): number {
   return lines.length
 }
 
-function blocksOf(text: string, first: number, places: string[]): Block[] {
+function blocksOf(text: string, first: number, options: DocOptions): Block[] {
   return segments(text.split('\n'), first).flatMap(segment =>
-    segment.kind === 'markdown' ? markdownBlocks(segment.text, segment.line, places) : directiveBlocks(segment, places),
+    segment.kind === 'markdown' ? markdownBlocks(segment.text, segment.line, options) : directiveBlocks(segment, options),
   )
 }
 
-function directiveBlocks(d: Extract<Segment, { kind: 'directive' }>, places: string[]): Block[] {
-  const inner = () => blocksOf(d.body, d.line + 1, places)
+function directiveBlocks(d: Extract<Segment, { kind: 'directive' }>, options: DocOptions): Block[] {
+  const inner = () => blocksOf(d.body, d.line + 1, options)
   const block: Block = PANELS.includes(d.name)
     ? { kind: 'panel', tone: d.name as PanelTone, blocks: inner() }
     : d.name === 'decision'
@@ -134,12 +137,39 @@ function splitOnDividers(blocks: Block[]): Block[][] {
   return columns
 }
 
-function markdownBlocks(text: string, first: number, places: string[]): Block[] {
-  return markdown.parse(text).children.flatMap(node => nodeBlocks(node, first - 1, places))
+function markdownBlocks(text: string, first: number, options: DocOptions): Block[] {
+  const tree = markdown.parse(text)
+  if (options.links) linkNames(tree, options.links)
+  return tree.children.flatMap(node => nodeBlocks(node, first - 1, options))
+}
+
+const WIKI_NAME = /\[\[([^\]|#]+)(?:\|([^\]]+))?\]\]/g
+
+/** Each `[[name]]` or `[[name|words]]` with a known address becomes a link; a name with none stays as it is written. */
+function linkNames(node: { children?: unknown[] }, links: Record<string, string>): void {
+  if (!node.children) return
+  node.children = node.children.flatMap(child => {
+    const text = child as { type: string; value?: string }
+    if (text.type !== 'text' || !text.value?.includes('[[')) {
+      linkNames(child as { children?: unknown[] }, links)
+      return [child]
+    }
+    const parts: PhrasingContent[] = []
+    let at = 0
+    for (const m of text.value.matchAll(WIKI_NAME)) {
+      const url = links[m[1]!.trim()]
+      if (!url) continue
+      if (m.index > at) parts.push({ type: 'text', value: text.value.slice(at, m.index) })
+      parts.push({ type: 'link', url, children: [{ type: 'text', value: m[2]?.trim() ?? m[1]!.trim() }] })
+      at = m.index + m[0].length
+    }
+    if (at < text.value.length) parts.push({ type: 'text', value: text.value.slice(at) })
+    return parts
+  })
 }
 
 /** One mdast node as blocks; `base` turns a line of the parsed text into a line of the file. */
-function nodeBlocks(node: RootContent, base: number, places: string[]): Block[] {
+function nodeBlocks(node: RootContent, base: number, options: DocOptions): Block[] {
   const line = base + (node.position?.start.line ?? 1)
   switch (node.type) {
     case 'heading':
@@ -149,9 +179,9 @@ function nodeBlocks(node: RootContent, base: number, places: string[]): Block[] 
     case 'thematicBreak':
       return [{ kind: 'divider' }]
     case 'blockquote':
-      return [{ kind: 'quote', blocks: node.children.flatMap(child => nodeBlocks(child, base, places)) }]
+      return [{ kind: 'quote', blocks: node.children.flatMap(child => nodeBlocks(child, base, options)) }]
     case 'list': {
-      const items = node.children.map(item => ({ checked: item.checked, blocks: item.children.flatMap(child => nodeBlocks(child, base, places)) }))
+      const items = node.children.map(item => ({ checked: item.checked, blocks: item.children.flatMap(child => nodeBlocks(child, base, options)) }))
       if (items.every(item => typeof item.checked === 'boolean')) return [{ kind: 'tasks', items: items.map(item => ({ checked: item.checked === true, blocks: item.blocks })) }]
       return [{ kind: 'list', ordered: node.ordered === true, start: node.start ?? 1, items: items.map(item => item.blocks) }]
     }
@@ -160,7 +190,7 @@ function nodeBlocks(node: RootContent, base: number, places: string[]): Block[] 
       return [{ kind: 'table', align: node.align ?? [], head: head ?? [], rows }]
     }
     case 'code':
-      return [codeBlock(node.lang ?? null, node.value, line, places)]
+      return [codeBlock(node.lang ?? null, node.value, line, options.places ?? [])]
     case 'html':
       // raw HTML never reaches the page: it shows as the text that the agent wrote
       return [{ kind: 'paragraph', content: [{ type: 'text', value: node.value }] }]
@@ -196,7 +226,7 @@ function frontMatter(text: string): { meta: Record<string, string>; body: string
 
 export function parseDoc(text: string, options: DocOptions = {}): Doc {
   const { meta, body, first } = frontMatter(text)
-  const blocks = blocksOf(body, first, options.places ?? [])
+  const blocks = blocksOf(body, first, options)
   const head = blocks[0]
   if (head?.kind === 'heading' && head.depth === 1) return { meta, title: plainText(head.content), blocks: applyRules(blocks.slice(1)) }
   return { meta, title: '', blocks: applyRules(blocks) }

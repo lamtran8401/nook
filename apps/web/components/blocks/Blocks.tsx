@@ -55,7 +55,7 @@ function BlockView({ block, context }: { block: Block; context: DocContext }) {
     .with({ kind: 'code' }, b => (
       <figure className="bn-code">
         {b.lang ? <div className="bn-code__head"><span>{b.lang}</span></div> : null}
-        <pre><code>{b.text}</code></pre>
+        <pre><code>{b.text.replace(/\n$/, '').split('\n').map((line, i) => <span className="ln" key={i}>{line}{'\n'}</span>)}</code></pre>
       </figure>
     ))
     .with({ kind: 'diagram' }, b =>

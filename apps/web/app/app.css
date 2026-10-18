@@ -79,3 +79,7 @@ body { margin: 0; background: var(--bg); color: var(--fg); }
 .nk-emptystate__body { margin: 0; font-size: 14px; line-height: 21px; color: var(--fg-muted); }
 .nk-emptystate[data-size="compact"] { flex-direction: row; align-items: center; gap: 14px; padding: 14px 18px; text-align: left; }
 .nk-emptystate[data-size="compact"] .nk-emptystate__icon { width: 36px; height: 36px; border-radius: 10px; }
+.nk-muted { margin: -6px 0 0; font-size: 14px; color: var(--fg-muted); }
+.nk-h2 a, .nk-records a { color: inherit; text-decoration: none; }
+.nk-h2 a:hover, .nk-records a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.nk-page { max-width: 920px; width: 100%; margin: 0 auto; }

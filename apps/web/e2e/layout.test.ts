@@ -27,11 +27,12 @@ const inner = (block: Block): Block[] =>
   'blocks' in block ? block.blocks : block.kind === 'list' ? block.items.flat() : block.kind === 'columns' ? block.columns.flat() : block.kind === 'tasks' ? block.items.flatMap(item => item.blocks) : []
 const specsOf = (blocks: Block[]): object[] => blocks.flatMap(block => (block.kind === 'diagram' ? [block.spec] : specsOf(inner(block))))
 
-/** Each drawn fence (mermaid, tree, bench) of the Markdown under docs/ and plugins/, as the web app draws it. */
+/** Each drawn fence (mermaid, tree, bench) of the Markdown under docs/, plugins/ and the demo desk, as the web app draws it. */
 function fenceDiagrams(): Diagram[] {
-  return ['docs', 'plugins'].flatMap(top =>
+  return ['docs', 'plugins', 'scripts/demo'].flatMap(top =>
     readdirSync(join(repo, top), { recursive: true, encoding: 'utf8' })
       .filter(rel => rel.endsWith('.md'))
+      .sort()
       .flatMap(rel => specsOf(parseDoc(readFileSync(join(repo, top, rel), 'utf8')).blocks).map((spec, i) => ({ name: `${top}/${rel} ${i + 1}`, spec }))),
   )
 }
@@ -89,10 +90,14 @@ describe('the diagrams of Bench', () => {
     expect(layoutFaults(specs)).toEqual([])
   })
 
-  test('each diagram of the docs draws the same way: the drawn fences and the figures of the two doc pages', () => {
+  test('each diagram of the docs draws the same way: the drawn fences, the demo desk and the figures of the two doc pages', () => {
     const diagrams = [...fenceDiagrams(), ...pageDiagrams()]
     const sources = new Set(diagrams.map(d => d.name.replace(/ \d+(:.*)?$/, '')))
-    expect([...sources]).toEqual(['docs/plan/v0.3.md', 'plugins/engineering/skills/write-walkthrough/parts.md', 'plugins/engineering/skills/write-plan/sections.md', 'the guide page', 'the report page'])
+    expect([...sources]).toEqual([
+      'docs/plan/v0.3.md', 'plugins/engineering/skills/write-plan/sections.md', 'plugins/engineering/skills/write-walkthrough/parts.md',
+      'scripts/demo/items/SHOP-41/walkthrough.md', 'scripts/demo/items/SHOP-42/plan.md', 'scripts/demo/items/SHOP-43/plan.md', 'scripts/demo/items/SHOP-44/walkthrough.md',
+      'the guide page', 'the report page',
+    ])
     expect(layoutFaults(diagrams)).toEqual([])
   })
 })

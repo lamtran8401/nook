@@ -24,7 +24,9 @@ describe('Blocks', () => {
 
   test('renders a quote and a code block with their Bench components', () => {
     expect(render('> Ship it.\n')).toBe('<figure class="bn-quote"><blockquote><p>Ship it.</p></blockquote></figure>')
-    expect(render('```ts\nconst a = 1 < 2\n```\n')).toBe('<figure class="bn-code"><div class="bn-code__head"><span>ts</span></div><pre><code>const a = 1 &lt; 2</code></pre></figure>')
+    expect(render('```ts\nconst a = 1 < 2\nconst b = 3\n```\n')).toBe(
+      '<figure class="bn-code"><div class="bn-code__head"><span>ts</span></div><pre><code><span class="ln">const a = 1 &lt; 2\n</span><span class="ln">const b = 3\n</span></code></pre></figure>',
+    )
   })
 
   test('renders each panel as an alert of its tone, and a decision with its mark', () => {
