@@ -44,8 +44,10 @@ describe('the web app', () => {
     expect(answer.login.cookie).toMatch(/^nook_session_4321=.+/)
     expect(answer.page.status).toBe(200)
     const html = String(answer.page.body).replaceAll('<!-- -->', '')
-    expect(html).toContain('<li data-item="SHOP-12">SHOP-12 · backlog · Filter shipments by status</li>')
-    expect(html).toMatch(/<p data-runtime="true">node v\d+/)
+    expect(html).toContain('href="/works/SHOP-12" data-item="SHOP-12"')
+    expect(html).toContain('<span class="nk-card__title">Filter shipments by status</span>')
+    expect(html).toContain('<section class="nk-col" data-state="backlog">')
+    expect(html).toContain('<a href="/works">Works</a>')
     expect(answer.stranger.status).toBe(401)
   })
 

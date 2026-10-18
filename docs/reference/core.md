@@ -191,6 +191,19 @@ Only the owner starts these skills.
 
 `plugins/core/ui/bench/` holds the Bench design system: `tokens.json`, `bundle.css` and `bundle.js`. The pages that Nook builds, such as `nook eng item page`, put it inline. `SOURCE.md` names the source artifact and the version. Nook never edits these files.
 
+The web app uses the same files. Its layout puts the tokens and `bundle.css` inline and loads `bundle.js` at the end of the page. Its components in `apps/web/components/` render the `bn-*` markup with React:
+
+| Component | Shows |
+|---|---|
+| `Board`, `ItemCard` | one column for each state that holds an item, in the order of the flow; each card links to its item |
+| `ItemHeader` | the title, the chips and the next step, with the button when the step is the owner's |
+| `Criteria` | each criterion with its number, its state and its evidence |
+| `Diagram` | a Bench diagram from its spec |
+| `Gap` | a gap of the desk with its fix, in place of the data |
+| `TabLinks`, `PackNav` | Home, and a tab for each pack on in the desk that has a page |
+
+A component never uses `data-bn-diagram` or `data-bn-icon`: `bundle.js` changes those nodes at load, before React hydrates them. `Diagram` keeps its spec in `data-nook-diagram` and draws after hydration.
+
 ## 12. The repo
 
 ```

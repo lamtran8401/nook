@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "check": "bun run typecheck && bun run test",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p apps/web",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p apps/web && tsc --noEmit -p apps/web/tsconfig.test.json",
     "test": "bun test packages scripts apps/web/test --timeout 30000",
     "e2e": "bun test apps/web/e2e --timeout 600000",
     "pages": "bun scripts/pages/build.ts"

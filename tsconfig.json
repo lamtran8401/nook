@@ -14,6 +14,7 @@
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
+    "jsx": "react-jsx",
     "paths": {
       "@nook/shared/*": ["./packages/shared/src/*"],
       "@nook/desk/*": ["./packages/desk/src/*"],
@@ -23,5 +24,5 @@
       "@nook/learn/*": ["./packages/learn/src/*"]
     }
   },
-  "include": ["apps/*/src", "apps/web/e2e/*.test.ts", "apps/web/test", "packages/*/src", "packages/*/test", "scripts"]
+  "include": ["apps/*/src", "packages/*/src", "packages/*/test", "scripts"]
 }

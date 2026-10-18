@@ -1,4 +1,5 @@
 import { createServer } from 'node:http'
+import { join } from 'node:path'
 
 import { createHandler } from './lib/handler.ts'
 
@@ -17,6 +18,8 @@ function firstLine(stream: NodeJS.ReadStream): Promise<string> {
   })
 }
 
+// the packages find the Nook repo by this variable: in the bundle of Next.js a file has no folder of its own
+process.env.NOOK_PROJECT ??= join(import.meta.dirname, '..', '..')
 const port = Number(process.env.NOOK_WEB_PORT)
 if (!process.env.NOOK_DESK || !port) throw new Error('start the web app with `nook web`')
 const token = await firstLine(process.stdin)

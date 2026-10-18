@@ -28,6 +28,8 @@ async function call(handler: WebHandler, url: string, headers: Record<string, st
   return { status: res.statusCode, headers: res.getHeaders(), body: Buffer.concat(chunks).toString('utf8') }
 }
 
+// the packages find the Nook repo by this variable: in the bundle of Next.js a file has no folder of its own
+process.env.NOOK_PROJECT ??= join(import.meta.dirname, '..', '..', '..')
 const token = process.argv[2] ?? ''
 const handler = await createHandler({ dir: join(import.meta.dirname, '..'), port: PORT, token })
 const login = await call(handler, `/?t=${token}`, {})
