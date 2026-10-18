@@ -283,7 +283,7 @@
     return root;
   }
 
-  window.Bench = { version: '6.2.0', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
+  window.Bench = { version: '6.3.0', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(document); });
   else init(document);
 })();
@@ -534,6 +534,150 @@
       case 'zero-many': crow(); ring(20); break
       case 'zero-one': bar(8); ring(16); break
     }
+  }
+
+  /* ---------- layout: a graph with no places gets them from its lines ---------- */
+  /* rows by the longest path from a source, ordered so fewer lines cross, a child under the middle of its parents;
+     with groups that list their nodes, each group is one column */
+  var GROUP_ICON = [[/browser|client|page/i, 'monitor'], [/worker|job|queue/i, 'cog'], [/provider|external|third/i, 'cloud'], [/data|db|store/i, 'database'], [/backend|server|api|shop/i, 'server']]
+  function layoutGraph(spec) {
+    var free = spec.nodes.filter(function (n) { return !n.at }).length
+    if (!free) return spec
+    if (free < spec.nodes.length) throw new Error('give every node a place, or none')
+    var edges = spec.edges || []
+    var ranked = rankRows(spec.nodes, edges)
+    var grouped = (spec.groups || []).some(function (g) { return g.nodes })
+    return grouped ? bandLayout(spec, ranked, edges) : gridLayout(spec, ranked, edges)
+  }
+  function rankRows(nodes, edges) {
+    var rank = {}
+    nodes.forEach(function (n) { rank[n.id] = 0 })
+    for (var pass = 0; pass < nodes.length; pass++) edges.forEach(function (e) { if (e.from in rank && e.to in rank) rank[e.to] = Math.max(rank[e.to], rank[e.from] + 1) })
+    /* a source sits one row above its first child */
+    nodes.forEach(function (n) {
+      if (edges.some(function (e) { return e.to === n.id })) return
+      var down = edges.filter(function (e) { return e.from === n.id && e.to in rank }).map(function (e) { return rank[e.to] })
+      if (down.length) rank[n.id] = Math.max(0, Math.min.apply(null, down) - 1)
+    })
+    var rows = []
+    nodes.forEach(function (n) { (rows[rank[n.id]] = rows[rank[n.id]] || []).push(n) })
+    rows = rows.filter(Boolean)
+    var place = {}
+    var setPlaces = function () { rows.forEach(function (row) { row.forEach(function (n, i) { place[n.id] = (i + 0.5) / row.length }) }) }
+    var near = function (id, up) { return edges.filter(function (e) { return up ? e.to === id : e.from === id }).map(function (e) { return place[up ? e.from : e.to] }).filter(function (p) { return p != null }) }
+    /* the mean place of the neighbours on one side; a node with none there takes the other side */
+    var mean = function (id, up) {
+      var list = near(id, up).length ? near(id, up) : near(id, !up)
+      return list.length ? list.reduce(function (a, b) { return a + b }, 0) / list.length : place[id]
+    }
+    setPlaces()
+    for (var sweep = 0; sweep < 4; sweep++) {
+      var up = sweep % 2 === 0
+      rows.forEach(function (row, r) {
+        if (up && r === 0) return
+        row.sort(function (x, y) { return mean(x.id, up) - mean(y.id, up) })
+        setPlaces()
+      })
+    }
+    var rowOf = {}
+    rows.forEach(function (row, r) { row.forEach(function (n) { rowOf[n.id] = r }) })
+    return { rows: rows, rowOf: rowOf }
+  }
+  function gridLayout(spec, ranked, edges) {
+    var rows = ranked.rows, width = Math.max.apply(null, rows.map(function (r) { return r.length }))
+    var cols = width * 2, start = {}
+    /* each node spans two columns; a node with parents starts under their middle, then the row is pushed apart */
+    rows.forEach(function (row) {
+      var at = row.map(function (n, i) {
+        var parents = edges.filter(function (e) { return e.to === n.id && e.from in start }).map(function (e) { return start[e.from] })
+        var wanted = parents.length ? Math.round(parents.reduce(function (a, b) { return a + b }, 0) / parents.length) : width - row.length + 2 * i + 1
+        return Math.min(Math.max(wanted, 1), cols - 1)
+      })
+      for (var i = 1; i < at.length; i++) at[i] = Math.max(at[i], at[i - 1] + 2)
+      for (var j = at.length - 1; j >= 0; j--) at[j] = Math.min(at[j], j === at.length - 1 ? cols - 1 : at[j + 1] - 2)
+      row.forEach(function (n, k) { start[n.id] = at[k] })
+    })
+    var down = function (e) { return ranked.rowOf[e.to] > ranked.rowOf[e.from] }
+    var fanOut = function (id) { return edges.filter(function (e) { return e.from === id && down(e) }).length >= 2 }
+    var nodes = spec.nodes.map(function (n) { return Object.assign({ w: 180 }, n, { at: [ranked.rowOf[n.id] + 1, start[n.id]], span: [1, 2] }) })
+    var lines = edges.map(function (e) { return down(e) ? Object.assign({ a: 'b', b: 't' }, fanOut(e.from) ? { split: true } : {}, e) : e })
+    /* a split with labels needs a long last leg, so each label sits on its own line */
+    var rowGap = edges.some(function (e) { return e.label && fanOut(e.from) }) ? 84 : edges.some(function (e) { return fanOut(e.from) }) ? 64 : 46
+    return Object.assign({}, spec, { cols: cols, colGap: spec.colGap == null ? 6 : spec.colGap, rowGap: spec.rowGap == null ? rowGap : spec.rowGap, nodes: nodes, edges: lines })
+  }
+  /* the column of each band: the order where no line between two bands meets a node of a band between them, then the
+     shortest lines, then the order of the source; up to 7 bands each order is tried */
+  function bandColumns(nodes, edges, bandOf, row, count) {
+    var cost = function (order) {
+      var col = {}
+      order.forEach(function (b, i) { col[b] = i })
+      var met = 0, length = 0
+      edges.forEach(function (e) {
+        var a = col[bandOf[e.from]], z = col[bandOf[e.to]]
+        if (a === z) return
+        length += Math.abs(a - z)
+        var lo = Math.min(row[e.from], row[e.to]), hi = Math.max(row[e.from], row[e.to])
+        met += nodes.filter(function (n) { var c = col[bandOf[n.id]]; return c > Math.min(a, z) && c < Math.max(a, z) && row[n.id] >= lo && row[n.id] <= hi }).length
+      })
+      return met * 1000 + length
+    }
+    var first = []
+    for (var b = 0; b < count; b++) first.push(b)
+    var best = first, bestCost = cost(first)
+    if (count <= 7) permute(first, function (order) {
+      var c = cost(order)
+      if (c < bestCost) { best = order.slice(); bestCost = c }
+    })
+    var col = {}
+    best.forEach(function (band, i) { col[band] = i })
+    return col
+  }
+  function permute(items, visit) {
+    var walk = function (done, rest) {
+      if (!rest.length) return visit(done)
+      rest.forEach(function (item, i) { walk(done.concat([item]), rest.slice(0, i).concat(rest.slice(i + 1))) })
+    }
+    walk([], items)
+  }
+  function bandLayout(spec, ranked, edges) {
+    var groups = spec.groups.filter(function (g) { return g.nodes })
+    var bandOf = {}
+    groups.forEach(function (g, b) { g.nodes.forEach(function (id) { bandOf[id] = b }) })
+    /* nodes in no group take a first column of their own */
+    var loose = spec.nodes.some(function (n) { return !(n.id in bandOf) }) ? 1 : 0
+    spec.nodes.forEach(function (n) { bandOf[n.id] = n.id in bandOf ? bandOf[n.id] + loose : 0 })
+    /* in its column a node sits below the one before it, and never above a node of another column that it waits for */
+    var order = spec.nodes.slice().sort(function (x, y) { return ranked.rowOf[x.id] - ranked.rowOf[y.id] })
+    var row = {}, last = {}
+    order.forEach(function (n) {
+      var b = bandOf[n.id]
+      var waits = edges.filter(function (e) { return e.to === n.id && e.from in row }).map(function (e) { return row[e.from] + (bandOf[e.from] === b ? 1 : 0) })
+      row[n.id] = Math.max.apply(null, [last[b] == null ? 0 : last[b] + 1].concat(waits))
+      last[b] = row[n.id]
+    })
+    var col = bandColumns(spec.nodes, edges, bandOf, row, groups.length + loose)
+    var colOf = function (id) { return col[bandOf[id]] }
+    var nodes = spec.nodes.map(function (n) { return Object.assign({ w: 160 }, n, { at: [row[n.id] + 1, colOf(n.id) + 1], span: [1, 1] }) })
+    var boxes = groups.map(function (g, i) {
+      var b = i + loose, c = col[b] + 1, rs = spec.nodes.filter(function (n) { return bandOf[n.id] === b }).map(function (n) { return row[n.id] })
+      var icon = g.icon || (GROUP_ICON.filter(function (pair) { return pair[0].test(g.label) })[0] || [0, 'box'])[1]
+      var box = { label: g.label, icon: icon, at: [Math.min.apply(null, rs) + 1, c, Math.max.apply(null, rs) + 1, c], pad: g.pad == null ? 14 : g.pad }
+      if (g.tone) box.tone = g.tone
+      if (g.style) box.style = g.style
+      return box
+    }).filter(function (box) { return isFinite(box.at[0]) })
+    /* a line in a column goes down, or curves past rows on the side with fewer lines to other columns;
+       a line to another column uses the facing sides */
+    var crossTo = function (c, right) { return edges.filter(function (e) { var a = colOf(e.from), z = colOf(e.to); return (a === c && (right ? z > c : z < c)) || (z === c && (right ? a > c : a < c)) }).length }
+    var lines = edges.map(function (e) {
+      var from = colOf(e.from), to = colOf(e.to)
+      var curve = crossTo(from, true) > crossTo(from, false) ? 'l' : 'r'
+      var side = from === to
+        ? (row[e.to] - row[e.from] === 1 ? { a: 'b', b: 't' } : { a: curve, b: curve, route: 'curve', bend: 26 })
+        : { a: to > from ? 'r' : 'l', b: to > from ? 'l' : 'r' }
+      return Object.assign(side, e)
+    })
+    return Object.assign({}, spec, { cols: groups.length + loose, colGap: spec.colGap == null ? 44 : spec.colGap, rowGap: spec.rowGap == null ? 44 : spec.rowGap, pad: spec.pad || '40px 20px 20px', groups: boxes, nodes: nodes, edges: lines })
   }
 
   /* ---------- graph ---------- */
@@ -1761,6 +1905,7 @@
     if (!el || !spec) throw new Error('BenchDiagrams.render needs an element and a spec')
     var type = spec.type
     if (type !== 'graph' && !FIXED[type] && !SIZED[type]) throw new Error('unknown diagram type "' + type + '"')
+    if (type === 'graph') spec = layoutGraph(spec)
     if (el._bnDiagram) el._bnDiagram.stop()
     startTips()
     el.classList.add('dg')
@@ -1823,7 +1968,7 @@
     })
   }
 
-  window.BenchDiagrams = { render: render, mount: mount, scrollbars: enhanceScrolls, expand: function (el, mode) { el.classList.add('bn-expandable'); addExpand(el, mode || 'view', cloneInto(el), el.getAttribute('data-bn-expand-title')) } }
+  window.BenchDiagrams = { render: render, mount: mount, layout: layoutGraph, scrollbars: enhanceScrolls, expand: function (el, mode) { el.classList.add('bn-expandable'); addExpand(el, mode || 'view', cloneInto(el), el.getAttribute('data-bn-expand-title')) } }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { mount(document) })
   else mount(document)
 })();

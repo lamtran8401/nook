@@ -88,10 +88,10 @@ A graph puts nodes in a grid and draws the edges between them. Use it for a flow
 | Field | Default | Meaning |
 |---|---|---|
 | `type` | required | `"graph"` |
-| `cols` | required | A number of columns, or a CSS `grid-template-columns` value. |
+| `cols` | required with places | A number of columns, or a CSS `grid-template-columns` value. Bench sets it for a graph with no places. |
 | `nodes` | required | The boxes. |
 | `edges` | `[]` | The lines between the boxes. |
-| `groups` | `[]` | The dashed frames around a part of the grid. |
+| `groups` | `[]` | The dashed frames around a part of the grid: each with `at`, or with `nodes` in a graph with no places. |
 | `colGap` | `56` | The gap between columns, in px. The renderer multiplies it by 1.4. |
 | `rowGap` | `48` | The gap between rows, in px. The renderer multiplies it by 1.4. |
 | `rows` | none | A CSS `grid-template-rows` value. |
@@ -101,12 +101,29 @@ A graph puts nodes in a grid and draws the edges between them. Use it for a flow
 
 A column is wide enough for each edge label on it.
 
+### A graph with no places
+
+Give no node an `at`, and Bench lays the graph out from its edges. Give every node an `at`, or none; a mix is an error.
+
+- Each node takes the row of its longest path from a source, and a source sits one row above its first child.
+- Each row is ordered so that fewer edges cross, and a child sits under the middle of its parents.
+- Two or more edges down from one node share one stem, with more room when they have labels.
+- A group with `nodes`, such as `{ "label": "Shop backend", "nodes": ["api", "db"] }`, is one column. Its nodes stack in order, and a node never sits above a node of another column that it waits for.
+- The columns take the order where no edge between two groups meets a node of a group between them. An edge to another column leaves and enters by the facing sides.
+- A group with no `icon` takes one from its label: browser, worker, provider, data or backend.
+
+```json
+{ "type": "graph",
+  "nodes": [{ "id": "page", "title": "status select" }, { "id": "api", "title": "handler" }, { "id": "bad", "title": "400" }],
+  "edges": [{ "from": "page", "to": "api", "label": "status" }, { "from": "api", "to": "bad", "label": "unknown" }] }
+```
+
 ### Node
 
 | Field | Default | Meaning |
 |---|---|---|
 | `id` | required | The name that the edges use. |
-| `at` | required | `[row, column]`, from 1. |
+| `at` | required with places | `[row, column]`, from 1. Leave it out on every node for a graph that Bench lays out. |
 | `span` | `[1, 1]` | `[rows, columns]` that the node covers. |
 | `title` | none | The main text. |
 | `kicker` | none | A small label in capitals above the title. |
