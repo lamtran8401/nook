@@ -77,7 +77,18 @@ function BlockView({ block, context }: { block: Block; context: DocContext }) {
         <pre><code>{b.text}</code></pre>
       </figure>
     ))
-    .with({ kind: 'diagram' }, b => <Diagram spec={b.spec} />)
+    .with({ kind: 'diagram' }, b =>
+      b.legend ? (
+        <figure className="nk-figure">
+          <Diagram spec={b.spec} />
+          <figcaption>
+            <span className="bn-legend">{b.legend.map(([tone, label]) => <span data-tone={tone} key={label}>{label}</span>)}</span>
+          </figcaption>
+        </figure>
+      ) : (
+        <Diagram spec={b.spec} />
+      ),
+    )
     .with({ kind: 'panel' }, b => <Alert {...PANEL[b.tone]}><Blocks blocks={b.blocks} context={context} /></Alert>)
     .with({ kind: 'decision' }, b => <Alert tone="primary" icon="◆" label="Decision" kind="decision"><Blocks blocks={b.blocks} context={context} /></Alert>)
     .with({ kind: 'expand' }, b => (

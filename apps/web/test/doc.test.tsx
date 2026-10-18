@@ -108,3 +108,11 @@ describe('Blocks of the heading rules', () => {
     expect(markup).toStartWith('<article class="bn-task">')
   })
 })
+
+describe('a drawn fence', () => {
+  test('shows a flowchart with the legend of its roles under it', () => {
+    const markup = render('```mermaid\nflowchart TB\n  a["start"] --> b["the page (new)"]\n```\n')
+    expect(markup).toStartWith('<figure class="nk-figure"><div class="nk-diagram" data-nook-diagram=')
+    expect(markup).toEndWith('<figcaption><span class="bn-legend"><span data-tone="ink">start</span><span data-tone="success">new</span></span></figcaption></figure>')
+  })
+})

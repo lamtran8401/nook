@@ -216,7 +216,7 @@ A document becomes a page in two steps: `apps/web/lib/blocks.ts` turns its Markd
 | columns | `:::columns`, with `---` between the columns | Grid |
 | task list | `- [ ]` and `- [x]` | Checklist |
 | status, date | `{status:done}`, `{date:2026-10-18}` in a line | Badge, date chip |
-| diagram | a fence `bench` with a JSON spec | Diagram |
+| diagram | a fence `bench` with a JSON spec, a `mermaid` flowchart, sequenceDiagram or erDiagram, or a `tree` of files | Diagram |
 
 A `:::` block ends at a line with `:::` alone, and may hold another block. An unknown block, a broken `bench` block and an unclosed `:::` show as a warning that names the line. Raw HTML shows as text. A link to a site other than `http` or `https` shows as its words.
 
@@ -231,7 +231,9 @@ The first list under one of these headings follows the heading:
 | `## Out of scope`, `## Heads up`, `## Requirements met` | an out list, an alert of things to know, a met checklist |
 | `## T1: title` with `- key: value` lines | a task card |
 
-A quote that opens with `In short:` or `Need to know:` is a callout, and a line `None: Cache, Consistency.` gives the chips of no impact. A `mermaid` fence shows as code until Bench lays out a graph with no grid places.
+A quote that opens with `In short:` or `Need to know:` is a callout, and a line `None: Cache, Consistency.` gives the chips of no impact.
+
+A `mermaid` flowchart gives Bench the nodes and the edges with no places, and Bench lays the graph out. A node tagged `(new)`, `(changes)` or `(error)` takes the colour of that role, a first node with no tag is the start, and the legend names each role that the drawing uses. An area of the item before a colon, such as `web: the page`, is the kicker of the node. A `subgraph` is a group, one column. A `tree` fence lists files, two spaces for each level, each line as `name  state  note`. A mermaid kind with no drawing shows as a warning.
 
 A component never uses `data-bn-diagram` or `data-bn-icon`: `bundle.js` changes those nodes at load, before React hydrates them. `Diagram` keeps its spec in `data-nook-diagram` and draws after hydration.
 

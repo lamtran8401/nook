@@ -21,3 +21,5 @@ body { margin: 0; background: var(--bg); color: var(--fg); }
 .nk-head__title { margin: 0; font: 700 30px/38px var(--font-sans); letter-spacing: -.02em; text-wrap: balance; }
 .nk-diagram { min-width: 0; }
 .nk-none { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--fg-muted); font-size: 13px; }
+.nk-figure { margin: 0; display: grid; gap: 10px; }
+.nk-figure figcaption { display: flex; justify-content: center; }

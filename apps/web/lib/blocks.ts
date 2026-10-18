@@ -4,6 +4,7 @@ import remarkParse from 'remark-parse'
 import { unified } from 'unified'
 
 import type { DiagramSpec } from '../components/Diagram.tsx'
+import { fenceDrawing, type Legend } from './fences.ts'
 import { type Inline, plainText } from './inline.ts'
 import { applyRules } from './rules.ts'
 
@@ -24,7 +25,7 @@ export type Block =
   | { kind: 'table'; align: ('left' | 'right' | 'center' | null)[]; head: Inline[]; rows: Inline[][] }
   | { kind: 'quote'; blocks: Block[] }
   | { kind: 'code'; lang: string | null; text: string }
-  | { kind: 'diagram'; spec: DiagramSpec }
+  | { kind: 'diagram'; spec: DiagramSpec; legend?: Legend }
   | { kind: 'panel'; tone: PanelTone; blocks: Block[] }
   | { kind: 'decision'; blocks: Block[] }
   | { kind: 'expand'; title: string; blocks: Block[] }
@@ -44,6 +45,8 @@ export type Block =
 /** Where a rule or a criterion comes from, such as Q2, or G5 with its impact. */
 export type Source = { text: string; level?: 'low' | 'med' | 'high' }
 export type Doc = { meta: Record<string, string>; title: string; blocks: Block[] }
+/** `places` are words such as the areas of an item: before a colon in a flowchart node they become its kicker. */
+export type DocOptions = { places?: string[] }
 
 const PANELS: readonly string[] = ['info', 'note', 'success', 'warning', 'error']
 const OPEN = /^:::\s*([a-z][\w-]*)\s*(.*)$/
@@ -101,14 +104,14 @@ function closingLine(lines: string[], open: number): number {
   return lines.length
 }
 
-function blocksOf(text: string, first: number): Block[] {
+function blocksOf(text: string, first: number, places: string[]): Block[] {
   return segments(text.split('\n'), first).flatMap(segment =>
-    segment.kind === 'markdown' ? markdownBlocks(segment.text, segment.line) : directiveBlocks(segment),
+    segment.kind === 'markdown' ? markdownBlocks(segment.text, segment.line, places) : directiveBlocks(segment, places),
   )
 }
 
-function directiveBlocks(d: Extract<Segment, { kind: 'directive' }>): Block[] {
-  const inner = () => blocksOf(d.body, d.line + 1)
+function directiveBlocks(d: Extract<Segment, { kind: 'directive' }>, places: string[]): Block[] {
+  const inner = () => blocksOf(d.body, d.line + 1, places)
   const block: Block = PANELS.includes(d.name)
     ? { kind: 'panel', tone: d.name as PanelTone, blocks: inner() }
     : d.name === 'decision'
@@ -131,12 +134,12 @@ function splitOnDividers(blocks: Block[]): Block[][] {
   return columns
 }
 
-function markdownBlocks(text: string, first: number): Block[] {
-  return markdown.parse(text).children.flatMap(node => nodeBlocks(node, first - 1))
+function markdownBlocks(text: string, first: number, places: string[]): Block[] {
+  return markdown.parse(text).children.flatMap(node => nodeBlocks(node, first - 1, places))
 }
 
 /** One mdast node as blocks; `base` turns a line of the parsed text into a line of the file. */
-function nodeBlocks(node: RootContent, base: number): Block[] {
+function nodeBlocks(node: RootContent, base: number, places: string[]): Block[] {
   const line = base + (node.position?.start.line ?? 1)
   switch (node.type) {
     case 'heading':
@@ -146,9 +149,9 @@ function nodeBlocks(node: RootContent, base: number): Block[] {
     case 'thematicBreak':
       return [{ kind: 'divider' }]
     case 'blockquote':
-      return [{ kind: 'quote', blocks: node.children.flatMap(child => nodeBlocks(child, base)) }]
+      return [{ kind: 'quote', blocks: node.children.flatMap(child => nodeBlocks(child, base, places)) }]
     case 'list': {
-      const items = node.children.map(item => ({ checked: item.checked, blocks: item.children.flatMap(child => nodeBlocks(child, base)) }))
+      const items = node.children.map(item => ({ checked: item.checked, blocks: item.children.flatMap(child => nodeBlocks(child, base, places)) }))
       if (items.every(item => typeof item.checked === 'boolean')) return [{ kind: 'tasks', items: items.map(item => ({ checked: item.checked === true, blocks: item.blocks })) }]
       return [{ kind: 'list', ordered: node.ordered === true, start: node.start ?? 1, items: items.map(item => item.blocks) }]
     }
@@ -157,7 +160,7 @@ function nodeBlocks(node: RootContent, base: number): Block[] {
       return [{ kind: 'table', align: node.align ?? [], head: head ?? [], rows }]
     }
     case 'code':
-      return [codeBlock(node.lang ?? null, node.value, line)]
+      return [codeBlock(node.lang ?? null, node.value, line, places)]
     case 'html':
       // raw HTML never reaches the page: it shows as the text that the agent wrote
       return [{ kind: 'paragraph', content: [{ type: 'text', value: node.value }] }]
@@ -166,7 +169,10 @@ function nodeBlocks(node: RootContent, base: number): Block[] {
   }
 }
 
-function codeBlock(lang: string | null, text: string, line: number): Block {
+function codeBlock(lang: string | null, text: string, line: number, places: string[]): Block {
+  const drawing = fenceDrawing(lang, text, places)
+  if (drawing && 'error' in drawing) return { kind: 'unknown', line, reason: drawing.error, text: `\`\`\`${lang}\n${text}\n\`\`\`` }
+  if (drawing) return { kind: 'diagram', spec: drawing.spec, ...(drawing.legend ? { legend: drawing.legend } : {}) }
   if (lang !== 'bench') return { kind: 'code', lang, text }
   try {
     return { kind: 'diagram', spec: JSON.parse(text) as DiagramSpec }
@@ -188,9 +194,9 @@ function frontMatter(text: string): { meta: Record<string, string>; body: string
   return { meta, body: text.slice(match[0].length), first: match[0].split('\n').length }
 }
 
-export function parseDoc(text: string): Doc {
+export function parseDoc(text: string, options: DocOptions = {}): Doc {
   const { meta, body, first } = frontMatter(text)
-  const blocks = blocksOf(body, first)
+  const blocks = blocksOf(body, first, options.places ?? [])
   const head = blocks[0]
   if (head?.kind === 'heading' && head.depth === 1) return { meta, title: plainText(head.content), blocks: applyRules(blocks.slice(1)) }
   return { meta, title: '', blocks: applyRules(blocks) }
