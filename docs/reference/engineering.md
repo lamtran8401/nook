@@ -201,9 +201,9 @@ Each write is one transaction. `--if-version <n>` on a write of an item or a sli
 `tasks.md` holds facts only: the ledger holds the state of each slice.
 
 `walkthrough.md`:
-- `> In short:`, then `## What works now`, `## Where to start reading`, `## How it is built` (short excerpts of code), `## Try it`, `## Heads up`.
-- The page adds the files that changed (from the branch), the criteria that are met (from the ledger) and the test counts (from the last verify run).
-- With no item, it also holds `## What changed` and `## How it works`.
+- `> In short:`, then `## What works now`, `## What changed` (a tree of the files from the diff of the branch), `## Where to start reading`, `## How it is built` (short excerpts of code), `## Requirements met` (the criteria that the ledger marks as met), `## Try it`, `## Heads up`.
+- It gives no count of tests.
+- With no item, Requirements met goes and `## How it works` comes after What changed.
 - It copies nothing from the plan. A build that left the plan runs `nook eng item replan` before the review.
 
 `tasks.md`:
