@@ -21,6 +21,9 @@ export function ancestorCommands(pid = process.ppid, limit = 40): string[] {
   return chain
 }
 
+/** True when a Claude session stands anywhere above the process: an agent shell, whatever its environment says. */
+export const underClaude = (chain: string[]): boolean => chain.some(command => CLAUDE.test(command))
+
 /** True when Claude runs this session in the background: its spare and its pty host stand above the hook. */
 export function inBackground(chain: string[]): boolean {
   return chain.some(command => CLAUDE.test(command) && /\sbg-(?:spare|pty-host)(\s|$)/.test(command))

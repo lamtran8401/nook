@@ -52,14 +52,17 @@ Each pack adds its commands under its name: `nook eng …`, `nook wiki …`, `no
 
 `nook web` runs only in the owner's terminal:
 
-1. It refuses when `CLAUDECODE` is set, so no agent starts the app or holds its token.
-2. It stops when Node 24 or later is not on the path, and names the install.
-3. It builds `apps/web` when the hash of the web and package sources differs from the stamp of the last build, or with `--build`. A failed build names its error lines and starts no server.
-4. It takes the last port of the desk when it is free, else a free one, and makes a one-time token.
-5. It starts `apps/web/server.ts` under Node with `NOOK_DESK` and the port, and writes the token to its stdin. The token is never in an argument, a variable, a file or the terminal.
-6. It writes the port and the process to `.nook/web.json`, opens the browser with the token, and removes the file when the server stops.
+1. It refuses when `CLAUDECODE` is set or a Claude session stands above it, so no agent starts the app or holds its token. The shell guard also blocks `nook web` from an agent.
+2. It refuses while the server of an earlier start still runs for the desk.
+3. It stops when Node 24 or later is not on the path, and names the install.
+4. It builds `apps/web` when the hash of the sources differs from the stamp of the last build, or with `--build`. The hash covers the web app, the package sources, the `package.json` and `tsconfig` files and `bun.lock`. A failed build names its error lines and starts no server.
+5. It takes the last port of the desk when it is free, else a free one, and makes a one-time token.
+6. It starts `apps/web/server.ts` under Node and writes the token to its stdin. The token is never in an argument, a variable, a file that others can read, or the terminal.
+7. It writes the port and the process to `.nook/web.json`, opens the browser through a page that only the owner can read, and removes the file when the server stops. The server stops when `nook web` ends, also when its terminal closes.
 
-The server lets a request in only on its own host `127.0.0.1:<port>`. The token works once and becomes an HttpOnly, SameSite=Strict cookie; a write needs the origin of the page.
+The server lets a request in only on its own host `127.0.0.1:<port>`. The token works once, within 2 minutes, and becomes an HttpOnly, SameSite=Strict cookie whose name holds the port. A write needs the origin of the page.
+
+The shell guard blocks a call to the port in `.nook/web.json` on any spelling of this machine, such as `127.1:<port>`, `localhost <port>` or `/dev/tcp/127.0.0.1/<port>`. A broken `web.json` blocks each shell call until the owner deletes it.
 
 `nook doctor` and `nook brief` only read. `readHome(desk, modules)` in `packages/core/src/read.ts` gives the same brief of one desk and the findings of its doctor, for the home page of the web app.
 

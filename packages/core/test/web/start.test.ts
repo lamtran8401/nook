@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'bun:test'
 
-import { startWeb, type WebDeps } from '../../src/web/start.ts'
+import { statSync, readFileSync, rmSync } from 'node:fs'
+
+import { startWeb, type WebDeps, writeOpenPage } from '../../src/web/start.ts'
 import type { WebState } from '../../src/web/web-state.ts'
 
 /** Fake parts that log each step; `done` ends the server. */
@@ -9,11 +11,12 @@ function fakes(overrides: Partial<WebDeps> = {}) {
   let state: WebState | null = { port: 4321, pid: 1, started: 'before' }
   let stop: (code: number) => void = () => {}
   const deps: WebDeps = {
-    env: {},
+    insideClaude: () => false,
+    alive: () => false,
     nodeGap: () => null,
-    needsBuild: () => true,
+    sources: () => ({ hash: 'h1', built: false }),
     build: () => (log.push('build'), { code: 0, out: 'Compiled', err: '' }),
-    writeStamp: () => log.push('stamp'),
+    writeStamp: hash => log.push(`stamp ${hash}`),
     freePort: async preferred => (log.push(`port ${preferred}`), preferred ?? 5000),
     newToken: () => 'tok-secret',
     spawnServer: ({ port, token, desk }) => {
@@ -33,7 +36,7 @@ function fakes(overrides: Partial<WebDeps> = {}) {
 
 describe('startWeb', () => {
   test('refuses inside Claude Code, and builds and starts nothing', async () => {
-    const f = fakes({ env: { CLAUDECODE: '1' } })
+    const f = fakes({ insideClaude: () => true })
     await expect(startWeb('/desk', false, f.deps)).rejects.toMatchObject({ message: 'nook web starts only in your own terminal, not in Claude Code', fix: 'open a terminal in the desk and run `nook web`' })
     expect(f.log).toEqual([])
   })
@@ -51,7 +54,7 @@ describe('startWeb', () => {
   })
 
   test('a second start with no change of the sources builds nothing', async () => {
-    const f = fakes({ needsBuild: () => false })
+    const f = fakes({ sources: () => ({ hash: 'h1', built: true }) })
     const run = startWeb('/desk', false, f.deps)
     await Bun.sleep(0)
     f.done()
@@ -68,7 +71,7 @@ describe('startWeb', () => {
     expect(await run).toBe(0)
     expect(f.log.filter(l => !l.startsWith('say'))).toEqual([
       'build',
-      'stamp',
+      'stamp h1',
       'port 4321',
       'spawn 4321 tok-secret /desk',
       'state 4321 77',
@@ -79,11 +82,27 @@ describe('startWeb', () => {
   })
 
   test('--build builds even when the sources did not change', async () => {
-    const f = fakes({ needsBuild: () => false })
+    const f = fakes({ sources: () => ({ hash: 'h1', built: true }) })
     const run = startWeb('/desk', true, f.deps)
     await Bun.sleep(0)
     f.done()
     await run
     expect(f.log).toContain('build')
+  })
+
+  test('refuses while the server of an earlier start still runs for the desk', async () => {
+    const f = fakes({ alive: pid => pid === 1 })
+    await expect(startWeb('/desk', false, f.deps)).rejects.toMatchObject({ message: 'nook web already runs for this desk on port 4321', fix: 'use its tab, or stop it with Ctrl-C in its terminal' })
+    expect(f.log).toEqual([])
+  })
+})
+
+describe('writeOpenPage', () => {
+  test('writes a page that only the owner can read, sends no referrer, and goes to the address', () => {
+    const { dir, page } = writeOpenPage('http://127.0.0.1:4321/?t=tok')
+    expect(statSync(page).mode & 0o777).toBe(0o600)
+    expect(statSync(dir).mode & 0o777).toBe(0o700)
+    expect(readFileSync(page, 'utf8')).toBe('<!doctype html><meta charset="utf-8"><meta name="referrer" content="no-referrer"><script>location.replace("http://127.0.0.1:4321/?t=tok")</script>')
+    rmSync(dir, { recursive: true, force: true })
   })
 })

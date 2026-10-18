@@ -41,11 +41,17 @@ describe('the web app', () => {
     const run = runCommand(['node', join(web, 'e2e', 'render.ts'), 'token-e2e'], { cwd: web, env: { ...env, NOOK_DESK: desk }, timeoutMs: 120_000 })
     const answer = JSON.parse(run.out.trim().split('\n').at(-1) ?? '{}')
     expect(answer.login).toMatchObject({ status: 303, location: '/' })
-    expect(answer.login.cookie).toMatch(/^nook_session=.+/)
+    expect(answer.login.cookie).toMatch(/^nook_session_4321=.+/)
     expect(answer.page.status).toBe(200)
     const html = String(answer.page.body).replaceAll('<!-- -->', '')
     expect(html).toContain('<li data-item="SHOP-12">SHOP-12 · backlog · Filter shipments by status</li>')
     expect(html).toMatch(/<p data-runtime="true">node v\d+/)
     expect(answer.stranger.status).toBe(401)
+  })
+
+  test('the server refuses to start when no token comes on stdin, and listens on nothing', () => {
+    const run = runCommand(['node', join(web, 'server.ts')], { cwd: web, env: { ...env, NOOK_DESK: desk, NOOK_WEB_PORT: '4321' }, timeoutMs: 60_000 })
+    expect(run.code).not.toBe(0)
+    expect(run.err).toContain('no token came on stdin')
   })
 })

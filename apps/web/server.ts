@@ -4,19 +4,25 @@ import { createHandler } from './lib/handler.ts'
 
 /** The server that `nook web` starts under Node: it reads the one-time token from stdin, then answers on 127.0.0.1 only. */
 
-async function firstLine(stream: NodeJS.ReadableStream): Promise<string> {
-  let text = ''
-  for await (const chunk of stream) {
-    text += String(chunk)
-    const end = text.indexOf('\n')
-    if (end >= 0) return text.slice(0, end).trim()
-  }
-  return text.trim()
+/** The first line of stdin: the token. nook web keeps stdin open, so its end means that nook web is gone. */
+function firstLine(stream: NodeJS.ReadStream): Promise<string> {
+  return new Promise(resolve => {
+    let text = ''
+    stream.setEncoding('utf8')
+    stream.on('data', (chunk: string) => {
+      text += chunk
+      if (text.includes('\n')) resolve(text.slice(0, text.indexOf('\n')).trim())
+    })
+    stream.on('end', () => resolve(text.trim()))
+  })
 }
 
 const port = Number(process.env.NOOK_WEB_PORT)
 if (!process.env.NOOK_DESK || !port) throw new Error('start the web app with `nook web`')
-const handler = await createHandler({ dir: import.meta.dirname, port, token: await firstLine(process.stdin) })
+const token = await firstLine(process.stdin)
+if (!token) throw new Error('no token came on stdin: start the web app with `nook web`')
+process.stdin.on('end', () => process.exit(0))
+const handler = await createHandler({ dir: import.meta.dirname, port, token })
 createServer((req, res) => {
   handler(req, res).catch((error: unknown) => {
     console.error(error)

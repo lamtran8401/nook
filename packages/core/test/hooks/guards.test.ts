@@ -71,10 +71,20 @@ describe('bashGuard', () => {
     expect(bash(command)).toBe('block')
   })
 
-  test.each(['curl http://127.0.0.1:4321/', 'curl -s localhost:4321/works', 'wget 0.0.0.0:4321', 'curl "http://[::1]:4321/?t=x"'])('blocks a call to the port of the running web app: %s', command => {
+  test.each(['curl http://127.0.0.1:4321/', 'curl -s localhost:4321/works', 'wget 0.0.0.0:4321', 'curl "http://[::1]:4321/?t=x"', 'curl 127.1:4321', 'curl LOCALHOST:4321', 'curl localhost.:4321', 'curl "http://[::ffff:127.0.0.1]:4321/"', 'nc localhost 4321', 'telnet 127.0.0.1 4321', 'exec 3<>/dev/tcp/127.0.0.1/4321'])('blocks a call to the port of the running web app: %s', command => {
     mkdirSync(join(root, '.nook'), { recursive: true })
     writeFileSync(join(root, '.nook', 'web.json'), JSON.stringify({ port: 4321, pid: 9, started: 'now' }))
     expect(bash(command)).toBe('block')
+  })
+
+  test.each(['nook web', 'cd ~/desk && nook web --build', 'nk web'])('blocks an agent that starts the web app: %s', command => {
+    expect(bash(command)).toBe('block')
+  })
+
+  test('blocks with the fix when .nook/web.json is broken, since the port is unknown', () => {
+    mkdirSync(join(root, '.nook'), { recursive: true })
+    writeFileSync(join(root, '.nook', 'web.json'), '{ broken')
+    expect(bashGuard({ cwd: root, tool_name: 'Bash', tool_input: { command: 'ls' } })).toEqual({ kind: 'block', reason: '.nook/web.json is broken, so the port of the web app is unknown. Ask the owner to stop nook web and delete .nook/web.json.' })
   })
 
   test('lets a call to another port pass, and any call when no web app runs', () => {

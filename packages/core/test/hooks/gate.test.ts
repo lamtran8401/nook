@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import type { GateResult, PackModule } from '@nook/desk/desks.ts'
 
 import { gateHook } from '../../src/hooks/gate.ts'
-import { inBackground, startedByTool } from '../../src/hooks/session.ts'
+import { inBackground, startedByTool, underClaude } from '../../src/hooks/session.ts'
 import { initIn, removeDir, tempDir } from '../helpers.ts'
 
 let root: string
@@ -120,5 +120,15 @@ describe('startedByTool', () => {
 
   test('a versioned binary of Claude counts as a Claude process', () => {
     expect(startedByTool(['/bin/sh -c hook', '/Users/a/.local/share/claude/versions/2.1.300 -p x', '/bin/bash', '/Users/a/.local/share/claude/versions/2.1.300'])).toBe(true)
+  })
+})
+
+describe('underClaude', () => {
+  test('a command with a Claude session above it runs under Claude, also when CLAUDECODE was removed', () => {
+    expect(underClaude(['/bin/zsh -c unset CLAUDECODE; nook web', '/Users/a/.local/share/claude/versions/2.1.0', '-zsh'])).toBe(true)
+  })
+
+  test('a command in a terminal with no Claude session above it does not', () => {
+    expect(underClaude(['nook web', '-zsh', 'login -pfl admin'])).toBe(false)
   })
 })

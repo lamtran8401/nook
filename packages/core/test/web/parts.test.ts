@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { createServer } from 'node:net'
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
@@ -59,11 +59,40 @@ describe('sourceHash and the build stamp', () => {
     expect(sourceHash(root)).toBe(first)
   })
 
+  test('changes for the files that steer a build: the root package.json and the tsconfig files', () => {
+    write('package.json', '{}')
+    write('tsconfig.json', '{}')
+    write('packages/engineering/tsconfig.json', '{}')
+    const first = sourceHash(root)
+    write('package.json', '{"a":1}')
+    const second = sourceHash(root)
+    write('tsconfig.json', '{"b":1}')
+    const third = sourceHash(root)
+    write('packages/engineering/tsconfig.json', '{"c":1}')
+    expect(new Set([first, second, third, sourceHash(root)]).size).toBe(4)
+  })
+
+  test('counts a folder named test inside the sources, and skips a link to a folder', () => {
+    const first = sourceHash(root)
+    write('apps/web/app/test/page.tsx', 'export default 3')
+    const second = sourceHash(root)
+    symlinkSync(join(root, 'apps/web/app'), join(root, 'apps/web/linked'))
+    expect(second).not.toBe(first)
+    expect(sourceHash(root)).toBe(second)
+  })
+
   test('needs a build with no stamp, and none after the stamp of the same sources', () => {
     expect(needsBuild(root)).toBe(true)
-    writeStamp(root)
+    writeStamp(root, sourceHash(root))
     expect(needsBuild(root)).toBe(false)
     write('packages/engineering/src/read.ts', 'export const a = 3')
+    expect(needsBuild(root)).toBe(true)
+  })
+
+  test('a stamp of the sources from before an edit still needs a build', () => {
+    const before = sourceHash(root)
+    write('packages/engineering/src/read.ts', 'export const a = 4')
+    writeStamp(root, before)
     expect(needsBuild(root)).toBe(true)
   })
 })

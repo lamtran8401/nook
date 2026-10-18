@@ -1,13 +1,16 @@
 import { spawn } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { EvError, refused } from '@nook/shared/errors.ts'
 import { type CommandRun, errorLines, runCommand } from '@nook/shared/run.ts'
 
+import { ancestorCommands, underClaude } from '../hooks/session.ts'
 import { nodeGap, type WebGap } from './node-version.ts'
 import { freePort } from './port.ts'
-import { needsBuild, writeStamp } from './source-hash.ts'
+import { needsBuild, sourceHash, writeStamp } from './source-hash.ts'
 import { readWebState, removeWebState, type WebState, writeWebState } from './web-state.ts'
 
 /**
@@ -17,11 +20,12 @@ import { readWebState, removeWebState, type WebState, writeWebState } from './we
 
 export type ServerChild = { pid: number; listening: Promise<void>; exited: Promise<number> }
 export type WebDeps = {
-  env: NodeJS.ProcessEnv
+  insideClaude: () => boolean
+  alive: (pid: number) => boolean
   nodeGap: () => WebGap | null
-  needsBuild: () => boolean
+  sources: () => { hash: string; built: boolean }
   build: () => CommandRun
-  writeStamp: () => void
+  writeStamp: (hash: string) => void
   freePort: (preferred?: number) => Promise<number>
   newToken: () => string
   spawnServer: (options: { port: number; token: string; desk: string }) => ServerChild
@@ -35,16 +39,19 @@ export type WebDeps = {
 
 /** Starts the web app of `desk` and waits until its server stops; returns the exit code of the server. */
 export async function startWeb(desk: string, rebuild: boolean, deps: WebDeps): Promise<number> {
-  if (deps.env.CLAUDECODE) throw refused('nook web starts only in your own terminal, not in Claude Code', 'open a terminal in the desk and run `nook web`')
+  if (deps.insideClaude()) throw refused('nook web starts only in your own terminal, not in Claude Code', 'open a terminal in the desk and run `nook web`')
+  const last = deps.readState()
+  if (last && deps.alive(last.pid)) throw refused(`nook web already runs for this desk on port ${last.port}`, 'use its tab, or stop it with Ctrl-C in its terminal')
   const gap = deps.nodeGap()
   if (gap) throw refused(gap.text, gap.fix)
-  if (rebuild || deps.needsBuild()) {
+  const sources = deps.sources()
+  if (rebuild || !sources.built) {
     deps.say('nook web: building the web app, about a minute')
     const build = deps.build()
     if (build.code !== 0) throw refused(`the build of the web app failed:\n${errorLines(`${build.out}\n${build.err}`)}`, 'fix the error, then run `nook web` again')
-    deps.writeStamp()
+    deps.writeStamp(sources.hash)
   }
-  const port = await deps.freePort(deps.readState()?.port)
+  const port = await deps.freePort(last?.port)
   const token = deps.newToken()
   const server = deps.spawnServer({ port, token, desk })
   deps.writeState({ port, pid: server.pid, started: deps.now().toISOString() })
@@ -59,23 +66,49 @@ export async function startWeb(desk: string, rebuild: boolean, deps: WebDeps): P
 }
 
 const OPENER: Record<string, string> = { darwin: 'open', win32: 'explorer' }
+// the browser reads the page at once; the page holds the token, so it goes soon after
+const PAGE_LIFE_MS = 30 * 1000
+
+/** A page in a new private folder that sends the browser to `url`; only the owner can read it, and it sends no referrer. */
+export function writeOpenPage(url: string): { dir: string; page: string } {
+  const dir = mkdtempSync(join(tmpdir(), 'nook-web-'))
+  const page = join(dir, 'open.html')
+  writeFileSync(page, `<!doctype html><meta charset="utf-8"><meta name="referrer" content="no-referrer"><script>location.replace(${JSON.stringify(url)})</script>`, { mode: 0o600 })
+  return { dir, page }
+}
+
+/** Opens `url` through that page, so the token never shows in the arguments of a process. */
+function openPrivately(url: string): void {
+  const { dir, page } = writeOpenPage(url)
+  const opened = runCommand([OPENER[process.platform] ?? 'xdg-open', page])
+  setTimeout(() => rmSync(dir, { recursive: true, force: true }), PAGE_LIFE_MS).unref()
+  if (opened.code !== 0) console.log('nook web: the browser did not open; set a default browser, then run nook web again')
+}
+
+/** A signal 0 tests a process: ESRCH means it is gone, EPERM that it lives under another user. */
+function isAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code === 'EPERM'
+  }
+}
 
 /** The real parts: the Nook repo at `root` holds the web app in apps/web. */
 export function webDeps(root: string, desk: string): WebDeps {
   const web = join(root, 'apps', 'web')
   return {
-    env: process.env,
+    insideClaude: () => Boolean(process.env.CLAUDECODE) || underClaude(ancestorCommands()),
+    alive: isAlive,
     nodeGap: () => nodeGap(),
-    needsBuild: () => needsBuild(root),
+    sources: () => ({ hash: sourceHash(root), built: !needsBuild(root) }),
     build: () => runCommand(['node', join(web, 'node_modules', 'next', 'dist', 'bin', 'next'), 'build'], { cwd: web, env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1' } }),
-    writeStamp: () => writeStamp(root),
+    writeStamp: hash => writeStamp(root, hash),
     freePort,
     newToken: () => randomBytes(32).toString('base64url'),
     spawnServer: options => spawnServer(web, options),
-    open: url => {
-      const opened = runCommand([OPENER[process.platform] ?? 'xdg-open', url])
-      if (opened.code !== 0) console.log('nook web: the browser did not open; set a default browser, then run nook web again')
-    },
+    open: openPrivately,
     readState: () => readWebState(desk),
     writeState: state => writeWebState(desk, state),
     removeState: () => removeWebState(desk),
@@ -86,7 +119,8 @@ export function webDeps(root: string, desk: string): WebDeps {
 
 function spawnServer(web: string, { port, token, desk }: { port: number; token: string; desk: string }): ServerChild {
   const child = spawn('node', ['server.ts'], { cwd: web, env: { ...process.env, NOOK_DESK: desk, NOOK_WEB_PORT: String(port) }, stdio: ['pipe', 'pipe', 'inherit'] })
-  child.stdin.end(`${token}\n`)
+  // stdin stays open while nook web runs: when it closes, as when the terminal goes, the server stops too
+  child.stdin.write(`${token}\n`)
   const exited = new Promise<number>(resolve => child.once('exit', code => resolve(code ?? 1)))
   const listening = new Promise<void>((resolve, reject) => {
     child.stdout.on('data', (chunk: Buffer) => {
@@ -95,6 +129,6 @@ function spawnServer(web: string, { port, token, desk }: { port: number; token: 
     })
     void exited.then(code => reject(new EvError(`the web server stopped before it listened (exit ${code})`)))
   })
-  process.once('SIGINT', () => child.kill('SIGINT'))
+  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) process.once(signal, () => child.kill(signal))
   return { pid: child.pid ?? 0, listening, exited }
 }
