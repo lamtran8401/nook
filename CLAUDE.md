@@ -27,7 +27,7 @@ A desk is a folder with `nook.yml`. Desks nest: `company/` is a top desk, and `c
 - After a change to `docs/guide/` or `docs/report.md`, run `bun run pages <out dir> <report url>` and publish both pages again to their links.
 - Five diagrams of the pages are drawn by hand in `scripts/pages/build.ts`. When the doc text of one changes, `bun run pages` and its test stop and name the diagram: redraw it, then set its new fingerprint in `DRAWN`.
 - `bun run check`: `tsc --noEmit` for the repo and for `apps/web`, and `bun test` on `packages` and `scripts`. Commit only when it passes.
-- `bun run e2e` builds the web app under Node and checks its pages. It takes about a minute, so it stays out of `bun run check`. Run it after a change to `apps/web` or to a read path.
+- `bun run e2e` builds the web app under Node and checks its pages. It also draws each Bench diagram of the catalog and the docs in headless Chrome and checks its layout. It takes about a minute, so it stays out of `bun run check`. Run it after a change to `apps/web` or to a read path.
 - `nook ste <file.md>` on each Markdown file of `plugins/` and `docs/`: above 80%. Run the tool by its name; the guard blocks a path to the binary.
 - `claude plugin validate .` after a change to a manifest.
 - Try a change in a scratch folder: `nook init` there, then `nook doctor` and a hook call with JSON on stdin.

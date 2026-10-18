@@ -237,6 +237,19 @@ A `mermaid` flowchart gives Bench the nodes and the edges with no places, and Be
 
 A component never uses `data-bn-diagram` or `data-bn-icon`: `bundle.js` changes those nodes at load, before React hydrates them. `Diagram` keeps its spec in `data-nook-diagram` and draws after hydration.
 
+`bun run e2e` checks the layout of each diagram. It draws in headless Chrome each JSON example of `DIAGRAMS.md`, each drawn fence of the Markdown under `docs/` and `plugins/`, and each figure of the two doc pages. The check fails on these faults, and names the diagram and the fault:
+
+| Fault | Example |
+|---|---|
+| an edge goes through a node that is not its end | `the edge a → c goes through the node b` |
+| two edge labels are less than 6 px apart | `the labels "imports" and "reads" are 2 px apart` |
+| a label sits on another edge or on a node | `the label "status" sits on the edge api → bad` |
+| an edge leaves or enters its node backwards | `the edge web → q leaves or enters its node backwards` |
+| a spec does not draw | `Diagram not drawn: unknown diagram type "pie"` |
+| a font of Bench did not load | `the font Be Vietnam Pro of Bench did not load` |
+
+A split or a merged line may pass under the label of its partner line, at their join. The test also lists each file that has drawn fences; a new one must join that list. The check needs Google Chrome; `NOOK_CHROME` names another path. It also needs the network for the Bench fonts, because a fallback font gives other sizes.
+
 ## 12. The repo
 
 ```
