@@ -1441,7 +1441,7 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 .bn-piece p { margin: 0; font-size: 14.5px; line-height: 23px; }
 
 /* steplist: numbered steps; a step can hold what to do in bold and what you see under it */
-.bn-steplist { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.bn-steplist { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; align-content: start; }
 .bn-steplist > li { display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: start; position: relative; }
 .bn-steplist__n { width: 36px; height: 36px; border-radius: 10px; background: var(--surface); box-shadow: 0 0 0 1px var(--border-strong); display: grid; place-items: center; font: 600 13px/1 var(--font-mono); }
 .bn-steplist > li > div, .bn-steplist > li > p { margin: 0; padding-top: 6px; font-size: 15px; line-height: 24px; }
