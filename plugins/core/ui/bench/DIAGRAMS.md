@@ -111,6 +111,8 @@ Give no node an `at`, and Bench lays the graph out from its edges. Give every no
 - A group with `nodes`, such as `{ "label": "Shop backend", "nodes": ["api", "db"] }`, is one column. Its nodes stack in order, and a node never sits above a node of another column that it waits for.
 - The columns take the order where no edge between two groups meets a node of a group between them. An edge to another column leaves and enters by the facing sides.
 - A group with no `icon` takes one from its label: browser, worker, provider, data or backend.
+- A node with only a `title`, such as "the vault", centres its words.
+- An edge that closes a loop, such as a retry back to its charge, takes no part in the rows. It runs around the outside: it leaves the outer side of its node and enters the side of the node above that faces it. In one column it runs along the right side.
 
 ```json
 { "type": "graph",
@@ -520,6 +522,8 @@ The `group` shows under the label when it changes, for example the date under th
 | `target` | none | A dashed line: `{ value, label }`. |
 | `decimals` | `1` | The decimals of the numbers. |
 | `height` | `240` | The height in px. |
+
+The name of each series sits at the end of its line. Two names that end close together move apart, and the right margin holds the longest name.
 
 ```json
 { "type": "chart", "kind": "line", "min": 4.5, "max": 7.5, "step": 0.5, "target": { "value": 7, "label": "target 7" },

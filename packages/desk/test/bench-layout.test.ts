@@ -57,6 +57,26 @@ describe('the layout of a Bench graph', () => {
     expect(['a', 'b', 'c'].map(id => rowOf(spec, id))).toEqual([1, 2, 3])
   })
 
+  test('a loop keeps the rows of its way down; the line back up runs around the outside of its two nodes', () => {
+    const spec = layout(graph(['cart', 'pick', 'charge', 'paid', 'retry'], [['cart', 'pick'], ['pick', 'charge'], ['charge', 'paid', 'paid'], ['charge', 'retry', 'declined'], ['retry', 'charge', 'after 1, 5, 30 min']]))
+    expect(['cart', 'pick', 'charge', 'paid', 'retry'].map(id => rowOf(spec, id))).toEqual([1, 2, 3, 4, 4])
+    expect(colOf(spec, 'retry')).toBeGreaterThan(colOf(spec, 'charge'))
+    expect(spec.edges!.find(e => e.from === 'retry')).toMatchObject({ a: 'r', b: 'r' })
+    expect(spec.edges!.find(e => e.from === 'charge' && e.to === 'retry')).toMatchObject({ a: 'b', b: 't' })
+  })
+
+  test('a node that closes a loop sits at the right end of its row, so its line back runs on the right', () => {
+    const spec = layout(graph(['charge', 'retry', 'paid'], [['charge', 'retry', 'declined'], ['charge', 'paid', 'paid'], ['retry', 'charge', 'again']]))
+    expect(colOf(spec, 'retry')).toBeGreaterThan(colOf(spec, 'paid'))
+    expect(spec.edges!.find(e => e.from === 'retry')).toMatchObject({ a: 'r', b: 'r' })
+  })
+
+  test('a loop in one column runs back up along the right side of its two nodes', () => {
+    const spec = layout(graph(['a', 'b', 'c'], [['a', 'b'], ['b', 'c'], ['c', 'b', 'again']]))
+    expect(colOf(spec, 'c')).toBe(colOf(spec, 'b'))
+    expect(spec.edges!.find(e => e.from === 'c')).toMatchObject({ a: 'r', b: 'r' })
+  })
+
   test('puts a source one row above its first child', () => {
     const spec = layout(graph(['a', 'b', 'c', 'x'], [['a', 'b'], ['b', 'c'], ['x', 'c']]))
     expect(rowOf(spec, 'x')).toBe(2)

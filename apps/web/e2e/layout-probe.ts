@@ -85,7 +85,10 @@ export function probe(): void {
       const gx = p1.x - p0.x
       const gy = p1.y - p0.y
       const away = (dx: number, dy: number) => dx * gx + dy * gy < -0.2 * Math.hypot(dx, dy) * Math.hypot(gx, gy)
-      if (away(q0.x - p0.x, q0.y - p0.y) || away(p1.x - q1.x, p1.y - q1.y)) fault(`the edge ${edge.from} → ${edge.to} leaves or enters its node backwards`)
+      // a loop around the outside leaves one way and comes back the other: a U-turn by design, not a hook
+      const [sx, sy, ex, ey] = [q0.x - p0.x, q0.y - p0.y, p1.x - q1.x, p1.y - q1.y]
+      const uTurn = sx * ex + sy * ey < -0.8 * Math.hypot(sx, sy) * Math.hypot(ex, ey)
+      if (!uTurn && (away(sx, sy) || away(ex, ey))) fault(`the edge ${edge.from} → ${edge.to} leaves or enters its node backwards`)
     }
   }
 

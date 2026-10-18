@@ -283,7 +283,7 @@
     return root;
   }
 
-  window.Bench = { version: '6.3.0', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
+  window.Bench = { version: '6.4.0', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(document); });
   else init(document);
 })();
@@ -440,7 +440,9 @@
     if (words) parts.push('<span class="dg-text">' + words + '</span>')
     if (status) parts.push(status)
     var shape = SVG_SHAPES[n.shape] ? '<svg class="dg-shape" aria-hidden="true"></svg>' : ''
-    return shape + '<span class="dg-body">' + parts.join('') + '</span>'
+    /* a node with a title and nothing else, such as "the vault", centres its few words */
+    var plain = n.title && !n.icon && !n.kicker && !n.meta && !n.tags && !n.status
+    return shape + '<span class="dg-body' + (plain ? ' dg-body--plain' : '') + '">' + parts.join('') + '</span>'
   }
   function tableHtml(n) {
     var head = '<span class="dg-th">' + (n.icon ? icon(n.icon) : '') + '<span class="dg-th__name">' + esc(n.title) + '</span>' + (n.stereo ? '<span class="dg-th__st">' + esc(n.stereo) + '</span>' : '') + '</span>'
@@ -489,6 +491,12 @@
     var dist = Math.abs(p1[0] - p0[0]) * Math.abs(n0[0]) + Math.abs(p1[1] - p0[1]) * Math.abs(n0[1])
     var k = bend ? Math.abs(bend) * 1.35 : Math.max(20, dist / 2)
     var c1 = add(p0, n0, k), c2 = add(p1, n1, k)
+    /* two ends on sides that face the same way make a loop: both control points sit on one line past the further end */
+    if (n0[0] === n1[0] && n0[1] === n1[1]) {
+      var i = n0[0] ? 0 : 1, out = n0[i] > 0 ? Math.max(c1[i], c2[i]) : Math.min(c1[i], c2[i])
+      c1[i] = out
+      c2[i] = out
+    }
     var at = function (i) { return 0.125 * p0[i] + 0.375 * c1[i] + 0.375 * c2[i] + 0.125 * p1[i] }
     return { d: 'M' + p0.join(' ') + 'C' + c1.join(' ') + ',' + c2.join(' ') + ',' + p1.join(' '), mid: [at(0), at(1)] }
   }
@@ -545,11 +553,40 @@
     if (!free) return spec
     if (free < spec.nodes.length) throw new Error('give every node a place, or none')
     var edges = spec.edges || []
-    var ranked = rankRows(spec.nodes, edges)
+    var back = backEdges(spec.nodes, edges)
+    var ranked = rankRows(spec.nodes, edges.filter(function (e) { return back.indexOf(e) < 0 }), back.map(function (e) { return e.from }))
     var grouped = (spec.groups || []).some(function (g) { return g.nodes })
-    return grouped ? bandLayout(spec, ranked, edges) : gridLayout(spec, ranked, edges)
+    var laid = grouped ? bandLayout(spec, ranked, edges) : gridLayout(spec, ranked, edges)
+    /* a line back up a loop runs around the outside: it leaves the outer side of its node and enters the side of the
+       node above that faces it, so it stays clear of the lines and labels that go down; in one column it takes the right */
+    var at = {}
+    laid.nodes.forEach(function (n) { at[n.id] = n.at })
+    laid.edges = laid.edges.map(function (e, i) {
+      if (back.indexOf(edges[i]) < 0 || e.a) return e
+      var from = at[e.from], to = at[e.to]
+      if (!from || !to || from[1] === to[1]) return Object.assign({ a: 'r', b: 'r', bend: 28 }, e)
+      var side = from[1] > to[1] ? 'r' : 'l'
+      return Object.assign({ a: side, b: side, bend: 28 }, e)
+    })
+    return laid
   }
-  function rankRows(nodes, edges) {
+  /* the lines that close a loop, found by a walk from the sources in the order of the spec; the rows leave them out */
+  function backEdges(nodes, edges) {
+    var state = {}, back = []
+    var visit = function (id) {
+      state[id] = 'open'
+      edges.forEach(function (e) {
+        if (e.from !== id) return
+        if (state[e.to] === 'open') back.push(e)
+        else if (!state[e.to]) visit(e.to)
+      })
+      state[id] = 'done'
+    }
+    var sources = nodes.filter(function (n) { return !edges.some(function (e) { return e.to === n.id }) })
+    sources.concat(nodes).forEach(function (n) { if (!state[n.id]) visit(n.id) })
+    return back
+  }
+  function rankRows(nodes, edges, loopEnds) {
     var rank = {}
     nodes.forEach(function (n) { rank[n.id] = 0 })
     for (var pass = 0; pass < nodes.length; pass++) edges.forEach(function (e) { if (e.from in rank && e.to in rank) rank[e.to] = Math.max(rank[e.to], rank[e.from] + 1) })
@@ -579,6 +616,8 @@
         setPlaces()
       })
     }
+    /* a node that closes a loop goes to the right end of its row, so its line back up runs on the right */
+    rows = rows.map(function (row) { return row.filter(function (n) { return loopEnds.indexOf(n.id) < 0 }).concat(row.filter(function (n) { return loopEnds.indexOf(n.id) >= 0 })) })
     var rowOf = {}
     rows.forEach(function (row, r) { row.forEach(function (n) { rowOf[n.id] = r }) })
     return { rows: rows, rowOf: rowOf }
@@ -760,15 +799,18 @@
       var sides = autoSides(A, B)
       return Object.assign({ i: i, A: A, B: B, a: e.a || sides[0], b: e.b || sides[1], fa: 0.5, fb: 0.5 }, e)
     }).filter(Boolean)
-    /* edges that share a side of a node spread along it, unless they merge or split there */
+    /* edges that share a side of a node spread along it, unless they merge or split there, in the order of the points
+       where they meet the far node, so two lines to one node never cross */
     var groups = {}
     edges.forEach(function (e) {
-      if (!e.split) (groups[e.from + ':' + e.a] = groups[e.from + ':' + e.a] || []).push({ e: e, end: 'fa', other: e.B, side: e.a })
-      if (!e.merge) (groups[e.to + ':' + e.b] = groups[e.to + ':' + e.b] || []).push({ e: e, end: 'fb', other: e.A, side: e.b })
+      if (!e.split) (groups[e.from + ':' + e.a] = groups[e.from + ':' + e.a] || []).push({ e: e, end: 'fa', other: e.B, otherSide: e.b, side: e.a })
+      if (!e.merge) (groups[e.to + ':' + e.b] = groups[e.to + ':' + e.b] || []).push({ e: e, end: 'fb', other: e.A, otherSide: e.a, side: e.b })
     })
+    var farX = function (it) { var o = it.other; return it.otherSide === 'l' ? o.l : it.otherSide === 'r' ? o.l + o.w : o.l + o.w / 2 }
+    var farY = function (it) { var o = it.other; return it.otherSide === 't' ? o.t : it.otherSide === 'b' ? o.t + o.h : o.t + o.h / 2 }
     Object.keys(groups).forEach(function (k) {
       var g = groups[k], vertical = g[0].side === 'l' || g[0].side === 'r', n = g.length
-      g.sort(function (p, q) { return vertical ? (p.other.t + p.other.h / 2) - (q.other.t + q.other.h / 2) : (p.other.l + p.other.w / 2) - (q.other.l + q.other.w / 2) })
+      g.sort(function (p, q) { return vertical ? farY(p) - farY(q) : farX(p) - farX(q) })
       var step = Math.min(1 / (n + 1), 0.18)
       g.forEach(function (it, j) { it.e[it.end] = 0.5 + (j - (n - 1) / 2) * step })
     })
@@ -1376,6 +1418,9 @@
     var H = spec.height || 240, m = { l: 34, r: 84, t: 12, b: 30 }, lo = spec.min, hi = spec.max, step = spec.step || 1
     var xs = spec.x, n = xs.length, decimals = spec.decimals == null ? 1 : spec.decimals
     legend(el, spec.series.map(function (se) { return se.name }), spec.target && spec.target.label)
+    /* the right margin holds the longest name at the end of its line */
+    measure.font = '600 12px "Be Vietnam Pro", system-ui, sans-serif'
+    m.r = Math.max(m.r, 16 + Math.max.apply(null, spec.series.map(function (se) { return measure.measureText(se.name).width })))
     var box = chartBox(el, spec)
     var g = s('svg', { viewBox: '0 0 ' + W + ' ' + H, height: H }, box)
     var iw = W - m.l - m.r, ih = H - m.t - m.b
@@ -1390,11 +1435,16 @@
       s('line', { x1: m.l, x2: m.l + iw, y1: y(spec.target.value), y2: y(spec.target.value), stroke: 'var(--fg-muted)', 'stroke-width': 1.5, 'stroke-dasharray': '5 4' }, g)
       text(g, m.l + iw + 8, y(spec.target.value) + 4, spec.target.label || String(spec.target.value), {})
     }
+    /* two lines that end close together push their names apart, top to bottom, 15px at least */
+    var ends = spec.series.map(function (se, k) { return { k: k, y: y(se.values[n - 1]) + 4 } }).sort(function (a, b) { return a.y - b.y })
+    ends.forEach(function (e, i) { if (i) e.y = Math.max(e.y, ends[i - 1].y + 15) })
+    var endY = {}
+    ends.forEach(function (e) { endY[e.k] = e.y })
     spec.series.forEach(function (se, k) {
       var col = 'var(--s' + (k + 1) + ')'
       s('path', { d: se.values.map(function (v, i) { return (i ? 'L' : 'M') + x(i) + ' ' + y(v) }).join(''), fill: 'none', stroke: col, 'stroke-width': 2, 'stroke-linejoin': 'round' }, g)
       se.values.forEach(function (v, i) { s('circle', { cx: x(i), cy: y(v), r: 3.5, fill: col, stroke: 'var(--surface)', 'stroke-width': 1.5 }, g) })
-      text(g, m.l + iw + 8, y(se.values[n - 1]) + 4, se.name, { class: 'dg-ink' })
+      text(g, m.l + iw + 8, endY[k], se.name, { class: 'dg-ink' })
     })
     var cross = s('line', { class: 'dg-cross', y1: m.t, y2: m.t + ih, x1: m.l, x2: m.l, visibility: 'hidden' }, g)
     var hit = s('rect', { class: 'dg-hit', x: m.l, y: m.t, width: iw, height: ih }, g)
