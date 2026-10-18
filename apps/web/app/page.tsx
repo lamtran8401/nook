@@ -1,7 +1,7 @@
 import { board } from '../lib/desk.ts'
 
-// the spike renders at build time, so `next build` runs the read path under Node
-export const dynamic = 'force-static'
+// each request reads the desk of NOOK_DESK, so one build serves every desk
+export const dynamic = 'force-dynamic'
 
 export default function Home() {
   const items = board()

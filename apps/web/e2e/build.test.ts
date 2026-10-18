@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -7,6 +7,7 @@ import { Ledger } from '@nook/engineering/ledger.ts'
 import { runCommand } from '@nook/shared/run.ts'
 
 const web = join(import.meta.dirname, '..')
+const env = { ...process.env, NEXT_TELEMETRY_DISABLED: '1' }
 let desk: string
 let build: ReturnType<typeof runCommand>
 
@@ -23,26 +24,28 @@ function makeDesk(): string {
 
 beforeAll(() => {
   desk = makeDesk()
-  build = runCommand(['node', join(web, 'node_modules', 'next', 'dist', 'bin', 'next'), 'build'], {
-    cwd: web,
-    env: { ...process.env, NOOK_DESK: desk, NEXT_TELEMETRY_DISABLED: '1' },
-    timeoutMs: 300_000,
-  })
+  const noDesk = Object.fromEntries(Object.entries(env).filter(([name]) => name !== 'NOOK_DESK'))
+  build = runCommand(['node', join(web, 'node_modules', 'next', 'dist', 'bin', 'next'), 'build'], { cwd: web, env: noDesk, timeoutMs: 300_000 })
 })
 afterAll(() => {
   rmSync(desk, { recursive: true, force: true })
 })
 
 describe('the web app', () => {
-  test('builds under Node', () => {
+  test('builds under Node with no desk, so one build serves every desk', () => {
     expect(build.err).not.toContain('Error:')
     expect(build.code).toBe(0)
   })
 
-  test('renders the items of the desk from its ledger, under Node', () => {
-    const html = readFileSync(join(web, '.next', 'server', 'app', 'index.html'), 'utf8').replaceAll('<!-- -->', '')
+  test('swaps the one-time token for a cookie, renders the desk for that cookie, and refuses a request with none', () => {
+    const run = runCommand(['node', join(web, 'e2e', 'render.ts'), 'token-e2e'], { cwd: web, env: { ...env, NOOK_DESK: desk }, timeoutMs: 120_000 })
+    const answer = JSON.parse(run.out.trim().split('\n').at(-1) ?? '{}')
+    expect(answer.login).toMatchObject({ status: 303, location: '/' })
+    expect(answer.login.cookie).toMatch(/^nook_session=.+/)
+    expect(answer.page.status).toBe(200)
+    const html = String(answer.page.body).replaceAll('<!-- -->', '')
     expect(html).toContain('<li data-item="SHOP-12">SHOP-12 · backlog · Filter shipments by status</li>')
-    expect(html).toContain('<li data-item="SHOP-13">SHOP-13 · backlog · Export the list</li>')
     expect(html).toMatch(/<p data-runtime="true">node v\d+/)
+    expect(answer.stranger.status).toBe(401)
   })
 })

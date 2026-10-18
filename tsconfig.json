@@ -23,5 +23,5 @@
       "@nook/learn/*": ["./packages/learn/src/*"]
     }
   },
-  "include": ["apps/*/src", "apps/web/e2e", "packages/*/src", "packages/*/test", "scripts"]
+  "include": ["apps/*/src", "apps/web/e2e/*.test.ts", "apps/web/test", "packages/*/src", "packages/*/test", "scripts"]
 }
