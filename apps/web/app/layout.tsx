@@ -24,6 +24,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <header className="nk-top">
           <span className="nk-top__desk">{basename(desk)}</span>
           <PackNav tabs={packTabs(desk)} />
+          <form className="nk-search" action="/search" method="get" role="search">
+            <input className="bn-input" type="search" name="q" placeholder="Search the desk" aria-label="Search the desk" />
+          </form>
         </header>
         <main className="nk-main">{children}</main>
         <script dangerouslySetInnerHTML={{ __html: kit.js }} />

@@ -8,6 +8,7 @@ import { wikiModule } from '@nook/wiki/module.ts'
 import { type PageView, readPage, readWiki, type WikiView } from '@nook/wiki/read.ts'
 
 import type { Tab } from '../components/TabLinks.tsx'
+import { type Hit, search } from './search.ts'
 
 /** The folder of the desk that the web app shows, from `NOOK_DESK`. */
 export function deskDir(): string {
@@ -39,3 +40,4 @@ export const item = (id: string): { view: ItemView; docs: ItemDocs } => ({ view:
 export const wiki = (): WikiView | null => readWiki(deskDir())
 export const wikiPage = (path: string): PageView => readPage(deskDir(), path)
 export const courses = (): CourseView[] => readLearn(deskDir())
+export const find = (query: string): Hit[] => search(deskDir(), query)
