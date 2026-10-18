@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 export type RecordRow = { id: string; main: ReactNode; sub?: ReactNode; end?: ReactNode }
 
-/** The Bench RecordList: a short id, the words with an optional line under them, and a state at the end, on one centre line. */
+/** The Bench RecordList: a short id, the words with an optional line under them, and a state at the end, level with the first line. */
 export function Records({ rows }: { rows: RecordRow[] }) {
   return (
     <ol className="bn-records">

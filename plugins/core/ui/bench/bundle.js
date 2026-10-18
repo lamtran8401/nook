@@ -283,7 +283,7 @@
     return root;
   }
 
-  window.Bench = { version: '6.5.0', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
+  window.Bench = { version: '6.5.1', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(document); });
   else init(document);
 })();
