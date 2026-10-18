@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import type { BoardCard, ItemView } from '@nook/engineering/read/reader.ts'
+import type { BoardCard } from '@nook/engineering/read/reader.ts'
 import { refused } from '@nook/shared/errors.ts'
 
 import { Board } from '../components/Board.tsx'
@@ -8,7 +8,6 @@ import { Criteria } from '../components/Criteria.tsx'
 import { Diagram } from '../components/Diagram.tsx'
 import { Gap } from '../components/Gap.tsx'
 import { ItemCard } from '../components/ItemCard.tsx'
-import { ItemHeader } from '../components/ItemHeader.tsx'
 import { TabLinks } from '../components/TabLinks.tsx'
 import { html, text } from './markup.ts'
 
@@ -37,30 +36,6 @@ describe('Board', () => {
 
   test('says so when the desk has no item', () => {
     expect(text(html(<Board cards={[]} />))).toBe('No item yet. Type /intake in the agent session to start one.')
-  })
-})
-
-describe('ItemHeader', () => {
-  const view = (next: Partial<ItemView['next']>) =>
-    ({
-      item: { id: 'SHOP-12', title: 'Filter shipments by status', kind: 'feature', size: 'M', state: 'planning', areas: ['api'], mode: 'normal' },
-      next: { id: 'SHOP-12', state: 'planning', skill: '/recipe SHOP-12', owner: false, gaps: [], detail: '', ...next },
-    }) as unknown as ItemView
-
-  test('the step of the owner gets its button, such as Approve', () => {
-    const markup = html(<ItemHeader view={view({ owner: true, skill: 'owner: /gate approve SHOP-12' })} />)
-    expect(markup).toContain('<button type="button" class="bn-btn" data-variant="primary" data-move="approve">Approve</button>')
-    expect(text(markup)).toContain('Next Your move: approve')
-  })
-
-  test('the step of the lead says so, with no button', () => {
-    const markup = html(<ItemHeader view={view({ skill: '/cook SHOP-12', state: 'cooking' })} />)
-    expect(markup).not.toContain('<button')
-    expect(text(markup)).toContain('Next The lead runs /cook SHOP-12 Nothing waits for you.')
-  })
-
-  test('shows the title, the state, the kind, the size and the areas', () => {
-    expect(text(html(<ItemHeader view={view({})} />))).toStartWith('SHOP-12 Filter shipments by status planning feature M api')
   })
 })
 

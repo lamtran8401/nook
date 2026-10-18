@@ -1,7 +1,7 @@
 import { type HomeView, readHome } from '@nook/core/read.ts'
 import { activePacks } from '@nook/desk/desks.ts'
 import { engineeringModule } from '@nook/engineering/module.ts'
-import { type BoardCard, readBoard } from '@nook/engineering/read/reader.ts'
+import { type BoardCard, type ItemDocs, type ItemView, readBoard, readDocs, readItem } from '@nook/engineering/read/reader.ts'
 import { learnModule } from '@nook/learn/module.ts'
 import { wikiModule } from '@nook/wiki/module.ts'
 
@@ -32,3 +32,4 @@ const MODULES = [engineeringModule, wikiModule, learnModule]
 
 export const home = (): HomeView => readHome(deskDir(), MODULES)
 export const board = (): BoardCard[] => readBoard(deskDir())
+export const item = (id: string): { view: ItemView; docs: ItemDocs } => ({ view: readItem(deskDir(), id), docs: readDocs(deskDir(), id) })

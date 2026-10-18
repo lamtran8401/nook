@@ -2,9 +2,11 @@ import { Branching } from '../git/branching.ts'
 import { type FileChange, GitRepo } from '../git/repo.ts'
 import { Home } from '../home.ts'
 import { Ledger } from '../ledger.ts'
+import { MOVE_NAMES, type MoveName, type State } from '../machine.ts'
 import { isArchived, type Next, nextFor } from '../report/next.ts'
 import { Engineering } from '../service.ts'
 import type { CheckRun } from '../stores/checks.ts'
+import type { Event } from '../stores/events.ts'
 import type { Criterion } from '../stores/criteria.ts'
 import type { Guess } from '../stores/guesses.ts'
 import type { Item } from '../stores/items.ts'
@@ -19,6 +21,8 @@ import { type EventLine, eventLine } from './event-lines.ts'
  */
 
 export type BoardCard = Pick<Item, 'id' | 'title' | 'kind' | 'size' | 'state' | 'areas'> & { criteria: { met: number; total: number } }
+/** One change of state of an item: the move, the state it went to, and when. */
+export type ItemMove = { move: MoveName | 'new'; to: State; at: string }
 export type AreaChange = { area: string; branch: string; files: FileChange[] }
 export type ItemView = {
   item: Item
@@ -28,6 +32,7 @@ export type ItemView = {
   slices: Slice[]
   questions: Question[]
   guesses: Guess[]
+  moves: ItemMove[]
   events: EventLine[]
   checks: CheckRun[]
   changes: AreaChange[]
@@ -63,6 +68,7 @@ export function readItem(desk: string, id: string): ItemView {
     const questions = eng.stores.questions.list(id)
     const guesses = eng.stores.guesses.list(id)
     const open = questions.filter(q => q.status === 'open')
+    const history = eng.stores.events.history(id)
     return {
       item,
       next: nextFor(eng, item),
@@ -71,11 +77,18 @@ export function readItem(desk: string, id: string): ItemView {
       slices: eng.stores.slices.list(id),
       questions,
       guesses,
-      events: eng.stores.events.history(id).map(eventLine),
+      moves: movesOf(history),
+      events: history.map(eventLine),
       checks: eng.stores.checks.lastRun(item),
       changes: changesOf(eng, item),
     }
   })
+}
+
+const isMove = (type: string): type is ItemMove['move'] => type === 'new' || (MOVE_NAMES as readonly string[]).includes(type)
+
+function movesOf(history: Event[]): ItemMove[] {
+  return history.flatMap(e => (isMove(e.type) && e.to_state ? [{ move: e.type, to: e.to_state as State, at: e.at }] : []))
 }
 
 /** The files that each git area of the item changed on its branch; an area still on its main branch has none. */

@@ -186,7 +186,7 @@ The read paths of the web app are in `packages/engineering/src/read/reader.ts`. 
 | Function | Gives |
 |---|---|
 | `readBoard(desk)` | each open item, and each done item not yet archived, with its kind, size, state, areas and criteria met out of all |
-| `readItem(desk, id)` | the item, its next step and owner, what waits for the owner, the criteria, slices, questions, guesses, events, last verify run and changed files |
+| `readItem(desk, id)` | the item, its next step and owner, what waits for the owner, the criteria, slices, questions, guesses, each change of state with its time, the events as sentences, the last verify run and the changed files |
 | `readDocs(desk, id)` | the text of `spec.md`, `plan.md`, `tasks.md` and `walkthrough.md`, or null for one not written yet |
 
 - What waits for the owner: the open questions, the blocking ones first, then the open guesses.

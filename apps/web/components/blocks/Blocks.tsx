@@ -3,8 +3,9 @@ import { match } from 'ts-pattern'
 
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 
-import type { Block, PanelTone, Source } from '../../lib/blocks.ts'
+import type { Block, Source } from '../../lib/blocks.ts'
 import { capitalized } from '../../lib/inline.ts'
+import { Alert, PANEL } from '../Alert.tsx'
 import { Diagram } from '../Diagram.tsx'
 import { Inline } from './Inline.tsx'
 
@@ -18,26 +19,6 @@ const LEVEL_TONE: Record<string, string> = { low: 'neutral', med: 'warning', hig
 function SourceBadge({ source }: { source: Source }) {
   if (source.level) return <span className="bn-badge" data-tone={LEVEL_TONE[source.level]}>{`${source.text} · ${source.level}`}</span>
   return <span className="bn-badge" data-tone={source.text === 'open' ? 'warning' : undefined} data-variant={source.text === 'open' ? undefined : 'plain'}>{source.text}</span>
-}
-
-const PANEL: Record<PanelTone, { tone: string; icon: string; label: string }> = {
-  info: { tone: 'primary', icon: 'i', label: 'Info' },
-  note: { tone: 'neutral', icon: '✎', label: 'Note' },
-  success: { tone: 'success', icon: '✓', label: 'Success' },
-  warning: { tone: 'warning', icon: '!', label: 'Warning' },
-  error: { tone: 'danger', icon: '×', label: 'Error' },
-}
-
-function Alert({ tone, icon, label, kind, children }: { tone: string; icon: string; label: string; kind?: string; children: React.ReactNode }) {
-  return (
-    <div className="bn-alert" data-tone={tone} data-kind={kind}>
-      <div className="bn-alert__icon">{icon}</div>
-      <div>
-        <div className="bn-alert__label">{label}</div>
-        <div className="bn-alert__body">{children}</div>
-      </div>
-    </div>
-  )
 }
 
 function BlockView({ block, context }: { block: Block; context: DocContext }) {

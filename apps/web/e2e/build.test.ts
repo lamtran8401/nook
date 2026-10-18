@@ -52,6 +52,11 @@ describe('the web app', () => {
     const home = String(answer.home.body).replaceAll('<!-- -->', '')
     expect(home).toContain('<b>engineering: works/ is missing</b><small>nook init --update</small>')
     expect(home).toContain('<b>SHOP-12 backlog: Filter shipments by status</b><small>/spec SHOP-12</small>')
+    expect(answer.item.status).toBe(200)
+    const item = String(answer.item.body).replaceAll('<!-- -->', '')
+    expect(item).toContain('<h1 class="nk-head__title">Filter shipments by status</h1>')
+    expect(item).toContain('aria-selected="true" href="/works/SHOP-12?tab=walkthrough">Walkthrough</a>')
+    expect(item).toContain('type /view SHOP-12 in the agent session')
     expect(answer.stranger.status).toBe(401)
   })
 

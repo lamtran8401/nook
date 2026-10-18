@@ -36,6 +36,7 @@ const login = await call(handler, `/?t=${token}`, {})
 const cookie = String(login.headers['set-cookie'] ?? '').split(';')[0] ?? ''
 const home = await call(handler, '/', { cookie })
 const page = await call(handler, '/works', { cookie })
+const item = await call(handler, '/works/SHOP-12?tab=walkthrough', { cookie })
 const stranger = await call(handler, '/', {})
-console.log(JSON.stringify({ login: { status: login.status, location: login.headers.location, cookie }, home: { status: home.status, body: home.body }, page: { status: page.status, body: page.body }, stranger: { status: stranger.status } }))
+console.log(JSON.stringify({ login: { status: login.status, location: login.headers.location, cookie }, home: { status: home.status, body: home.body }, page: { status: page.status, body: page.body }, item: { status: item.status, body: item.body }, stranger: { status: stranger.status } }))
 process.exit(0)

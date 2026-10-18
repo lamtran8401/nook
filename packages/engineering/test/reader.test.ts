@@ -48,6 +48,14 @@ describe('readItem', () => {
     expect(readItem(t.root, 'SHOP-2').next.owner).toBe(false)
   })
 
+  test('gives each change of state with its move and its time, and leaves out the other events', () => {
+    itemAt(t, 'cooking')
+    t.eng(LEAD).ask('SHOP-1', 'Does the export keep the filter?', false)
+    const moves = readItem(t.root, 'SHOP-1').moves
+    expect(moves.map(m => `${m.move} → ${m.to}`)).toEqual(['new → backlog', 'start → framing', 'agree → planning', 'approve → ready', 'begin → cooking'])
+    expect(moves.every(m => /^\d{4}-\d\d-\d\dT/.test(m.at))).toBe(true)
+  })
+
   test('gives each event as a sentence, in order', () => {
     itemAt(t, 'cooking')
     const titles = readItem(t.root, 'SHOP-1').events.map(e => e.title)
