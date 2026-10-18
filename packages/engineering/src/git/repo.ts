@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, lstatSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { runCommand } from '@nook/shared/run.ts'
@@ -17,7 +17,8 @@ export class GitRepo {
   constructor(readonly dir: string) {}
 
   run(...args: string[]): GitRun {
-    const run = runCommand(['git', ...args], { cwd: this.dir })
+    // no optional lock: a read such as `git diff` must not refresh the index of the area
+    const run = runCommand(['git', ...args], { cwd: this.dir, env: { ...process.env, GIT_OPTIONAL_LOCKS: '0' } })
     return { ok: run.code === 0, out: run.out.trim(), err: run.err.trim() }
   }
 
@@ -80,8 +81,8 @@ export class GitRepo {
     // a rename gives its counts with an empty path, then the old and the new path
     const numbers = fields(this.run('diff', '--numstat', '-M', '-z', rev))
     for (let i = 0; i < numbers.length; ) {
-      const [add, del, path] = numbers[i++]!.split('\t')
-      const name = path || (i++, numbers[i++]!)
+      const [add, del, ...rest] = numbers[i++]!.split('\t')
+      const name = rest.join('\t') || (i++, numbers[i++]!)
       const file = files.get(name)
       if (file) Object.assign(file, { add: count(add), del: count(del) })
     }
@@ -114,8 +115,14 @@ export class GitRepo {
   }
 }
 
+const MAX_COUNTED = 1024 * 1024
+
+/** The lines of a text file; a folder, a link, a binary file or a file over 1 MB counts none, as git counts a binary one. */
 function lineCount(file: string): number {
-  const text = readFileSync(file, 'utf8')
-  if (!text) return 0
+  const stat = lstatSync(file, { throwIfNoEntry: false })
+  if (!stat?.isFile() || stat.size > MAX_COUNTED) return 0
+  const bytes = readFileSync(file)
+  if (!bytes.length || bytes.includes(0)) return 0
+  const text = bytes.toString('utf8')
   return text.split('\n').length - (text.endsWith('\n') ? 1 : 0)
 }

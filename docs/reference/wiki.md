@@ -73,7 +73,7 @@ The gaps of `nook wiki index`:
 `packages/wiki/src/read.ts` gives the web app two reads, and writes nothing:
 
 - `readWiki(desk)`: each shelf with its use and the lines of its index, and the drafts that wait for a yes.
-- `readPage(desk, path)`: the text of one page or draft, and each link with the page that it reaches, or null for a broken link. A path outside the wiki, a file that is not Markdown, a missing file and a secret file are refused.
+- `readPage(desk, path)`: the text of one page or draft, and each link with the page that it reaches, or null for a broken link. A path outside the wiki, a file that is not Markdown, a missing file, a folder and a secret file are refused. The check runs on the real path, so a page that is a link to a file outside the wiki is refused too.
 
 `nook wiki links` and `readPage` read the links with the same code.
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -41,6 +41,27 @@ describe('GitRepo.changedFiles', () => {
       { path: 'd.ts', state: 'new', add: 2, del: 0 },
       { path: 'e.ts', state: 'new', add: 3, del: 0 },
     ])
+  })
+
+  test('counts no lines for an untracked folder, a link, or a binary file, and still lists them as new', () => {
+    const base = repo.run('rev-parse', 'HEAD').out
+    mkdirSync(join(dir, 'sub'))
+    new GitRepo(join(dir, 'sub')).run('init', '-q')
+    writeFileSync(join(dir, 'sub', 'x.ts'), 'x\n')
+    symlinkSync(join(dir, 'missing.ts'), join(dir, 'broken.ts'))
+    writeFileSync(join(dir, 'image.png'), Buffer.from([0x89, 0x50, 0x00, 0x0a, 0x01]))
+    expect(repo.changedFiles(base)).toEqual([
+      { path: 'broken.ts', state: 'new', add: 0, del: 0 },
+      { path: 'image.png', state: 'new', add: 0, del: 0 },
+      { path: 'sub/', state: 'new', add: 0, del: 0 },
+    ])
+  })
+
+  test('keeps the counts of a file whose name holds a tab', () => {
+    const base = repo.run('rev-parse', 'HEAD').out
+    writeFileSync(join(dir, 'a\tb.ts'), 'one\ntwo\n')
+    repo.run('add', '.')
+    expect(repo.changedFiles(base)).toEqual([{ path: 'a\tb.ts', state: 'new', add: 2, del: 0 }])
   })
 
   test('marks a renamed file as moved, under its new path', () => {

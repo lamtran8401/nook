@@ -191,7 +191,7 @@ The read paths of the web app are in `packages/engineering/src/read/reader.ts`. 
 
 - What waits for the owner: the open questions, the blocking ones first, then the open guesses.
 - Each event reads as a sentence, such as "You approved the plan" or "The lead began the build", with a tone for its mark.
-- The changed files of an area come from git: each file that differs from the merge base with the main branch, with its state and its added and removed lines. An area still on its main branch has none.
+- The changed files of an area come from git: each file that differs from the merge base with the main branch, with its state and its added and removed lines. A folder, a link, a binary file or a file over 1 MB counts no lines. An area still on its main branch has none. Git runs with no optional lock, so a read never refreshes the index.
 - A ledger that needs a migration is a gap: any `nook eng` command migrates it.
 
 The pack gives `nook doctor`, `nook brief`, `nook retro` and the waiting gates through the same read-only open. A missing ledger, or one that needs a migration, is one doctor gap with its fix; the config and folder checks still run, and the brief, the retro and the gates show nothing from the ledger.

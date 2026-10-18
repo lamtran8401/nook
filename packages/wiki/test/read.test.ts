@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
@@ -54,9 +54,25 @@ describe('readPage', () => {
     expect(readPage(desk, 'drafts/export-retry.md').text).toBe('# Export retry\n')
   })
 
-  test.each(['../nook.yml', 'resources/../../nook.yml', 'resources/notes.txt', 'resources/.env', 'resources/none.md'])('refuses %s', path => {
+  test.each(['../nook.yml', 'resources/../../nook.yml', 'resources/notes.txt', 'resources/none.md', 'resources/folder.md'])('refuses %s, which is no page', path => {
     write('docs/wiki/resources/notes.txt', 'text')
-    write('docs/wiki/resources/.env', 'TOKEN=x')
-    expect(() => readPage(desk, path)).toThrow()
+    mkdirSync(join(desk, 'docs/wiki/resources/folder.md'))
+    expect(() => readPage(desk, path)).toThrow('is no page of the wiki')
+  })
+
+  test.each(['resources/.env.md', '.ssh/keys.md'])('refuses the secret file %s', path => {
+    write(`docs/wiki/${path}`, 'TOKEN=x')
+    expect(() => readPage(desk, path)).toThrow('is no page of the wiki')
+  })
+
+  test('refuses a page that is a link to a file outside the wiki', () => {
+    write('outside/credentials.md', 'TOKEN=x')
+    symlinkSync(join(desk, 'outside/credentials.md'), join(desk, 'docs/wiki/resources/key.md'))
+    expect(() => readPage(desk, 'resources/key.md')).toThrow('is no page of the wiki')
+  })
+
+  test('reads a page whose name starts with two dots', () => {
+    write('docs/wiki/..notes.md', '# Notes\n')
+    expect(readPage(desk, '..notes.md').text).toBe('# Notes\n')
   })
 })
