@@ -44,10 +44,10 @@ A fault in the section stops the command and names the fix: a kind that does not
 The `install` of an area runs before `item verify` and `task prove`, and only when one of these is true:
 
 - The area has no good install in the ledger yet.
-- The lockfile changed since the last good install. The lockfile is the first of `bun.lock`, `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `uv.lock`, `poetry.lock`, `Gemfile.lock`, `go.sum` and `Cargo.lock`.
-- The folder that the lockfile fills is gone: `node_modules` for the JavaScript lockfiles, `.venv` for `uv.lock` and `poetry.lock`.
+- The lockfile changed since the last good install. The lockfile is the first of `bun.lock`, `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `uv.lock`, `poetry.lock`, `Gemfile.lock`, `go.sum` and `Cargo.lock` in the area folder. With none there, it is the nearest one above, up to the root of the git repo, as for a workspace member.
+- The folder that the lockfile fills beside it is gone: `node_modules` for the JavaScript lockfiles, `.venv` for `uv.lock` and `poetry.lock`.
 
-The table `area_install` keeps the hash of the lockfile of the last good install of each area. An area with no `install` never installs.
+The table `area_install` keeps the hash of the lockfile after the last good install of each area, so an install that writes its lockfile does not run again. An area with no `install` never installs.
 
 ## 3. Roles
 

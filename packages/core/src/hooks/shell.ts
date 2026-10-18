@@ -20,38 +20,57 @@ export const plainWords = (command: string): { plain: string; words: string[] } 
   return { plain, words: plain.split(/[\s;|&<>()]+/).filter(Boolean) }
 }
 
-// a wrapper runs the program that follows it; an assignment only sets the environment of that program
-const WRAPPER = /(^|\/)(?:sudo|env|exec|command|nohup|time|xargs)$/
-const ASSIGNMENT = /^[A-Za-z_]\w*=/
+const SHELL = /(^|\/)(?:sh|bash|zsh|dash|ksh)$/
 
-/** The program of each simple command: split on `;`, `|`, `&`, `(`, `)` and new lines outside quotes, past wrappers and assignments. */
-export function commandNames(command: string): string[] {
-  return simpleCommands(commandOnly(command)).flatMap(segment => {
-    const words = segment.replace(/["'\\]/g, '').split(/\s+/).filter(Boolean)
-    const name = words.find(word => !ASSIGNMENT.test(word) && !WRAPPER.test(word) && !word.startsWith('-'))
-    return name ? [name] : []
+/**
+ * The words of a command as the shell reads them: quotes join a word and go. The code that the command runs adds
+ * its own words: a `$(...)` or backtick substitution, the words after `eval`, and the script of `sh -c`.
+ */
+export function shellWords(command: string): string[] {
+  const { words, code } = splitWords(commandOnly(command))
+  const nested = [...code]
+  words.forEach((word, i) => {
+    if (SHELL.test(word) && /^-\w*c\w*$/.test(words[i + 1] ?? '')) nested.push(words[i + 2] ?? '')
+    if (/(^|\/)eval$/.test(word)) nested.push(words.slice(i + 1).join(' '))
   })
+  return [...words, ...nested.flatMap(shellWords)]
 }
 
-function simpleCommands(command: string): string[] {
-  const segments: string[] = []
-  let current = ''
+/** One pass over the text: its words, and the code of each substitution outside single quotes. */
+function splitWords(text: string): { words: string[]; code: string[] } {
+  const words: string[] = []
+  const code: string[] = []
+  let word = ''
   let quote: string | null = null
-  for (let i = 0; i < command.length; i++) {
-    const char = command[i]!
-    if (quote) {
-      if (char === quote) quote = null
-      else if (char === '\\' && quote === '"') current += command[++i] ?? ''
-      else current += char
-      continue
-    }
-    if (char === '"' || char === "'") quote = char
-    else if (char === '\\') current += command[++i] ?? ''
-    else if (';|&()\n'.includes(char)) {
-      segments.push(current)
-      current = ''
-    } else current += char
+  const endWord = () => {
+    if (word) words.push(word)
+    word = ''
   }
-  segments.push(current)
-  return segments.map(s => s.trim()).filter(Boolean)
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i]!
+    if (quote !== "'" && (char === '`' || (char === '$' && text[i + 1] === '('))) {
+      const close = char === '`' ? text.indexOf('`', i + 1) : closingParen(text, i + 1)
+      const stop = close === -1 ? text.length : close
+      code.push(text.slice(char === '`' ? i + 1 : i + 2, stop))
+      i = stop
+    } else if (quote) {
+      if (char === quote) quote = null
+      else if (char === '\\' && quote === '"') word += text[++i] ?? ''
+      else word += char
+    } else if (char === '"' || char === "'") quote = char
+    else if (char === '\\') word += text[++i] ?? ''
+    else if (/[\s;|&()<>{}!]/.test(char)) endWord()
+    else word += char
+  }
+  endWord()
+  return { words, code }
+}
+
+function closingParen(text: string, open: number): number {
+  let depth = 0
+  for (let i = open; i < text.length; i++) {
+    if (text[i] === '(') depth++
+    else if (text[i] === ')' && --depth === 0) return i
+  }
+  return -1
 }

@@ -737,11 +737,11 @@ export class Engineering {
 
   private installIfNeeded(area: Area, dir: string): Install | null {
     if (!area.install || !needsInstall(dir, this.stores.installs.lastLock(area.name))) return null
-    const lock = lockHash(dir)
     const run = runShell(area.install, dir, INSTALL_LIMIT_MS)
     const ok = run.code === 0
     const output = ok ? run.output.slice(-OUTPUT_KEEP) : errorLines(run.output)
-    return { outcome: { area: area.name, check: `${INSTALL_PREFIX}${area.install}`, result: ok ? 'pass' : 'fail', output }, lock }
+    // the hash after the install: an install can write or update its lockfile
+    return { outcome: { area: area.name, check: `${INSTALL_PREFIX}${area.install}`, result: ok ? 'pass' : 'fail', output }, lock: lockHash(dir) }
   }
 
   private runCheck(area: string, dir: string, check: string): CheckOutcome {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { commandNames, commandOnly } from '../../src/hooks/shell.ts'
+import { commandOnly, shellWords } from '../../src/hooks/shell.ts'
 
 describe('commandOnly', () => {
   test('drops heredoc bodies and comments, and keeps the commands', () => {
@@ -8,20 +8,28 @@ describe('commandOnly', () => {
   })
 })
 
-describe('commandNames', () => {
-  test('gives the program of each command between ;, |, && and new lines', () => {
-    expect(commandNames('cd src && ls -la | wc -l; git status\nbun test')).toEqual(['cd', 'ls', 'wc', 'git', 'bun'])
+describe('shellWords', () => {
+  test('joins a quoted word, and splits on operators outside quotes', () => {
+    expect(shellWords(`grep -e 'a|b' f && echo "x; y"|wc`)).toEqual(['grep', '-e', 'a|b', 'f', 'echo', 'x; y', 'wc'])
   })
 
-  test('keeps an operator inside quotes as part of the word', () => {
-    expect(commandNames(`grep -e 'a|b' f && echo "x; y"`)).toEqual(['grep', 'echo'])
+  test('adds the words of a $(...) substitution, also inside double quotes', () => {
+    expect(shellWords('echo "$(date -u)"')).toEqual(['echo', 'date', '-u'])
   })
 
-  test('steps past wrappers and assignments to the program they run', () => {
-    expect(commandNames('X=1 Y=2 sudo env nohup git log')).toEqual(['git'])
+  test('adds the words of a backtick substitution', () => {
+    expect(shellWords('echo `id -u`')).toEqual(['echo', 'id', '-u'])
   })
 
-  test('steps past a wrapper named by its path, and keeps the path of the program', () => {
-    expect(commandNames('/usr/bin/env /opt/bin/python3 a.py')).toEqual(['/opt/bin/python3'])
+  test('keeps a $(...) inside single quotes as text', () => {
+    expect(shellWords("echo '$(id)'")).toEqual(['echo', '$(id)'])
+  })
+
+  test('adds the words of the script of sh -c', () => {
+    expect(shellWords('bash -lc "cd x && pwd"')).toEqual(['bash', '-lc', 'cd x && pwd', 'cd', 'x', 'pwd'])
+  })
+
+  test('adds the words that eval runs', () => {
+    expect(shellWords('eval "ls -a"')).toEqual(['eval', 'ls -a', 'ls', '-a'])
   })
 })

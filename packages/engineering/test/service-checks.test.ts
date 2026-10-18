@@ -66,11 +66,11 @@ describe('Engineering.verify with an area install', () => {
   const INSTALL_SH = 'mkdir -p node_modules && echo run >> installs.log\n'
   const installs = () => readFileSync(join(t.area('bff'), 'installs.log'), 'utf8').split('\n').filter(Boolean).length
   const rows = (run: { area: string; check: string; result: string }[]) => run.map(r => [r.area, r.check, r.result])
-  const withInstall = (script = INSTALL_SH) => {
+  const withInstall = (script = INSTALL_SH, lockfile = true) => {
     t.cleanup()
     t = makeHome({ install: 'sh install.sh' })
     writeFileSync(join(t.area('bff'), 'install.sh'), script)
-    writeFileSync(join(t.area('bff'), 'bun.lock'), 'lock v1\n')
+    if (lockfile) writeFileSync(join(t.area('bff'), 'bun.lock'), 'lock v1\n')
     itemAt(t, 'cooking', 'SHOP-1', SPEC({ areas: ['bff', 'web'] }), TASKS([{ id: 'T1' }, { id: 'T2', area: 'web' }]))
   }
 
@@ -86,6 +86,14 @@ describe('Engineering.verify with an area install', () => {
     const lead = t.eng(LEAD)
     lead.verify('SHOP-1')
     expect(rows(lead.verify('SHOP-1'))).toEqual([['bff', 'sh test.sh', 'pass'], ['web', 'sh test.sh', 'pass']])
+    expect(installs()).toBe(1)
+  })
+
+  test('an install that writes the lockfile records that lockfile, so the next run does not install again', () => {
+    withInstall(`${INSTALL_SH}echo "lock written" > bun.lock\n`, false)
+    const lead = t.eng(LEAD)
+    lead.verify('SHOP-1')
+    expect(rows(lead.verify('SHOP-1'))[0]).toEqual(['bff', 'sh test.sh', 'pass'])
     expect(installs()).toBe(1)
   })
 

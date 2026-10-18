@@ -7,7 +7,7 @@ import { SecretPolicy } from '@nook/desk/secrets.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 import { ROLE_VAR } from '@nook/shared/names.ts'
 
-import { commandNames, plainWords } from './shell.ts'
+import { plainWords, shellWords } from './shell.ts'
 
 /** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside a desk they do nothing. */
 
@@ -36,7 +36,7 @@ export function bashGuard(input: HookInput): HookResult {
     const problem = policy.wordProblem(word)
     if (problem) return block(problem)
   }
-  if (words.some(w => STATE_DB.test(w)) || commandNames(command).some(name => SQLITE.test(name)))
+  if (words.some(w => STATE_DB.test(w)) || shellWords(command).some(word => SQLITE.test(word)))
     return block('the state databases are not for the shell: use the nook commands.')
   const listed = policy.listedIn(plain)
   if (listed) return block(`the command names ${listed}, a secret of nook.yml.`)

@@ -24,6 +24,31 @@ describe('lockHash', () => {
   })
 })
 
+describe('lockHash of a workspace member', () => {
+  test('uses the lockfile of a folder above it, up to the root of its git repo', () => {
+    mkdirSync(join(dir, 'repo', '.git'), { recursive: true })
+    mkdirSync(join(dir, 'repo', 'packages', 'a'), { recursive: true })
+    writeFileSync(join(dir, 'repo', 'bun.lock'), 'abc')
+    expect(lockHash(join(dir, 'repo', 'packages', 'a'))).toBe('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad')
+  })
+
+  test('never uses a lockfile above the root of the repo', () => {
+    mkdirSync(join(dir, 'repo', '.git'), { recursive: true })
+    writeFileSync(join(dir, 'bun.lock'), 'abc')
+    expect(lockHash(join(dir, 'repo'))).toBe('')
+  })
+
+  test('needs an install when the dependency folder beside the lockfile is gone', () => {
+    mkdirSync(join(dir, 'repo', '.git'), { recursive: true })
+    mkdirSync(join(dir, 'repo', 'packages', 'a'), { recursive: true })
+    writeFileSync(join(dir, 'repo', 'bun.lock'), 'v1')
+    const member = join(dir, 'repo', 'packages', 'a')
+    expect(needsInstall(member, lockHash(member))).toBe(true)
+    mkdirSync(join(dir, 'repo', 'node_modules'))
+    expect(needsInstall(member, lockHash(member))).toBe(false)
+  })
+})
+
 describe('needsInstall', () => {
   test('is true for an area that never installed', () => {
     expect(needsInstall(dir, null)).toBe(true)

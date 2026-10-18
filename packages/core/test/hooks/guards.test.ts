@@ -48,11 +48,16 @@ describe('bashGuard', () => {
     command => expect(bash(command)).toBe('pass'),
   )
 
-  test.each(['sqlite3 .nook/engineering.db', 'cat .nook/x.db', 'cd db && sqlite3 a.db', '/usr/bin/sqlite3 a.db', 'X=1 sqlite3 a.db', 'sudo sqlite a.db', 'echo .q | sqlite3 a.db'])('blocks a command on a state database: %s', command => {
+  test.each([
+    'sqlite3 .nook/engineering.db', 'cat .nook/x.db', 'cd db && sqlite3 a.db', '/usr/bin/sqlite3 a.db', 'X=1 sqlite3 a.db', 'sudo sqlite a.db', 'echo .q | sqlite3 a.db',
+    'bash -c "cd .nook && sqlite3 ledger.db"', 'bash -lc "sqlite3 x"', 'find . -name a.db -exec sqlite3 {} .dump \\;', 'X="a b" sqlite3 /tmp/x.db',
+    'timeout 5 sqlite3 x', 'nice sqlite3 x', 'sudo -u root sqlite3 x', 'if true; then sqlite3 x; fi', '{ sqlite3 x; }', '! sqlite3 x',
+    'echo `sqlite3 x`', 'echo "$(sqlite3 x)"', 'eval "sqlite3 x"',
+  ])('blocks a command on a state database: %s', command => {
     expect(bash(command)).toBe('block')
   })
 
-  test.each(['grep -rn "bun:sqlite" src', 'grep -n "sqlite interface\\|command runner" docs/plan.md', "grep -e 'x|sqlite' f", 'echo sqlite'])('lets a command that only names sqlite as text pass: %s', command => {
+  test.each(['grep -rn "bun:sqlite" src', 'grep -n "sqlite interface\\|command runner" docs/plan.md', "grep -e 'x|sqlite' f"])('lets a search pattern that only contains sqlite pass: %s', command => {
     expect(bash(command)).toBe('pass')
   })
 
