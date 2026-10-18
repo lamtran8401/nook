@@ -1,10 +1,9 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
 import { SecretPolicy } from '@nook/desk/secrets.ts'
-import { Home } from '@nook/engineering/home.ts'
-import { findLearn } from '@nook/learn/learn.ts'
-import { findWiki } from '@nook/wiki/module.ts'
+
+import { deskPlaces } from './places.ts'
 
 /**
  * The search box: a scan of the Markdown files of each pack of the desk, read again at each search, so a page changed
@@ -13,29 +12,7 @@ import { findWiki } from '@nook/wiki/module.ts'
 
 export type Hit = { file: string; href: string; heading: string; line: number; text: string }
 
-/** A folder that a pack owns, and the page of the web app for one of its files. */
-type Place = { root: string; href: (rel: string) => string }
-
-const DOC_TABS = ['spec', 'plan', 'tasks', 'walkthrough']
 const LIMIT = 50
-
-function places(desk: string): Place[] {
-  const works = Home.find(desk)?.workRoot
-  const wiki = findWiki(desk)?.dir
-  const learn = findLearn(desk)?.dir
-  return [
-    ...(works ? [{ root: works, href: (rel: string) => itemHref(rel) }] : []),
-    ...(wiki ? [{ root: wiki, href: (rel: string) => `/wiki/${rel}` }] : []),
-    ...(learn ? [{ root: learn, href: (rel: string) => `/learn/${rel.split('/')[0]}` }] : []),
-  ].filter(place => existsSync(place.root))
-}
-
-/** `SHOP-42/plan.md` opens the tab Plan of the item; another file of the item opens its Overview. */
-function itemHref(rel: string): string {
-  const [id, file = ''] = rel.split('/')
-  const tab = file.replace(/\.md$/, '')
-  return DOC_TABS.includes(tab) ? `/works/${id}?tab=${tab}` : `/works/${id}`
-}
 
 /** The Markdown files under a folder; a link is never followed, so it never leads to a file outside. */
 function markdownFiles(root: string): string[] {
@@ -62,7 +39,7 @@ export function search(desk: string, query: string): Hit[] {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean)
   if (!words.length) return []
   const secrets = new SecretPolicy(desk)
-  return places(desk)
+  return deskPlaces(desk)
     .flatMap(place =>
       markdownFiles(place.root)
         .filter(path => !secrets.isSecretPath(path))

@@ -82,6 +82,8 @@ The chart of a course draws a line for each criterion with a score on every day 
 
 The search box reads the Markdown files of each pack again at each search, so a page changed a moment ago gives its new words. It keeps no index. It never reads a secret file and never follows a link.
 
+An open page renders again by itself when the desk changes, with no reload, within a second. `/live` sends an event when a file of a pack folder or the ledger in `.nook/` changes; a burst of writes gives one event. A change in the code of an area sends none.
+
 `bun run demo <dir>` builds a desk with mock work items in a new folder: one item in each state of the flow, made through the real moves. Open it with `nook web` from a terminal outside Claude Code.
 
 `nook doctor` and `nook brief` only read. `readHome(desk, modules)` in `packages/core/src/read.ts` gives the same brief of one desk and the findings of its doctor, for the home page of the web app.

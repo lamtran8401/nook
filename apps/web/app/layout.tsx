@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 
 import { uiKit } from '@nook/desk/ui-kit.ts'
 
+import { Live } from '../components/Live.tsx'
 import { PackNav } from '../components/PackNav.tsx'
 import { deskDir, packTabs } from '../lib/desk.ts'
 import './app.css'
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </form>
         </header>
         <main className="nk-main">{children}</main>
+        <Live />
         <script dangerouslySetInnerHTML={{ __html: kit.js }} />
       </body>
     </html>
