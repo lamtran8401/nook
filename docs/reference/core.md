@@ -60,7 +60,7 @@ Each pack adds its commands under its name: `nook eng …`, `nook wiki …`, `no
 6. It starts `apps/web/server.ts` under Node and writes the token to its stdin. The token is never in an argument, a variable, a file that others can read, or the terminal.
 7. It writes the port and the process to `.nook/web.json`, opens the browser through a page that only the owner can read, and removes the file when the server stops. The server stops when `nook web` ends, also when its terminal closes.
 
-The server lets a request in only on its own host `127.0.0.1:<port>`. The token works once, within 2 minutes, and becomes an HttpOnly, SameSite=Strict cookie whose name holds the port. A write needs the origin of the page.
+The server lets a request in only on its own host `127.0.0.1:<port>`. The token works once, within 2 minutes, and becomes an HttpOnly, SameSite=Strict cookie whose name holds the port. The answer to the token is a page that sets the cookie and then moves to the address itself. A browser sends no Strict cookie on a navigation that another site started, and the page on the disk that holds the token counts as another site. A write needs the origin of the page.
 
 The shell guard blocks a call to the port in `.nook/web.json` on any spelling of this machine, such as `127.1:<port>`, `localhost <port>` or `/dev/tcp/127.0.0.1/<port>`. A broken `web.json` blocks each shell call until the owner deletes it.
 

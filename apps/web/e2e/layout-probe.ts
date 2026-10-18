@@ -9,8 +9,8 @@ export type Diagram = { name: string; spec: object }
 
 const CHROMES = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/google-chrome', '/usr/bin/chromium']
 
-/** The Chrome that draws the page: NOOK_CHROME, else the usual place on macOS or Linux. */
-function chromePath(): string {
+/** The Chrome of the browser checks: NOOK_CHROME, else the usual place on macOS or Linux. */
+export function chromePath(): string {
   const chrome = process.env.NOOK_CHROME ?? CHROMES.find(path => existsSync(path))
   if (!chrome) throw new Error(`the layout check needs Google Chrome; set NOOK_CHROME to its path. Looked in: ${CHROMES.join(', ')}`)
   return chrome

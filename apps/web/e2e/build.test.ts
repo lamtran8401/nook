@@ -28,7 +28,7 @@ beforeAll(() => {
   build = runCommand(['node', join(web, 'node_modules', 'next', 'dist', 'bin', 'next'), 'build'], { cwd: web, env: noDesk, timeoutMs: 300_000 })
 })
 type Answer = { status: number; body: string }
-type Answers = Record<'home' | 'page' | 'item' | 'dialog', Answer> & { login: { status: number; location: string; cookie: string }; stranger: { status: number } }
+type Answers = Record<'home' | 'page' | 'item' | 'dialog', Answer> & { login: { status: number; body: string; cookie: string }; stranger: { status: number } }
 let rendered: Answers | null = null
 
 /** The answers of the real request handler under Node, rendered once for the tests that read them. */
@@ -56,7 +56,7 @@ describe('the web app', () => {
   })
 
   test('swaps the one-time token for a cookie and refuses a request with none', () => {
-    expect(answer().login).toMatchObject({ status: 303, location: '/' })
+    expect(answer().login).toMatchObject({ status: 200, body: expect.stringContaining('<script>location.replace("/")</script>') })
     expect(answer().login.cookie).toMatch(/^nook_session_4321=.+/)
     expect(answer().stranger.status).toBe(401)
   })

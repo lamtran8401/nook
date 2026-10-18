@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { Gate, type GateRequest } from '../lib/gate.ts'
+import { Gate, gateAnswer, type GateRequest } from '../lib/gate.ts'
 
 const PORT = 4321
 const HOST = `127.0.0.1:${PORT}`
@@ -11,6 +11,20 @@ const gate = (token = 'token-abc') => {
   return new Gate(token, PORT, { newId: () => `session-${++n}`, now: () => clock })
 }
 const request = (url: string, headers: GateRequest['headers'] = {}, method = 'GET'): GateRequest => ({ method, url, headers: { host: HOST, ...headers } })
+
+describe('gateAnswer', () => {
+  test('a login is a page that sets the cookie and moves to the address itself, so the browser sends the Strict cookie', () => {
+    expect(gateAnswer({ kind: 'login', cookie: 'nook_session_4321=s-1; HttpOnly; SameSite=Strict; Path=/', location: '/works?tab=plan&x=<y>' })).toEqual({
+      status: 200,
+      headers: { 'Set-Cookie': 'nook_session_4321=s-1; HttpOnly; SameSite=Strict; Path=/', 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' },
+      body: '<!doctype html><meta charset="utf-8"><title>Nook</title><meta http-equiv="refresh" content="0;url=/works?tab=plan&amp;x=&lt;y>"><script>location.replace("/works?tab=plan&x=\\u003cy>")</script>',
+    })
+  })
+
+  test('a denial is its reason as plain text', () => {
+    expect(gateAnswer({ kind: 'deny', status: 401, reason: 'open the web app with `nook web`' })).toEqual({ status: 401, headers: { 'Content-Type': 'text/plain; charset=utf-8' }, body: 'open the web app with `nook web`' })
+  })
+})
 
 describe('Gate', () => {
   test('the first open with the token sets the session cookie and drops the token from the address', () => {

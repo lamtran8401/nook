@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 
 import next from 'next'
 
-import { Gate } from './gate.ts'
+import { Gate, gateAnswer } from './gate.ts'
 
 export type WebHandler = (req: IncomingMessage, res: ServerResponse) => Promise<void>
 
@@ -14,19 +14,10 @@ export async function createHandler(options: { dir: string; port: number; token:
   const gate = new Gate(options.token, options.port)
   return async (req, res) => {
     const decision = gate.admit({ method: req.method ?? 'GET', url: req.url ?? '/', headers: req.headers })
-    if (decision.kind === 'login') {
-      res.statusCode = 303
-      res.setHeader('Set-Cookie', decision.cookie)
-      res.setHeader('Location', decision.location)
-      res.end()
-      return
-    }
-    if (decision.kind === 'deny') {
-      res.statusCode = decision.status
-      res.setHeader('Content-Type', 'text/plain; charset=utf-8')
-      res.end(decision.reason)
-      return
-    }
-    await handle(req, res)
+    if (decision.kind === 'pass') return handle(req, res)
+    const answer = gateAnswer(decision)
+    res.statusCode = answer.status
+    for (const [name, value] of Object.entries(answer.headers)) res.setHeader(name, value)
+    res.end(answer.body)
   }
 }
