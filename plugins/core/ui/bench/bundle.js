@@ -110,8 +110,35 @@
     pop.style.top = top + 'px';
   }
 
+  // a floating bar is stuck once the line just above it has passed the bar's own top offset
+  var floats = [], floatsWatched = false, floatFrame = 0;
+  function updateFloats() {
+    floatFrame = 0;
+    floats.forEach(function (f) {
+      var top = parseFloat(getComputedStyle(f.el).top) || 0;
+      f.el.classList.toggle('is-stuck', f.mark.getBoundingClientRect().top < top);
+    });
+  }
+  function watchFloats() {
+    if (floatsWatched) return;
+    floatsWatched = true;
+    var ask = function () { if (!floatFrame) floatFrame = requestAnimationFrame(updateFloats); };
+    addEventListener('scroll', ask, { passive: true });
+    addEventListener('resize', ask);
+  }
+
   function init(root) {
     root = root || document;
+
+    $all(root, '[data-bn-float]').forEach(function (el) {
+      if (!once(el, 'float')) return;
+      var mark = document.createElement('div');
+      mark.setAttribute('aria-hidden', 'true');
+      mark.style.cssText = 'height:1px;margin-bottom:-1px';
+      el.parentNode.insertBefore(mark, el);
+      floats.push({ el: el, mark: mark });
+    });
+    if (floats.length) { watchFloats(); updateFloats(); }
 
     $all(root, '[data-bn-icon]').forEach(function (el) {
       if (!once(el, 'icon')) return;
@@ -256,7 +283,7 @@
     return root;
   }
 
-  window.Bench = { version: '6.1.0', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
+  window.Bench = { version: '6.2.0', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(document); });
   else init(document);
 })();
@@ -1484,6 +1511,8 @@
   var EXPAND_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>'
   // drawn diagrams gain from zoom; a board, tree, timeline or chart is HTML that scrolls on its own
   var ZOOMABLE = { graph: 1, sequence: 1, mind: 1, links: 1 }
+  // a list of cards or rows needs no card around it; drawings, charts and boards do
+  var FRAMELESS = { timeline: 1, tree: 1, compare: 1 }
   function expandMode(spec) {
     if (spec.expand === 'zoom' || spec.expand === 'view') return spec.expand
     if (spec.expand === false) return ''
@@ -1735,7 +1764,7 @@
     if (el._bnDiagram) el._bnDiagram.stop()
     startTips()
     el.classList.add('dg')
-    el.classList.toggle('dg--bare', spec.frame === false)
+    el.classList.toggle('dg--bare', spec.frame != null ? spec.frame === false : !!FRAMELESS[spec.type])
     el.innerHTML = ''
     var last = 0, redraw = null, built = false
     var run = function (force) {

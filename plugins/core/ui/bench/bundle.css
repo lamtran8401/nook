@@ -651,6 +651,7 @@ a.bn-list__item:hover, button.bn-list__item:hover { background: var(--bg-muted);
 .bn-card__head { display: flex; align-items: flex-start; gap: var(--space-3); }
 .bn-card__desc { font-size: 13px; line-height: 20px; color: var(--fg-muted); margin: 2px 0 0; }
 .bn-legend span[data-highlight]::before { background: var(--accent); box-shadow: inset 0 0 0 1px var(--accent-fg); }
+.bn-legend span[data-tone="ink"]::before { background: var(--inverse); }
 .bn-btn[data-shape="pill"] { border-radius: var(--radius-full); }
 .bn-columns { margin-bottom: 24px; }
 .bn-alert__icon .bn-icon { width: 15px; height: 15px; }
@@ -917,7 +918,7 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 /* 1 shape */
 .dg .dg-node { border-radius: var(--r-shape); corner-shape: superellipse(1.4); box-shadow: var(--edge), var(--lift); }
 .dg .dg-node[data-tone] {
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--t) 24%, var(--border)), 0 1px 2px rgba(22,23,26,.04), 0 8px 18px -12px color-mix(in oklab, var(--t) 40%, transparent); }
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--t) 40%, var(--border)), 0 1px 2px rgba(22,23,26,.04), 0 8px 18px -12px color-mix(in oklab, var(--t) 40%, transparent); }
 .dg .dg-node[data-fill="soft"] {
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--t) 16%, transparent), 0 8px 18px -12px color-mix(in oklab, var(--t) 40%, transparent); }
 .dg .dg-node[data-fill="ink"], .dg .dg-node[data-fill="solid"] { box-shadow: var(--lift-ink); }
@@ -960,7 +961,7 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
   width: max-content; min-width: 120px; min-height: 48px; padding: 14px 18px; color: var(--fg); background: var(--surface);
   border: 1px solid transparent;
 }
-.dg-node[data-tone] { color: var(--fg); background: color-mix(in oklab, var(--t-subtle) 45%, var(--surface)); }
+.dg-node[data-tone] { color: var(--fg); background: color-mix(in oklab, var(--t-subtle) 85%, var(--surface)); }
 .dg-node[data-line="dashed"] { border: 1px dashed var(--border-strong); background: var(--surface); }
 .dg-node[data-tone][data-line="dashed"] { border-color: color-mix(in oklab, var(--t) 60%, transparent); background: color-mix(in oklab, var(--t-subtle) 30%, var(--surface)); }
 .dg-node[data-fill="soft"] { background: var(--t-subtle); }
@@ -1039,12 +1040,14 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 .dg-group { position: relative; z-index: 0; align-self: stretch; justify-self: stretch; margin: calc(var(--gpad) * -1); margin-top: calc(var(--gpad) * -1 - 12px); border: 1.2px dashed var(--border-strong); }
 .dg-group[data-tone] { border-color: color-mix(in oklab, var(--t) 50%, transparent); }
 .dg-group[data-style="solid"] { border-style: solid; border-color: var(--border); }
-.dg-group[data-style="fill"] { background: color-mix(in oklab, var(--t-subtle) 45%, transparent); }
+.dg-group[data-style="fill"] { background: color-mix(in oklab, var(--t-subtle) 24%, transparent); }
 .dg-group__label {
   position: absolute; top: -10px; left: 16px; max-width: calc(100% - 32px); display: inline-flex; align-items: center; gap: 6px;
   padding: 0 8px; background: var(--dg-bg, var(--bg)); font: 600 11px/18px var(--font-sans); letter-spacing: .05em; text-transform: uppercase; color: var(--t);
 }
 .dg-group__label .dg-i { width: 13px; height: 13px; flex: none; }
+/* on a filled group the label is a small rounded chip of the group tone, so it never reads as a patch on the fill */
+.dg-group[data-style="fill"] > .dg-group__label { top: -11px; padding: 1px 10px; border-radius: var(--radius-full); background: color-mix(in oklab, var(--t-subtle) 70%, var(--dg-bg, var(--surface))); box-shadow: 0 0 0 1px color-mix(in oklab, var(--t) 30%, transparent); }
 .dg-cut { display: block; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* edges */
@@ -1153,9 +1156,13 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 .tl-switch button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow-1); }
 .tl-switch button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .tl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; position: relative; }
-.tl::before { content: ""; position: absolute; top: 40px; bottom: 18px; width: 2px; border-radius: 2px; background: var(--border); }
-.tl[data-time="left"]::before { left: calc(46px + 12px + 17px); }
-.tl[data-time="right"]::before { left: 17px; }
+.tl { --rail: calc(46px + 12px + 17px); }
+.tl[data-time="right"] { --rail: 17px; }
+.tl > li { position: relative; }
+/* the rail runs from each point to the next one, and stops at the last point */
+.tl-ev:not(:last-child)::before, .tl-day:not(:first-child)::before { content: ""; position: absolute; left: var(--rail); width: 2px; border-radius: 2px; background: var(--border); }
+.tl-ev:not(:last-child)::before { top: 40px; bottom: -12px; }
+.tl-day:not(:first-child)::before { top: -12px; bottom: -12px; }
 .tl-day { font: 600 12px/18px var(--font-sans); letter-spacing: .05em; text-transform: uppercase; color: var(--fg-muted); padding-left: calc(46px + 12px + 48px); }
 .tl[data-time="right"] .tl-day { padding-left: 48px; }
 .tl-ev:not([data-tone]) { --t: var(--fg-muted); --t-subtle: var(--bg-muted); }
@@ -1163,7 +1170,7 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 .tl[data-time="right"] .tl-ev { grid-template-columns: 36px 1fr; }
 .tl-time { font: 600 12.5px/36px var(--font-mono); color: var(--fg); text-align: right; }
 .tl[data-time="right"] .tl-time { grid-column: 2; grid-row: 1; justify-self: end; z-index: 1; margin: 11px 14px 0 0; padding: 0 8px; border-radius: 6px; background: var(--t-subtle); color: var(--t); line-height: 20px; font-size: 12px; }
-.tl-ico { width: 36px; height: 36px; border-radius: var(--r-tile); corner-shape: superellipse(1.4); display: grid; place-items: center; background: var(--t-subtle); color: var(--t); box-shadow: 0 0 0 4px var(--bg); }
+.tl-ico { width: 36px; height: 36px; border-radius: var(--r-tile); corner-shape: superellipse(1.4); display: grid; place-items: center; background: var(--t-subtle); color: var(--t); box-shadow: 0 0 0 4px color-mix(in oklab, var(--t-subtle) 55%, var(--dg-bg, var(--bg))); }
 .tl[data-time="right"] .tl-ico { grid-column: 1; grid-row: 1; }
 .tl[data-time="right"] .tl-card { grid-column: 2; grid-row: 1; }
 .tl-ico .dg-i { width: 17px; height: 17px; }
@@ -1205,7 +1212,7 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 /* ===== board: one column for each state that holds items; the empty states wait in a small panel at the end ===== */
 .bd { display: grid; grid-template-columns: repeat(var(--cols, 5), minmax(176px, 1fr)); gap: 10px; align-items: start; }
 .bd-col:not([data-tone]) { --t: var(--fg-muted); --t-subtle: var(--bg-muted); }
-.bd-col { display: flex; flex-direction: column; gap: 10px; padding: 10px; background: var(--bg-muted); min-height: 150px; }
+.bd-col { display: flex; flex-direction: column; gap: 10px; padding: 10px; background: color-mix(in oklab, var(--bg-muted) 55%, var(--surface)); min-height: 150px; }
 .bd-col:has(> .bd-empty) { min-width: 0; }
 .bd-col__head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 4px 6px; font: 600 13px/18px var(--font-sans); }
 .bd-col:has(> .bd-empty) .bd-col__head { flex-wrap: nowrap; white-space: nowrap; }
@@ -1229,8 +1236,9 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 .bd-areas span::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--t); }
 .bd-meter { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; font: 600 11.5px/16px var(--font-mono); color: var(--fg-muted); }
 .bd-meter .bn-progress { height: 6px; }
-.bd-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 12px; color: var(--fg-muted); }
-.bd-foot > span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.bd-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 12px; line-height: 18px; color: var(--fg-muted); }
+.bd-foot > span { display: inline-flex; align-items: flex-start; gap: 4px; max-width: 100%; min-width: 0; overflow-wrap: anywhere; }
+.bd-foot > span .dg-i { flex: none; margin-top: 2px; }
 .bd-foot .dg-i { width: 13px; height: 13px; }
 .bd-wait { color: var(--warning); font-weight: 600; }
 .bd-fail { color: var(--danger); font-weight: 600; }
@@ -1314,7 +1322,8 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 .dg-donut li small { font: 500 12px/18px var(--font-mono); color: var(--fg-muted); min-width: 38px; text-align: right; }
 
 /* ---------- board: a column scrolls inside itself past --bd-col-h; a card title shows two lines, the tooltip the rest ---------- */
-.bd-col__body { display: flex; flex-direction: column; gap: 10px; max-height: var(--bd-col-h, 560px); overflow-y: auto; padding: 3px; margin: -3px; overscroll-behavior: contain; }
+.bd-col__body { display: flex; flex-direction: column; gap: 10px; max-height: var(--bd-col-h, 560px); overflow-x: hidden; overflow-y: auto; padding: 3px 4px 8px; margin: -3px -4px -2px; overscroll-behavior: contain; }
+.bd-col__body > .bd-card { min-width: 0; }
 .dg .bd-card .bd-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; white-space: normal; text-overflow: clip; }
 
 /* ---------- the boundary of a diagram: a raised card, a 1px ring and a soft lift; labels sit on its fill ---------- */
@@ -1375,6 +1384,123 @@ code.dg-tree__name { flex: none; font: 500 12.5px/20px var(--font-mono); color: 
 .dg-space__items[data-flow="row"] > * { flex: 1 1 160px; }
 .dg-space__items[data-flow="grid"] { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-5) var(--space-4); align-items: start; }
 .dg-space .dg-node { width: auto; min-width: 0; }
+
+/* =====================================================================
+   RECORDS AND WORK — rows and cards for the record of a piece of work
+   ===================================================================== */
+/* records: one row for each record with an id, such as a criterion, a question or a guess */
+.bn-records { list-style: none; margin: 0; padding: 8px 20px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
+.bn-records > li { display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 14px 0; border-bottom: var(--stroke-1) solid var(--border); }
+.bn-records > li:last-child { border-bottom: 0; }
+.bn-records__id { width: 36px; height: 36px; border-radius: 10px; background: var(--bg-muted); display: grid; place-items: center; font: 600 11px/1 var(--font-mono); color: var(--fg-muted); }
+.bn-records__head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-bottom: 4px; }
+.bn-records__meta { font: 400 12px/16px var(--font-mono); color: var(--fg-muted); }
+.bn-records__state { margin-left: auto; }
+.bn-records p { margin: 0; font-size: 15px; line-height: 24px; }
+.bn-records .bn-records__sub { margin-top: 4px; font-size: 14px; color: var(--fg-muted); }
+
+/* actions: what waits for a person, each row with the move that answers it */
+.bn-actions { list-style: none; margin: 0; padding: 0; }
+.bn-actions > li { display: grid; grid-template-columns: 34px 1fr auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: var(--stroke-1) solid var(--border); }
+.bn-actions > li:last-child { border-bottom: 0; }
+.bn-actions__ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--t-subtle); color: var(--t); font-weight: 700; }
+.bn-actions__ico:not([data-tone]) { --t: var(--fg-muted); --t-subtle: var(--bg-muted); }
+.bn-actions b { display: block; font-size: 14.5px; line-height: 21px; }
+.bn-actions small { display: block; color: var(--fg-muted); font-size: 13px; line-height: 19px; }
+.bn-actions__act { display: flex; gap: 6px; }
+.bn-actions__group { display: flex; align-items: center; gap: 8px; margin: 16px 0 2px; font: 600 13px/18px var(--font-sans); color: var(--fg-muted); text-transform: uppercase; letter-spacing: .04em; }
+
+/* rules: a named rule, its words with an example, and where it comes from */
+.bn-rules { list-style: none; margin: 0; padding: 4px 20px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
+.bn-rules > li { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 14px; align-items: baseline; padding: 11px 0; border-bottom: var(--stroke-1) solid var(--border); font-size: 14.5px; line-height: 22px; }
+.bn-rules > li:last-child { border-bottom: 0; }
+.bn-rules p { margin: 0; }
+.bn-rules__src { display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* outlist: the things that a piece of work does not do */
+.bn-outlist { list-style: none; margin: 0; padding: 6px 18px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
+.bn-outlist > li { display: flex; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: var(--stroke-1) solid var(--border); font-size: 14.5px; line-height: 22px; }
+.bn-outlist > li:last-child { border-bottom: 0; }
+.bn-outlist > li::before { content: "✕"; flex: none; color: var(--fg-muted); font-size: 12px; }
+
+/* task: one unit of work with its fields and what it waits for */
+.bn-task { display: flex; flex-direction: column; gap: 10px; padding: 20px 22px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
+.bn-task__kicker { display: flex; gap: 8px; align-items: center; font: 600 12px/16px var(--font-mono); color: var(--fg-muted); text-transform: uppercase; letter-spacing: .04em; }
+.bn-task__kicker .bn-badge { text-transform: none; letter-spacing: normal; }
+.bn-task__title { font: 600 18px/26px var(--font-sans); margin: 0; }
+.bn-task__rows { display: grid; grid-template-columns: 96px 1fr; gap: 8px 16px; margin: 4px 0 0; font-size: 14px; line-height: 22px; }
+.bn-task__rows dt { color: var(--fg-muted); }
+.bn-task__rows dd { margin: 0; }
+.bn-task__foot { border-top: var(--stroke-1) solid var(--border); padding-top: 12px; margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* pieces: what works now, one card for each piece, in plain words */
+.bn-pieces { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+.bn-piece { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
+.bn-piece__head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.bn-piece__head h3 { margin: 0 auto 0 0; font: 600 16px/24px var(--font-sans); }
+.bn-piece p { margin: 0; font-size: 14.5px; line-height: 23px; }
+
+/* steplist: numbered steps; a step can hold what to do in bold and what you see under it */
+.bn-steplist { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.bn-steplist > li { display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: start; position: relative; }
+.bn-steplist__n { width: 36px; height: 36px; border-radius: 10px; background: var(--surface); box-shadow: 0 0 0 1px var(--border-strong); display: grid; place-items: center; font: 600 13px/1 var(--font-mono); }
+.bn-steplist > li > div, .bn-steplist > li > p { margin: 0; padding-top: 6px; font-size: 15px; line-height: 24px; }
+.bn-steplist b { display: block; }
+.bn-steplist p p, .bn-steplist div p { margin: 2px 0 0; color: var(--fg-muted); font-size: 14px; line-height: 22px; }
+.bn-steplist[data-variant="path"] { gap: 0; }
+.bn-steplist[data-variant="path"] > li { padding-bottom: 18px; }
+.bn-steplist[data-variant="path"] > li:not(:last-child)::before { content: ""; position: absolute; left: 17px; top: 38px; bottom: 4px; width: 1.5px; background: var(--border); }
+
+/* next: the next step of a piece of work, who takes it, and the button when it is yours */
+.bn-next { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-1); font-size: 14px; }
+.bn-next__label { font: 600 12px/16px var(--font-sans); text-transform: uppercase; letter-spacing: .05em; color: var(--fg-muted); }
+.bn-next__text { flex: 1; }
+.bn-next__text small { display: block; color: var(--fg-muted); font-size: 12.5px; }
+
+/* changes: the branch of each area, its size of change and its last checks */
+.bn-changes { list-style: none; margin: 0; padding: 4px 18px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
+.bn-changes > li { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto auto; gap: 6px 14px; align-items: center; padding: 12px 0; border-bottom: var(--stroke-1) solid var(--border); font-size: 13.5px; }
+.bn-changes > li:last-child { border-bottom: 0; }
+.bn-changes > li > .bn-badge { justify-self: start; }
+.bn-changes code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; justify-self: start; max-width: 100%; }
+.bn-changes__diff { color: var(--fg-muted); white-space: nowrap; }
+.bn-changes__diff b { color: var(--fg); }
+.bn-changes__add { color: var(--success); font-family: var(--font-mono); }
+.bn-changes__del { color: var(--danger); font-family: var(--font-mono); }
+.bn-changes__checks { display: flex; gap: 6px; align-items: center; justify-content: flex-end; }
+.bn-changes__checks small, .bn-changes__note { color: var(--fg-muted); font: 400 12px/16px var(--font-mono); }
+.bn-changes__note { grid-column: 2 / -1; color: var(--danger); }
+
+/* checklist "met": every line is done, readable, with no strike and no progress bar */
+.bn-checklist[data-variant="met"] .bn-checklist__item[data-state="done"] { color: var(--fg); }
+.bn-checklist[data-variant="met"] .bn-checklist__item[data-state="done"] .bn-checklist__text { text-decoration: none; }
+.bn-checklist[data-variant="met"] .bn-checklist__box { width: 28px; height: 28px; margin-top: -4px; border-radius: 8px; border: 0; background: var(--success-subtle); color: var(--success); font-size: 13px; }
+.bn-checklist[data-variant="met"] .bn-checklist__item[data-state="done"] .bn-checklist__box { background: var(--success-subtle); }
+.bn-checklist[data-variant="met"] .bn-checklist__item { align-items: center; padding: 8px 4px; font-size: 14.5px; line-height: 22px; }
+
+/* a stat with a ring sits in a row: the number on the left, the ring on the right */
+.bn-stat:has(> .bn-ring) { flex-direction: row; align-items: center; justify-content: space-between; }
+.bn-stat:has(> .bn-ring) > div { display: flex; flex-direction: column; gap: 4px; }
+
+/* a floating tab bar: it sticks to the top, and turns to glass once it is stuck */
+.bn-tabs__bar[data-bn-float] { position: sticky; top: 10px; z-index: var(--z-sticky); display: flex; }
+.bn-tabs__bar .bn-tabs__list { transition: box-shadow .2s, background-color .2s; }
+.bn-tabs__bar.is-stuck .bn-tabs__list { background: color-mix(in oklab, var(--bg-muted) 55%, transparent); -webkit-backdrop-filter: blur(var(--blur-md)) saturate(180%); backdrop-filter: blur(var(--blur-md)) saturate(180%); box-shadow: inset 0 0 0 1px var(--glass-edge), 0 0 0 1px var(--hairline), var(--shadow-2); }
+
+@media (max-width: 760px) { .bn-rules > li, .bn-changes > li { grid-template-columns: 1fr; } .bn-task__rows { grid-template-columns: 1fr; } }
+
+/* stepper: the steps of a flow on one line; done is green, current is the primary ring, upcoming is muted */
+.bn-stepper { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+.bn-stepper > li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; min-width: 0; padding: 0 4px; }
+.bn-stepper > li + li::before { content: ""; position: absolute; top: 13px; right: calc(50% + 18px); left: calc(-50% + 18px); height: 2px; border-radius: 2px; background: var(--border); }
+.bn-stepper > li[data-state="done"] + li::before { background: var(--success); }
+.bn-stepper__dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--bg-muted); color: var(--fg-muted); font: 600 12px/1 var(--font-mono); box-shadow: 0 0 0 1px var(--border); }
+.bn-stepper__dot .bn-icon, .bn-stepper__dot svg { width: 14px; height: 14px; }
+.bn-stepper > li[data-state="done"] .bn-stepper__dot { background: var(--success); color: var(--surface); box-shadow: none; }
+.bn-stepper > li[data-state="current"] .bn-stepper__dot { background: var(--surface); color: var(--primary); box-shadow: 0 0 0 2px var(--primary), 0 0 0 6px var(--primary-subtle); }
+.bn-stepper__title { font: 600 13px/18px var(--font-sans); color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; margin-top: 4px; }
+.bn-stepper > li[data-state="upcoming"] .bn-stepper__title { color: var(--fg-muted); font-weight: 500; }
+.bn-stepper__desc { font: 400 12px/16px var(--font-mono); color: var(--fg-muted); }
 
 /* compare: a scored table */
 .dg-score-table td, .dg-score-table th { text-align: center; }

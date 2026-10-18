@@ -34,7 +34,7 @@ The bundle mounts each diagram when the page loads. A diagram draws when its ele
 
 ## Frame
 
-A diagram sits in a raised card: the surface colour, a 1px ring and a soft shadow. The labels on its edges sit on the same colour. Set `"frame": false` in the spec for a diagram with no card.
+A drawing sits in a raised card: the surface colour, a 1px ring and a soft shadow. The labels on its edges sit on the same colour. A `graph`, `sequence`, `mind`, `links`, `space`, `board` and `chart` get the card. A `timeline`, `tree` and `compare` are rows or cards already, so they get none. Set `"frame"` to `true` or `false` in the spec to change this.
 
 ## Open large
 
