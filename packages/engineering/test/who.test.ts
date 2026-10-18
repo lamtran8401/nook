@@ -15,6 +15,16 @@ const denial = (work: () => void): EvError => {
   throw new Error('expected a denial')
 }
 
+describe('Who.via', () => {
+  test('labels the actor with the way the move came, and keeps the role', () => {
+    expect(new Who('owner', 'owner', null).via('viewer')).toEqual(new Who('owner', 'owner (viewer)', null))
+  })
+
+  test('refuses a way that is not one plain word', () => {
+    expect(denial(() => new Who('owner', 'owner', null).via('viewer; rm')).code as number).toBe(Exit.usage)
+  })
+})
+
 describe('Who.fromEnv', () => {
   test('a process that Claude Code did not start is the owner', () => {
     expect(Who.fromEnv({})).toEqual(new Who('owner', 'owner', null))

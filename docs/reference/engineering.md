@@ -267,6 +267,8 @@ Each read command takes `--json`. `nook eng --help` lists each command with its 
 | slices | `task import`, `task list`, `task show`, `task brief`, `task <move> <id> <T>`, `task prove` |
 | questions | `ask [--blocking] [--rec]`, `answer`, `questions` |
 | guesses | `guess`, `guesses`, `guess accept`, `guess flip`, `guess slices` |
+
+An owner move from the web app adds `--via viewer`: `item <move>`, `item mode`, `answer`, `guess accept` and `guess flip`. The ledger then records the actor as `owner (viewer)`. The role and the guards stay the same.
 | the day | `next`, `pickup`, `quick`, `note add`, `notes` |
 | decisions | `adr new`, `adr list`, `adr accept`, `adr supersede` |
 | areas | `area list`, `area status` |
@@ -357,6 +359,7 @@ The Edit hook:
 
 The Stop hook:
 - It holds the lead while a blocking question of its item is open.
+- It holds the lead when a question is answered after a slice began to wait, such as an answer on the page of the item. The reason gives the answer and `nook eng task resume <id> <T>`. A resume, or a new wait, ends the hold.
 - It holds the lead in a yolo run that the owner started, while the next stage is the lead's. The reason names the skill file of the stage.
 - It holds only the session that leads the item, or the one yolo item that no session leads.
 - It lets go while a background task runs, unless a blocking question is open.

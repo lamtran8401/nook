@@ -78,6 +78,8 @@ Each page of the web app reads the desk when the browser asks for it. A gap of t
 
 The Overview of an item gives the states of the flow with their times, the next step and its owner, four numbers, Needs you, the slices on a board, the branch and checks of each area, and the events. Needs you lists the blocking questions first, then the open questions, the guesses to check and the gate. A document tab renders its file block by block; a document not written yet names the command that writes it, such as `/view SHOP-12` for the walkthrough. Each tab has its own address, such as `/works/SHOP-12?tab=plan`.
 
+The owner moves on the page of an item: the Approve or Accept button of the next step, the Mode switch of the head, an answer box for each open question, and Accept and Flip for each guess to check. Each one runs the `nook` that started the web app, with `--via viewer`, so it meets the guards of `/gate`. A refused move shows the gaps and their fixes word for word. A move that goes through renders the page again through `/live`.
+
 The chart of a course draws a line for each criterion with a score on every day of the chart; it never fills a missing day. A place with nothing in it yet shows what is missing and the command to type.
 
 The search box reads the Markdown files of each pack again at each search, so a page changed a moment ago gives its new words. It keeps no index. It never reads a secret file and never follows a link.

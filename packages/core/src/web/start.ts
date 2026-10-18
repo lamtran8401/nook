@@ -117,8 +117,16 @@ export function webDeps(root: string, desk: string): WebDeps {
   }
 }
 
+/**
+ * The environment of the web server: its desk, its port, and `NOOK_CLI`, the command of this same nook (the bun and
+ * the main file that run it), so an owner move on a page runs the nook that started the page.
+ */
+export function serverEnv(desk: string, port: number, base: NodeJS.ProcessEnv = process.env, self = [process.execPath, process.argv[1] ?? '']): NodeJS.ProcessEnv {
+  return { ...base, NOOK_DESK: desk, NOOK_WEB_PORT: String(port), NOOK_CLI: JSON.stringify(self) }
+}
+
 function spawnServer(web: string, { port, token, desk }: { port: number; token: string; desk: string }): ServerChild {
-  const child = spawn('node', ['server.ts'], { cwd: web, env: { ...process.env, NOOK_DESK: desk, NOOK_WEB_PORT: String(port) }, stdio: ['pipe', 'pipe', 'inherit'] })
+  const child = spawn('node', ['server.ts'], { cwd: web, env: serverEnv(desk, port), stdio: ['pipe', 'pipe', 'inherit'] })
   // stdin stays open while nook web runs: when it closes, as when the terminal goes, the server stops too
   child.stdin.write(`${token}\n`)
   const exited = new Promise<number>(resolve => child.once('exit', code => resolve(code ?? 1)))

@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 
 import { statSync, readFileSync, rmSync } from 'node:fs'
 
-import { startWeb, type WebDeps, writeOpenPage } from '../../src/web/start.ts'
+import { serverEnv, startWeb, type WebDeps, writeOpenPage } from '../../src/web/start.ts'
 import type { WebState } from '../../src/web/web-state.ts'
 
 /** Fake parts that log each step; `done` ends the server. */
@@ -33,6 +33,14 @@ function fakes(overrides: Partial<WebDeps> = {}) {
   }
   return { deps, log, done: (code = 0) => stop(code), state: () => state }
 }
+
+describe('serverEnv', () => {
+  test('gives the server its desk, its port and the command of this nook, and keeps the rest of the environment', () => {
+    expect(serverEnv('/desk', 4321, { HOME: '/home/me' }, ['/bin/bun', '/nook/apps/nook/src/main.ts'])).toEqual({
+      HOME: '/home/me', NOOK_DESK: '/desk', NOOK_WEB_PORT: '4321', NOOK_CLI: '["/bin/bun","/nook/apps/nook/src/main.ts"]',
+    })
+  })
+})
 
 describe('startWeb', () => {
   test('refuses inside Claude Code, and builds and starts nothing', async () => {

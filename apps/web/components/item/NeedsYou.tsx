@@ -1,22 +1,46 @@
+import type { ReactNode } from 'react'
+
 import type { ItemView } from '@nook/engineering/read/reader.ts'
 import type { Guess } from '@nook/engineering/stores/guesses.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
 
 import { clock, day } from '../../lib/time.ts'
 import { Records } from '../Records.tsx'
+import { Move } from './Move.tsx'
 
 const GUESS_TONE: Record<Guess['status'], string> = { open: 'warning', accepted: 'success', flipped: 'primary' }
 
-function Row({ tone, icon, title, note }: { tone: string; icon: string; title: string; note: string }) {
+function Row({ tone, icon, title, note, under, act }: { tone: string; icon: string; title: string; note: string; under?: ReactNode; act?: ReactNode }) {
   return (
     <li>
       <span className="bn-actions__ico" data-tone={tone}>{icon}</span>
       <div>
         <b>{title}</b>
         <small>{note}</small>
+        {under}
       </div>
-      <span />
+      <div className="bn-actions__act">{act}</div>
     </li>
+  )
+}
+
+/** The answer of the owner to an open question, typed on the page. */
+function AnswerForm({ item, question }: { item: string; question: Question }) {
+  return (
+    <Move fields={{ kind: 'answer', item, question: question.id }} className="nk-answer">
+      <input className="bn-input" name="answer" placeholder={question.recommended ? `Recommended: ${question.recommended}` : 'Your answer'} aria-label={`Answer to ${question.id}`} required />
+      <button type="submit" className="bn-btn" data-size="sm" data-variant="outline">Answer</button>
+    </Move>
+  )
+}
+
+/** Keep the guess, or flip it: the slices that it shaped go back to todo. */
+function GuessMoves({ item, guess }: { item: string; guess: Guess }) {
+  return (
+    <Move fields={{ kind: 'guess', item, guess: guess.id }}>
+      <button type="submit" name="decision" value="accept" className="bn-btn" data-size="sm" data-variant="outline">Accept</button>
+      <button type="submit" name="decision" value="flip" className="bn-btn" data-size="sm" data-variant="ghost">Flip</button>
+    </Move>
   )
 }
 
@@ -68,15 +92,15 @@ export function NeedsYou({ view }: { view: ItemView }) {
     <div className="bn-card nk-needs">
       <h3 className="bn-actions__group">Questions <span className="bn-badge" data-variant="plain">{questions.length} open</span></h3>
       <ul className="bn-actions">
-        {questions.length ? questions.map(q => <Row key={q.id} tone={q.blocking ? 'danger' : 'warning'} icon="?" title={`${q.id}: ${q.text}`} note={questionNote(q)} />) : <Row tone="neutral" icon="✓" title="No open question" note="The lead asks with nook eng ask; a blocking one stops its slices." />}
+        {questions.length ? questions.map(q => <Row key={q.id} tone={q.blocking ? 'danger' : 'warning'} icon="?" title={`${q.id}: ${q.text}`} note={questionNote(q)} under={<AnswerForm item={view.item.id} question={q} />} />) : <Row tone="neutral" icon="✓" title="No open question" note="The lead asks with nook eng ask; a blocking one stops its slices." />}
       </ul>
       <h3 className="bn-actions__group">Guesses to check <span className="bn-badge" data-variant="plain">{guesses.length}</span></h3>
       <ul className="bn-actions">
-        {guesses.length ? guesses.map(g => <Row key={g.id} tone="warning" icon="!" title={`${g.id} · ${g.impact}: ${g.question}`} note={guessNote(g)} />) : <Row tone="neutral" icon="✓" title="No guess to check" note="Each guess of the lead is accepted or flipped." />}
+        {guesses.length ? guesses.map(g => <Row key={g.id} tone="warning" icon="!" title={`${g.id} · ${g.impact}: ${g.question}`} note={guessNote(g)} act={<GuessMoves item={view.item.id} guess={g} />} />) : <Row tone="neutral" icon="✓" title="No guess to check" note="Each guess of the lead is accepted or flipped." />}
       </ul>
       <h3 className="bn-actions__group">Gate</h3>
       <ul className="bn-actions">
-        {gate ? <Row tone="primary" icon="→" title={`Your ${gate.split(' ')[0]} waits`} note={`Type /gate ${gate} in the agent session, or use the button of the next step.`} /> : <Row tone="neutral" icon="→" title="No gate waits for you" note={view.next.owner ? 'First answer the blocking question above.' : `Next: the lead runs ${view.next.skill}.`} />}
+        {gate ? <Row tone="primary" icon="→" title={`Your ${gate.split(' ')[0]} waits`} note={`Use the button of the next step, or type /gate ${gate} in the agent session.`} /> : <Row tone="neutral" icon="→" title="No gate waits for you" note={view.next.owner ? 'First answer the blocking question above.' : `Next: the lead runs ${view.next.skill}.`} />}
       </ul>
       {view.questions.length ? <AllQuestions questions={view.questions} /> : null}
       {view.guesses.length ? <AllGuesses guesses={view.guesses} /> : null}

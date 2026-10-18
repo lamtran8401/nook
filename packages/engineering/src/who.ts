@@ -1,4 +1,4 @@
-import { denied } from '@nook/shared/errors.ts'
+import { denied, usage } from '@nook/shared/errors.ts'
 
 /** Who calls the tool, and the one table of what each role can do (docs/reference/engineering.md section 8). */
 
@@ -11,6 +11,12 @@ export class Who {
     readonly actor: string,
     readonly session: string | null,
   ) {}
+
+  /** The same caller, its actor labelled with the way the move came, such as `owner (viewer)` for the web app. */
+  via(way: string): Who {
+    if (!/^[a-z]+$/.test(way)) throw usage(`--via takes one plain word, such as viewer, not ${way}`)
+    return new Who(this.role, `${this.actor} (${way})`, this.session)
+  }
 
   /** `NOOK_ROLE` when it names a role; else `CLAUDECODE` set means the lead, and unset means the owner. */
   static fromEnv(env: NodeJS.ProcessEnv = process.env): Who {

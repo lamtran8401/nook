@@ -144,6 +144,20 @@ describe('Engineering.moveItem: start, agree and approve', () => {
     expect(asOwner.exitCode).toBe(0)
     expect(JSON.parse(asOwner.stdout.toString()).state).toBe('ready')
   })
+
+  test('an owner move with --via viewer records the actor as owner (viewer)', () => {
+    itemAt(t, 'planning')
+    writeDoc(t, 'SHOP-1', 'plan.md', PLAN)
+    writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }]))
+    t.eng(LEAD).importTasks('SHOP-1')
+    const bin = join(import.meta.dir, '..', '..', '..', 'apps', 'nook', 'bin', 'nook')
+    const env: Record<string, string | undefined> = { ...process.env }
+    delete env.NOOK_ROLE
+    delete env.CLAUDECODE
+    const run = Bun.spawnSync([bin, 'eng', 'item', 'approve', 'SHOP-1', '--via', 'viewer'], { cwd: t.root, env, stdout: 'pipe', stderr: 'pipe' })
+    expect(run.exitCode).toBe(0)
+    expect(t.eng(OWNER).stores.events.last('SHOP-1', 'approve')?.actor).toBe('owner (viewer)')
+  })
 })
 
 describe('Engineering.moveItem: begin and submit', () => {

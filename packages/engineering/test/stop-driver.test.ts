@@ -34,6 +34,20 @@ describe('stopDriver', () => {
     expect(stop({ stop_hook_active: true }).kind).toBe('pass')
   })
 
+  test('an answer that comes while a slice waits holds the lead once, with the answer and the move that resumes the slice', () => {
+    itemAt(t, 'cooking')
+    const lead = t.eng(LEAD)
+    pickup(lead, 'SHOP-1')
+    const question = lead.ask('SHOP-1', 'Must a refund go to the same card?', false)
+    lead.moveSlice('start', 'SHOP-1', 'T1')
+    lead.moveSlice('wait', 'SHOP-1', 'T1', { reason: `waits for ${question.id}` })
+    expect(stop().kind).toBe('pass')
+    t.eng(OWNER).answer('SHOP-1', question.id, 'the same card')
+    expect(reason(stop())).toContain('T1 waits, and since then Q1 answered: the same card: resume it with `nook eng task resume SHOP-1 T1` when this unblocks it, or wait again with a new reason')
+    lead.moveSlice('resume', 'SHOP-1', 'T1')
+    expect(stop().kind).toBe('pass')
+  })
+
   test('mode yolo: the next stage of the lead, the proceed step, the owner stages let go, 6 holds at most', () => {
     itemAt(t, 'framing')
     const lead = t.eng(LEAD)

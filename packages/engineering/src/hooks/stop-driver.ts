@@ -10,7 +10,10 @@ import { Engineering } from '../service.ts'
 import type { Item } from '../stores/items.ts'
 import { Caller, whoOf } from './caller.ts'
 
-/** Stop: hold the lead on a blocking question, or on the next stage of a yolo run that the owner started. */
+/**
+ * Stop: hold the lead on a blocking question, on an answer that came while a slice waits, or on the next stage of a
+ * yolo run that the owner started.
+ */
 
 export const MAX_HOLDS = 6
 const MAX_REJECTS = 2
@@ -77,6 +80,7 @@ export function holdReasons(eng: Engineering, item: Item): string[] {
       `blocking question ${blocking.map(q => q.id).join(', ')} is open: ask the owner with AskUserQuestion, then \`nook eng answer ${item.id} ${blocking[0]!.id} "<answer>"\``,
     )
   }
+  reasons.push(...answersWhileWaiting(eng, item))
   if (!ownerStartedAuto(eng.stores, item)) return reasons
   const stage = autoStage(eng, item)
   if (stage)
@@ -84,6 +88,23 @@ export function holdReasons(eng: Engineering, item: Item): string[] {
       `yolo run (the owner set mode yolo): ${stage.note}read \`${skillFile(stage.skill)}\` and follow it for ${item.id}`,
     )
   return reasons
+}
+
+const ANSWERED = /^Q\d+ answered: /
+
+/**
+ * A slice that waits, and an answer recorded after it began to wait, such as one the owner gave on the page of the
+ * item: the lead hears of it at its next stop and goes on with no restart. A new wait or a resume ends the hold.
+ */
+function answersWhileWaiting(eng: Engineering, item: Item): string[] {
+  const history = eng.stores.events.history(item.id)
+  return eng.stores.slices.list(item.id).flatMap(slice => {
+    if (slice.state !== 'waiting') return []
+    const waited = history.findLast(e => e.type === 'task' && e.to_state === 'waiting' && e.reason?.startsWith(`${slice.id} `))
+    const answers = history.filter(e => waited && e.id > waited.id && e.type === 'question' && ANSWERED.test(e.reason ?? ''))
+    if (!answers.length) return []
+    return [`${slice.id} waits, and since then ${answers.map(a => a.reason).join('; ')}: resume it with \`nook eng task resume ${item.id} ${slice.id}\` when this unblocks it, or wait again with a new reason`]
+  })
 }
 
 /** The next stage of the lead in a yolo run, or null when the stage is a builder's or the owner's. */

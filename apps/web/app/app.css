@@ -77,3 +77,18 @@ body { margin: 0; background: var(--bg); color: var(--fg); }
 .nk-page { max-width: 920px; width: 100%; margin: 0 auto; }
 .nk-search { margin-left: auto; width: min(280px, 40vw); }
 .nk-search .bn-input { width: 100%; }
+.nk-move { display: contents; }
+.nk-move__controls { display: flex; gap: 6px; align-items: center; margin: 0; padding: 0; border: 0; min-width: 0; }
+.nk-move__controls:disabled { opacity: .6; }
+.nk-move__refused { grid-column: 1 / -1; margin-top: 8px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--danger-subtle); color: var(--danger); font: 400 12.5px/19px var(--font-mono); }
+.nk-move__refused p { margin: 0; }
+.nk-answer { display: block; margin-top: 10px; }
+.nk-answer .nk-move__controls .bn-input { flex: 1; min-width: 0; }
+.nk-move.nk-mode { display: inline-flex; }
+.nk-mode .nk-move__controls { display: inline-flex; width: auto; gap: 2px; padding: 2px; border-radius: var(--radius-full); background: var(--bg-muted); }
+.nk-mode button { all: unset; height: 20px; padding: 0 9px; border-radius: var(--radius-full); font: 600 12px/20px var(--font-sans); color: var(--fg-muted); cursor: pointer; }
+.nk-mode button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow-1); }
+.nk-mode button[value="yolo"][aria-pressed="true"] { background: var(--warning-subtle); color: var(--warning); }
+.nk-mode button:focus-visible { outline: var(--stroke-3) solid var(--focus-ring); outline-offset: 1px; }
+.nk-move.nk-mode { flex-wrap: wrap; }
+.nk-move__refused { flex-basis: 100%; }

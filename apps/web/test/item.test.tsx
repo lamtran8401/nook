@@ -63,14 +63,18 @@ const specOf = (markup: string) => JSON.parse(/data-nook-diagram="([^"]*)"/.exec
 describe('ItemHeader', () => {
   test('shows the way back to the board, the title, the chips and the key moments', () => {
     const sentBack = { ...view, moves: [...view.moves, { move: 'reject' as const, to: 'cooking' as const, at: '2026-10-16T09:00:00Z' }] }
-    expect(text(html(<ItemHeader view={sentBack} />))).toBe('Works SHOP-42 Pay for an order with a saved card cooking feature size L api web mode normal Started 14 Oct Approved 15 Oct 09:40 Sent back 1×')
+    const markup = html(<ItemHeader view={sentBack} />)
+    expect(text(markup)).toBe('Works SHOP-42 Pay for an order with a saved card cooking feature size L api web normal yolo Started 14 Oct Approved 15 Oct 09:40 Sent back 1×')
+    expect(markup).toContain('value="normal" aria-pressed="true"')
+    expect(markup).toContain('value="yolo" aria-pressed="false"')
   })
 })
 
 describe('NextStep', () => {
   test('a gate of the owner gets its button, such as Approve', () => {
     const markup = html(<NextStep next={{ ...view.next, state: 'planning', owner: true, skill: 'owner: /gate approve SHOP-42' }} />)
-    expect(markup).toContain('<button type="button" class="bn-btn" data-variant="primary" data-move="approve">Approve</button>')
+    expect(markup).toContain('<input type="hidden" name="kind" value="gate"/><input type="hidden" name="item" value="SHOP-42"/><input type="hidden" name="move" value="approve"/>')
+    expect(markup).toContain('<button type="submit" class="bn-btn" data-variant="primary">Approve</button>')
     expect(text(markup)).toBe('Next step Your move: approve The button runs the move with the same guards as /gate approve. Approve')
   })
 
@@ -109,18 +113,25 @@ describe('Stats', () => {
 describe('NeedsYou', () => {
   test('lists the blocking question first, then the open one, the guess to check and the gate, then the full lists', () => {
     expect(text(html(<NeedsYou view={view} />))).toBe(
-      'Questions 2 open ? Q3: Must a refund go to the same card? Blocking · asked 16 Oct 11:12 ' +
-        '? Q4: Must the list show the expiry date? Open · blocks nothing · asked 16 Oct 11:12 ' +
-        'Guesses to check 1 ! G5 · high: When does a declined charge try again? Took: after 1, 5 and 30 minutes. The other way: once after an hour. Shapes T9. ' +
+      'Questions 2 open ? Q3: Must a refund go to the same card? Blocking · asked 16 Oct 11:12 Answer ' +
+        '? Q4: Must the list show the expiry date? Open · blocks nothing · asked 16 Oct 11:12 Answer ' +
+        'Guesses to check 1 ! G5 · high: When does a declined charge try again? Took: after 1, 5 and 30 minutes. The other way: once after an hour. Shapes T9. Accept Flip ' +
         'Gate → No gate waits for you Next: the lead runs /cook SHOP-42. ' +
         'All questions · 3 Q1 Which currency? the shop currency answered Q3 Must a refund go to the same card? asked 16 Oct blocking Q4 Must the list show the expiry date? asked 16 Oct open ' +
         'All guesses · 2 G2 When does a declined charge try again? after 1, 5 and 30 minutes high accepted G5 When does a declined charge try again? after 1, 5 and 30 minutes high open',
     )
   })
 
+  test('gives each open question its answer box and each guess to check its Accept and Flip, as owner moves', () => {
+    const markup = html(<NeedsYou view={view} />)
+    expect(markup).toContain('<input type="hidden" name="kind" value="answer"/><input type="hidden" name="item" value="SHOP-42"/><input type="hidden" name="question" value="Q3"/>')
+    expect(markup).toContain('<input class="bn-input" placeholder="Your answer" aria-label="Answer to Q3" required="" name="answer"/>')
+    expect(markup).toContain('<button type="submit" value="flip" class="bn-btn" data-size="sm" data-variant="ghost" name="decision">Flip</button>')
+  })
+
   test('names the gate of the owner when one waits', () => {
     const planning = { ...view, needs: { questions: [], guesses: [] }, next: { ...view.next, owner: true, skill: 'owner: /gate approve SHOP-42' } }
-    expect(text(html(<NeedsYou view={planning} />))).toContain('Gate → Your approve waits Type /gate approve SHOP-42 in the agent session, or use the button of the next step.')
+    expect(text(html(<NeedsYou view={planning} />))).toContain('Gate → Your approve waits Use the button of the next step, or type /gate approve SHOP-42 in the agent session.')
   })
 })
 

@@ -40,8 +40,15 @@ import { docPage, itemPage } from './report/item-page.ts'
 import { next } from './report/next.ts'
 import { taskBrief } from './report/task-brief.ts'
 import { Engineering, idAndTitle } from './service.ts'
+import { Who } from './who.ts'
 
 const eng = () => Engineering.here()
+/** An owner move with `--via viewer` came from the web app: the ledger records the actor as `owner (viewer)`. */
+const VIA_FLAG = { via: { type: 'string', help: 'the way the move came, such as viewer; it labels the actor' } } as const
+const engVia = (c: Context) => {
+  const way = text(c, 'via')
+  return way ? Engineering.here(process.cwd(), Who.fromEnv().via(way)) : eng()
+}
 const ifVersion = (c: Context) => text(c, 'if-version')
 const rest = (c: Context, from: number) => c.args.slice(from).join(' ')
 
@@ -61,13 +68,14 @@ const VERSION_FLAG = {
 const moveCommands: Command[] = MOVE_NAMES.map(name => ({
   path: ['item', name],
   summary: `move an item: ${name}`,
-  usage: '<id> [--reason r] [--if-version n]',
+  usage: '<id> [--reason r] [--if-version n] [--via viewer]',
   flags: {
     reason: { type: 'string', help: 'why (needed by the moves back, block and cancel)' },
     ...VERSION_FLAG,
+    ...VIA_FLAG,
   },
   run(c) {
-    const k = eng()
+    const k = engVia(c)
     const result = k.moveItem(name, arg(c, 0, 'item id'), {
       reason: text(c, 'reason'),
       ifVersion: ifVersion(c),
@@ -99,10 +107,10 @@ const taskMoveCommands: Command[] = SLICE_MOVE_NAMES.map(name => ({
 const guessDecisions: Command[] = (['accept', 'flip'] as const).map(decision => ({
   path: ['guess', decision],
   summary: decision === 'accept' ? 'keep the guess' : 'flip the guess: its slices go back to todo',
-  usage: '<id> <G> [--answer <text>]',
-  flags: { answer: { type: 'string', help: "the owner's answer" } },
+  usage: '<id> <G> [--answer <text>] [--via viewer]',
+  flags: { answer: { type: 'string', help: "the owner's answer" }, ...VIA_FLAG },
   run(c) {
-    const result = eng().decideGuess(arg(c, 0, 'item id'), arg(c, 1, 'guess id'), decision, text(c, 'answer'))
+    const result = engVia(c).decideGuess(arg(c, 0, 'item id'), arg(c, 1, 'guess id'), decision, text(c, 'answer'))
     c.out(result, r => `${r.id} ${r.status}${r.reset.length ? `; back to todo: ${r.reset.join(', ')}` : ''}`)
   },
 }))
@@ -229,9 +237,10 @@ const itemCommands: Command[] = [
   {
     path: ['item', 'mode'],
     summary: 'set the mode of an item: yolo runs the stages alone (owner only)',
-    usage: '<id> yolo|normal',
+    usage: '<id> yolo|normal [--via viewer]',
+    flags: VIA_FLAG,
     run(c) {
-      c.out(eng().setMode(arg(c, 0, 'item id'), arg(c, 1, 'mode')), i => `${i.id} mode ${i.mode}`)
+      c.out(engVia(c).setMode(arg(c, 0, 'item id'), arg(c, 1, 'mode')), i => `${i.id} mode ${i.mode}`)
     },
   },
   {
@@ -421,10 +430,11 @@ const questionCommands: Command[] = [
   {
     path: ['answer'],
     summary: 'answer a question',
-    usage: '<id> <Q> <text...>',
+    usage: '<id> <Q> <text...> [--via viewer]',
+    flags: VIA_FLAG,
     run(c) {
       c.out(
-        eng().answer(arg(c, 0, 'item id'), arg(c, 1, 'question id'), rest(c, 2)),
+        engVia(c).answer(arg(c, 0, 'item id'), arg(c, 1, 'question id'), rest(c, 2)),
         r => `${r.id} answered: ${r.answer}`,
       )
     },

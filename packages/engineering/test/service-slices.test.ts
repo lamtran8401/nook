@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 
 import { EvError, Exit } from '@nook/shared/errors.ts'
 
+import { Who } from '../src/who.ts'
 import { BUILDER, itemAt, LEAD, makeHome, OWNER, READER, TASKS, type TestHome, writeDoc } from './helpers.ts'
 
 let t: TestHome
@@ -111,7 +112,7 @@ describe('Engineering.moveSlice', () => {
   test('a builder works on its own slice only; a reader on none; retry and cancel are the lead\'s', () => {
     itemAt(t, 'cooking', 'SHOP-1', undefined, TASKS([{ id: 'T1' }, { id: 'T2' }]))
     const builder = t.eng(BUILDER)
-    const other = t.eng({ role: 'builder', actor: 'frontend-builder-ff00', session: null })
+    const other = t.eng(new Who('builder', 'frontend-builder-ff00', null))
     builder.moveSlice('start', 'SHOP-1', 'T1')
     expect(builder.stores.slices.list('SHOP-1')[0]!.assignee).toBe('backend-builder-ab12')
     expect(code(() => other.moveSlice('done', 'SHOP-1', 'T1', { files: ['a'] }))).toBe(Exit.denied)
