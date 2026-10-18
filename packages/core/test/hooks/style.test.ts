@@ -54,3 +54,27 @@ describe('styleCheck', () => {
     expect(check('docs/archive/old.md', LONG).kind).toBe('pass')
   })
 })
+
+describe('styleCheck of the bench blocks', () => {
+  const bench = (json: string) => `The plan of the export.\n\n\`\`\`bench\n${json}\n\`\`\`\n`
+  const reason = (result: ReturnType<typeof check>) => (result.kind === 'block' ? result.reason : '')
+
+  test('a block with an edge to a missing node comes back with its line and the node', () => {
+    const result = check('docs/plan.md', bench('{"type":"graph","nodes":[{"id":"a"}],"edges":[{"from":"a","to":"vault"}]}'))
+    expect(reason(result)).toBe('docs/plan.md: the bench block at line 3 does not draw. Fix it:\n  - edge 1 goes to "vault", a node that the block does not have')
+  })
+
+  test('a block that is not valid JSON comes back with its line', () => {
+    expect(reason(check('docs/plan.md', bench('{ "type": "graph",')))).toStartWith('docs/plan.md: the bench block at line 3 does not draw. Fix it:\n  - the block is not valid JSON:')
+  })
+
+  test('a valid block passes', () => {
+    expect(check('docs/plan.md', bench('{"type":"graph","nodes":[{"id":"a"},{"id":"b"}],"edges":[{"from":"a","to":"b"}]}')).kind).toBe('pass')
+  })
+
+  test('a weak sentence and a broken block both come back', () => {
+    const result = reason(check('docs/plan.md', LONG.repeat(3) + bench('{"type":"pie"}')))
+    expect(result).toContain('pass the writing standard')
+    expect(result).toContain('the bench block at line 6 does not draw')
+  })
+})

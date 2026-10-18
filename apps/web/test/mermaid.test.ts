@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
+import { checkSpec } from '@nook/desk/bench-check.ts'
+
 import { parseDoc } from '../lib/blocks.ts'
 
 const fence = (lang: string, body: string) => `\`\`\`${lang}\n${body}\n\`\`\`\n`
@@ -82,5 +84,17 @@ describe('the other mermaid kinds', () => {
 
   test('a mermaid kind with no drawing becomes an unknown block that names it and its line', () => {
     expect(parseDoc(`Text.\n\n${fence('mermaid', 'pie title Pets\n  "Dogs" : 3')}`).blocks[1]).toMatchObject({ kind: 'unknown', line: 3, reason: 'a mermaid pie is not drawn yet' })
+  })
+})
+
+describe('the drawings of the fences', () => {
+  test('each one passes the schema of Bench', () => {
+    const fences = [
+      fence('mermaid', 'flowchart TB\n  subgraph b["Browser"]\n    p["page (new)"]\n  end\n  p -->|"go"| a["api"]'),
+      fence('mermaid', 'sequenceDiagram\n  participant B as browser\n  participant L as ledger\n  B->>L: read\n  L-->>B: item'),
+      fence('mermaid', 'erDiagram\n  ORDER ||--o{ PAYMENT : has\n  ORDER {\n    uuid id PK\n  }\n  PAYMENT {\n    uuid order_id FK\n  }'),
+      fence('tree', 'api/\n  keys.ts  new  the key'),
+    ]
+    expect(fences.flatMap(md => checkSpec(diagram(md).spec))).toEqual([])
   })
 })

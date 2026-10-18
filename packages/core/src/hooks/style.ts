@@ -5,6 +5,7 @@ import { nearestDesk, type PackModule } from '@nook/desk/desks.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { score } from '../ste.ts'
+import { benchFaults, benchReport } from './bench.ts'
 
 export type StyleDeps = { modules: PackModule[] }
 
@@ -33,7 +34,7 @@ function recordPath(input: HookInput, modules: PackModule[]): { full: string; re
   return { full, rel }
 }
 
-/** PostToolUse Edit, Write: a Markdown file of the record passes the writing standard, or its sentences come back. */
+/** PostToolUse Edit, Write: a Markdown file of the record passes the writing standard and each of its bench blocks draws, or the faults come back. */
 export function styleCheck(input: HookInput, deps: StyleDeps = { modules: [] }): HookResult {
   const path = recordPath(input, deps.modules)
   if (!path) return pass
@@ -43,8 +44,14 @@ export function styleCheck(input: HookInput, deps: StyleDeps = { modules: [] }):
   } catch {
     return pass
   }
-  const result = score(text, path.rel)
-  if (result.pass) return pass
+  const faults = benchFaults(text)
+  const reports = [writingReport(text, path.rel), faults.length ? benchReport(path.rel, faults) : null].filter(report => report !== null)
+  return reports.length ? block(reports.join('\n\n')) : pass
+}
+
+function writingReport(text: string, rel: string): string | null {
+  const result = score(text, rel)
+  if (result.pass) return null
   const lines = result.failures.slice(0, 8).map(f => `  - ${f.why.join('; ')}: ${f.sentence.slice(0, 110)}`)
-  return block(`${path.rel}: ${result.score}% of ${result.sentences} sentences pass the writing standard (needs above 80%). Rewrite these in Simplified Technical English (25 words or fewer; no should, may, might, etc, very, really, extremely):\n${lines.join('\n')}`)
+  return `${rel}: ${result.score}% of ${result.sentences} sentences pass the writing standard (needs above 80%). Rewrite these in Simplified Technical English (25 words or fewer; no should, may, might, etc, very, really, extremely):\n${lines.join('\n')}`
 }

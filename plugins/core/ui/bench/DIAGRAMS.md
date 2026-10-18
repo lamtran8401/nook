@@ -174,7 +174,8 @@ Edges on the same side of a node spread along that side. A merged group shows th
 
 | Field | Default | Meaning |
 |---|---|---|
-| `at` | required | `[row1, col1, row2, col2]`: the first and the last cell. |
+| `at` | required with places | `[row1, col1, row2, col2]`: the first and the last cell. |
+| `nodes` | none | In a graph with no places: the ids of the nodes in the group. |
 | `label` | required | The text on the frame. |
 | `icon` | none | An icon before the label. |
 | `tone` | none | The colour of the frame. |
