@@ -11,6 +11,7 @@ updated: {{today}}
 <!-- Fields: area (one of {{areas}}), depends (T1, T2 or none), acs (AC1, AC2), size (S, M or L), done when. -->
 <!-- files is optional: the files or the parts that the slice changes, as text, for example `the cart page, its tests`. -->
 <!-- Add `proof: none (reason)` when the slice has no test to prove, for example a config change. -->
+<!-- Facts only: no state such as done or "waits for Q3". The ledger holds the state of each slice. -->
 
 ## T1: 
 

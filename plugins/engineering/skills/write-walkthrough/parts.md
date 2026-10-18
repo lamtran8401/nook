@@ -10,43 +10,41 @@ The subject is a prompt: a question about the code, or the open changes of the d
 - `nook eng area status` lists each area with its branch and its dirty files.
 - A question about a mechanism: read the code that answers it, from the entry point to the effect.
 - Open changes: read `git -C <folder> diff HEAD` and the commits of the branch against its base.
-- There is no spec. "Requirements met" becomes "What it does": the goal from the owner's words or the commit messages.
+- With no item there is no ledger and no branch for the page to read, so you write every part: "What works now" becomes "What it does", then `## How it works` with a mermaid flowchart of the mechanism, and `## What changed` with a ```tree block of the files.
 
-## The six parts
+## What you write, and what the page adds
+The walkthrough explains what was built, so the owner catches up without the code. You write the parts that need a reader of the code. The page adds the parts that come from data, so they never drift from the truth:
+
+| Part | From |
+|---|---|
+| What changed: the files by folder, each with its mark | the diff of the branch |
+| Requirements met | the criteria that the ledger marks as met |
+| the counts of the tests | the last verify run |
+
+The walkthrough holds no copy of the plan: no flow, no sequence, no data model, no contract. A build that left the plan ran `nook eng item replan` before the review, so the plan says what was built. The walkthrough never lists the differences.
+
+## The six parts that you write
 ### In short
-A quote that starts with `In short:`. Two or three sentences: what the person can do now, and where the work happens.
+A quote that starts with `In short:`. Two or three sentences: what works now, and what does not work yet.
 
-### What changed
-A ```tree block from the diff, not from the plan. A line that ends in `/` is a folder. A file line is the name, its mark and a short note, with two spaces or more between them. The marks are `new`, `changed`, `deleted` and `moved`.
+### What works now
+One line for each piece that works, as `- **Piece:** text`. In plain words: what a person or a caller can do now, how it works in one or two sentences, and why it is safe.
 ```
-bff/
-  src/shipments/
-    list.ts  changed  reads the status and filters in the query
-  migrations/0042_status.sql  new  an index on status
-frontend/
-  src/shipments/StatusFilter.tsx  new  the status control
-  src/shipments/legacy-filter.ts  deleted  the old filter
+- **Charge a saved card:** the page sends only a card id; the api finds the token and charges it. Each payment gets one key, so a second click never charges twice.
 ```
 
-### How it works
-One mermaid flowchart of the flow, top to bottom. Mark a part that changed with `(changes)`, a new part with `(new)`, an error path with `(error)`. Put the area first in a label: `bff: list reads the status`.
-Then five short steps or fewer, in plain words: who does what, and what comes back.
-A side effect that the owner must know goes in a quote that starts with `Need to know:`, under the step it is about.
+### Where to start reading
+A numbered list of the two to four files to read first, in that order, each with one reason: `1. `api/src/payments/keys.ts`: the key that every charge rests on.`
 
-### Requirements met
-One line for each requirement, in plain words, with no grade and no test name.
-```
-- The list shows only the shipments of the picked status, the newest first.
-- An unknown status gets a clear error that names the valid ones.
-```
+### How it is built
+One to three short excerpts of the code, each in a fenced block with its language, six lines or fewer. Before each excerpt, one sentence says why the code is so.
 
 ### Try it
-The manual checks as a numbered list. In each step, the first sentence says what to do, and the next sentence says what the owner must see. The page shows the steps as the stages of a roadmap.
+The manual checks as a numbered list. In each step, the first sentence says what to do, and the next sentence says what the owner must see. Give no count of tests: the page shows the last verify run.
 Agents never start the app, so a visual check is always here.
 
 ### Heads up
-A limit of the change, a side effect on another feature, a choice that the owner can still change. One line each.
-A `Need to know:` quote stays in How it works, under its step; Heads up holds the rest.
+A limit of the change, a side effect on another feature, a risk in the code. One line each.
 
 ## The page
 `nook eng item page <id> --tab walkthrough --out works/<id>/page.html` shows `walkthrough.md` in its own tab, next to Spec, Plan and Tasks, and opens on it. The tree and the flowchart render as components of the UI kit. The page is a local file, never an artifact.

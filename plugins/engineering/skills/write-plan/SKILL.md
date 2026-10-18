@@ -1,6 +1,6 @@
 ---
 name: write-plan
-description: "Write works/<id>/plan.md for the owner's approve: In short, Today and Approach with a diagram each, Impact, Flow for size L, Proof, Risks. Decisions and evidence, not code. Use in /recipe or when the owner asks how to build it. Not the slices."
+description: "Write works/<id>/plan.md for the owner's approve: In short, Today and Approach with a diagram each, Impact, System design, Data model and Rollout when they apply, Flow for size L, Proof, Risks. Decisions and evidence, not code. Use in /recipe or when the owner asks how to build it. Not the slices."
 argument-hint: "<item id>"
 allowed-tools: Bash(nook eng *), Read, Glob, Grep, Edit, Write
 ---
@@ -19,16 +19,20 @@ Fill the file that `agree` scaffolded. The sections, their sizes, the diagrams a
 3. Options. Start `nk-eng:system-designer` with the brief and the facts for two or three options with a recommendation.
    A contract change adds `nk-eng:contract-designer`; a data or schema change adds `nk-eng:data-modeler`.
 4. Approach: one diagram after the change, a table of the key decisions with the reason of each (size L adds "If it fails"), and at most 3 options not taken. Name the ADR of a decision that outlives the item.
-5. Impact: one row for each kind that changes; one line "None: ..." for the rest. The Rollout row holds the order of shipping and the rollback.
-6. Flow, size L only: one sequence diagram of the hard path, at most 3 rules that must always be true, at most 4 failure cases.
-7. Proof: at most 6 rows, the criteria grouped, each with its layer, the exact check and its negative case.
+5. System design, size L in two places or more: one mermaid flowchart with one `subgraph` for each place (browser, backend, worker, provider); the page draws each group as a column.
+   Data model, when the item adds or changes data: one mermaid `erDiagram` of the tables that it adds or changes, with the keys marked PK and FK.
+6. Impact: one row for each kind that changes; one line "None: ..." for the rest. The Rollout row holds the order of shipping and the rollback.
+   An item that ships in stages, such as behind a flag for 10% first, adds `## Rollout`: numbered steps, each with the check that lets the next one start.
+7. Flow, size L only: one sequence diagram of the hard path, at most 3 rules that must always be true, at most 4 failure cases.
+8. Proof: at most 6 rows, the criteria grouped, each with its layer, the exact check and its negative case.
    The spec says each criterion in plain words. The Proof holds what it leaves out: the call or the screen, the values, the codes and the names.
    A criterion with several cases lists each case in its row, as "4a a missing page, 4b an empty one, 4c an unknown status". The reviewer needs a test for each.
-8. Risks: at most 3 rows with likelihood and what we do, and the guesses that the plan relies on (`nook eng guesses <id> --open`).
-9. Front matter: keep `created`, set `updated` to today, write `approach` in one line.
+9. Risks: at most 3 rows with likelihood and what we do, and the guesses that the plan relies on (`nook eng guesses <id> --open`).
+10. Front matter: keep `created`, set `updated` to today, write `approach` in one line.
 
 ## Gotchas
-- A size M plan stays under 60 lines with text and a size L plan under 100, diagrams included. A longer plan holds the work of the builder: move it to the slices.
+- A size M plan stays under 60 lines with text and a size L plan under 100, diagrams included; System design, Data model and Rollout add at most 40. A longer plan holds the work of the builder: move it to the slices.
+- The plan holds facts only: no question, no answer and no state such as "waits for Q3". An answer that changes the plan means `nook eng item replan <id>` and a new text.
 - A design with one option shows no trade-off. Show a rejected option, or say why none exists.
 - A breaking contract change needs a migration path and the owner's word. Prefer the additive form.
 - "Add tests" is not a proof. Each row says what makes it fail without the change.

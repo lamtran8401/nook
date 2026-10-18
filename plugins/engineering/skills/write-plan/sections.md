@@ -6,11 +6,14 @@
 | Today | one mermaid diagram of the parts and calls of today; the facts that the approach rests on | 1 diagram, 3 facts |
 | Approach | one mermaid diagram after the change; a table `Decision \| Why` (size L adds `If it fails`); the options not taken with one reason each | 1 diagram, 3 options |
 | Impact | one row for each kind that changes; one line "None: ..." for the rest of Contract, Data, Cache, Consistency, Performance, Security, Rollout | the rows that change |
+| System design | size L in two places or more: one mermaid flowchart with one `subgraph` for each place | 1 diagram |
+| Data model | when the item adds or changes data: one mermaid `erDiagram` of those tables, with PK and FK | 1 diagram |
+| Rollout | when the item ships in stages: numbered steps, each with its check | 5 steps |
 | Flow | size L only: one mermaid sequence diagram of the hard path; the rules that must always be true; the failure cases | 3 rules, 4 cases |
 | Proof | the criteria grouped; for each row the layer, the proof in plain words, and the negative case | 6 rows |
 | Risks | what can fail, its likelihood (low, med, high) and what we do; what is left out on purpose; the guesses the plan relies on | 3 rows |
 
-A size M plan stays under 60 lines with text and a size L plan under 100, diagrams included; blank lines do not count.
+A size M plan stays under 60 lines with text and a size L plan under 100, diagrams included; System design, Data model and Rollout add at most 40. Blank lines do not count.
 
 ## The bar for each section
 - In short: the owner knows the approach and the main risk after reading it once.
@@ -32,7 +35,9 @@ flowchart TB
 ```
 - `flowchart TB` for Today and Approach: it reads well on a phone.
 - `sequenceDiagram` for Flow: one participant for each part that takes part in the call.
-- Mark each part as it is: "(new)", "(changes)", or nothing for a part that stays.
+- `subgraph place["Label"]` … `end` for System design: one group for each place where code runs, in the order that a request crosses them.
+- `erDiagram` for Data model: each table with its columns, `PK` and `FK` after the name of a column, and `||--o{` for one to many.
+- Mark each part as it is: "(new)", "(changes)", "(error)" for an error path, or nothing for a part that stays. Put the area first: `api: vault client (new)`.
 
 ## Two snippets
 ```markdown

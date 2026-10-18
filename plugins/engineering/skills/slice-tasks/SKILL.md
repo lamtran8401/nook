@@ -46,4 +46,5 @@ A full `tasks.md` for SHOP-12: `${CLAUDE_PLUGIN_ROOT}/skills/recipe/example.md`.
 - `task import` refuses a cycle or an AC that no slice covers. Never drop the AC.
 - Run `nook eng task import <id>` after each change to `tasks.md`.
 - Do not put the code in the slice. Give the behavior and the test; the builder writes the code.
+- Write facts only: no state such as done, running or "waits for Q3". The ledger holds the state, and the page shows it.
 - A change to the slices after the approve is refused. `nook eng item replan <id>` first.
