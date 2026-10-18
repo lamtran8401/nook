@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { writeFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { bashGuard, editGuard, readGuard } from '../../src/hooks/guards.ts'
@@ -69,6 +69,19 @@ describe('bashGuard', () => {
 
   test.each(['NOOK_ROLE=owner nook eng item approve A-1', 'NOOK_ACTOR=x nook doctor', 'env -u CLAUDECODE nook doctor'])('blocks a command that sets a role: %s', command => {
     expect(bash(command)).toBe('block')
+  })
+
+  test.each(['curl http://127.0.0.1:4321/', 'curl -s localhost:4321/works', 'wget 0.0.0.0:4321', 'curl "http://[::1]:4321/?t=x"'])('blocks a call to the port of the running web app: %s', command => {
+    mkdirSync(join(root, '.nook'), { recursive: true })
+    writeFileSync(join(root, '.nook', 'web.json'), JSON.stringify({ port: 4321, pid: 9, started: 'now' }))
+    expect(bash(command)).toBe('block')
+  })
+
+  test('lets a call to another port pass, and any call when no web app runs', () => {
+    expect(bash('curl http://127.0.0.1:4321/')).toBe('pass')
+    mkdirSync(join(root, '.nook'), { recursive: true })
+    writeFileSync(join(root, '.nook', 'web.json'), JSON.stringify({ port: 4321, pid: 9, started: 'now' }))
+    expect(bash('curl http://127.0.0.1:43210/')).toBe('pass')
   })
 
   test('reads a comment and a heredoc body as text, not as a command', () => {

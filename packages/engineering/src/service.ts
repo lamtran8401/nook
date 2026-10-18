@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path'
 import { match } from 'ts-pattern'
 
 import { conflict, EvError, Exit, refused, usage } from '@nook/shared/errors.ts'
+import { errorLines } from '@nook/shared/run.ts'
 
 import type { Area } from './config.ts'
 import { criteriaCap, ticketCriteria } from './documents/criteria-cap.ts'
@@ -20,7 +21,7 @@ import { APPROVED_DOCS } from './guards/fingerprints.ts'
 import { type Gap, GuardContext } from './guards/guard.ts'
 import { gapsOf } from './guards/table.ts'
 import { Home } from './home.ts'
-import { errorLines, INSTALL_PREFIX, lockHash, needsInstall } from './install.ts'
+import { INSTALL_PREFIX, lockHash, needsInstall } from './install.ts'
 import { Ledger, now, type Param } from './ledger.ts'
 import {
   afterMove,

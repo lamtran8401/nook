@@ -2,11 +2,12 @@ import { basename, resolve, sep } from 'node:path'
 
 import { match } from 'ts-pattern'
 
-import { nearestDesk, STATE_DIR } from '@nook/desk/desks.ts'
+import { desksAbove, nearestDesk, STATE_DIR } from '@nook/desk/desks.ts'
 import { SecretPolicy } from '@nook/desk/secrets.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 import { ROLE_VAR } from '@nook/shared/names.ts'
 
+import { readWebState } from '../web/web-state.ts'
 import { plainWords, shellWords } from './shell.ts'
 
 /** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside a desk they do nothing. */
@@ -26,6 +27,10 @@ export function readGuard(input: HookInput): HookResult {
 const ROLE_SET = new RegExp(`\\b${ROLE_VAR}\\s*=`)
 const STATE_DB = /(^|\/)\.nook\/.*\.db/
 const SQLITE = /(^|\/)sqlite3?$/
+const LOCAL = String.raw`(?:127\.0\.0\.1|localhost|0\.0\.0\.0|\[::1\])`
+
+/** The ports of the web apps that run for the desks above the folder, from their `.nook/web.json`. */
+const webPorts = (cwd: string): number[] => desksAbove(cwd).flatMap(desk => readWebState(desk.dir)?.port ?? [])
 
 export function bashGuard(input: HookInput): HookResult {
   if (!inDesk(input)) return pass
@@ -38,6 +43,8 @@ export function bashGuard(input: HookInput): HookResult {
   }
   if (words.some(w => STATE_DB.test(w)) || shellWords(command).some(word => SQLITE.test(word)))
     return block('the state databases are not for the shell: use the nook commands.')
+  if (webPorts(cwdOf(input)).some(port => new RegExp(`${LOCAL}:${port}(?!\\d)`).test(plain)))
+    return block('the web app belongs to the owner: an agent never calls its port. Read the desk with the nook commands.')
   const listed = policy.listedIn(plain)
   if (listed) return block(`the command names ${listed}, a secret of nook.yml.`)
   if (ROLE_SET.test(plain) || /env\s+-u\s+CLAUDECODE/.test(plain)) return block('the role of an agent is set by nook, not by a command.')

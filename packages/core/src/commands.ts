@@ -16,6 +16,7 @@ import { styleCheck } from './hooks/style.ts'
 import { CORE_HOOKS, type CoreHook } from './hooks/table.ts'
 import { init } from './init/initializer.ts'
 import { markdownFiles, scoreFile } from './ste.ts'
+import { startWeb, webDeps } from './web/start.ts'
 
 const coreDir = () => Catalog.load().dirOf('core')
 
@@ -56,6 +57,17 @@ export const coreProgram = (modules: PackModule[] = []): Program => ({
         const report = doctor(from, { modules })
         c.out(report, r => formatDoctor(r, from))
         return report.findings.some(f => f.level === 'error') ? Exit.error : Exit.ok
+      },
+    },
+    {
+      path: ['web'],
+      summary: 'the desk in the browser: builds the web app when the Nook code changed, then serves it on 127.0.0.1 until Ctrl-C',
+      usage: '[--build]',
+      flags: { build: { type: 'boolean', help: 'build again, even with no change of the code' } },
+      async run(c) {
+        const desk = nearestDesk(process.cwd())
+        if (!desk) throw usage('not inside a desk', 'run nook web in a desk, or nook init first')
+        return startWeb(desk.dir, c.flags.build === true, webDeps(projectRoot(), desk.dir))
       },
     },
     {

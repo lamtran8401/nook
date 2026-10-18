@@ -42,12 +42,24 @@ A fault stops the command and names the key: `packs.on must be a list of strings
 | `nook doctor` | the desks above, the packs of each, every gap with its fix |
 | `nook packs` | the packs on here, where each keeps its record, and the packs that Nook ships |
 | `nook brief` | what waits for you, what is done since yesterday and what runs, for each desk of the desk list |
+| `nook web [--build]` | the desk in the browser: builds the web app when the Nook code changed, then serves it on `127.0.0.1` until Ctrl-C |
 | `nook retro` | the facts since the last retro of this desk: items sent back, guesses flipped, slow questions, weak proofs |
 | `nook where` | the desks above this folder and the Nook repo |
 | `nook ste <file\|folder...> [--min N] [--quiet]` | the writing score of Markdown files; a file passes above `N`, default 80 |
 | `nook hook <name>` | one core hook, with the Claude Code event on stdin |
 
-Each pack adds its commands under its name: `nook eng …`, `nook wiki …`, `nook learn …`. `nook --help` lists all 90 commands.
+Each pack adds its commands under its name: `nook eng …`, `nook wiki …`, `nook learn …`. `nook --help` lists all 91 commands.
+
+`nook web` runs only in the owner's terminal:
+
+1. It refuses when `CLAUDECODE` is set, so no agent starts the app or holds its token.
+2. It stops when Node 24 or later is not on the path, and names the install.
+3. It builds `apps/web` when the hash of the web and package sources differs from the stamp of the last build, or with `--build`. A failed build names its error lines and starts no server.
+4. It takes the last port of the desk when it is free, else a free one, and makes a one-time token.
+5. It starts `apps/web/server.ts` under Node with `NOOK_DESK` and the port, and writes the token to its stdin. The token is never in an argument, a variable, a file or the terminal.
+6. It writes the port and the process to `.nook/web.json`, opens the browser with the token, and removes the file when the server stops.
+
+The server lets a request in only on its own host `127.0.0.1:<port>`. The token works once and becomes an HttpOnly, SameSite=Strict cookie; a write needs the origin of the page.
 
 `nook doctor` and `nook brief` only read. `readHome(desk, modules)` in `packages/core/src/read.ts` gives the same brief of one desk and the findings of its doctor, for the home page of the web app.
 
@@ -96,7 +108,7 @@ The file is `plugins/core/hooks/hooks.json`. Each hook runs `nook hook <name>` a
 | Event | Hook | Job | On a failure of Nook |
 |---|---|---|---|
 | PreToolUse Read, Grep, Glob | `read` | blocks a secret file | blocks |
-| PreToolUse Bash | `bash` | blocks a secret in a command, a state database, a role set by a command, a nested session that types `/gate` | blocks |
+| PreToolUse Bash | `bash` | blocks a secret in a command, a state database, a role set by a command, a nested session that types `/gate`, a call to the port of a running web app | blocks |
 | PreToolUse Edit, Write | `edit` | blocks a secret file, the state folder, `.claude/settings*.json` | blocks |
 | PostToolUse Edit, Write | `style` | scores a Markdown file under `docs/` of the desk, or under a folder that a pack names as its record, such as `works/` and `backlog/` of engineering; sends back the failing sentences | lets go |
 | SessionStart | `start` | the desk, its packs and the hint `nook doctor`, as context | lets go |

@@ -3,7 +3,7 @@ import { mkdtempSync, realpathSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { runCommand } from '../src/run.ts'
+import { errorLines, runCommand } from '../src/run.ts'
 
 let dir: string
 beforeEach(() => {
@@ -41,5 +41,15 @@ describe('runCommand', () => {
     const run = runCommand(['nook-no-such-program'])
     expect(run.code).not.toBe(0)
     expect(run.err).toContain('nook-no-such-program')
+  })
+})
+
+describe('errorLines', () => {
+  test('keeps the lines that name an error', () => {
+    expect(errorLines('resolving\nerror: no network\nretry\nnpm ERR! code E404\n')).toBe('error: no network\nnpm ERR! code E404')
+  })
+
+  test('falls back to the last lines when no line names an error', () => {
+    expect(errorLines('1\n2\n3\n4\n5\n6\n')).toBe('2\n3\n4\n5\n6')
   })
 })

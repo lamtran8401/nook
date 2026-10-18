@@ -20,3 +20,10 @@ export function runCommand(argv: string[], options: RunOptions = {}): CommandRun
   const err = run.error ? `${run.stderr ?? ''}${run.error.message}` : (run.stderr ?? '')
   return { code: run.status ?? 1, out: run.stdout ?? '', err }
 }
+
+/** The lines of a failed command that name an error, else its last lines: what a person needs to fix it. */
+export function errorLines(output: string): string {
+  const lines = output.split('\n').map(line => line.trim()).filter(Boolean)
+  const errors = lines.filter(line => /error|ERR!|failed/i.test(line))
+  return (errors.length ? errors.slice(0, 5) : lines.slice(-5)).join('\n')
+}

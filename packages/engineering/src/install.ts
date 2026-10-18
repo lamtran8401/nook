@@ -55,10 +55,3 @@ export function needsInstall(dir: string, lastLock: string | null): boolean {
     return folder !== undefined && !existsSync(join(dirname(lockfile), folder))
   })
 }
-
-/** The lines of a failed install that name an error, else its last lines. */
-export function errorLines(output: string): string {
-  const lines = output.split('\n').map(line => line.trim()).filter(Boolean)
-  const errors = lines.filter(line => /error|ERR!|failed/i.test(line))
-  return (errors.length ? errors.slice(0, 5) : lines.slice(-5)).join('\n')
-}

@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { errorLines, lockHash, needsInstall } from '../src/install.ts'
+import { lockHash, needsInstall } from '../src/install.ts'
 
 let dir: string
 beforeEach(() => {
@@ -82,15 +82,5 @@ describe('needsInstall', () => {
   test('is false for the same lockfile of a tool that fills no folder in the area', () => {
     writeFileSync(join(dir, 'go.sum'), 'v1')
     expect(needsInstall(dir, lockHash(dir))).toBe(false)
-  })
-})
-
-describe('errorLines', () => {
-  test('keeps the lines that name an error', () => {
-    expect(errorLines('resolving\nerror: no network\nretry\nnpm ERR! code E404\n')).toBe('error: no network\nnpm ERR! code E404')
-  })
-
-  test('falls back to the last lines when no line names an error', () => {
-    expect(errorLines('1\n2\n3\n4\n5\n6\n')).toBe('2\n3\n4\n5\n6')
   })
 })

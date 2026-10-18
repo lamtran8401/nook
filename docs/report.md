@@ -1,6 +1,6 @@
 # The build report
 
-> In short: Nook has four packs, 90 commands, 45 skills, 12 agents and 12 hooks. All 713 tests pass. Engineering is in real use; the wiki and learn are built and wait for more use. The next step is the viewer.
+> In short: Nook has four packs, 91 commands, 45 skills, 12 agents and 12 hooks. All 733 tests pass. Engineering is in real use; the wiki and learn are built and wait for more use. The next step is the viewer.
 
 This file states the build of today. Update its numbers in the same commit as the change that moves them.
 
@@ -9,12 +9,12 @@ This file states the build of today. Update its numbers in the same commit as th
 | Part | Count | Check it with |
 |---|---|---|
 | packs | 4: core, engineering, wiki, learn | `nook packs` |
-| commands | 90: core 8, engineering 69, wiki 4, learn 9 | `nook --help` |
+| commands | 91: core 9, engineering 69, wiki 4, learn 9 | `nook --help` |
 | skills | 45: core 6, engineering 29, wiki 4, learn 6 | `ls plugins/*/skills` |
 | agents | 12: engineering 10, wiki 1, learn 1 | `ls plugins/*/agents` |
 | hooks | 12: core 6, engineering 6 | `plugins/*/hooks/hooks.json` |
 | base rules | 9: writing, safety, questions, approach, comments, engineering, testing, wiki, learn | `ls plugins/*/templates/rules` |
-| tests | 713 in 76 files, 0 failures | `bun run check` |
+| tests | 733 in 78 files, 0 failures | `bun run check` |
 | source | about 9,800 lines of TypeScript in 6 packages | `find packages/*/src -name '*.ts' \| xargs cat \| wc -l` |
 | runtime dependencies | 2: `yaml` 2.9.1, `ts-pattern` 5.9.0 | `packages/*/package.json` |
 
