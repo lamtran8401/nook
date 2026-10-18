@@ -4,7 +4,9 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { Blocks } from '../components/blocks/Blocks.tsx'
 import { parseDoc } from '../lib/blocks.ts'
 
-const render = (md: string) => renderToStaticMarkup(<Blocks blocks={parseDoc(md).blocks} />)
+import type { Criterion } from '@nook/engineering/stores/criteria.ts'
+
+const render = (md: string, criteria?: Criterion[]) => renderToStaticMarkup(<Blocks blocks={parseDoc(md).blocks} context={{ criteria }} />)
 const text = (markup: string) => markup.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
 
 describe('Blocks', () => {
@@ -61,5 +63,48 @@ describe('Blocks', () => {
 
   test('shows raw HTML as its text', () => {
     expect(render('<b onclick="x()">hi</b>\n')).toBe('<p>&lt;b onclick=&quot;x()&quot;&gt;hi&lt;/b&gt;</p>')
+  })
+})
+
+describe('Blocks of the heading rules', () => {
+  const criterion = (n: number, done: boolean): Criterion => ({ item: 'SHOP-42', n, text: '', done, evidence: null, grade: null, by: null, at: null })
+
+  test('renders each criterion as a record with its kind, its sources, and its state from the ledger', () => {
+    const markup = render('## Acceptance criteria\n\n- [ADD] A person pays in one click. (ticket AC1, Q2)\n- [CHANGE] A decline shows the reason.\n', [criterion(1, true), criterion(2, false)])
+    expect(markup).toContain('<ol class="bn-records"><li><span class="bn-records__id">AC1</span><div><div class="bn-records__head"><span class="bn-badge" data-tone="success">ADD</span><span class="bn-records__meta">ticket AC1, Q2</span><span class="bn-badge bn-records__state" data-variant="solid" data-tone="success">met</span></div><p>A person pays in one click.</p></div></li>')
+    expect(text(markup)).toContain('AC2 CHANGE open A decline shows the reason.')
+  })
+
+  test('renders each rule with its label, its words and its sources, a guess with its impact', () => {
+    expect(render('## Details\n\n- **Retries:** after 1, 5 and 30 minutes. (G5, high)\n')).toContain(
+      '<ul class="bn-rules"><li><b>Retries</b><p>after 1, 5 and 30 minutes.</p><span class="bn-rules__src"><span class="bn-badge" data-tone="danger">G5 · high</span></span></li></ul>',
+    )
+  })
+
+  test('renders a walkthrough with each part in its component', () => {
+    const markup = render([
+      '> In short: the api charges a saved card.',
+      '## What works now', '- **Charge a saved card:** the page sends a card id.',
+      '## Where to start reading', '1. `api/src/keys.ts`: the key of a payment.',
+      '## Try it', '1. Run `bun test` in api. Every test passes.',
+      '## Heads up', '- A code that the map does not know shows as declined.',
+      '## Requirements met', '- A person can save a card.',
+    ].join('\n\n'))
+    const parts = ['data-tone="primary"><div class="bn-alert__icon">i</div><div><div class="bn-alert__label">In short', 'class="bn-pieces"', 'class="bn-steplist"', 'class="bn-steplist" data-variant="path"', '1 thing to know', 'class="bn-checklist" data-variant="met"']
+    const at = parts.map(part => markup.indexOf(part))
+    expect(at.every(i => i >= 0)).toBe(true)
+    expect([...at].sort((a, b) => a - b)).toEqual(at)
+    expect(text(markup)).toContain('Charge a saved card The page sends a card id.')
+    expect(text(markup)).toContain('1 Run bun test in api. Every test passes.')
+  })
+
+  test('renders the kinds of no impact as chips', () => {
+    expect(render('None: Cache, Consistency.\n')).toBe('<p class="nk-none"><span>No impact on</span><span class="bn-badge" data-variant="plain">Cache</span><span class="bn-badge" data-variant="plain">Consistency</span></p>')
+  })
+
+  test('renders a slice as a task card that says what it waits for', () => {
+    const markup = render('## T2: Charge a token\n\n- area: api\n- depends: T1\n- acs: 1, 6\n- size: M\n- done when: a charge sends the token\n')
+    expect(text(markup)).toBe('T2 api size M Charge a token Criteria 1, 6 Done when a charge sends the token after T1')
+    expect(markup).toStartWith('<article class="bn-task">')
   })
 })

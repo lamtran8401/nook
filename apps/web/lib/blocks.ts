@@ -1,16 +1,19 @@
-import type { PhrasingContent, RootContent } from 'mdast'
+import type { RootContent } from 'mdast'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import { unified } from 'unified'
 
 import type { DiagramSpec } from '../components/Diagram.tsx'
+import { type Inline, plainText } from './inline.ts'
+import { applyRules } from './rules.ts'
+
+export { type Inline, plainText }
 
 /**
  * A document of a desk as a tree of blocks, one template for each kind. The `:::` blocks come from a line scan, so a
  * block knows its line; the Markdown between them and inside them comes from remark with GFM.
  */
 
-export type Inline = PhrasingContent[]
 export type PanelTone = 'info' | 'note' | 'success' | 'warning' | 'error'
 export type Block =
   | { kind: 'heading'; depth: number; content: Inline }
@@ -27,6 +30,19 @@ export type Block =
   | { kind: 'expand'; title: string; blocks: Block[] }
   | { kind: 'columns'; columns: Block[][] }
   | { kind: 'unknown'; line: number; reason: string; text: string }
+  | { kind: 'criteria'; items: { n: number; tag: string; content: Inline; refs: string[] }[] }
+  | { kind: 'rules'; items: { label: string; content: Inline; sources: Source[] }[] }
+  | { kind: 'pieces'; items: { title: string; content: Inline }[] }
+  | { kind: 'steps'; items: { action: Inline; seen: Inline }[] }
+  | { kind: 'outlist'; items: Inline[] }
+  | { kind: 'numbered'; items: Inline[] }
+  | { kind: 'headsup'; items: Inline[] }
+  | { kind: 'met'; items: Inline[] }
+  | { kind: 'callout'; tone: 'short' | 'know'; content: Inline }
+  | { kind: 'none'; kinds: string[] }
+  | { kind: 'task'; id: string; title: string; area: string; depends: string; size: string; rows: [string, Inline][] }
+/** Where a rule or a criterion comes from, such as Q2, or G5 with its impact. */
+export type Source = { text: string; level?: 'low' | 'med' | 'high' }
 export type Doc = { meta: Record<string, string>; title: string; blocks: Block[] }
 
 const PANELS: readonly string[] = ['info', 'note', 'success', 'warning', 'error']
@@ -159,11 +175,6 @@ function codeBlock(lang: string | null, text: string, line: number): Block {
   }
 }
 
-/** The words of an inline run, with no marks. */
-export function plainText(content: Inline): string {
-  return content.map(node => ('value' in node ? node.value : 'children' in node ? plainText(node.children as Inline) : '')).join('')
-}
-
 function frontMatter(text: string): { meta: Record<string, string>; body: string; first: number } {
   const match = /^---\n([\s\S]*?)\n---\n/.exec(text)
   if (!match) return { meta: {}, body: text, first: 1 }
@@ -181,6 +192,6 @@ export function parseDoc(text: string): Doc {
   const { meta, body, first } = frontMatter(text)
   const blocks = blocksOf(body, first)
   const head = blocks[0]
-  if (head?.kind === 'heading' && head.depth === 1) return { meta, title: plainText(head.content), blocks: blocks.slice(1) }
-  return { meta, title: '', blocks }
+  if (head?.kind === 'heading' && head.depth === 1) return { meta, title: plainText(head.content), blocks: applyRules(blocks.slice(1)) }
+  return { meta, title: '', blocks: applyRules(blocks) }
 }
