@@ -46,10 +46,14 @@ describe('the packages run under Bun and Node', () => {
       db.run('INSERT INTO t (n) VALUES (?)', 7)
       const row = db.get('SELECT n FROM t')
       db.close()
-      console.log(JSON.stringify({ row, echo: runCommand(['echo', 'hi']).out, bun: typeof Bun }))
+      const reader = SqlFile.open(${JSON.stringify(join(dir, 'a.db'))}, { readOnly: true })
+      let write = 'allowed'
+      try { reader.run('INSERT INTO t (n) VALUES (8)') } catch (error) { write = error.message }
+      reader.close()
+      console.log(JSON.stringify({ row, write, echo: runCommand(['echo', 'hi']).out, bun: typeof Bun }))
     `)
     const run = runCommand(['node', script])
     expect(run.err).not.toContain('Error')
-    expect(JSON.parse(run.out)).toEqual({ row: { n: 7 }, echo: 'hi\n', bun: 'undefined' })
+    expect(JSON.parse(run.out)).toEqual({ row: { n: 7 }, write: 'attempt to write a readonly database', echo: 'hi\n', bun: 'undefined' })
   })
 })

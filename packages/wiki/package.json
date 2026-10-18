@@ -7,6 +7,8 @@
     "./*": "./src/*"
   },
   "dependencies": {
+    "@nook/desk": "workspace:*",
+    "@nook/shared": "workspace:*",
     "ts-pattern": "5.9.0"
   }
 }

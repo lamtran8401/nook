@@ -1,0 +1,18 @@
+{
+  "name": "@nook/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "@nook/desk": "workspace:*",
+    "@nook/engineering": "workspace:*",
+    "@nook/shared": "workspace:*",
+    "next": "16.3.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "25.9.9",
+    "@types/react": "19.3.0"
+  }
+}

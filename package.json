@@ -10,8 +10,9 @@
   ],
   "scripts": {
     "check": "bun run typecheck && bun run test",
-    "typecheck": "tsc --noEmit",
-    "test": "bun test --timeout 30000",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p apps/web",
+    "test": "bun test packages scripts --timeout 30000",
+    "e2e": "bun test apps/web/e2e --timeout 600000",
     "pages": "bun scripts/pages/build.ts"
   },
   "devDependencies": {

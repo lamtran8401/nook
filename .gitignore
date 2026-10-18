@@ -4,3 +4,6 @@ node_modules/
 *.db-wal
 *.db-shm
 .DS_Store
+apps/web/.next/
+apps/web/next-env.d.ts
+apps/web/*.tsbuildinfo

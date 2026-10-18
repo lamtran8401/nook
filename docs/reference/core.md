@@ -179,6 +179,7 @@ Only the owner starts these skills.
 ```
 nook/
 ├── apps/nook/            the binary nook: it joins the commands of each package; no logic
+├── apps/web/             the web app of nook web: Next.js on Node, its own tsconfig; bun run e2e builds it
 ├── packages/
 │   ├── shared/           the CLI router, the exit codes, the hook input and output, the names, the SQLite file, the command runner
 │   ├── desk/             desks, nook.yml, the desk list, the pack manifests, the plugin folders, the UI kit
@@ -191,7 +192,7 @@ nook/
 └── .claude-plugin/       the marketplace
 ```
 
-The dependency rule: `apps/nook` imports the packages. A package imports `@nook/shared/*` and `@nook/desk/*` only, never another pack. A plugin holds no code: its hooks call `bin/nook`.
+The dependency rule: `apps/nook` and `apps/web` import the packages. A package imports `@nook/shared/*` and `@nook/desk/*` only, never another pack. Each package names the `@nook` packages that it imports in its `package.json`, so Node finds them. A plugin holds no code: its hooks call `bin/nook`.
 
 Every package runs under Bun and under Node, so the web app can import it. The SQLite file and the command runner of `shared` use `node:sqlite` and `node:child_process`. A test fails when a package source uses a Bun API.
 

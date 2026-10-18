@@ -5,6 +5,7 @@ This repo builds Nook itself. Read `docs/report.md` for the current build, `docs
 ## Map
 ```
 apps/nook/             the one binary `nook`: it joins the commands of each package and runs them. No logic.
+apps/web/              the web app of `nook web`: Next.js on Node; its pages call the read paths of the packages.
 packages/shared/       the CLI router, the exit codes, the hook input and output, the names of the tool, the SQLite file, the command runner
 packages/desk/         desks, nook.yml, the desk list of the owner, the pack manifests, the plugin folders, the UI kit
 packages/core/         init, doctor, packs, where, the writing check, brief, retro, the core hooks
@@ -25,7 +26,8 @@ A desk is a folder with `nook.yml`. Desks nest: `company/` is a top desk, and `c
 - A change to a command, a skill, an agent or a hook changes its doc in the same commit: the reference of its pack, the guide when the use changes, the numbers of `docs/report.md`.
 - After a change to `docs/guide/` or `docs/report.md`, run `bun run pages <out dir> <report url>` and publish both pages again to their links.
 - Five diagrams of the pages are drawn by hand in `scripts/pages/build.ts`. When the doc text of one changes, `bun run pages` and its test stop and name the diagram: redraw it, then set its new fingerprint in `DRAWN`.
-- `bun run check`: `tsc --noEmit` and `bun test`. Commit only when it passes.
+- `bun run check`: `tsc --noEmit` for the repo and for `apps/web`, and `bun test` on `packages` and `scripts`. Commit only when it passes.
+- `bun run e2e` builds the web app under Node and checks its pages. It takes about a minute, so it stays out of `bun run check`. Run it after a change to `apps/web` or to a read path.
 - `nook ste <file.md>` on each Markdown file of `plugins/` and `docs/`: above 80%. Run the tool by its name; the guard blocks a path to the binary.
 - `claude plugin validate .` after a change to a manifest.
 - Try a change in a scratch folder: `nook init` there, then `nook doctor` and a hook call with JSON on stdin.

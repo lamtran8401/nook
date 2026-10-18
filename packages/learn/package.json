@@ -5,5 +5,9 @@
   "type": "module",
   "exports": {
     "./*": "./src/*"
+  },
+  "dependencies": {
+    "@nook/desk": "workspace:*",
+    "@nook/shared": "workspace:*"
   }
 }

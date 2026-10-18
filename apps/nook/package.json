@@ -1,1 +1,17 @@
-{ "name": "@nook/app", "private": true, "version": "0.1.0", "type": "module", "bin": { "nook": "bin/nook", "nk": "bin/nook" } }
+{
+  "name": "@nook/app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "nook": "bin/nook",
+    "nk": "bin/nook"
+  },
+  "dependencies": {
+    "@nook/core": "workspace:*",
+    "@nook/engineering": "workspace:*",
+    "@nook/learn": "workspace:*",
+    "@nook/shared": "workspace:*",
+    "@nook/wiki": "workspace:*"
+  }
+}
