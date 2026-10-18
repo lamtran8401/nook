@@ -113,8 +113,8 @@ describe('NeedsYou', () => {
         '? Q4: Must the list show the expiry date? Open · blocks nothing · asked 16 Oct 11:12 ' +
         'Guesses to check 1 ! G5 · high: When does a declined charge try again? Took: after 1, 5 and 30 minutes. The other way: once after an hour. Shapes T9. ' +
         'Gate → No gate waits for you Next: the lead runs /cook SHOP-42. ' +
-        'All questions · 3 Q1 answered asked 16 Oct Which currency? the shop currency Q3 blocking asked 16 Oct Must a refund go to the same card? Q4 open asked 16 Oct Must the list show the expiry date? ' +
-        'All guesses · 2 G2 accepted high When does a declined charge try again? after 1, 5 and 30 minutes G5 open high When does a declined charge try again? after 1, 5 and 30 minutes',
+        'All questions · 3 Q1 Which currency? the shop currency answered Q3 Must a refund go to the same card? asked 16 Oct blocking Q4 Must the list show the expiry date? asked 16 Oct open ' +
+        'All guesses · 2 G2 When does a declined charge try again? after 1, 5 and 30 minutes high accepted G5 When does a declined charge try again? after 1, 5 and 30 minutes high open',
     )
   })
 
@@ -146,7 +146,7 @@ describe('Branches', () => {
   })
 
   test('says so when no area has a branch yet', () => {
-    expect(text(html(<Branches changes={[]} checks={[]} />))).toBe('No branch yet. The build makes one for each area.')
+    expect(text(html(<Branches changes={[]} checks={[]} />))).toBe('No branch yet The build makes one for each area.')
   })
 })
 
@@ -168,7 +168,7 @@ describe('Timeline', () => {
 describe('DocTab', () => {
   test('a walkthrough not written yet says to type /view in the agent session', () => {
     expect(text(html(<DocTab id="SHOP-42" name="walkthrough" text={null} areas={[]} criteria={[]} />))).toBe(
-      'i The walkthrough is not written yet The walkthrough comes after the build. When the item reaches review, type /view SHOP-42 in the agent session.',
+      'The walkthrough is not written yet The walkthrough comes after the build. When the item reaches review, type /view SHOP-42 in the agent session.',
     )
   })
 
@@ -200,8 +200,8 @@ describe('ItemDialog', () => {
     expect(markup).toContain('<a class="bn-btn" data-variant="primary" href="/works/SHOP-42" target="_blank" rel="noopener">Open in new tab</a>')
     expect(text(markup)).toBe(
       'SHOP-42 Pay for an order with a saved card cooking feature size L api web ' +
-        'Criteria AC1 met A saved card pays in one click. api test passes AC2 open A decline shows the reason. ' +
-        'Slices T1 slice T1 done T7 slice T7 waiting T9 slice T9 failed T10 slice T10 todo ' +
+        'Criteria AC1 A saved card pays in one click. api test passes met AC2 A decline shows the reason. open ' +
+        'Slices T1 slice T1 done T7 slice T7 waits for Q3 waiting T9 slice T9 the clock fake skips the 5 min try failed T10 slice T10 todo ' +
         'Last events 16 Oct 11:12 The lead asked or answered a question · Q3 15 Oct 16:30 The lead ran the checks · 1/2 checks passed 15 Oct 09:40 You approved the plan ' +
         'Open in new tab',
     )

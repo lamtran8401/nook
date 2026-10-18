@@ -1,6 +1,7 @@
 import type { Slice } from '@nook/engineering/stores/slices.ts'
 
 import { Diagram } from '../Diagram.tsx'
+import { EmptyState } from '../EmptyState.tsx'
 
 const COLUMNS: { title: string; tone: string; states: Slice['state'][] }[] = [
   { title: 'To do', tone: 'neutral', states: ['todo', 'waiting'] },
@@ -19,7 +20,9 @@ function card(slice: Slice) {
 
 /** The slices of the item on a board by state. A cancelled slice is left out. */
 export function SliceBoard({ slices }: { slices: Slice[] }) {
-  if (!slices.length) return <p className="nk-empty">No slice yet. The plan step writes them in tasks.md.</p>
+  if (!slices.length) return <EmptyState compact icon="layers" title="No slice yet">The plan step writes them in tasks.md.</EmptyState>
   const columns = COLUMNS.map(({ title, tone, states }) => ({ title, tone, cards: slices.filter(s => states.includes(s.state)).map(card) }))
-  return <Diagram spec={{ type: 'board', colWidth: 260, columns }} />
+  // as Bench draws a board: a state with no slice goes in the small panel at the end, not in an empty column
+  const rest = columns.filter(c => !c.cards.length).map(({ title, tone }) => ({ title, tone, count: 0 }))
+  return <Diagram spec={{ type: 'board', colWidth: 260, columns: columns.filter(c => c.cards.length), ...(rest.length ? { rest, restTitle: 'No slices' } : {}) }} />
 }

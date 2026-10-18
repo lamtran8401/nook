@@ -71,8 +71,8 @@ describe('Blocks of the heading rules', () => {
 
   test('renders each criterion as a record with its kind, its sources, and its state from the ledger', () => {
     const markup = render('## Acceptance criteria\n\n- [ADD] A person pays in one click. (ticket AC1, Q2)\n- [CHANGE] A decline shows the reason.\n', [criterion(1, true), criterion(2, false)])
-    expect(markup).toContain('<ol class="bn-records"><li><span class="bn-records__id">AC1</span><div><div class="bn-records__head"><span class="bn-badge" data-tone="success">ADD</span><span class="bn-records__meta">ticket AC1, Q2</span><span class="bn-badge bn-records__state" data-variant="solid" data-tone="success">met</span></div><p>A person pays in one click.</p></div></li>')
-    expect(text(markup)).toContain('AC2 CHANGE open A decline shows the reason.')
+    expect(markup).toContain('<ol class="bn-records nk-records"><li><span class="bn-records__id">AC1</span><div class="nk-records__main"><p><span class="bn-badge" data-tone="success">ADD</span>A person pays in one click.<span class="bn-records__meta"> ticket AC1, Q2</span></p></div><span class="nk-records__end"><span class="bn-badge" data-tone="success">met</span></span></li>')
+    expect(text(markup)).toContain('AC2 CHANGE A decline shows the reason. open')
   })
 
   test('renders each rule with its label, its words and its sources, a guess with its impact', () => {

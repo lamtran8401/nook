@@ -3,6 +3,7 @@ import type { Guess } from '@nook/engineering/stores/guesses.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
 
 import { clock, day } from '../../lib/time.ts'
+import { Records } from '../Records.tsx'
 
 const GUESS_TONE: Record<Guess['status'], string> = { open: 'warning', accepted: 'success', flipped: 'primary' }
 
@@ -22,25 +23,18 @@ function Row({ tone, icon, title, note }: { tone: string; icon: string; title: s
 const questionNote = (q: Question) => `${q.blocking ? 'Blocking' : 'Open · blocks nothing'} · asked ${day(q.asked_at)} ${clock(q.asked_at)}${q.recommended ? ` · recommended: ${q.recommended}` : ''}`
 const guessNote = (g: Guess) => `Took: ${g.took}. The other way: ${g.other}.${g.slices.length ? ` Shapes ${g.slices.join(', ')}.` : ''}`
 
+const questionState = (q: Question) => (q.status === 'answered' ? { tone: 'success', text: 'answered' } : q.blocking ? { tone: 'danger', text: 'blocking' } : { tone: 'warning', text: 'open' })
+
 function AllQuestions({ questions }: { questions: Question[] }) {
   return (
     <details className="nk-all">
       <summary>All questions · {questions.length}</summary>
-      <ul className="bn-records">
-        {questions.map(q => (
-          <li key={q.id}>
-            <span className="bn-records__id">{q.id}</span>
-            <div>
-              <div className="bn-records__head">
-                <span className="bn-badge" data-tone={q.status === 'answered' ? 'success' : q.blocking ? 'danger' : 'warning'}>{q.status === 'answered' ? 'answered' : q.blocking ? 'blocking' : 'open'}</span>
-                <span className="bn-records__meta">asked {day(q.asked_at)}</span>
-              </div>
-              <p>{q.text}</p>
-              {q.answer ? <p className="bn-records__sub">{q.answer}</p> : null}
-            </div>
-          </li>
-        ))}
-      </ul>
+      <Records
+        rows={questions.map(q => {
+          const state = questionState(q)
+          return { id: q.id, main: q.text, sub: q.answer ?? `asked ${day(q.asked_at)}`, end: <span className="bn-badge" data-tone={state.tone}>{state.text}</span> }
+        })}
+      />
     </details>
   )
 }
@@ -49,21 +43,19 @@ function AllGuesses({ guesses }: { guesses: Guess[] }) {
   return (
     <details className="nk-all">
       <summary>All guesses · {guesses.length}</summary>
-      <ul className="bn-records">
-        {guesses.map(g => (
-          <li key={g.id}>
-            <span className="bn-records__id">{g.id}</span>
-            <div>
-              <div className="bn-records__head">
-                <span className="bn-badge" data-tone={GUESS_TONE[g.status]}>{g.status}</span>
-                <span className="bn-badge" data-variant="plain">{g.impact}</span>
-              </div>
-              <p>{g.question}</p>
-              <p className="bn-records__sub">{g.answer ?? g.took}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <Records
+        rows={guesses.map(g => ({
+          id: g.id,
+          main: g.question,
+          sub: g.answer ?? g.took,
+          end: (
+            <>
+              <span className="bn-badge" data-variant="plain">{g.impact}</span>
+              <span className="bn-badge" data-tone={GUESS_TONE[g.status]}>{g.status}</span>
+            </>
+          ),
+        }))}
+      />
     </details>
   )
 }

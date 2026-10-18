@@ -2,6 +2,8 @@ import type { ItemView } from '@nook/engineering/read/reader.ts'
 
 import { clock, day } from '../../lib/time.ts'
 import { Criteria } from '../Criteria.tsx'
+import { EmptyState } from '../EmptyState.tsx'
+import { Records } from '../Records.tsx'
 import { STATE_TONE } from '../tones.ts'
 
 const SLICE_TONE: Record<string, string> = { todo: 'neutral', running: 'primary', waiting: 'warning', done: 'success', failed: 'danger', cancelled: 'neutral' }
@@ -28,20 +30,12 @@ export function ItemDialog({ view }: { view: ItemView }) {
       </div>
       <div className="bn-dialog__body">
         <h3 className="bn-actions__group">Criteria</h3>
-        {view.criteria.length ? <Criteria criteria={view.criteria} /> : <p className="nk-empty">No criteria yet.</p>}
+        {view.criteria.length ? <Criteria criteria={view.criteria} /> : <EmptyState compact icon="check" title="No criteria yet">The spec step writes them.</EmptyState>}
         <h3 className="bn-actions__group">Slices</h3>
         {view.slices.length ? (
-          <ul className="nk-slices">
-            {view.slices.map(s => (
-              <li key={s.id}>
-                <span className="nk-slices__id">{s.id}</span>
-                <span>{s.title}</span>
-                <span className="bn-badge" data-tone={SLICE_TONE[s.state]}>{s.state}</span>
-              </li>
-            ))}
-          </ul>
+          <Records rows={view.slices.map(slice => ({ id: slice.id, main: slice.title, sub: slice.reason ?? undefined, end: <span className="bn-badge" data-tone={SLICE_TONE[slice.state]}>{slice.state}</span> }))} />
         ) : (
-          <p className="nk-empty">No slice yet.</p>
+          <EmptyState compact icon="layers" title="No slice yet">The plan step writes them in tasks.md.</EmptyState>
         )}
         <h3 className="bn-actions__group">Last events</h3>
         <ul className="nk-events">

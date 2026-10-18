@@ -2,6 +2,7 @@ import type { AreaChange } from '@nook/engineering/read/reader.ts'
 import type { CheckRun } from '@nook/engineering/stores/checks.ts'
 
 import { clock } from '../../lib/time.ts'
+import { EmptyState } from '../EmptyState.tsx'
 
 function Checks({ runs }: { runs: CheckRun[] }) {
   if (!runs.length) return <span className="bn-changes__checks"><small>no check yet</small></span>
@@ -18,7 +19,7 @@ function Checks({ runs }: { runs: CheckRun[] }) {
 
 /** The branch of each area of the item, its changed files and lines against the main branch, and its last checks. */
 export function Branches({ changes, checks }: { changes: AreaChange[]; checks: CheckRun[] }) {
-  if (!changes.length) return <p className="nk-empty">No branch yet. The build makes one for each area.</p>
+  if (!changes.length) return <EmptyState compact icon="branch" title="No branch yet">The build makes one for each area.</EmptyState>
   return (
     <ul className="bn-card bn-changes">
       {changes.map(change => {

@@ -1,26 +1,26 @@
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 
 import { parseDoc } from '../../lib/blocks.ts'
-import { Alert, PANEL } from '../Alert.tsx'
+import { EmptyState } from '../EmptyState.tsx'
 import { Blocks } from '../blocks/Blocks.tsx'
 
 export type DocName = 'spec' | 'plan' | 'tasks' | 'walkthrough'
 
-// what to type in the agent session for a document that is not written yet
-const WRITES: Record<DocName, (id: string) => string> = {
-  spec: id => `The spec comes first. Type /spec ${id} in the agent session.`,
-  plan: id => `The plan comes after the spec. Type /recipe ${id} in the agent session.`,
-  tasks: id => `The slices come with the plan. Type /recipe ${id} in the agent session.`,
-  walkthrough: id => `The walkthrough comes after the build. When the item reaches review, type /view ${id} in the agent session.`,
+// what writes a document not written yet: the words before the command, and the command to type in the agent session
+const WRITES: Record<DocName, [before: string, command: string]> = {
+  spec: ['The spec comes first. Type', '/spec'],
+  plan: ['The plan comes after the spec. Type', '/recipe'],
+  tasks: ['The slices come with the plan. Type', '/recipe'],
+  walkthrough: ['The walkthrough comes after the build. When the item reaches review, type', '/view'],
 }
 
 /** One document of the item, rendered in full, block by block; a document not written yet says what writes it. */
 export function DocTab({ id, name, text, areas, criteria }: { id: string; name: DocName; text: string | null; areas: string[]; criteria: Criterion[] }) {
   if (text === null)
     return (
-      <Alert {...PANEL.info} label={`The ${name} is not written yet`}>
-        {WRITES[name](id)}
-      </Alert>
+      <EmptyState icon="file" title={`The ${name} is not written yet`}>
+        {WRITES[name][0]} <code className="bn-inline-code">{`${WRITES[name][1]} ${id}`}</code> in the agent session.
+      </EmptyState>
     )
   const doc = parseDoc(text, { places: areas })
   const dates = ['created', 'updated'].filter(key => doc.meta[key]).map(key => `${key} ${doc.meta[key]}`)

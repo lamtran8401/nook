@@ -6,8 +6,8 @@ import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 import type { Block, Source } from '../../lib/blocks.ts'
 import { capitalized } from '../../lib/inline.ts'
 import { Alert, PANEL } from '../Alert.tsx'
+import { CriteriaList } from '../Criteria.tsx'
 import { Diagram } from '../Diagram.tsx'
-import { CRITERION_TONE } from '../tones.ts'
 import { Inline } from './Inline.tsx'
 
 /** One Bench template for each kind of block. The context brings what the ledger knows, such as the state of each criterion. */
@@ -92,24 +92,12 @@ function BlockView({ block, context }: { block: Block; context: DocContext }) {
       </Alert>
     ))
     .with({ kind: 'criteria' }, b => (
-      <ol className="bn-records">
-        {b.items.map(item => {
+      <CriteriaList
+        lines={b.items.map(item => {
           const state = context.criteria?.find(c => c.n === item.n)
-          return (
-            <li key={item.n}>
-              <span className="bn-records__id">AC{item.n}</span>
-              <div>
-                <div className="bn-records__head">
-                  {item.tag ? <span className="bn-badge" data-tone={CRITERION_TONE[item.tag]}>{item.tag}</span> : null}
-                  {item.refs.length ? <span className="bn-records__meta">{item.refs.join(', ')}</span> : null}
-                  {state ? <span className="bn-badge bn-records__state" data-variant="solid" data-tone={state.done ? 'success' : 'neutral'}>{state.done ? 'met' : 'open'}</span> : null}
-                </div>
-                <p><Inline content={item.content} /></p>
-              </div>
-            </li>
-          )
+          return { n: item.n, tag: item.tag, content: <Inline content={item.content} />, refs: item.refs, ...(state ? { met: state.done, evidence: state.evidence } : {}) }
         })}
-      </ol>
+      />
     ))
     .with({ kind: 'rules' }, b => (
       <ul className="bn-rules">
