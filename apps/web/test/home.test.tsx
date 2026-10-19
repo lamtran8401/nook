@@ -24,8 +24,9 @@ describe('HomeBrief', () => {
 
   test('groups what waits by item, the item of an urgent line first, each group linked to its item', () => {
     const markup = html(<HomeBrief view={view({ brief: BRIEF })} />)
-    const heads = [...markup.matchAll(/<(?:a|div) class="nk-group__head"(?: href="([^"]+)")?/g)].map(m => m[1] ?? 'desk')
-    expect(heads).toEqual(['/works/SHOP-12', 'desk', '/works/SHOP-13', '/works/SHOP-14', '/works/SHOP-11'])
+    const heads = ['href="/works/SHOP-12"', '>This desk<', 'href="/works/SHOP-13"', 'href="/works/SHOP-14"', 'href="/works/SHOP-11"'].map(head => markup.indexOf(head))
+    expect(heads.every(at => at >= 0)).toBe(true)
+    expect([...heads].sort((a, b) => a - b)).toEqual(heads)
     expect(text(markup)).toContain('SHOP-12 Pay with a saved card cooking ! Q2 blocks: Must a refund go to the same card? nook eng answer SHOP-12 Q2 "<answer>" Answer ! T4 failed: the clock fake skips a try nook eng task retry SHOP-12 T4')
   })
 
@@ -36,7 +37,9 @@ describe('HomeBrief', () => {
   test('a gate runs from its button, and an answer links to the questions of the item', () => {
     const markup = html(<HomeBrief view={view({ brief: BRIEF })} />)
     expect(markup).toContain('<input type="hidden" name="kind" value="gate"/><input type="hidden" name="item" value="SHOP-13"/><input type="hidden" name="move" value="accept"/>')
-    expect(markup).toContain('<a class="bn-btn" data-variant="primary" data-size="sm" href="/works/SHOP-12">Answer</a>')
+    const answer = /<a [^>]*>Answer<\/a>/.exec(markup)![0]
+    expect(answer).toContain('href="/works/SHOP-12"')
+    expect(answer).toContain('data-slot="button"')
   })
 
   test('what runs and what is done is one line for each item, with the command of the lead', () => {

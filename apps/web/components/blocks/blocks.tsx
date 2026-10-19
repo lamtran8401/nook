@@ -1,17 +1,30 @@
-import type { CSSProperties } from 'react'
 import { match } from 'ts-pattern'
 
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
+import { Badge } from '@nook/ui/components/badge.tsx'
+import { Callout } from '@nook/ui/components/callout.tsx'
+import { Checklist } from '@nook/ui/components/checklist.tsx'
+import { CodeBlock } from '@nook/ui/components/code-block.tsx'
+import { Disclosure } from '@nook/ui/components/disclosure.tsx'
+import { Legend } from '@nook/ui/components/legend.tsx'
+import { OutList } from '@nook/ui/components/out-list.tsx'
+import { PieceGrid } from '@nook/ui/components/piece-grid.tsx'
+import { Quote } from '@nook/ui/components/quote.tsx'
+import { RuleList } from '@nook/ui/components/rule-list.tsx'
+import { Separator } from '@nook/ui/components/separator.tsx'
+import { StepList } from '@nook/ui/components/step-list.tsx'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@nook/ui/components/table.tsx'
+import { TaskCard } from '@nook/ui/components/task-card.tsx'
 
-import type { Block, Source } from '@/lib/blocks.ts'
-import { capitalized } from '@/lib/inline.ts'
-import { Alert, PANEL } from '@/components/alert.tsx'
 import { AreaTags } from '@/components/areas.tsx'
+import { Inline } from '@/components/blocks/inline.tsx'
+import { PANEL } from '@/components/blocks/panel.ts'
 import { CriteriaList } from '@/components/criteria.tsx'
 import { Diagram } from '@/components/diagram.tsx'
-import { Inline } from '@/components/blocks/inline.tsx'
+import type { Block, Source } from '@/lib/blocks.ts'
+import { capitalized } from '@/lib/inline.ts'
 
-/** One Bench template for each kind of block. The context brings what the ledger knows, such as the state of each criterion. */
+/** One part of the kit for each kind of block. The context brings what the ledger knows, such as the state of each criterion. */
 
 export type DocContext = { criteria?: Criterion[] }
 
@@ -26,79 +39,60 @@ function ruleTone(sources: Source[]): string | undefined {
 }
 
 function SourceBadge({ source }: { source: Source }) {
-  if (source.level) return <span className="bn-badge" data-tone={LEVEL_TONE[source.level]}>{`${source.text} · ${source.level}`}</span>
-  return <span className="bn-badge" data-tone={source.text === 'open' ? 'warning' : undefined} data-variant={source.text === 'open' ? undefined : 'plain'}>{source.text}</span>
+  if (source.level) return <Badge tone={LEVEL_TONE[source.level]}>{`${source.text} · ${source.level}`}</Badge>
+  return source.text === 'open' ? <Badge tone="warning">open</Badge> : <Badge variant="outline">{source.text}</Badge>
 }
+
+const align = (side: string | null | undefined) => (side ? { textAlign: side as 'left' | 'center' | 'right' } : undefined)
 
 function BlockView({ block, context }: { block: Block; context: DocContext }) {
   return match(block)
     .with({ kind: 'heading' }, b => {
-      const Tag = `h${Math.min(b.depth, 6)}` as 'h2'
-      return <Tag><Inline content={b.content} /></Tag>
+      const Heading = `h${Math.min(b.depth, 6)}` as 'h2'
+      return <Heading><Inline content={b.content} /></Heading>
     })
     .with({ kind: 'paragraph' }, b => <p><Inline content={b.content} /></p>)
     .with({ kind: 'list' }, b => {
       const items = b.items.map((item, i) => <li key={i}><Blocks blocks={item} context={context} /></li>)
       return b.ordered ? <ol start={b.start === 1 ? undefined : b.start}>{items}</ol> : <ul>{items}</ul>
     })
-    .with({ kind: 'tasks' }, b => (
-      <ul className="bn-checklist__list">
-        {b.items.map((item, i) => (
-          <li className="bn-checklist__item" data-state={item.checked ? 'done' : undefined} key={i}>
-            <span className="bn-checklist__box">{item.checked ? '✓' : ''}</span>
-            <span className="bn-checklist__text"><Blocks blocks={item.blocks} context={context} /></span>
-          </li>
-        ))}
-      </ul>
-    ))
-    .with({ kind: 'divider' }, () => <hr />)
+    .with({ kind: 'tasks' }, b => <Checklist items={b.items.map(item => ({ done: item.checked, content: <Blocks blocks={item.blocks} context={context} /> }))} />)
+    .with({ kind: 'divider' }, () => <Separator />)
     .with({ kind: 'table' }, b => (
-      <div className="bn-table-wrap">
-        <table className="bn-table">
-          <thead><tr>{b.head.map((cell, i) => <th key={i} style={b.align[i] ? { textAlign: b.align[i]! } : undefined}><Inline content={cell} /></th>)}</tr></thead>
-          <tbody>{b.rows.map((row, r) => <tr key={r}>{row.map((cell, i) => <td key={i} style={b.align[i] ? { textAlign: b.align[i]! } : undefined}><Inline content={cell} /></td>)}</tr>)}</tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>{b.head.map((cell, i) => <TableHead key={i} style={align(b.align[i])}><Inline content={cell} /></TableHead>)}</TableRow>
+        </TableHeader>
+        <TableBody>
+          {b.rows.map((row, r) => <TableRow key={r}>{row.map((cell, i) => <TableCell key={i} style={align(b.align[i])}><Inline content={cell} /></TableCell>)}</TableRow>)}
+        </TableBody>
+      </Table>
     ))
-    .with({ kind: 'quote' }, b => <figure className="bn-quote"><blockquote><Blocks blocks={b.blocks} context={context} /></blockquote></figure>)
-    .with({ kind: 'code' }, b => (
-      <figure className="bn-code">
-        {b.lang ? <div className="bn-code__head"><span>{b.lang}</span></div> : null}
-        <pre><code>{b.text.replace(/\n$/, '').split('\n').map((line, i) => <span className="ln" key={i}>{line}{'\n'}</span>)}</code></pre>
-      </figure>
-    ))
+    .with({ kind: 'quote' }, b => <Quote><Blocks blocks={b.blocks} context={context} /></Quote>)
+    .with({ kind: 'code' }, b => <CodeBlock lang={b.lang ?? undefined} text={b.text} />)
     .with({ kind: 'diagram' }, b =>
       b.legend ? (
-        <figure className="nk-figure">
+        <figure className="m-0 grid gap-2.5">
           <Diagram spec={b.spec} />
-          <figcaption>
-            <span className="bn-legend">{b.legend.map(([tone, label]) => <span data-tone={tone} key={label}>{label}</span>)}</span>
-          </figcaption>
+          <figcaption><Legend items={b.legend} /></figcaption>
         </figure>
       ) : (
         <Diagram spec={b.spec} />
       ),
     )
-    .with({ kind: 'panel' }, b => <Alert {...PANEL[b.tone]}><Blocks blocks={b.blocks} context={context} /></Alert>)
-    .with({ kind: 'decision' }, b => <Alert tone="primary" icon="◆" label="Decision" kind="decision"><Blocks blocks={b.blocks} context={context} /></Alert>)
-    .with({ kind: 'expand' }, b => (
-      <div className="bn-accordion">
-        <details>
-          <summary>{b.title}</summary>
-          <div className="bn-accordion__body"><Blocks blocks={b.blocks} context={context} /></div>
-        </details>
-      </div>
-    ))
+    .with({ kind: 'panel' }, b => <Callout {...PANEL[b.tone]}><Blocks blocks={b.blocks} context={context} /></Callout>)
+    .with({ kind: 'decision' }, b => <Callout tone="primary" icon="◆" label="Decision"><Blocks blocks={b.blocks} context={context} /></Callout>)
+    .with({ kind: 'expand' }, b => <Disclosure summary={b.title}><Blocks blocks={b.blocks} context={context} /></Disclosure>)
     .with({ kind: 'columns' }, b => (
-      <div className="bn-grid" style={{ '--cols': b.columns.length } as CSSProperties}>
-        {b.columns.map((column, i) => <div key={i}><Blocks blocks={column} context={context} /></div>)}
+      <div className="grid gap-4 md:grid-flow-col md:auto-cols-fr">
+        {b.columns.map((column, i) => <div key={i} className="grid content-start gap-3"><Blocks blocks={column} context={context} /></div>)}
       </div>
     ))
     .with({ kind: 'unknown' }, b => (
-      <Alert tone="warning" icon="!" label="This block was not shown">
+      <Callout tone="warning" icon="!" label="This block was not shown">
         {`${b.reason.charAt(0).toUpperCase()}${b.reason.slice(1)} (line ${b.line}).`}
-        {b.text ? <pre>{b.text}</pre> : null}
-      </Alert>
+        {b.text ? <pre className="font-mono text-xs whitespace-pre-wrap">{b.text}</pre> : null}
+      </Callout>
     ))
     .with({ kind: 'criteria' }, b => (
       <CriteriaList
@@ -109,94 +103,42 @@ function BlockView({ block, context }: { block: Block; context: DocContext }) {
       />
     ))
     .with({ kind: 'rules' }, b => (
-      <ul className="bn-rules">
-        {b.items.map((item, i) => (
-          <li key={i}>
-            <span className="bn-rules__ico" data-tone={ruleTone(item.sources)}>§</span>
-            <div>
-              <b>{item.label}</b>
-              <p><Inline content={item.content} /></p>
-            </div>
-            <span className="bn-rules__src">{item.sources.map((source, j) => <SourceBadge source={source} key={j} />)}</span>
-          </li>
-        ))}
-      </ul>
+      <RuleList rules={b.items.map(item => ({ label: item.label, content: <Inline content={item.content} />, tone: ruleTone(item.sources), end: item.sources.map((source, j) => <SourceBadge source={source} key={j} />) }))} />
     ))
-    .with({ kind: 'pieces' }, b => (
-      <div className="bn-pieces">
-        {b.items.map((item, i) => (
-          <article className="bn-piece" key={i}>
-            <div className="bn-piece__head"><h3>{item.title}</h3></div>
-            <p><Inline content={capitalized(item.content)} /></p>
-          </article>
-        ))}
-      </div>
-    ))
-    .with({ kind: 'steps' }, b => (
-      <ol className="bn-steplist" data-variant="path">
-        {b.items.map((item, i) => (
-          <li key={i}>
-            <span className="bn-steplist__n">{i + 1}</span>
-            <div>
-              <b><Inline content={item.action} /></b>
-              {item.seen.length ? <p><Inline content={item.seen} /></p> : null}
-            </div>
-          </li>
-        ))}
-      </ol>
-    ))
-    .with({ kind: 'numbered' }, b => (
-      <ol className="bn-steplist">
-        {b.items.map((item, i) => (
-          <li key={i}>
-            <span className="bn-steplist__n">{i + 1}</span>
-            <p><Inline content={item} /></p>
-          </li>
-        ))}
-      </ol>
-    ))
-    .with({ kind: 'outlist' }, b => <ul className="bn-outlist">{b.items.map((item, i) => <li key={i}><Inline content={item} /></li>)}</ul>)
+    .with({ kind: 'pieces' }, b => <PieceGrid pieces={b.items.map(item => ({ title: item.title, content: <Inline content={capitalized(item.content)} /> }))} />)
+    .with({ kind: 'steps' }, b => <StepList variant="path" items={b.items.map(item => ({ title: <Inline content={item.action} />, ...(item.seen.length ? { text: <Inline content={item.seen} /> } : {}) }))} />)
+    .with({ kind: 'numbered' }, b => <StepList items={b.items.map(item => ({ title: <Inline content={item} /> }))} />)
+    .with({ kind: 'outlist' }, b => <OutList items={b.items.map((item, i) => <Inline content={item} key={i} />)} />)
     .with({ kind: 'headsup' }, b => (
-      <Alert tone="neutral" icon="!" label={`${b.items.length} ${b.items.length === 1 ? 'thing' : 'things'} to know`}>
-        <ul>{b.items.map((item, i) => <li key={i}><Inline content={item} /></li>)}</ul>
-      </Alert>
+      <Callout tone="neutral" icon="!" label={`${b.items.length} ${b.items.length === 1 ? 'thing' : 'things'} to know`}>
+        <ul className="list-disc pl-[1.3em]">{b.items.map((item, i) => <li key={i}><Inline content={item} /></li>)}</ul>
+      </Callout>
     ))
-    .with({ kind: 'met' }, b => (
-      <ul className="bn-checklist" data-variant="met">
-        {b.items.map((item, i) => (
-          <li className="bn-checklist__item" data-state="done" key={i}>
-            <span className="bn-checklist__box">✓</span>
-            <span className="bn-checklist__text"><Inline content={item} /></span>
-          </li>
-        ))}
-      </ul>
-    ))
+    .with({ kind: 'met' }, b => <Checklist items={b.items.map(item => ({ done: true, content: <Inline content={item} /> }))} />)
     .with({ kind: 'callout' }, b =>
       b.tone === 'short'
-        ? <Alert tone="primary" icon="i" label="In short"><Inline content={b.content} /></Alert>
-        : <Alert tone="warning" icon="!" label="Need to know"><Inline content={b.content} /></Alert>,
+        ? <Callout tone="primary" icon="i" label="In short"><Inline content={b.content} /></Callout>
+        : <Callout tone="warning" icon="!" label="Need to know"><Inline content={b.content} /></Callout>,
     )
     .with({ kind: 'none' }, b => (
-      <p className="nk-none">
+      <p className="flex flex-wrap items-center gap-1.5 text-[13px] text-muted-foreground">
         <span>No impact on</span>
-        {b.kinds.map(kind => <span className="bn-badge" data-variant="plain" key={kind}>{kind}</span>)}
+        {b.kinds.map(kind => <Badge variant="outline" key={kind}>{kind}</Badge>)}
       </p>
     ))
     .with({ kind: 'task' }, b => (
-      <article className="bn-task">
-        <div className="bn-task__kicker">
-          <span>{b.id}</span>
-          {b.area ? <AreaTags names={[b.area]} /> : null}
-          {b.size ? <span>size {b.size}</span> : null}
-        </div>
-        <h3 className="bn-task__title">{b.title}</h3>
-        <dl className="bn-task__rows">
-          {b.rows.map(([label, value]) => [<dt key={`${label}-t`}>{label}</dt>, <dd key={`${label}-d`}><Inline content={value} /></dd>])}
-        </dl>
-        <div className="bn-task__foot">
-          {b.depends === 'none' ? <span className="bn-badge" data-tone="success">starts first</span> : <span className="bn-badge">after {b.depends}</span>}
-        </div>
-      </article>
+      <TaskCard
+        kicker={
+          <>
+            <span>{b.id}</span>
+            {b.area ? <AreaTags names={[b.area]} /> : null}
+            {b.size ? <span>size {b.size}</span> : null}
+          </>
+        }
+        title={b.title}
+        rows={b.rows.map(([label, value]) => [label, <Inline content={value} key={label} />])}
+        foot={b.depends === 'none' ? <Badge tone="success">starts first</Badge> : <Badge variant="outline">after {b.depends}</Badge>}
+      />
     ))
     .exhaustive()
 }

@@ -1,9 +1,14 @@
+import { Check, FileText } from 'lucide-react'
+
 import type { CourseView, CriterionTrend } from '@nook/learn/read.ts'
+import { Badge } from '@nook/ui/components/badge.tsx'
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@nook/ui/components/breadcrumb.tsx'
+import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
+import { EmptyState } from '@nook/ui/components/empty-state.tsx'
+import { RecordList } from '@nook/ui/components/record-list.tsx'
+import { Section } from '@nook/ui/components/section.tsx'
 
 import { Diagram } from '@/components/diagram.tsx'
-import { Cmd } from '@/components/cmd.tsx'
-import { EmptyState } from '@/components/empty-state.tsx'
-import { Records } from '@/components/records.tsx'
 
 const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
@@ -21,11 +26,11 @@ export function trendChart(trends: CriterionTrend[]): object | null {
 }
 
 function Scores({ trends }: { trends: CriterionTrend[] }) {
-  if (!trends.length) return <EmptyState compact icon="check" title="No score yet">The coach scores an answer in <Cmd text="/learn-practice" />.</EmptyState>
+  if (!trends.length) return <EmptyState compact icon={<Check className="size-5" aria-hidden="true" />} title="No score yet">The coach scores an answer in <CopyCommand text="/learn-practice" />.</EmptyState>
   const chart = trendChart(trends)
   return (
     <>
-      <Records
+      <RecordList
         rows={trends.map(trend => {
           const last = trend.points.at(-1)!
           return { id: last.band, main: trend.criterion, sub: `last on ${last.date}, ${last.task} · ${count(trend.points.length, 'score')}` }
@@ -39,45 +44,44 @@ function Scores({ trends }: { trends: CriterionTrend[] }) {
 /** A course: the cards due today, the top patterns of the owner's mistakes, and the bands of each criterion over time. */
 export function CoursePage({ course }: { course: CourseView }) {
   return (
-    <div className="nk-item">
-      <header className="nk-head">
-        <ol className="bn-breadcrumb">
-          <li><a href="/learn">Learn</a></li>
-          <li><span aria-current="page">{course.name}</span></li>
-        </ol>
-        <h1 className="nk-head__title">{course.name.charAt(0).toUpperCase() + course.name.slice(1)}</h1>
+    <div className="mx-auto grid w-full max-w-[920px] gap-6">
+      <header className="grid gap-2.5">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem><BreadcrumbLink href="/learn">Learn</BreadcrumbLink></BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem><BreadcrumbPage>{course.name}</BreadcrumbPage></BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <h1 className="text-3xl font-bold tracking-tight">{course.name.charAt(0).toUpperCase() + course.name.slice(1)}</h1>
       </header>
-      <section className="nk-sec">
-        <h2 className="nk-h2">Cards due · {course.due.length}</h2>
+      <Section title={`Cards due · ${course.due.length}`}>
         {course.due.length ? (
-          <Records rows={course.due.map(card => ({ id: card.id, main: card.front, sub: card.back, end: <span className="bn-badge" data-variant="plain">box {card.box}</span> }))} />
+          <RecordList rows={course.due.map(card => ({ id: card.id, main: card.front, sub: card.back, end: <Badge variant="outline">box {card.box}</Badge> }))} />
         ) : (
-          <EmptyState compact icon="check" title="No card due today">The next cards come back on their day.</EmptyState>
+          <EmptyState compact icon={<Check className="size-5" aria-hidden="true" />} title="No card due today">The next cards come back on their day.</EmptyState>
         )}
-      </section>
-      <section className="nk-sec">
-        <h2 className="nk-h2">Top patterns of your mistakes</h2>
+      </Section>
+      <Section title="Top patterns of your mistakes">
         {course.patterns.length ? (
-          <Records rows={course.patterns.map(p => ({ id: `${p.count}×`, main: p.pattern, sub: `last on ${p.last}` }))} />
+          <RecordList rows={course.patterns.map(p => ({ id: `${p.count}×`, main: p.pattern, sub: `last on ${p.last}` }))} />
         ) : (
-          <EmptyState compact icon="check" title="No mistake logged yet">A study session logs each one in your own words.</EmptyState>
+          <EmptyState compact icon={<Check className="size-5" aria-hidden="true" />} title="No mistake logged yet">A study session logs each one in your own words.</EmptyState>
         )}
-      </section>
-      <section className="nk-sec">
-        <h2 className="nk-h2">Scores by criterion</h2>
+      </Section>
+      <Section title="Scores by criterion">
         <Scores trends={course.trends} />
-      </section>
+      </Section>
     </div>
   )
 }
 
 /** The courses of the desk, each a link to its page. */
 export function Courses({ courses }: { courses: CourseView[] }) {
-  if (!courses.length) return <EmptyState icon="file" title="No course yet">Type <Cmd text="/learn-setup" /> in the agent session to start one.</EmptyState>
+  if (!courses.length) return <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title="No course yet">Type <CopyCommand text="/learn-setup" /> in the agent session to start one.</EmptyState>
   return (
-    <section className="nk-sec">
-      <h2 className="nk-h2">Courses</h2>
-      <Records rows={courses.map(c => ({ id: String(c.due.length), main: <a href={`/learn/${c.name}`}>{c.name}</a>, sub: `${count(c.due.length, 'card')} due · ${count(c.patterns.length, 'pattern')} · ${c.trends.length} scored ${c.trends.length === 1 ? 'criterion' : 'criteria'}` }))} />
-    </section>
+    <Section title="Courses">
+      <RecordList rows={courses.map(c => ({ id: String(c.due.length), main: <a href={`/learn/${c.name}`} className="hover:underline">{c.name}</a>, sub: `${count(c.due.length, 'card')} due · ${count(c.patterns.length, 'pattern')} · ${c.trends.length} scored ${c.trends.length === 1 ? 'criterion' : 'criteria'}` }))} />
+    </Section>
   )
 }

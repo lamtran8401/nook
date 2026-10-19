@@ -1,58 +1,52 @@
+import { GitBranch } from 'lucide-react'
+
 import type { AreaChange } from '@nook/engineering/read/reader.ts'
 import type { CheckRun } from '@nook/engineering/stores/checks.ts'
+import { Badge } from '@nook/ui/components/badge.tsx'
+import { ChangeList } from '@nook/ui/components/change-list.tsx'
+import { EmptyState } from '@nook/ui/components/empty-state.tsx'
+import { InlineCode } from '@nook/ui/components/inline-code.tsx'
 
-import { clock } from '@/lib/time.ts'
 import { AreaTags } from '@/components/areas.tsx'
-import { EmptyState } from '@/components/empty-state.tsx'
-import { Icon } from '@/components/icon.tsx'
+import { clock } from '@/lib/time.ts'
 
 const toneOf = (runs: CheckRun[]) => (!runs.length ? undefined : runs.some(r => r.result === 'fail') ? 'danger' : 'success')
 
 function Checks({ runs }: { runs: CheckRun[] }) {
-  if (!runs.length) return <span className="bn-changes__checks"><small>no check yet</small></span>
+  if (!runs.length) return <small className="text-[13px] text-muted-foreground">no check yet</small>
   const failed = runs.filter(r => r.result === 'fail').length
   const passed = runs.length - failed
   return (
-    <span className="bn-changes__checks">
-      {failed ? <span className="bn-badge" data-tone="danger">{failed} failing</span> : null}
-      {passed ? <span className="bn-badge" data-tone="success">{passed} pass</span> : null}
-      <small>{clock(runs.map(r => r.at).sort().at(-1)!)}</small>
-    </span>
-  )
-}
-
-function Change({ change, runs }: { change: AreaChange; runs: CheckRun[] }) {
-  const add = change.files.reduce((n, f) => n + f.add, 0)
-  const del = change.files.reduce((n, f) => n + f.del, 0)
-  const share = add + del ? Math.round((add / (add + del)) * 100) : 100
-  return (
-    <li>
-      <span className="bn-changes__ico" data-tone={toneOf(runs)}><Icon name="branch" size={17} /></span>
-      <div>
-        <div className="bn-changes__head">
-          <AreaTags names={[change.area]} />
-          <code className="bn-inline-code">{change.branch}</code>
-        </div>
-        <div className="bn-changes__diff">
-          <span><b>{change.files.length}</b> files</span>
-          {add ? <span className="bn-changes__add">+{add}</span> : null}
-          {del ? <span className="bn-changes__del">−{del}</span> : null}
-          {add + del ? <span className="bn-changes__bar" style={{ '--add': `${share}%` } as React.CSSProperties} /> : null}
-        </div>
-      </div>
-      <Checks runs={runs} />
-    </li>
+    <>
+      {failed ? <Badge tone="danger">{failed} failing</Badge> : null}
+      {passed ? <Badge tone="success">{passed} pass</Badge> : null}
+      <small className="font-mono text-xs text-muted-foreground">{clock(runs.map(r => r.at).sort().at(-1)!)}</small>
+    </>
   )
 }
 
 /** The branch of each area of the item, its changed files and lines against the main branch, and its last checks. */
 export function Branches({ changes, checks }: { changes: AreaChange[]; checks: CheckRun[] }) {
-  if (!changes.length) return <EmptyState compact icon="branch" title="No branch yet">The build makes one for each area.</EmptyState>
+  if (!changes.length) return <EmptyState compact icon={<GitBranch className="size-5" aria-hidden="true" />} title="No branch yet">The build makes one for each area.</EmptyState>
   return (
-    <ul className="bn-changes">
-      {changes.map(change => (
-        <Change key={change.area} change={change} runs={checks.filter(c => c.area === change.area)} />
-      ))}
-    </ul>
+    <ChangeList
+      changes={changes.map(change => {
+        const runs = checks.filter(c => c.area === change.area)
+        return {
+          key: change.area,
+          tone: toneOf(runs),
+          head: (
+            <>
+              <AreaTags names={[change.area]} />
+              <InlineCode>{change.branch}</InlineCode>
+            </>
+          ),
+          files: change.files.length,
+          add: change.files.reduce((n, f) => n + f.add, 0),
+          del: change.files.reduce((n, f) => n + f.del, 0),
+          end: <Checks runs={runs} />,
+        }
+      })}
+    />
   )
 }

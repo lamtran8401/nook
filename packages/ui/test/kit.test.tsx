@@ -2,36 +2,50 @@ import { describe, expect, test } from 'bun:test'
 import type { ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
+import { ActionBar } from '@nook/ui/components/action-bar.tsx'
 import { ActionList, ActionRow } from '@nook/ui/components/action-list.tsx'
+import { Badge } from '@nook/ui/components/badge.tsx'
 import { Callout } from '@nook/ui/components/callout.tsx'
+import { Checklist } from '@nook/ui/components/checklist.tsx'
+import { CodeBlock } from '@nook/ui/components/code-block.tsx'
+import { ChangeList } from '@nook/ui/components/change-list.tsx'
 import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
+import { CountTile } from '@nook/ui/components/count-tile.tsx'
 import { DetailList, Detail } from '@nook/ui/components/detail-list.tsx'
 import { Diagram } from '@nook/ui/components/diagram.tsx'
+import { Disclosure } from '@nook/ui/components/disclosure.tsx'
 import { EmptyState } from '@nook/ui/components/empty-state.tsx'
 import { Group, GroupCount, GroupLine } from '@nook/ui/components/group.tsx'
 import { IconTile } from '@nook/ui/components/icon-tile.tsx'
+import { InlineCode } from '@nook/ui/components/inline-code.tsx'
+import { Legend } from '@nook/ui/components/legend.tsx'
 import { LinkTabs } from '@nook/ui/components/link-tabs.tsx'
+import { OutList } from '@nook/ui/components/out-list.tsx'
+import { PieceGrid } from '@nook/ui/components/piece-grid.tsx'
+import { Prose } from '@nook/ui/components/prose.tsx'
+import { Quote } from '@nook/ui/components/quote.tsx'
 import { RecordList } from '@nook/ui/components/record-list.tsx'
+import { RuleList } from '@nook/ui/components/rule-list.tsx'
 import { PercentRing, RingIcon } from '@nook/ui/components/ring.tsx'
+import { Section } from '@nook/ui/components/section.tsx'
 import { StatTile } from '@nook/ui/components/stat-tile.tsx'
+import { StepList } from '@nook/ui/components/step-list.tsx'
 import { Stepper } from '@nook/ui/components/stepper.tsx'
-import { Tag } from '@nook/ui/components/tag.tsx'
+import { TaskCard } from '@nook/ui/components/task-card.tsx'
 
 const html = (node: ReactElement) => renderToStaticMarkup(node)
 const text = (markup: string) => markup.replace(/<[^>]+>/g, ' ').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
 
-describe('Tag', () => {
-  test('shows its words in its tone and variant', () => {
-    const tag = html(<Tag tone="violet">framing</Tag>)
-    expect(tag).toContain('data-slot="tag"')
-    expect(tag).toContain('data-tone="violet"')
-    expect(tag).toContain('data-variant="soft"')
-    expect(text(tag)).toBe('framing')
+describe('Badge', () => {
+  test('shows its words in its tone, soft by default', () => {
+    const badge = html(<Badge tone="violet">framing</Badge>)
+    expect(badge).toContain('data-slot="badge" data-tone="violet" data-variant="soft"')
+    expect(text(badge)).toBe('framing')
   })
 
-  test('takes the solid and the label variants', () => {
-    expect(html(<Tag tone="primary" variant="solid">YOU</Tag>)).toContain('data-variant="solid"')
-    expect(html(<Tag tone="aqua" variant="label">api</Tag>)).toContain('data-variant="label"')
+  test('takes the solid and the label variants of the kit', () => {
+    expect(html(<Badge tone="primary" variant="solid">YOU</Badge>)).toContain('data-variant="solid"')
+    expect(html(<Badge tone="aqua" variant="label">api</Badge>)).toContain('data-variant="label"')
   })
 })
 
@@ -130,8 +144,9 @@ describe('Stepper', () => {
 describe('LinkTabs', () => {
   test('marks the current tab for a reader of the screen', () => {
     const tabs = html(<LinkTabs label="Packs" tabs={[{ href: '/', label: 'Home' }, { href: '/works', label: 'Works', current: true }]} />)
-    expect(tabs).toContain('aria-label="Packs"')
-    expect(tabs).toContain('href="/works" aria-current="page"')
+    expect(tabs).toContain('<nav aria-label="Packs"')
+    expect(/<a [^>]*href="\/works"[^>]*>/.exec(tabs)![0]).toContain('aria-current="page"')
+    expect(/<a [^>]*href="\/"[^>]*>/.exec(tabs)![0]).not.toContain('aria-current')
   })
 })
 
@@ -146,5 +161,76 @@ describe('DetailList', () => {
 describe('Diagram', () => {
   test('keeps its spec for the Bench library, which draws it after the page loads', () => {
     expect(html(<Diagram spec={{ type: 'board', columns: [] }} />)).toContain('data-diagram="{&quot;type&quot;:&quot;board&quot;,&quot;columns&quot;:[]}"')
+  })
+})
+
+describe('CountTile', () => {
+  test('gives the count over its label, in its tone', () => {
+    const tile = html(<CountTile count={2} label="Urgent" tone="danger" />)
+    expect(tile).toContain('data-tone="danger"')
+    expect(text(tile)).toBe('2 Urgent')
+  })
+})
+
+describe('Disclosure', () => {
+  test('keeps its words in the page while it is closed, so a reader of the source and a search find them', () => {
+    const part = html(<Disclosure summary="All questions · 3">Q1 Which currency?</Disclosure>)
+    expect(part).toContain('aria-expanded="false"')
+    expect(text(part)).toBe('All questions · 3 Q1 Which currency?')
+  })
+})
+
+describe('Section', () => {
+  test('gives its title as a heading over what it holds', () => {
+    expect(html(<Section title="Needs you"><p>x</p></Section>)).toContain('<h2 class="text-[19px] font-semibold">Needs you</h2><p>x</p>')
+  })
+})
+
+describe('ActionBar', () => {
+  test('gives the label, the mark, the words and the action, in that order', () => {
+    expect(text(html(<ActionBar label="Next step" mark={<b>YOU</b>} action={<button type="button">Approve</button>}>Your move: approve</ActionBar>))).toBe('Next step YOU Your move: approve Approve')
+  })
+})
+
+describe('ChangeList', () => {
+  test('gives each branch its head, its files and its lines added and removed', () => {
+    expect(text(html(<ChangeList changes={[{ key: 'api', head: 'api', files: 2, add: 132, del: 4, end: '1 pass' }]} />))).toBe('api 2 files +132 −4 1 pass')
+  })
+})
+
+describe('InlineCode', () => {
+  test('keeps its words as code', () => {
+    expect(html(<InlineCode>nook/SHOP-42</InlineCode>)).toStartWith('<code data-slot="inline-code"')
+  })
+})
+
+describe('the parts of a document', () => {
+  test('a checklist marks each thing done or open', () => {
+    const list = html(<Checklist items={[{ done: true, content: 'one' }, { done: false, content: 'two' }]} />)
+    expect([...list.matchAll(/data-state="(\w+)"/g)].map(m => m[1])).toEqual(['done', 'open'])
+    expect(text(list)).toBe('one two')
+  })
+
+  test('a code block keeps each line and names its language', () => {
+    expect(text(html(<CodeBlock lang="ts" text={'const a = 1\nconst b = 2\n'} />))).toBe('ts const a = 1 const b = 2')
+  })
+
+  test('a quote, a legend, an out list, pieces, a task and the prose keep their words', () => {
+    expect(text(html(<Quote>Pages of 20.</Quote>))).toBe('Pages of 20.')
+    expect(html(<Legend items={[['primary', 'new']]} />)).toContain('data-tone="primary"')
+    expect(text(html(<OutList items={['a store credit']} />))).toBe('a store credit')
+    expect(text(html(<PieceGrid pieces={[{ title: 'api', content: 'one page' }]} />))).toBe('api one page')
+    expect(text(html(<TaskCard kicker="T1" title="Add the table" rows={[['Proof', 'a test']]} foot="starts first" />))).toBe('T1 Add the table Proof a test starts first')
+    expect(html(<Prose><p>x</p></Prose>)).toStartWith('<div data-slot="prose"')
+  })
+
+  test('a rule list gives the § mark in the tone of the rule, its words and its sources', () => {
+    const rules = html(<RuleList rules={[{ label: 'Same card', content: 'A refund goes back.', tone: 'warning', end: 'Q2' }]} />)
+    expect(rules).toContain('data-tone="warning"')
+    expect(text(rules)).toBe('§ Same card A refund goes back. Q2')
+  })
+
+  test('a step list numbers its steps', () => {
+    expect(text(html(<StepList variant="path" items={[{ title: 'Open the page', text: 'the list shows' }, { title: 'Pick a status' }]} />))).toBe('1 Open the page the list shows 2 Pick a status')
   })
 })

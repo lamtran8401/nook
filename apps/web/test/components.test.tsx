@@ -7,7 +7,7 @@ import { Board } from '@/components/board.tsx'
 import { Criteria } from '@/components/criteria.tsx'
 import { Diagram } from '@/components/diagram.tsx'
 import { Gap } from '@/components/gap.tsx'
-import { TabLinks } from '@/components/tab-links.tsx'
+import { isCurrentTab } from '@/components/pack-nav.tsx'
 import { html, text } from '@/test/markup.ts'
 
 const card = (fields: Partial<BoardCard> = {}): BoardCard => ({
@@ -15,7 +15,7 @@ const card = (fields: Partial<BoardCard> = {}): BoardCard => ({
   slices: { done: 2, total: 5 }, next: { owner: false, skill: '/cook SHOP-12' }, flags: [], ...fields,
 })
 
-const specOf = (markup: string) => JSON.parse(/data-nook-diagram="([^"]*)"/.exec(markup)![1]!.replaceAll('&quot;', '"').replaceAll('&amp;', '&'))
+const specOf = (markup: string) => JSON.parse(/data-diagram="([^"]*)"/.exec(markup)![1]!.replaceAll('&quot;', '"').replaceAll('&amp;', '&'))
 
 describe('Board', () => {
   test('draws the Bench board: one column for each state that holds items, in the order of the flow, the empty ones in the panel', () => {
@@ -65,7 +65,7 @@ describe('Criteria', () => {
 
   test('draws the tag that the ledger keeps before a criterion as a badge', () => {
     const markup = html(<Criteria criteria={[{ item: 'SHOP-12', n: 1, text: '[ADD] the export has the right date', done: false, evidence: null, grade: null, by: null, at: null }]} />)
-    expect(markup).toContain('<span class="bn-badge" data-tone="success">ADD</span>')
+    expect(markup).toMatch(/data-slot="badge" data-tone="success"[^>]*>ADD</)
     expect(text(markup)).toBe('AC1 ADD the export has the right date open')
   })
 })
@@ -73,21 +73,24 @@ describe('Criteria', () => {
 describe('Diagram', () => {
   test('holds its spec for the Bench library, safe inside the page', () => {
     const markup = html(<Diagram spec={{ type: 'filetree', items: [{ name: '</script><b>x' }] }} />)
-    expect(markup).toBe('<div class="nk-diagram" data-nook-diagram="{&quot;type&quot;:&quot;filetree&quot;,&quot;items&quot;:[{&quot;name&quot;:&quot;&lt;/script&gt;&lt;b&gt;x&quot;}]}"></div>')
+    expect(markup).toBe('<div data-slot="diagram" data-diagram="{&quot;type&quot;:&quot;filetree&quot;,&quot;items&quot;:[{&quot;name&quot;:&quot;&lt;/script&gt;&lt;b&gt;x&quot;}]}" class="min-w-0"></div>')
   })
 })
 
-describe('TabLinks', () => {
-  test('links each tab and marks the one of the current page', () => {
-    const markup = html(<TabLinks tabs={[{ href: '/', label: 'Home' }, { href: '/works', label: 'Works' }]} current="/works/SHOP-12" />)
-    expect(markup).toBe('<nav class="nk-tabs" aria-label="Packs"><a href="/">Home</a><a href="/works" aria-current="page">Works</a></nav>')
+describe('isCurrentTab', () => {
+  test('marks the tab of a page and of each page under it; Home marks only itself', () => {
+    expect(isCurrentTab('/works/SHOP-12', '/works')).toBe(true)
+    expect(isCurrentTab('/works', '/works')).toBe(true)
+    expect(isCurrentTab('/works/SHOP-12', '/')).toBe(false)
+    expect(isCurrentTab('/', '/')).toBe(true)
+    expect(isCurrentTab('/worksheet', '/works')).toBe(false)
   })
 })
 
 describe('Gap', () => {
   test('shows a gap of the desk and its fix in place of the data', () => {
     const markup = html(<Gap error={refused('the ledger needs 1 migration', 'run any `nook eng` command in the desk')} />)
-    expect(markup).toContain('class="bn-alert" data-tone="warning"')
+    expect(markup).toContain('data-slot="alert" data-tone="warning"')
     expect(text(markup)).toBe('! The ledger needs 1 migration Fix: run any `nook eng` command in the desk')
   })
 })

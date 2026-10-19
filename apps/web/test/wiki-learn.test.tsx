@@ -20,10 +20,10 @@ const wiki: WikiView = {
 describe('WikiHome', () => {
   test('lists the drafts that wait for a yes first, then a group for each shelf with its pages and their type', () => {
     const markup = html(<WikiHome wiki={wiki} />)
-    expect(markup).toContain('<a href="/wiki/drafts/payment-retries.md">Payment retries</a>')
-    expect(markup).toContain('<a href="/wiki/resources/shipments-api.md">Shipments api</a>')
-    expect(markup).toContain('<a class="nk-group__head" href="/wiki/resources">')
-    expect(markup).toContain('<span class="nk-tag" data-tone="primary">system</span>')
+    expect(markup).toContain('<a href="/wiki/drafts/payment-retries.md" class="hover:underline">Payment retries</a>')
+    expect(markup).toContain('<a href="/wiki/resources/shipments-api.md" class="hover:underline">Shipments api</a>')
+    expect(markup).toContain('<a href="/wiki/resources"')
+    expect(markup).toMatch(/data-slot="badge" data-tone="primary" data-variant="label"[^>]*>system</)
     expect(text(markup)).toBe(
       'Drafts that wait for your yes 1 Payment retries drafts/payment-retries.md draft ' +
         'ideas 0 an idea that has not started No page yet. A page joins the shelf after your yes to its draft. ' +
@@ -40,7 +40,7 @@ describe('WikiPage', () => {
   test('renders the page with its blocks and each link, a broken one marked', () => {
     const page = { path: 'resources/shipments-api.md', text: '---\ntype: system\n---\n# Shipments api\n\nPages of 20, see [[shipments-page]].\n', links: [{ link: '[[shipments-page]]', target: 'resources/shipments-page.md' }, { link: 'old.md', target: null }] }
     const markup = html(<WikiPage page={page} />)
-    expect(markup).toContain('<a href="/wiki/resources/shipments-page.md">[[shipments-page]]</a>')
+    expect(markup).toContain('<a href="/wiki/resources/shipments-page.md" class="hover:underline">[[shipments-page]]</a>')
     expect(markup).toContain('<p>Pages of 20, see <a href="/wiki/resources/shipments-page.md">shipments-page</a>.</p>')
     expect(text(markup)).toBe(
       'Wiki resources shipments-api.md docs/wiki/resources/shipments-api.md · type system Shipments api Pages of 20, see shipments-page . ' +

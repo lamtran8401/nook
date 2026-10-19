@@ -59,15 +59,17 @@ const view: ItemView = {
   changes: [{ area: 'api', branch: 'nook/SHOP-42-pay-with-a-saved-card', files: [{ path: 'src/pay.ts', state: 'new', add: 120, del: 0 }, { path: 'src/cart.ts', state: 'changed', add: 12, del: 4 }] }],
 }
 const NOW = new Date('2026-10-16T15:10:00Z')
-const specOf = (markup: string) => JSON.parse(/data-nook-diagram="([^"]*)"/.exec(markup)![1]!.replaceAll('&quot;', '"').replaceAll('&amp;', '&'))
+const specOf = (markup: string) => JSON.parse(/data-diagram="([^"]*)"/.exec(markup)![1]!.replaceAll('&quot;', '"').replaceAll('&amp;', '&'))
 
 describe('ItemHeader', () => {
   test('shows the way back to the board, the title, the chips and the key moments', () => {
     const sentBack = { ...view, moves: [...view.moves, { move: 'reject' as const, to: 'cooking' as const, at: '2026-10-16T09:00:00Z' }] }
     const markup = html(<ItemHeader view={sentBack} />)
     expect(text(markup)).toBe('Works SHOP-42 Pay for an order with a saved card cooking feature size L api web normal yolo Started 14 Oct Approved 15 Oct 09:40 Sent back 1×')
-    expect(markup).toContain('value="normal" aria-pressed="true"')
-    expect(markup).toContain('value="yolo" aria-pressed="false"')
+    const mode = (value: string) => new RegExp(`<button[^>]*value="${value}"[^>]*>`).exec(markup)![0]
+    expect(mode('normal')).toContain('data-state="on"')
+    expect(mode('yolo')).toContain('data-state="off"')
+    expect(mode('yolo')).toContain('type="submit"')
   })
 })
 
@@ -75,7 +77,7 @@ describe('NextStep', () => {
   test('a gate of the owner gets its button, such as Approve', () => {
     const markup = html(<NextStep next={{ ...view.next, state: 'planning', owner: true, skill: 'owner: /gate approve SHOP-42' }} />)
     expect(markup).toContain('<input type="hidden" name="kind" value="gate"/><input type="hidden" name="item" value="SHOP-42"/><input type="hidden" name="move" value="approve"/>')
-    expect(markup).toContain('<button type="submit" class="bn-btn" data-variant="primary">Approve</button>')
+    expect(markup).toMatch(/<button data-slot="button"[^>]*type="submit">Approve<\/button>/)
     expect(text(markup)).toBe('Next step YOU Your move: approve The button runs the move with the same guards as /gate approve. Approve')
   })
 
@@ -83,13 +85,13 @@ describe('NextStep', () => {
     const next = { ...view.next, owner: true, skill: 'answer Q3: nook eng answer SHOP-42 Q3 "<answer>"', detail: 'Q3 Must a refund go to the same card?' }
     const markup = html(<NextStep next={next} />)
     expect(text(markup)).toBe('Next step YOU Your move: answer Q3 Q3 Must a refund go to the same card? nook eng answer SHOP-42 Q3 "<answer>"')
-    expect(markup).toContain('<code class="nk-cmd">nook eng answer SHOP-42 Q3 &quot;&lt;answer&gt;&quot;')
+    expect(markup).toMatch(/<code data-slot="copy-command"[^>]*>nook eng answer SHOP-42 Q3 &quot;&lt;answer&gt;&quot;/)
   })
 
   test('a move of the lead names its command to copy and says that nothing waits, with no move button', () => {
     const markup = html(<NextStep next={view.next} />)
-    expect(markup).not.toContain('class="bn-btn"')
-    expect(markup).toContain('<span class="nk-turn" data-tone="violet" title="The lead runs /cook SHOP-42">AI</span>')
+    expect(markup).not.toContain('data-slot="button"')
+    expect(markup).toMatch(/data-slot="badge" data-tone="violet" data-variant="solid"[^>]*title="The lead runs \/cook SHOP-42">AI</)
     expect(text(markup)).toBe('Next step AI The lead runs /cook SHOP-42 Nothing waits for you.')
   })
 })
@@ -100,12 +102,12 @@ describe('the owner moves on a page', () => {
   test('a browser with no pair gets each button off, and the form names the command that pairs it', () => {
     const markup = html(<NextStep next={approve} />)
     expect(markup).toContain('title="Pair this browser to run your moves: nook web pair"')
-    expect(markup).toContain('<fieldset class="nk-move__controls" disabled="">')
+    expect(/<fieldset[^>]*>/.exec(markup)![0]).toContain('disabled=""')
   })
 
   test('a paired browser gets the buttons on', () => {
     const markup = html(<Owner paired><NextStep next={approve} /></Owner>)
-    expect(markup).toContain('<fieldset class="nk-move__controls">')
+    expect(/<fieldset[^>]*>/.exec(markup)![0]).not.toContain(' disabled=""')
     expect(markup).not.toContain('title="Pair this browser')
   })
 
@@ -150,8 +152,13 @@ describe('NeedsYou', () => {
   test('gives each open question its answer box and each guess to check its Accept and Flip, as owner moves', () => {
     const markup = html(<NeedsYou view={view} />)
     expect(markup).toContain('<input type="hidden" name="kind" value="answer"/><input type="hidden" name="item" value="SHOP-42"/><input type="hidden" name="question" value="Q3"/>')
-    expect(markup).toContain('<input class="bn-input" placeholder="Your answer" aria-label="Answer to Q3" required="" name="answer"/>')
-    expect(markup).toContain('<button type="submit" value="flip" class="bn-btn" data-size="sm" data-variant="ghost" name="decision">Flip</button>')
+    const answer = /<input[^>]*aria-label="Answer to Q3"[^>]*>/.exec(markup)![0]
+    expect(answer).toContain('name="answer"')
+    expect(answer).toContain('placeholder="Your answer"')
+    expect(answer).toContain('required=""')
+    const flip = /<button[^>]*value="flip"[^>]*>Flip<\/button>/.exec(markup)![0]
+    expect(flip).toContain('data-variant="ghost"')
+    expect(flip).toContain('name="decision"')
   })
 
   test('names the gate of the owner when one waits', () => {
@@ -219,7 +226,7 @@ describe('ItemPage', () => {
 
   test('marks the open tab, and gives each tab its own address', () => {
     const markup = html(<ItemPage view={view} docs={docs} tab="spec" now={NOW} />)
-    expect([...markup.matchAll(/<a class="bn-tabs__tab" role="tab" aria-selected="(\w+)" href="([^"]+)"/g)].map(m => `${m[2]} ${m[1]}`)).toEqual([
+    expect([...markup.matchAll(/<a [^>]*href="(\/works\/SHOP-42[^"]*)"[^>]*>/g)].map(m => `${m[1]} ${m[0].includes('aria-current="page"')}`)).toEqual([
       '/works/SHOP-42 false', '/works/SHOP-42?tab=spec true', '/works/SHOP-42?tab=plan false', '/works/SHOP-42?tab=tasks false', '/works/SHOP-42?tab=walkthrough false',
     ])
     expect(text(markup)).toEndWith('works/SHOP-42/spec.md Spec The spec.')

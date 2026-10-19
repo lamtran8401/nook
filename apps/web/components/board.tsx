@@ -1,7 +1,8 @@
+import { Inbox } from 'lucide-react'
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 
 import { Diagram } from '@/components/diagram.tsx'
-import { EmptyState } from '@/components/empty-state.tsx'
+import { EmptyState } from '@nook/ui/components/empty-state.tsx'
 import { areaTone, KIND_TONE, STATE_TONE } from '@/components/tones.ts'
 import { turnTitle } from '@/lib/turn.ts'
 
@@ -35,12 +36,12 @@ function benchCard(card: BoardCard, areas: string[]) {
 
 /** The items of the desk on the Bench board: a column for each state that holds an item, the empty states in its panel. */
 export function Board({ cards, areas }: { cards: BoardCard[]; areas: string[] }) {
-  if (!cards.length) return <EmptyState icon="inbox" title="No item yet">Type /intake in the agent session to start one.</EmptyState>
+  if (!cards.length) return <EmptyState icon={<Inbox className="size-5" aria-hidden="true" />} title="No item yet">Type /intake in the agent session to start one.</EmptyState>
   const states = FLOW.map(state => ({ state, cards: cards.filter(c => c.state === state) }))
   const columns = states.filter(s => s.cards.length).map(s => ({ title: s.state, tone: STATE_TONE[s.state] ?? 'neutral', cards: s.cards.map(c => benchCard(c, areas)) }))
   const rest = states.filter(s => !s.cards.length && s.state !== 'blocked').map(s => ({ title: s.state, tone: STATE_TONE[s.state] ?? 'neutral', count: 0 }))
   return (
-    <div className="nk-board">
+    <div data-wide>
       <Diagram spec={{ type: 'board', frame: false, colWidth: 190, colHeight: 1200, columns, ...(rest.length ? { rest, restTitle: 'No items' } : {}) }} />
     </div>
   )

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { Card } from '@nook/ui/components/card.tsx'
 import { cn } from '@nook/ui/lib/utils.ts'
 
 const HEAD = 'flex min-w-0 items-center gap-2 px-4 py-2.5 text-sm font-medium text-foreground [overflow-wrap:anywhere]'
@@ -10,16 +11,16 @@ const HEAD = 'flex min-w-0 items-center gap-2 px-4 py-2.5 text-sm font-medium te
  */
 export function Group({ head, href, indent, className, children }: { head: ReactNode; href?: string | undefined; indent?: boolean; className?: string; children: ReactNode }) {
   return (
-    <div data-slot="group" className={cn('overflow-hidden rounded-lg bg-card shadow-sm', className)}>
+    <Card data-group="" className={cn('gap-0 overflow-hidden py-0', className)}>
       {href ? <a href={href} className={cn(HEAD, 'hover:bg-muted/50')}>{head}</a> : <div className={HEAD}>{head}</div>}
       <ul data-indent={indent ? 'true' : undefined} className="group/lines divide-y divide-hairline border-t border-hairline">
         {children}
       </ul>
-    </div>
+    </Card>
   )
 }
 
-/** One line of a group: a mark on the left, the words, and an end such as a button or a tag. */
+/** One line of a group: a mark on the left, the words, and an end such as a button or a badge. */
 export function GroupLine({ mark, end, children }: { mark?: ReactNode; end?: ReactNode; children: ReactNode }) {
   return (
     <li className="grid grid-cols-[18px_minmax(0,1fr)_auto] items-start gap-2.5 px-4 py-2.5 group-data-[indent=true]/lines:pl-10">

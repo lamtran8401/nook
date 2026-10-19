@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react'
 import { ExternalLink } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -7,7 +8,7 @@ import { Progress } from '@nook/ui/components/progress.tsx'
 
 import { AreaTags } from '@/components/areas.tsx'
 import { Criteria } from '@/components/criteria.tsx'
-import { EmptyState } from '@/components/empty-state.tsx'
+import { EmptyState } from '@nook/ui/components/empty-state.tsx'
 import { NextStep } from '@/components/item/next-step.tsx'
 import { SliceBoard } from '@/components/item/slice-board.tsx'
 import { KindIcon, StateTag } from '@/components/marks.tsx'
@@ -67,7 +68,7 @@ export function ItemDialog({ view }: { view: ItemView }) {
           <NextStep next={view.next} />
           <section className="space-y-3">
             <h3 className={HEADING}>Criteria</h3>
-            {view.criteria.length ? <Criteria criteria={view.criteria} /> : <EmptyState compact icon="check" title="No criteria yet">The spec step writes them.</EmptyState>}
+            {view.criteria.length ? <Criteria criteria={view.criteria} /> : <EmptyState compact icon={<Check className="size-5" aria-hidden="true" />} title="No criteria yet">The spec step writes them.</EmptyState>}
           </section>
           <section className="space-y-3">
             <h3 className={HEADING}>Slices</h3>

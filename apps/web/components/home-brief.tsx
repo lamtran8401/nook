@@ -1,8 +1,11 @@
 import type { HomeView } from '@nook/core/read.ts'
 import type { BriefItem, BriefLine } from '@nook/desk/desks.ts'
+import { Button } from '@nook/ui/components/button.tsx'
+import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
+import { CountTile } from '@nook/ui/components/count-tile.tsx'
+import { Group, GroupLine } from '@nook/ui/components/group.tsx'
+import { IconTile } from '@nook/ui/components/icon-tile.tsx'
 
-import { Cmd } from '@/components/cmd.tsx'
-import { Group, GroupLine } from '@/components/group.tsx'
 import { Move } from '@/components/item/move.tsx'
 import { StateIcon, StateTag } from '@/components/marks.tsx'
 
@@ -23,11 +26,15 @@ function LineAction({ action }: { action?: string | undefined }) {
   if (gate)
     return (
       <Move fields={{ kind: 'gate', item: gate[2]!, move: gate[1]! }}>
-        <button type="submit" className="bn-btn" data-variant="primary" data-size="sm">{capital(gate[1]!)}</button>
+        <Button type="submit" size="sm">{capital(gate[1]!)}</Button>
       </Move>
     )
   const answer = action ? ANSWER.exec(action) : null
-  return answer ? <a className="bn-btn" data-variant="primary" data-size="sm" href={`/works/${answer[1]}`}>Answer</a> : null
+  return answer ? (
+    <Button asChild size="sm">
+      <a href={`/works/${answer[1]}`}>Answer</a>
+    </Button>
+  ) : null
 }
 
 /** The head of the lines of one item: its state, id and title. */
@@ -35,18 +42,20 @@ function ItemHead({ item }: { item: BriefItem }) {
   return (
     <>
       <StateIcon state={item.state} />
-      <span className="nk-group__id">{item.id}</span>
-      <span className="nk-group__title">{item.title}</span>
-      <StateTag state={item.state} />
+      <span className="shrink-0 font-mono text-xs text-muted-foreground">{item.id}</span>
+      <span className="min-w-0 truncate">{item.title}</span>
+      <span className="ml-auto">
+        <StateTag state={item.state} />
+      </span>
     </>
   )
 }
 
-type Group = { item?: BriefItem | undefined; lines: BriefLine[] }
+type LineGroup = { item?: BriefItem | undefined; lines: BriefLine[] }
 
 /** The lines in groups by item, in the order that each item first comes; the lines of no item make one group. */
-function groupsOf(lines: BriefLine[]): Group[] {
-  const groups = new Map<string, Group>()
+function groupsOf(lines: BriefLine[]): LineGroup[] {
+  const groups = new Map<string, LineGroup>()
   for (const line of lines) {
     const key = line.item?.id ?? ''
     const group = groups.get(key) ?? { item: line.item, lines: [] }
@@ -58,17 +67,17 @@ function groupsOf(lines: BriefLine[]): Group[] {
 
 function Waits({ lines }: { lines: BriefLine[] }) {
   return (
-    <div className="nk-groups">
+    <div className="grid gap-2.5">
       {groupsOf(lines).map(group => (
         <Group key={group.item?.id ?? 'desk'} head={group.item ? <ItemHead item={group.item} /> : 'This desk'} href={group.item ? `/works/${group.item.id}` : undefined} indent>
           {group.lines.map(line => (
             <GroupLine
               key={`${line.text}${line.action}`}
-              mark={<span className="nk-line__ico" data-tone={line.urgent ? 'danger' : 'warning'} aria-label={line.urgent ? 'urgent' : 'today'}>!</span>}
+              mark={<IconTile size="sm" tone={line.urgent ? 'danger' : 'warning'} label={line.urgent ? 'urgent' : 'today'}>!</IconTile>}
               end={<LineAction action={line.action} />}
             >
-              <p>{wordsOf(line)}</p>
-              {line.action ? <Cmd text={line.action} /> : null}
+              <p className="text-sm">{wordsOf(line)}</p>
+              {line.action ? <CopyCommand text={line.action} /> : null}
             </GroupLine>
           ))}
         </Group>
@@ -80,17 +89,17 @@ function Waits({ lines }: { lines: BriefLine[] }) {
 /** What runs or is done: one row for each line, with the item and the command of the lead. */
 function Rows({ lines }: { lines: BriefLine[] }) {
   return (
-    <div className="bn-card nk-group">
+    <div className="divide-y divide-hairline overflow-hidden rounded-lg bg-card shadow-sm">
       {lines.map(line => (
-        <div className="nk-group__row" key={`${line.text}${line.action}`}>
+        <div key={`${line.text}${line.action}`} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2.5 pr-4 pl-4 sm:flex-nowrap">
           {line.item ? (
-            <a className="nk-group__head" href={`/works/${line.item.id}`}>
+            <a href={`/works/${line.item.id}`} className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium hover:underline">
               <ItemHead item={line.item} />
             </a>
           ) : (
-            <p className="nk-group__head">{line.text}</p>
+            <p className="min-w-0 flex-1 text-sm font-medium">{line.text}</p>
           )}
-          {line.action ? <Cmd text={line.action} /> : null}
+          {line.action ? <CopyCommand text={line.action} /> : null}
         </div>
       ))}
     </div>
@@ -104,6 +113,15 @@ const TILES: { label: string; tone: string; count: (lines: BriefLine[]) => numbe
   { label: 'Done since yesterday', tone: 'success', count: lines => lines.filter(l => l.part === 'done').length },
 ]
 
+function Part({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="grid gap-3">
+      <h2 className="text-[19px] font-semibold">{title}</h2>
+      {children}
+    </section>
+  )
+}
+
 /** The home page: the counts of the brief on top, then what waits in groups by item, what runs and what is done. */
 export function HomeBrief({ view }: { view: HomeView }) {
   const waits = view.brief.filter(l => l.part === 'waits').sort((a, b) => Number(b.urgent ?? false) - Number(a.urgent ?? false))
@@ -111,34 +129,14 @@ export function HomeBrief({ view }: { view: HomeView }) {
   const done = view.brief.filter(l => l.part === 'done')
   return (
     <>
-      <div className="nk-tiles">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {TILES.map(tile => (
-          <div className="bn-card nk-tile" data-tone={tile.tone} key={tile.label}>
-            <b>{tile.count(view.brief)}</b>
-            <span>{tile.label}</span>
-          </div>
+          <CountTile key={tile.label} count={tile.count(view.brief)} label={tile.label} tone={tile.tone} />
         ))}
       </div>
-      {waits.length ? (
-        <section className="nk-sec">
-          <h2 className="nk-h2">Waits for you</h2>
-          <Waits lines={waits} />
-        </section>
-      ) : (
-        <p className="nk-lead">Nothing waits for you.</p>
-      )}
-      {runs.length ? (
-        <section className="nk-sec">
-          <h2 className="nk-h2">Runs</h2>
-          <Rows lines={runs} />
-        </section>
-      ) : null}
-      {done.length ? (
-        <section className="nk-sec">
-          <h2 className="nk-h2">Done since yesterday</h2>
-          <Rows lines={done} />
-        </section>
-      ) : null}
+      {waits.length ? <Part title="Waits for you"><Waits lines={waits} /></Part> : <p className="text-[17px] font-medium">Nothing waits for you.</p>}
+      {runs.length ? <Part title="Runs"><Rows lines={runs} /></Part> : null}
+      {done.length ? <Part title="Done since yesterday"><Rows lines={done} /></Part> : null}
     </>
   )
 }

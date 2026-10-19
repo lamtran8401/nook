@@ -1,6 +1,9 @@
 import type { PhrasingContent } from 'mdast'
 import type { ReactNode } from 'react'
 
+import { Badge } from '@nook/ui/components/badge.tsx'
+import { InlineCode } from '@nook/ui/components/inline-code.tsx'
+
 import type { Inline as InlineContent } from '@/lib/blocks.ts'
 
 /** The words of a block: marks, code, safe links, and the `{status:…}` and `{date:…}` chips. */
@@ -20,7 +23,11 @@ function dateChip(value: string, key: number): ReactNode {
   const date = new Date(`${value}T00:00:00Z`)
   if (Number.isNaN(date.getTime())) return `{date:${value}}`
   const shown = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
-  return <time className="bn-badge" data-variant="plain" dateTime={value} key={key}>{shown}</time>
+  return (
+    <Badge variant="outline" asChild key={key}>
+      <time dateTime={value}>{shown}</time>
+    </Badge>
+  )
 }
 
 function withChips(value: string): ReactNode[] {
@@ -29,7 +36,7 @@ function withChips(value: string): ReactNode[] {
   for (const match of value.matchAll(TOKEN)) {
     parts.push(value.slice(last, match.index))
     const [, kind, word] = match
-    parts.push(kind === 'date' ? dateChip(word!, match.index) : <span className="bn-badge" data-tone={STATUS_TONE[word!] ?? 'neutral'} key={match.index}>{word}</span>)
+    parts.push(kind === 'date' ? dateChip(word!, match.index) : <Badge tone={STATUS_TONE[word!] ?? 'neutral'} key={match.index}>{word}</Badge>)
     last = match.index + match[0].length
   }
   parts.push(value.slice(last))
@@ -47,7 +54,7 @@ function node(item: PhrasingContent, key: number): ReactNode {
     case 'delete':
       return <del key={key}><Inline content={item.children} /></del>
     case 'inlineCode':
-      return <code className="bn-inline-code" key={key}>{item.value}</code>
+      return <InlineCode key={key}>{item.value}</InlineCode>
     case 'break':
       return <br key={key} />
     case 'link':

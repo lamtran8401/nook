@@ -2,7 +2,7 @@
 
 import { createContext, type ReactNode, useContext } from 'react'
 
-import { Cmd } from '@/components/cmd.tsx'
+import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
 
 /** Whether this browser is paired, so its owner moves run; the gate decides it, and the layout passes it down. */
 const Paired = createContext(false)
@@ -19,8 +19,8 @@ export const usePaired = () => useContext(Paired)
 export function ViewerNote() {
   if (usePaired()) return null
   return (
-    <p className="nk-viewer">
-      <b>View only.</b> To run your moves here, run <Cmd text="nook web pair" /> in your terminal and open its link in this browser.
+    <p className="border-b border-hairline bg-muted px-4 py-2 text-[13px] text-muted-foreground">
+      <b className="font-semibold text-foreground">View only.</b> To run your moves here, run <CopyCommand text="nook web pair" /> in your terminal and open its link in this browser.
     </p>
   )
 }

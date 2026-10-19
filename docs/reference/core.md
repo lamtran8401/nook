@@ -232,6 +232,22 @@ Only the owner starts these skills.
 
 `plugins/core/ui/bench/` holds the Bench design system: `tokens.json`, `bundle.css` and `bundle.js`. The pages that Nook builds, such as `nook eng item page`, put it inline. `SOURCE.md` names the source artifact and the version. Nook never edits these files.
 
+The web app takes the tokens and the diagram library from these files: its layout puts the tokens and `bundle.css` inline and loads `bundle.js` at the end of the page. Each part that it draws comes from `packages/ui`, the UI kit of the web app:
+
+| Layer | Holds |
+|---|---|
+| shadcn primitives | button, badge, card, input, alert, table, tabs, toggle group, dialog, collapsible, breadcrumb, separator, navigation menu, tooltip, progress; each with the Bench values, such as capsule buttons and the corner of a card |
+| parts of Nook | tag tones on the badge, icon tile, ring, copy command, group, record list, action list, callout, empty state, stat and count tiles, stepper, link tabs, detail list, change list, rule list, step list, checklist, code block, prose, task card, diagram |
+| theme | `src/styles/globals.css`: Tailwind, each shadcn variable set to a Bench token, and the tones of a part with `data-tone` |
+
+`apps/web` composes these parts with Tailwind classes and has no CSS file of its own; a test fails on a CSS file or an old `bn-` class there. A document becomes a page in two steps: `apps/web/lib/blocks.ts` turns its Markdown into blocks, and `apps/web/components/blocks/` renders each block with one part of the kit.
+
+`nook`, `nk` and the role variables live in `packages/shared/src/names.ts`. `.nook/` lives in `packages/desk/src/desks.ts`. `NOOK_PROJECT` lives in the shims `plugins/*/bin/nook`.
+
+## 11. The UI kit
+
+`plugins/core/ui/bench/` holds the Bench design system: `tokens.json`, `bundle.css` and `bundle.js`. The pages that Nook builds, such as `nook eng item page`, put it inline. `SOURCE.md` names the source artifact and the version. Nook never edits these files.
+
 The web app uses the same files. Its layout puts the tokens and `bundle.css` inline and loads `bundle.js` at the end of the page. Its components in `apps/web/components/` render the `bn-*` markup with React:
 
 | Component | Shows |

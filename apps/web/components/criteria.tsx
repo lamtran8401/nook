@@ -2,7 +2,9 @@ import type { ReactNode } from 'react'
 
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 
-import { Records } from '@/components/records.tsx'
+import { RecordList } from '@nook/ui/components/record-list.tsx'
+import { Badge } from '@nook/ui/components/badge.tsx'
+
 import { CRITERION_TONE, criterionTag } from '@/components/tones.ts'
 
 /** One criterion as a row: its tag, its words and the cases it rests on; `met` is unknown when the ledger has no row for it. */
@@ -11,18 +13,18 @@ export type CriterionLine = { n: number; tag: string; content: ReactNode; refs?:
 /** The acceptance criteria, each with its number, its tag, its words, whether it is met and its evidence. */
 export function CriteriaList({ lines }: { lines: CriterionLine[] }) {
   return (
-    <Records
+    <RecordList
       rows={lines.map(line => ({
         id: `AC${line.n}`,
         main: (
           <>
-            {line.tag ? <span className="bn-badge" data-tone={CRITERION_TONE[line.tag]}>{line.tag}</span> : null}
+            {line.tag ? <Badge tone={CRITERION_TONE[line.tag]} className="mr-2 align-[1px]">{line.tag}</Badge> : null}
             {line.content}
-            {line.refs?.length ? <span className="bn-records__meta"> {line.refs.join(', ')}</span> : null}
+            {line.refs?.length ? <span className="text-muted-foreground"> {line.refs.join(', ')}</span> : null}
           </>
         ),
         sub: line.met && line.evidence ? line.evidence : undefined,
-        end: line.met === undefined ? undefined : <span className="bn-badge" data-tone={line.met ? 'success' : 'neutral'}>{line.met ? 'met' : 'open'}</span>,
+        end: line.met === undefined ? undefined : <Badge tone={line.met ? 'success' : 'neutral'}>{line.met ? 'met' : 'open'}</Badge>,
       }))}
     />
   )

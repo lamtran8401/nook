@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import type { ReactNode } from 'react'
 
 import { uiKit } from '@nook/desk/ui-kit.ts'
+import { Input } from '@nook/ui/components/input.tsx'
 
 import { AreaTones } from '@/components/areas.tsx'
 import { Live } from '@/components/live.tsx'
@@ -12,12 +13,11 @@ import { PackNav } from '@/components/pack-nav.tsx'
 import { deskAreas, deskDir, packTabs } from '@/lib/desk.ts'
 import { OWNER_HEADER } from '@/lib/gate.ts'
 import '@nook/ui/styles/globals.css'
-import '@/app/app.css'
 
 export const dynamic = 'force-dynamic'
 
 /**
- * The shell of each page: the Bench tokens and styles, the desk name and the pack tabs; the Bench script draws the
+ * The shell of each page: the Bench tokens, the desk name, the pack tabs and the search; the Bench script draws the
  * diagrams. The gate says if the browser is paired, and the owner moves below follow it.
  */
 export default async function RootLayout({ children }: { children: ReactNode }) {
@@ -30,18 +30,18 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <title>{`Nook · ${basename(desk)}`}</title>
         <style dangerouslySetInnerHTML={{ __html: kit.css }} />
       </head>
-      <body className="bn-root">
-        <header className="nk-top">
-          <span className="nk-top__desk">{basename(desk)}</span>
+      <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
+        <header className="sticky top-0 z-40 flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-hairline bg-background/85 px-4 py-3 backdrop-blur-md">
+          <span className="text-[15px] font-semibold">{basename(desk)}</span>
           <PackNav tabs={packTabs(desk)} />
-          <form className="nk-search" action="/search" method="get" role="search">
-            <input className="bn-input" type="search" name="q" placeholder="Search the desk" aria-label="Search the desk" />
+          <form className="order-3 w-full sm:order-none sm:ml-auto sm:w-72" action="/search" method="get" role="search">
+            <Input type="search" name="q" placeholder="Search the desk" aria-label="Search the desk" />
           </form>
         </header>
         <Owner paired={paired}>
           <ViewerNote />
           <AreaTones names={deskAreas()}>
-            <main className="nk-main">{children}</main>
+            <main className="mx-auto grid w-full max-w-[1120px] gap-6 px-4 pt-6 pb-20 has-[>[data-wide]]:max-w-none">{children}</main>
           </AreaTones>
         </Owner>
         <Live />

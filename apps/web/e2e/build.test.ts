@@ -63,23 +63,23 @@ describe('the web app', () => {
 
   test('a browser with no pair reads the page with the owner buttons off, and its move is refused', () => {
     const page = body('stranger')
-    expect(page).toContain('<b>View only.</b>')
-    expect(page).toContain('<fieldset class="nk-move__controls" disabled="">')
+    expect(page).toContain('>View only.</b>')
+    expect(/<fieldset[^>]*>/.exec(page)![0]).toContain(' disabled=""')
     expect(answer().strangerWrite).toEqual({ status: 401, body: 'pair this browser first: run `nook web pair` in your terminal' })
   })
 
   test('the paired browser gets the owner buttons on, with no view-only note', () => {
     const item = body('item')
     expect(item).not.toContain('View only.')
-    expect(item).toContain('<fieldset class="nk-move__controls">')
+    expect(/<fieldset[^>]*>/.exec(item)![0]).not.toContain(' disabled=""')
   })
 
   test('the home page gives the brief of the desk: each gap of the doctor with its fix, and each item that runs', () => {
     const home = body('home')
-    expect(home).toContain('<div class="nk-group__head">This desk</div>')
-    expect(home).toContain('<p>engineering: works/ is missing</p><code class="nk-cmd">nook init --update<button')
-    expect(home).toContain('<a class="nk-group__head" href="/works/SHOP-12">')
-    expect(home).toContain('<code class="nk-cmd">/spec SHOP-12<button')
+    expect(home).toMatch(/>This desk<\/div>/)
+    expect(home).toMatch(/<p class="text-sm">engineering: works\/ is missing<\/p><code data-slot="copy-command"[^>]*>nook init --update<button/)
+    expect(home).toContain('<a href="/works/SHOP-12" class="flex min-w-0 flex-1')
+    expect(home).toMatch(/<code data-slot="copy-command"[^>]*>\/spec SHOP-12<button/)
   })
 
   test('/works gives the board, with a card for each item that links to it', () => {
@@ -87,14 +87,14 @@ describe('the web app', () => {
     expect(page).toContain('&quot;type&quot;:&quot;board&quot;')
     expect(page).toContain('&quot;title&quot;:&quot;Filter shipments by status&quot;,&quot;href&quot;:&quot;/works/SHOP-12&quot;')
     expect(page).toContain('{&quot;title&quot;:&quot;backlog&quot;,&quot;tone&quot;:&quot;neutral&quot;,&quot;cards&quot;:')
-    expect(page).toContain('<a href="/works" aria-current="page">Works</a>')
+    expect(/<a [^>]*href="\/works"[^>]*>Works<\/a>/.exec(page)![0]).toContain('aria-current="page"')
   })
 
   test('the full page of an item opens its tab, with no dialog', () => {
     const item = body('item')
-    expect(item).toContain('<h1 class="nk-head__title">Filter shipments by status</h1>')
-    expect(item).toContain('aria-selected="true" href="/works/SHOP-12?tab=walkthrough">Walkthrough</a>')
-    expect(item).toContain('type <code class="nk-cmd">/view SHOP-12<button')
+    expect(item).toMatch(/<h1 [^>]*>Filter shipments by status<\/h1>/)
+    expect(/<a [^>]*href="\/works\/SHOP-12\?tab=walkthrough"[^>]*>Walkthrough<\/a>/.exec(item)![0]).toContain('aria-current="page"')
+    expect(item).toMatch(/type <code data-slot="copy-command"[^>]*>\/view SHOP-12<button/)
     expect(item).not.toContain('Open in new tab')
   })
 

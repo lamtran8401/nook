@@ -1,9 +1,12 @@
-import type { ShelfView, WikiView } from '@nook/wiki/read.ts'
+import { FileText } from 'lucide-react'
 
-import { Cmd } from '@/components/cmd.tsx'
-import { EmptyState } from '@/components/empty-state.tsx'
-import { Count, Group, GroupLine } from '@/components/group.tsx'
-import { Icon } from '@/components/icon.tsx'
+import type { ShelfView, WikiView } from '@nook/wiki/read.ts'
+import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
+import { EmptyState } from '@nook/ui/components/empty-state.tsx'
+import { Group, GroupCount, GroupLine } from '@nook/ui/components/group.tsx'
+import { InlineCode } from '@nook/ui/components/inline-code.tsx'
+import { Badge } from '@nook/ui/components/badge.tsx'
+
 import { PAGE_TYPE_TONE } from '@/components/tones.ts'
 
 // `payment-retries.md` reads as `Payment retries`
@@ -12,30 +15,34 @@ const title = (path: string) => {
   return words.charAt(0).toUpperCase() + words.slice(1)
 }
 
-const PAGE_MARK = <span className="nk-line__mark"><Icon name="file" size={16} /></span>
-const tag = (type: string) => <span className="nk-tag" data-tone={PAGE_TYPE_TONE[type] ?? 'neutral'}>{type}</span>
+const PAGE_MARK = <FileText className="size-4" aria-hidden="true" />
+const tag = (type: string) => <Badge variant="label" tone={PAGE_TYPE_TONE[type] ?? 'neutral'}>{type}</Badge>
+
+function PageLine({ href, page, sub, type }: { href: string; page: string; sub: string; type?: string }) {
+  return (
+    <GroupLine mark={PAGE_MARK} end={type ? tag(type) : undefined}>
+      <a href={href} className="hover:underline">{title(page)}</a>
+      <small className="text-[12.5px] text-muted-foreground">{sub}</small>
+    </GroupLine>
+  )
+}
 
 /** A shelf as a group: its name, its count and its use on top, then a line for each page with its summary and type. */
 function Shelf({ shelf }: { shelf: ShelfView }) {
   const head = (
     <>
-      <b className="nk-group__title">{shelf.name}</b>
-      <Count n={shelf.lines.length} />
-      <span className="nk-group__note">{shelf.use}</span>
+      <b className="font-semibold">{shelf.name}</b>
+      <GroupCount n={shelf.lines.length} />
+      <span className="min-w-0 truncate text-[13px] font-normal text-muted-foreground">{shelf.use}</span>
     </>
   )
   return (
     <Group head={head} href={`/wiki/${shelf.name}`}>
       {shelf.lines.length ? (
-        shelf.lines.map(line => (
-          <GroupLine key={line.page} mark={PAGE_MARK} end={line.type ? tag(line.type) : undefined}>
-            <p><a href={`/wiki/${shelf.name}/${line.page}`}>{title(line.page)}</a></p>
-            <small>{line.summary}</small>
-          </GroupLine>
-        ))
+        shelf.lines.map(line => <PageLine key={line.page} href={`/wiki/${shelf.name}/${line.page}`} page={line.page} sub={line.summary} type={line.type || undefined} />)
       ) : (
         <GroupLine>
-          <p className="nk-line__none"><b>No page yet.</b> A page joins the shelf after your yes to its draft.</p>
+          <p className="text-muted-foreground"><b className="font-semibold text-foreground">No page yet.</b> A page joins the shelf after your yes to its draft.</p>
         </GroupLine>
       )}
     </Group>
@@ -44,17 +51,12 @@ function Shelf({ shelf }: { shelf: ShelfView }) {
 
 /** The wiki: the drafts that wait for a yes first, then each shelf with the lines of its index. */
 export function WikiHome({ wiki }: { wiki: WikiView | null }) {
-  if (!wiki) return <EmptyState icon="file" title="This desk has no wiki">Add <code className="bn-inline-code">wiki</code> to the packs of nook.yml, then run <Cmd text="/setup" /> in the agent session.</EmptyState>
+  if (!wiki) return <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title="This desk has no wiki">Add <InlineCode>wiki</InlineCode> to the packs of nook.yml, then run <CopyCommand text="/setup" /> in the agent session.</EmptyState>
   return (
-    <div className="nk-groups">
+    <div className="grid gap-2.5">
       {wiki.drafts.length ? (
-        <Group head={<><b className="nk-group__title">Drafts that wait for your yes</b><Count n={wiki.drafts.length} /></>}>
-          {wiki.drafts.map(draft => (
-            <GroupLine key={draft} mark={PAGE_MARK} end={tag('draft')}>
-              <p><a href={`/wiki/drafts/${draft}`}>{title(draft)}</a></p>
-              <small>drafts/{draft}</small>
-            </GroupLine>
-          ))}
+        <Group head={<><b className="font-semibold">Drafts that wait for your yes</b><GroupCount n={wiki.drafts.length} /></>}>
+          {wiki.drafts.map(draft => <PageLine key={draft} href={`/wiki/drafts/${draft}`} page={draft} sub={`drafts/${draft}`} type="draft" />)}
         </Group>
       ) : null}
       {wiki.shelves.map(shelf => (
@@ -68,10 +70,11 @@ export function WikiHome({ wiki }: { wiki: WikiView | null }) {
 export function ShelfPage({ shelf }: { shelf: ShelfView }) {
   return (
     <>
-      <ol className="bn-breadcrumb">
-        <li><a href="/wiki">Wiki</a></li>
-        <li><span aria-current="page">{shelf.name}</span></li>
-      </ol>
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground">
+        <a href="/wiki" className="hover:text-foreground">Wiki</a>
+        <span aria-hidden="true">/</span>
+        <span className="text-foreground" aria-current="page">{shelf.name}</span>
+      </nav>
       <Shelf shelf={shelf} />
     </>
   )

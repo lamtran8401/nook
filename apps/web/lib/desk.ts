@@ -7,7 +7,7 @@ import { type CourseView, readLearn } from '@nook/learn/read.ts'
 import { wikiModule } from '@nook/wiki/module.ts'
 import { type PageView, readPage, readWiki, type WikiView } from '@nook/wiki/read.ts'
 
-import type { Tab } from '@/components/tab-links.tsx'
+import type { Tab } from '@/components/pack-nav.tsx'
 import { type Hit, search } from '@/lib/search.ts'
 
 /** The folder of the desk that the web app shows, from `NOOK_DESK`. */

@@ -1,21 +1,26 @@
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@nook/ui/components/navigation-menu.tsx'
 import { cn } from '@nook/ui/lib/utils.ts'
 
 export type LinkTab = { href: string; label: string; current?: boolean }
 
-/** Tabs that are links, as the packs of a desk or the documents of an item; the current one is marked. */
-export function LinkTabs({ tabs, label, className }: { tabs: LinkTab[]; label: string; className?: string }) {
+const TAB = 'inline-flex h-8 shrink-0 items-center rounded-full px-3 text-sm font-medium text-muted-foreground hover:bg-transparent hover:text-foreground focus:bg-transparent data-[active]:bg-surface data-[active]:text-foreground data-[active]:shadow-sm data-[active]:hover:bg-surface'
+
+/**
+ * Links between pages as tabs, on the navigation menu of the kit: the current one is marked, and the arrow keys move
+ * between them. `pills` is the light row of the top bar; `bar` is the glass bar of a page.
+ */
+export function LinkTabs({ tabs, label, variant = 'pills' }: { tabs: LinkTab[]; label: string; variant?: 'pills' | 'bar' }) {
   return (
-    <nav aria-label={label} className={cn('flex min-w-0 gap-1 overflow-x-auto [scrollbar-width:none]', className)}>
-      {tabs.map(tab => (
-        <a
-          key={tab.href}
-          href={tab.href}
-          aria-current={tab.current ? 'page' : undefined}
-          className="shrink-0 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground aria-[current=page]:bg-surface aria-[current=page]:text-foreground aria-[current=page]:shadow-sm"
-        >
-          {tab.label}
-        </a>
-      ))}
-    </nav>
+    <NavigationMenu viewport={false} aria-label={label} className="max-w-full flex-none justify-start">
+      <NavigationMenuList className={cn('gap-1 overflow-x-auto [scrollbar-width:none]', variant === 'bar' && 'rounded-full bg-muted/55 p-1 ring-1 ring-hairline backdrop-blur-md backdrop-saturate-[1.8]')}>
+        {tabs.map(tab => (
+          <NavigationMenuItem key={tab.href}>
+            <NavigationMenuLink asChild active={tab.current} className={cn(TAB, variant === 'bar' && 'h-9 px-4 text-[15px]')}>
+              <a href={tab.href}>{tab.label}</a>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        ))}
+      </NavigationMenuList>
+    </NavigationMenu>
   )
 }

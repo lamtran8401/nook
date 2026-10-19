@@ -1,7 +1,8 @@
+import { Layers } from 'lucide-react'
 import type { Slice } from '@nook/engineering/stores/slices.ts'
 
 import { Diagram } from '@/components/diagram.tsx'
-import { EmptyState } from '@/components/empty-state.tsx'
+import { EmptyState } from '@nook/ui/components/empty-state.tsx'
 
 const COLUMNS: { title: string; tone: string; states: Slice['state'][] }[] = [
   { title: 'To do', tone: 'neutral', states: ['todo', 'waiting'] },
@@ -20,7 +21,7 @@ function card(slice: Slice) {
 
 /** The slices of the item on a board by state. A cancelled slice is left out. */
 export function SliceBoard({ slices }: { slices: Slice[] }) {
-  if (!slices.length) return <EmptyState compact icon="layers" title="No slice yet">The plan step writes them in tasks.md.</EmptyState>
+  if (!slices.length) return <EmptyState compact icon={<Layers className="size-5" aria-hidden="true" />} title="No slice yet">The plan step writes them in tasks.md.</EmptyState>
   const columns = COLUMNS.map(({ title, tone, states }) => ({ title, tone, cards: slices.filter(s => states.includes(s.state)).map(card) }))
   // as Bench draws a board: a state with no slice goes in the small panel at the end, not in an empty column
   const rest = columns.filter(c => !c.cards.length).map(({ title, tone }) => ({ title, tone, count: 0 }))

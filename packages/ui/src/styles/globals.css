@@ -25,6 +25,7 @@
   --color-destructive: var(--danger);
   --color-border: var(--border);
   --color-input: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-ring: var(--focus-ring);
   --color-hairline: var(--hairline);
   --color-surface: var(--surface);
