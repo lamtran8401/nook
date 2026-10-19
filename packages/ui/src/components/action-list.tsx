@@ -10,7 +10,7 @@ export function ActionList({ children }: { children: ReactNode }) {
 /** One thing to act on: a mark in its tone, the title, a note under it, and the action, level with the first line. */
 export function ActionRow({ tone, icon, title, note, act, children }: { tone: string; icon: ReactNode; title: ReactNode; note?: ReactNode; act?: ReactNode; children?: ReactNode }) {
   return (
-    <li className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-3 py-3.5">
+    <li className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-3 py-3">
       <IconTile tone={tone}>{icon}</IconTile>
       <div className="min-w-0 pt-1.5">
         <p className="text-[15px] leading-6 font-semibold">{title}</p>

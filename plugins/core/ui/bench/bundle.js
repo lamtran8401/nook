@@ -283,7 +283,7 @@
     return root;
   }
 
-  window.Bench = { version: '6.6.0', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
+  window.Bench = { version: '6.6.1', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(document); });
   else init(document);
 })();
@@ -1313,7 +1313,8 @@
     }
     var board = h('div', 'bd', html)
     board.style.gridTemplateColumns = 'repeat(' + cols.length + ', minmax(' + (spec.colWidth || 250) + 'px, 1fr))' + (rest.length ? ' 170px' : '')
-    board.style.setProperty('--bd-col-h', (spec.colHeight || 560) + 'px')
+    // a colHeight of 0 lets each column grow with its cards, with no scroll of its own
+    board.style.setProperty('--bd-col-h', spec.colHeight === 0 ? 'none' : (spec.colHeight || 560) + 'px')
     var scroll = h('div', 'dg-scroll')
     scroll.appendChild(board)
     el.appendChild(scroll)

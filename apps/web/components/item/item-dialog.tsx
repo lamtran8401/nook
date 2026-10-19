@@ -63,7 +63,7 @@ export function ItemDialog({ view }: { view: ItemView }) {
         </Button>
       </header>
       <div className="grid min-h-0 flex-1 overflow-y-auto md:grid-cols-[minmax(0,1fr)_300px] md:overflow-hidden">
-        <div className="space-y-8 px-6 py-6 md:min-h-0 md:overflow-y-auto">
+        <div className="space-y-6 px-6 py-5 md:min-h-0 md:overflow-y-auto">
           <h2 className="text-2xl font-semibold tracking-tight text-balance">{item.title}</h2>
           <NextStep next={view.next} />
           <section className="space-y-3">
@@ -89,7 +89,7 @@ export function ItemDialog({ view }: { view: ItemView }) {
             </ol>
           </section>
         </div>
-        <aside className="space-y-6 border-t border-hairline bg-muted/40 px-5 py-6 md:min-h-0 md:overflow-y-auto md:border-t-0 md:border-l">
+        <aside className="space-y-5 border-t border-hairline bg-muted/40 px-5 py-6 md:min-h-0 md:overflow-y-auto md:border-t-0 md:border-l">
           <h3 className={HEADING}>Details</h3>
           <dl className="grid grid-cols-[88px_minmax(0,1fr)] items-center gap-x-3 gap-y-3 text-sm">
             <Detail label="State"><StateTag state={item.state} /></Detail>

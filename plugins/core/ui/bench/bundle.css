@@ -1208,7 +1208,7 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 /* ===== board: one column for each state that holds items; the empty states wait in a small panel at the end ===== */
 .bd { display: grid; grid-template-columns: repeat(var(--cols, 5), minmax(176px, 1fr)); gap: 10px; align-items: start; }
 .bd-col:not([data-tone]) { --t: var(--fg-muted); --t-subtle: var(--bg-muted); }
-.bd-col { display: flex; flex-direction: column; gap: 10px; padding: 10px; background: color-mix(in oklab, var(--bg-muted) 55%, var(--surface)); min-height: 150px; }
+.bd-col { display: flex; flex-direction: column; gap: 10px; padding: 10px; background: var(--bg-muted); min-height: 150px; }
 .bd-col:has(> .bd-empty) { min-width: 0; }
 .bd-col__head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 4px 6px; font: 600 13px/18px var(--font-sans); }
 .bd-col:has(> .bd-empty) .bd-col__head { flex-wrap: nowrap; white-space: nowrap; }
@@ -1218,10 +1218,8 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 .bd-col:has(> .bd-empty) .bd-empty { padding: 14px 6px; }
 .bd-empty .dg-i { width: 18px; height: 18px; color: var(--border-strong); }
 .bd-card { display: flex; flex-direction: column; gap: 9px; padding: 12px; background: var(--surface); }
-a.bd-card { color: inherit; text-decoration: none; transition: transform .15s var(--bn-ease), box-shadow .15s var(--bn-ease); }
-a.bd-card:hover { transform: translateY(-1px); }
+a.bd-card { color: inherit; text-decoration: none; }
 a.bd-card:focus-visible { outline: var(--stroke-3) solid var(--focus-ring); outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { a.bd-card { transition: none; } a.bd-card:hover { transform: none; } }
 .bd-card h4 { margin: 0; font: 600 14px/19px var(--font-sans); }
 .bd-top { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .bd-id { font: 600 11.5px/18px var(--font-mono); color: var(--fg-muted); }

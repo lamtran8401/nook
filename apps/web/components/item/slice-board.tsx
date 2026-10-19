@@ -25,5 +25,5 @@ export function SliceBoard({ slices }: { slices: Slice[] }) {
   const columns = COLUMNS.map(({ title, tone, states }) => ({ title, tone, cards: slices.filter(s => states.includes(s.state)).map(card) }))
   // as Bench draws a board: a state with no slice goes in the small panel at the end, not in an empty column
   const rest = columns.filter(c => !c.cards.length).map(({ title, tone }) => ({ title, tone, count: 0 }))
-  return <Diagram spec={{ type: 'board', colWidth: 260, columns: columns.filter(c => c.cards.length), ...(rest.length ? { rest, restTitle: 'No slices' } : {}) }} />
+  return <Diagram spec={{ type: 'board', colWidth: 260, colHeight: 0, columns: columns.filter(c => c.cards.length), ...(rest.length ? { rest, restTitle: 'No slices' } : {}) }} />
 }

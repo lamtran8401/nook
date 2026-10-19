@@ -14,7 +14,7 @@ export function ChangeList({ changes }: { changes: Change[] }) {
         {changes.map(change => {
           const total = change.add + change.del
           return (
-            <li key={change.key} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-3 py-3.5">
+            <li key={change.key} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-3 py-3">
               <IconTile tone={change.tone ?? 'neutral'}>
                 <GitBranch className="size-[17px]" aria-hidden="true" />
               </IconTile>

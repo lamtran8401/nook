@@ -85,7 +85,7 @@ Each page of the web app reads the desk when the browser asks for it. A gap of t
 | `/` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done |
 | `/works` | the Bench board: a column for each state that holds an item; a card shows its flags and whose move is next |
 | `/works/<id>` over the board | a click on a card opens the item in a dialog of 80% of the screen: the title, the next step, the criteria, the slices and the activity, with the details beside them |
-| `/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document |
+| `/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document; the Tasks tab draws the lanes of the slices first, one for each area |
 | `/wiki` | the drafts that wait for a yes, then a group for each shelf: each page with its summary and type |
 | `/wiki/<shelf>`, `/wiki/<page>` | one shelf, or one page with its blocks and its links; a `[[name]]` links to its page |
 | `/learn`, `/learn/<course>` | the courses; a course gives its cards due, the top patterns of the mistakes, and the bands of each criterion |
@@ -93,7 +93,7 @@ Each page of the web app reads the desk when the browser asks for it. A gap of t
 
 The Overview of an item gives the states of the flow with their times, the next step and its owner, four numbers, Needs you, the slices on a board, the branch and checks of each area, and the events. Needs you lists the blocking questions first, then the open questions, the guesses to check and the gate. A document tab renders its file block by block; a document not written yet names the command that writes it, such as `/view SHOP-12` for the walkthrough. Each tab has its own address, such as `/works/SHOP-12?tab=plan`.
 
-The owner moves on the page of an item: the Approve or Accept button of the next step, the Mode switch of the head, an answer box for each open question, and Accept and Flip for each guess to check. Each one runs the `nook` that started the web app, with `--via viewer`, so it meets the guards of `/gate`. A refused move shows the gaps and their fixes word for word. A move that goes through renders the page again through `/live`.
+The owner moves on the page of an item: the Approve or Accept button of the next step, the Mode switch of the head, an answer box for each open question, and Accept and Flip for each guess to check. Each one asks first: a confirm step names the move and what it does, and Cancel runs nothing. Then it runs the `nook` that started the web app, with `--via viewer`, so it meets the guards of `/gate`. A refused move shows the gaps and their fixes word for word. A move that goes through renders the page again through `/live`.
 
 The chart of a course draws a line for each criterion with a score on every day of the chart; it never fills a missing day. A place with nothing in it yet shows what is missing and the command to type.
 

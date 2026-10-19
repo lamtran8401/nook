@@ -42,7 +42,7 @@ export function Board({ cards, areas }: { cards: BoardCard[]; areas: string[] })
   const rest = states.filter(s => !s.cards.length && s.state !== 'blocked').map(s => ({ title: s.state, tone: STATE_TONE[s.state] ?? 'neutral', count: 0 }))
   return (
     <div data-wide>
-      <Diagram spec={{ type: 'board', frame: false, colWidth: 190, colHeight: 1200, columns, ...(rest.length ? { rest, restTitle: 'No items' } : {}) }} />
+      <Diagram spec={{ type: 'board', frame: false, colWidth: 190, colHeight: 0, columns, ...(rest.length ? { rest, restTitle: 'No items' } : {}) }} />
     </div>
   )
 }

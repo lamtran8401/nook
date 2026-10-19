@@ -44,7 +44,7 @@ function Scores({ trends }: { trends: CriterionTrend[] }) {
 /** A course: the cards due today, the top patterns of the owner's mistakes, and the bands of each criterion over time. */
 export function CoursePage({ course }: { course: CourseView }) {
   return (
-    <div className="mx-auto grid w-full max-w-[920px] gap-6">
+    <div className="mx-auto grid w-full max-w-[920px] gap-5">
       <header className="grid gap-2.5">
         <Breadcrumb>
           <BreadcrumbList>

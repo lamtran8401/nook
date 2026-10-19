@@ -10,7 +10,7 @@ export function RecordList({ rows }: { rows: RecordRow[] }) {
     <Card data-record-list="" className="gap-0 px-5 py-0">
       <ol className="divide-y divide-hairline">
       {rows.map(row => (
-        <li key={row.id} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-3 py-3.5">
+        <li key={row.id} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-3 py-3">
           <span className="grid size-9 place-items-center rounded-[12px] bg-muted font-mono text-[11px] font-semibold text-muted-foreground">{row.id}</span>
           <div className="min-w-0 pt-1.5">
             <p className="text-[15px] leading-6">{row.main}</p>

@@ -18,12 +18,12 @@ export function ItemPage({ view, docs, tab, now }: { view: ItemView; docs: ItemD
   const { item } = view
   const tabs = ITEM_TABS.map(name => ({ href: name === 'overview' ? `/works/${item.id}` : `/works/${item.id}?tab=${name}`, label: label(name), current: name === tab }))
   return (
-    <div className="mx-auto grid w-full max-w-[920px] gap-6">
+    <div className="mx-auto grid w-full max-w-[920px] gap-5">
       <ItemHeader view={view} />
-      <div className="sticky top-[58px] z-30 flex">
+      <div className="sticky top-[58px] z-30 flex justify-center">
         <LinkTabs label="Item" variant="bar" tabs={tabs} />
       </div>
-      {tab === 'overview' ? <Overview view={view} now={now} /> : <DocTab id={item.id} name={tab as DocName} text={docs[tab]} areas={item.areas} criteria={view.criteria} />}
+      {tab === 'overview' ? <Overview view={view} now={now} /> : <DocTab id={item.id} name={tab as DocName} text={docs[tab]} areas={item.areas} criteria={view.criteria} slices={view.slices} />}
     </div>
   )
 }

@@ -10,7 +10,7 @@ export function ItemModal({ label, children }: { label: string; children: ReactN
   const router = useRouter()
   return (
     <Dialog open onOpenChange={open => (open ? undefined : router.back())}>
-      <DialogContent aria-describedby={undefined} className="flex h-[85vh] w-[80vw] max-w-none flex-col gap-0 overflow-hidden rounded-xl p-0 sm:max-w-none max-md:h-dvh max-md:w-screen max-md:rounded-none">
+      <DialogContent aria-describedby={undefined} className="flex h-[85vh] w-[80vw] max-w-none flex-col gap-0 overflow-hidden rounded-sm p-0 sm:max-w-none max-md:h-dvh max-md:w-screen max-md:rounded-none">
         <DialogTitle className="sr-only">{label}</DialogTitle>
         {children}
       </DialogContent>

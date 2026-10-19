@@ -15,7 +15,7 @@ export function ItemHeader({ view }: { view: ItemView }) {
   const { started, approved, sentBack } = keyMoments(view.moves)
   const keys = [started ? ['Started', day(started)] : null, approved ? ['Approved', `${day(approved)} ${clock(approved)}`] : null, sentBack ? ['Sent back', `${sentBack}×`] : null].filter(k => k !== null)
   return (
-    <header className="grid gap-2.5">
+    <header className="grid gap-2">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem><BreadcrumbLink href="/works">Works</BreadcrumbLink></BreadcrumbItem>
@@ -23,7 +23,7 @@ export function ItemHeader({ view }: { view: ItemView }) {
           <BreadcrumbItem><BreadcrumbPage>{item.id}</BreadcrumbPage></BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="text-3xl font-bold tracking-tight text-balance">{item.title}</h1>
+      <h1 className="text-[28px] leading-9 font-bold tracking-tight text-balance">{item.title}</h1>
       <ItemChips item={item}>
         <Move fields={{ kind: 'mode', item: item.id }}>
           <ToggleGroup type="single" variant="segment" size="xs" spacing={1} value={item.mode} aria-label="Mode">

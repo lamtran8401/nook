@@ -10,6 +10,7 @@ import { DocTab } from '@/components/item/doc-tab.tsx'
 import { ItemDialog } from '@/components/item/item-dialog.tsx'
 import { ItemHeader } from '@/components/item/item-header.tsx'
 import { ItemPage, tabOf } from '@/components/item/item-page.tsx'
+import { lanesSpec } from '@/components/item/lanes.tsx'
 import { NeedsYou } from '@/components/item/needs-you.tsx'
 import { NextStep } from '@/components/item/next-step.tsx'
 import { Owner, ViewerNote } from '@/components/owner.tsx'
@@ -170,7 +171,7 @@ describe('NeedsYou', () => {
 describe('SliceBoard', () => {
   test('draws a Bench board by state: a waiting or failed slice says why, a slice to do names what it waits for', () => {
     expect(specOf(html(<SliceBoard slices={view.slices} />))).toEqual({
-      type: 'board', colWidth: 260,
+      type: 'board', colWidth: 260, colHeight: 0,
       columns: [
         { title: 'To do', tone: 'neutral', cards: [
           { id: 'T7', title: 'slice T7', areas: [{ name: 'api' }], flag: 'wait', foot: [{ icon: 'clock', text: 'waits for Q3', kind: 'wait' }] },
@@ -257,5 +258,30 @@ describe('ItemDialog', () => {
     expect(text(html(<ItemDialog view={view} />))).toContain(
       'Details State cooking Kind feature Size L Areas api web Mode normal Started 14 Oct Approved 15 Oct 09:40 Criteria met 1/2 Slices done 1/4',
     )
+  })
+})
+
+describe('the lanes of the slices', () => {
+  test('give one lane for each area, a node for each slice with its state, and an edge for each slice it waits for', () => {
+    expect(lanesSpec([slice('T1', 'done'), slice('T2', 'running', { area: 'web', depends: ['T1'] }), slice('T3', 'todo', { depends: ['T1', 'T2'] }), slice('T4', 'cancelled')])).toEqual({
+      type: 'graph',
+      nodes: [
+        { id: 'T1', kicker: 'T1', title: 'slice T1', status: 'done', statusText: 'done' },
+        { id: 'T2', kicker: 'T2', title: 'slice T2', status: 'run', statusText: 'running' },
+        { id: 'T3', kicker: 'T3', title: 'slice T3' },
+      ],
+      edges: [{ from: 'T1', to: 'T2' }, { from: 'T1', to: 'T3' }, { from: 'T2', to: 'T3' }],
+      groups: [{ label: 'api', nodes: ['T1', 'T3'] }, { label: 'web', nodes: ['T2'] }],
+    })
+  })
+
+  test('are none for an item with no slice yet', () => {
+    expect(lanesSpec([slice('T1', 'cancelled')])).toBeNull()
+  })
+
+  test('show above the slices of the Tasks tab', () => {
+    const markup = html(<ItemPage view={view} docs={{ spec: null, plan: null, tasks: '# Slices\n\n## T1: Add the table\n\n- area: api\n', walkthrough: null }} tab="tasks" now={NOW} />)
+    expect(markup.indexOf('Lanes</h2>')).toBeLessThan(markup.indexOf('Add the table'))
+    expect(markup).toContain('&quot;type&quot;:&quot;graph&quot;')
   })
 })

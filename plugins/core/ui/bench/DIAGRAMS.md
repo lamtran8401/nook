@@ -423,7 +423,7 @@ A board shows many things in a few states. Each state that holds items gets a co
 | `restTitle` | `No items` | The heading of the panel of empty states. |
 | `emptyText` | `No items` | The text of a column with no cards. |
 | `colWidth` | `250` | The smallest width of a column, in px. |
-| `colHeight` | `560` | The largest height of the cards of a column, in px. A longer column scrolls inside itself. |
+| `colHeight` | `560` | The largest height of the cards of a column, in px. A longer column scrolls inside itself. `0` sets no limit: each column grows with its cards. |
 
 | Card field | Meaning |
 |---|---|

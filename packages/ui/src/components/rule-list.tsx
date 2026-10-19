@@ -11,7 +11,7 @@ export function RuleList({ rules }: { rules: Rule[] }) {
     <Card className="gap-0 px-5 py-0">
       <ul className="divide-y divide-hairline">
         {rules.map((rule, i) => (
-          <li key={i} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-3 py-3.5">
+          <li key={i} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-start gap-3 py-3">
             <IconTile tone={rule.tone ?? 'neutral'}>§</IconTile>
             <div className="min-w-0 pt-1.5">
               <p className="font-semibold">{rule.label}</p>

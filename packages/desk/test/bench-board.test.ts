@@ -18,7 +18,13 @@ function fakeElement(): Fake {
       if (typeof name === 'string' && name.startsWith('_')) return undefined
       if (name === 'appendChild') return (child: Fake) => (target.children.push(child), child)
       if (name === 'clientWidth') return 900
-      if (name === 'style') return { setProperty() {} }
+      if (name === 'style') {
+        if (!stored.has('style')) {
+          const props: Record<string, string> = {}
+          stored.set('style', { props, setProperty: (key: string, value: string) => (props[key] = value) })
+        }
+        return stored.get('style')
+      }
       if (name === 'classList') return { add() {}, toggle() {}, remove() {}, contains: () => false }
       if (name === 'querySelectorAll') return () => []
       if (name === 'querySelector' || name === 'getAttribute' || name === 'closest') return () => null
@@ -33,8 +39,8 @@ function fakeElement(): Fake {
   return new Proxy(own, handler)
 }
 
-/** The HTML that the Bench bundle writes for one board spec. */
-function boardHtml(spec: object): string {
+/** The element that the Bench bundle draws one board spec into. */
+function drawBoard(spec: object): Fake {
   const js = readFileSync(join(Catalog.load().dirOf('core'), 'ui', 'bench', 'bundle.js'), 'utf8')
   const document = { readyState: 'complete', querySelectorAll: () => [], addEventListener() {}, createElement: fakeElement, documentElement: { dataset: {}, setAttribute() {}, getAttribute: () => null }, body: fakeElement() }
   const sandbox: Record<string, unknown> = {
@@ -46,8 +52,18 @@ function boardHtml(spec: object): string {
   runInNewContext(js, sandbox)
   const el = fakeElement()
   ;(sandbox.BenchDiagrams as { render: (el: Fake, spec: object) => void }).render(el, spec)
+  return el
+}
+
+const boardHtml = (spec: object): string => {
   const all = (node: Fake): string => node.innerHTML + node.children.map(all).join('')
-  return all(el)
+  return all(drawBoard(spec))
+}
+
+/** The height limit of the columns that the board sets on itself. */
+function columnLimit(spec: object): string | undefined {
+  const find = (node: Fake): string | undefined => ((node as unknown as { style: { props: Record<string, string> } }).style.props['--bd-col-h'] ?? node.children.map(find).find(Boolean))
+  return find(drawBoard(spec))
 }
 
 describe('the Bench board', () => {
@@ -55,6 +71,12 @@ describe('the Bench board', () => {
     const html = boardHtml({ type: 'board', columns: [{ title: 'Cooking', tone: 'primary', cards: [{ id: 'SHOP-12', title: 'Filter shipments', href: '/works/SHOP-12' }, { id: 'SHOP-13', title: 'Export the list' }] }] })
     expect(html).toContain('<a class="bd-card" href="/works/SHOP-12"><div class="bd-top"><span class="bd-id">SHOP-12</span>')
     expect(html).toContain('<article class="bd-card"><div class="bd-top"><span class="bd-id">SHOP-13</span>')
+  })
+
+  test('a column stops at 560 px and scrolls, unless colHeight is 0: then it grows with its cards', () => {
+    const columns = [{ title: 'Cooking', cards: [{ id: 'SHOP-1', title: 'x' }] }]
+    expect(columnLimit({ type: 'board', columns })).toBe('560px')
+    expect(columnLimit({ type: 'board', columns, colHeight: 0 })).toBe('none')
   })
 
   test('an href keeps its flag, and the address is escaped', () => {

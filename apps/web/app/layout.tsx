@@ -41,7 +41,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <Owner paired={paired}>
           <ViewerNote />
           <AreaTones names={deskAreas()}>
-            <main className="mx-auto grid w-full max-w-[1120px] gap-6 px-4 pt-6 pb-20 has-[>[data-wide]]:max-w-none">{children}</main>
+            <main className="mx-auto grid w-full max-w-[1120px] gap-5 px-4 pt-5 pb-16 has-[>[data-wide]]:max-w-none">{children}</main>
           </AreaTones>
         </Owner>
         <Live />
