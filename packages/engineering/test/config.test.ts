@@ -22,12 +22,19 @@ const caught = (work: () => unknown): EvError => {
   throw new Error('expected a failure')
 }
 
+describe('EngineeringConfig: the old tracker key', () => {
+  test('a tracker key of any form is read no more, and only marks the section', () => {
+    writeFileSync(join(t.root, 'nook.yml'), 'packs: [engineering]\nengineering:\n  tracker: { type: trello }\n')
+    expect(EngineeringConfig.read(t.root).oldTracker).toBe(true)
+  })
+})
+
 describe('EngineeringConfig', () => {
   test('reads the section with defaults and names each fault with its fix', () => {
     const config = EngineeringConfig.read(t.root)
     expect(config.protected).toEqual(['main', 'master'])
     expect(config.areas.map(a => [a.name, a.kind, a.git, a.checks])).toEqual([['bff', 'backend', true, ['sh test.sh']], ['web', 'frontend', true, ['sh test.sh']]])
-    expect(config.tracker).toEqual({ type: 'none' })
+    expect(config.oldTracker).toBe(false)
     const file = join(t.root, 'nook.yml')
     const faults: [string, RegExp][] = [
       ['engineering:\n  areas:\n    - { name: bff, path: p }\n', /kind must be one of frontend, backend, docs, data, tool/],
@@ -35,7 +42,6 @@ describe('EngineeringConfig', () => {
       ['engineering:\n  areas:\n    - { name: a, kind: docs }\n', /area a has no path/],
       ['engineering:\n  areas:\n    - { name: a, path: p, kind: docs }\n    - { name: a, path: q, kind: docs }\n', /two areas are named a/],
       ['engineering:\n  protected: main\n', /protected must be a list/],
-      ['engineering:\n  tracker: { type: trello }\n', /none, jira or github/],
       ['engineering: [a]\n', /engineering must be a map/],
     ]
     for (const [section, pattern] of faults) {

@@ -27,7 +27,6 @@ engineering:
   dir: works                             # the documents of each item: <home>/works/<id>/
   backlog: backlog                       # the tickets: <home>/backlog/<KEY>/
   protected: [main, master, develop]     # the branches that no agent builds on
-  tracker: { type: none }                # none | jira | github
   areas:
     - name: api
       path: projects/shop/api            # relative to the home
@@ -40,6 +39,7 @@ engineering:
 
 The defaults are `dir: works`, `backlog: backlog` and the three protected branches. A home that keeps the default and still has the `work/` of an older Nook gets it moved to `works/` by `nook init --update`; `nook doctor` names a home that has both.
 A fault in the section stops the command and names the fix: a kind that does not exist, two areas with one name, an area with no path.
+The key `tracker` moved to the pack issue-tracker (`docs/reference/issues.md`). Nook reads it no more, and `nook doctor` names it with the fix.
 
 The `install` of an area runs before `item verify` and `task prove`, and only when one of these is true:
 

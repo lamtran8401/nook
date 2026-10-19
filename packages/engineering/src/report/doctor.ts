@@ -49,6 +49,13 @@ function configFindings(at: Home): Finding[] {
       text: 'nook.yml has no engineering section: no areas, so verify cannot run',
       fix: 'add areas to nook.yml with /setup',
     })
+  if (config.oldTracker)
+    found.push({
+      level: 'warn',
+      where: home,
+      text: 'engineering.tracker moved to the pack issue-tracker: Nook reads it no more',
+      fix: 'delete tracker: from the engineering section of nook.yml; to pull tickets, run nook init --pack issue-tracker, then /setup',
+    })
   for (const area of config.areas) {
     if (!existsSync(at.areaDir(area)))
       found.push({

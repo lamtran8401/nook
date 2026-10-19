@@ -1,0 +1,7 @@
+{
+  "name": "nk-issues",
+  "version": "0.1.0",
+  "description": "Nook issue tracker: tickets of Jira (through twg) and GitHub (through gh) into the backlog, read only, with the map of the fields of each team.",
+  "author": { "name": "Lam" },
+  "license": "MIT"
+}

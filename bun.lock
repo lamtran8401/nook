@@ -19,6 +19,7 @@
       "dependencies": {
         "@nook/core": "workspace:*",
         "@nook/engineering": "workspace:*",
+        "@nook/issues": "workspace:*",
         "@nook/learn": "workspace:*",
         "@nook/shared": "workspace:*",
         "@nook/wiki": "workspace:*",
@@ -79,6 +80,14 @@
         "@nook/shared": "workspace:*",
         "ts-pattern": "5.9.0",
         "yaml": "2.9.1",
+      },
+    },
+    "packages/issues": {
+      "name": "@nook/issues",
+      "version": "0.1.0",
+      "dependencies": {
+        "@nook/desk": "workspace:*",
+        "@nook/shared": "workspace:*",
       },
     },
     "packages/learn": {
@@ -228,6 +237,8 @@
     "@nook/desk": ["@nook/desk@workspace:packages/desk"],
 
     "@nook/engineering": ["@nook/engineering@workspace:packages/engineering"],
+
+    "@nook/issues": ["@nook/issues@workspace:packages/issues"],
 
     "@nook/learn": ["@nook/learn@workspace:packages/learn"],
 

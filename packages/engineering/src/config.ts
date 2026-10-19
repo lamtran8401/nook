@@ -10,8 +10,6 @@ import { usage } from '@nook/shared/errors.ts'
 
 export const AREA_KINDS = ['frontend', 'backend', 'docs', 'data', 'tool'] as const
 export type AreaKind = (typeof AREA_KINDS)[number]
-export const TRACKERS = ['none', 'jira', 'github'] as const
-export type Tracker = { type: (typeof TRACKERS)[number] }
 
 export type Area = {
   name: string
@@ -35,27 +33,28 @@ type Fields = {
   dir: string
   backlog: string
   protected: string[]
-  tracker: Tracker
   areas: Area[]
   missing: boolean
+  oldTracker: boolean
 }
 
 export class EngineeringConfig {
   readonly dir: string
   readonly backlog: string
   readonly protected: string[]
-  readonly tracker: Tracker
   readonly areas: Area[]
   /** True when nook.yml has no `engineering` section. */
   readonly missing: boolean
+  /** True when the section still has `tracker:`, which moved to the pack issue-tracker. */
+  readonly oldTracker: boolean
 
   private constructor(fields: Fields) {
     this.dir = fields.dir
     this.backlog = fields.backlog
     this.protected = fields.protected
-    this.tracker = fields.tracker
     this.areas = fields.areas
     this.missing = fields.missing
+    this.oldTracker = fields.oldTracker
   }
 
   static read(dir: string): EngineeringConfig {
@@ -76,14 +75,14 @@ export class EngineeringConfig {
       backlog: word(raw.backlog, `${where}.backlog`) ?? DEFAULTS.backlog,
       protected:
         raw.protected === undefined ? DEFAULTS.protected : words(raw.protected, `${where}.protected`),
-      tracker: tracker(raw.tracker, `${where}.tracker`),
       areas: areas(raw.areas, `${where}.areas`),
       missing: false,
+      oldTracker: raw.tracker !== undefined,
     })
   }
 
   private static empty(): EngineeringConfig {
-    return new EngineeringConfig({ ...DEFAULTS, tracker: { type: 'none' }, areas: [], missing: true })
+    return new EngineeringConfig({ ...DEFAULTS, areas: [], missing: true, oldTracker: false })
   }
 
   area(name: string): Area | undefined {
@@ -106,14 +105,6 @@ function words(value: unknown, where: string): string[] {
   if (!Array.isArray(value) || value.some(v => typeof v !== 'string'))
     throw usage(`${where} must be a list of strings`, 'write it as [a, b]')
   return value as string[]
-}
-
-function tracker(value: unknown, where: string): Tracker {
-  if (value === undefined || value === null) return { type: 'none' }
-  const type = typeof value === 'object' ? (value as Raw).type : value
-  if (!TRACKERS.includes(type as Tracker['type']))
-    throw usage(`${where}.type must be none, jira or github`, 'write tracker: { type: none }')
-  return { type: type as Tracker['type'] }
 }
 
 function areas(value: unknown, where: string): Area[] {

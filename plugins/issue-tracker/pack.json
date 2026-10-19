@@ -1,0 +1,9 @@
+{
+  "name": "issue-tracker",
+  "description": "tickets of Jira and GitHub into the backlog, read only: the sources with their logins, the map of the fields, and the pull",
+  "rules": [
+    "templates/rules/issue-tracker.md"
+  ],
+  "settings": "templates/settings.json",
+  "state": []
+}

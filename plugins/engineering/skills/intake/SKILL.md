@@ -15,7 +15,7 @@ No arguments: ask the owner with AskUserQuestion which ticket to pull. Give the 
 For each key in the arguments:
 1. Look at what exists: `nook eng item list --state backlog` and `ls backlog/`. Reuse a folder or an item that is there.
 2. Get the ticket onto disk, into `backlog/<KEY>/ticket.md` and `attachments/`. With no key, make the item first (step 5 with no key) and use its `IT-NNN`:
-   - `tracker: none` in `nook.yml`: the owner wrote the folder, or pastes the text and you write `ticket.md` with the headings Fields, Description, Acceptance criteria, Comments.
+   - the pack issue-tracker is off: the owner wrote the folder, or pastes the text and you write `ticket.md` with the headings Fields, Description, Acceptance criteria, Comments.
    - a tracker pack with a pull skill: run it for the key. It writes the same shape.
    - an argument that is a folder: read it. The first heading of the ticket file holds the real key.
 3. Have the ticket read in quarantine.

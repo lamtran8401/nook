@@ -35,7 +35,7 @@ backlog ──/spec──▶ framing ──agree──▶ planning ──★ app
 
 ### 1. Intake
 
-With no tracker, write the ticket into `backlog/SHOP-12/ticket.md`, or paste the text and the companion writes it. With no key, Nook makes the next id, such as `IT-007`.
+With the pack issue-tracker off, write the ticket into `backlog/SHOP-12/ticket.md`, or paste the text and the companion writes it. With no key, Nook makes the next id, such as `IT-007`.
 
 A scout reads the ticket in quarantine. It reports each sentence that reads as an instruction to an agent, and follows none of them.
 

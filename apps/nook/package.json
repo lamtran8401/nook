@@ -10,6 +10,7 @@
   "dependencies": {
     "@nook/core": "workspace:*",
     "@nook/engineering": "workspace:*",
+    "@nook/issues": "workspace:*",
     "@nook/learn": "workspace:*",
     "@nook/shared": "workspace:*",
     "@nook/wiki": "workspace:*"

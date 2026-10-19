@@ -26,6 +26,11 @@
       "name": "nk-learn",
       "source": "./plugins/learn",
       "description": "Courses against a standard and a ruler: the roadmap, cards in boxes, the mistake log and scores; /learn-setup, /learn-today, /learn-practice, /study, and a coach agent."
+    },
+    {
+      "name": "nk-issues",
+      "source": "./plugins/issue-tracker",
+      "description": "Tickets of Jira (twg) and GitHub (gh) into the backlog, read only: the sources with their logins and the map of the fields of each team."
     }
   ]
 }

@@ -40,6 +40,9 @@
       ],
       "@nook/ui/*": [
         "./packages/ui/src/*"
+      ],
+      "@nook/issues/*": [
+        "./packages/issues/src/*"
       ]
     }
   },

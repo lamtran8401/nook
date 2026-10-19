@@ -30,7 +30,8 @@ export function packTabs(desk: string): Tab[] {
   return [{ href: '/', label: 'Home' }, ...Object.entries(PAGES).filter(([name]) => on.has(name)).map(([, tab]) => tab)]
 }
 
-// the same packs as the nook binary, so the home page gives what `nook brief` and `nook doctor` give
+// the packs of the nook binary that read the disk only, so the home page gives what `nook brief` and `nook doctor` give;
+// issue-tracker asks each tracker for its login, so its gaps stay with `nook doctor` and `nook issues sources`
 const MODULES = [engineeringModule, wikiModule, learnModule]
 
 export const home = (): HomeView => readHome(deskDir(), MODULES)

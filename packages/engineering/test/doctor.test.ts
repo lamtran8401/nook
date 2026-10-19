@@ -2,7 +2,9 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+import { Home } from '../src/home.ts'
 import { doctor } from '../src/report/doctor.ts'
+import { Engineering } from '../src/service.ts'
 import { itemAt, LEAD, makeHome, type TestHome } from './helpers.ts'
 
 let t: TestHome
@@ -12,6 +14,19 @@ beforeEach(() => {
 afterEach(() => t.cleanup())
 
 describe('doctor', () => {
+  test('names the move of an old tracker key to the pack issue-tracker, with its fix', () => {
+    const file = join(t.root, 'nook.yml')
+    writeFileSync(file, readFileSync(file, 'utf8').replace('  backlog: backlog\n', '  backlog: backlog\n  tracker: { type: none }\n'))
+    const found = doctor(Engineering.open(Home.find(t.root)!, LEAD)).find(f => f.text.startsWith('engineering.tracker'))
+    expect(found).toEqual({
+      level: 'warn',
+      where: t.root,
+      text: 'engineering.tracker moved to the pack issue-tracker: Nook reads it no more',
+      fix: 'delete tracker: from the engineering section of nook.yml; to pull tickets, run nook init --pack issue-tracker, then /setup',
+    })
+  })
+
+
   test('leaves a failed or waiting slice to the brief: it is the state of the work, not a gap', () => {
     itemAt(t, 'cooking')
     const lead = t.eng(LEAD)
