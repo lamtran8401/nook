@@ -1,8 +1,8 @@
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 
-import { EmptyState } from './EmptyState.tsx'
-import { ItemCard } from './ItemCard.tsx'
-import { STATE_TONE } from './tones.ts'
+import { EmptyState } from '@/components/EmptyState.tsx'
+import { ItemCard } from '@/components/ItemCard.tsx'
+import { STATE_TONE } from '@/components/tones.ts'
 
 // the states in the order of the flow; a blocked item keeps its own column
 const FLOW = ['backlog', 'framing', 'planning', 'ready', 'cooking', 'review', 'blocked', 'done']

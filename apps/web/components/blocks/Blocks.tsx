@@ -3,13 +3,13 @@ import { match } from 'ts-pattern'
 
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 
-import type { Block, Source } from '../../lib/blocks.ts'
-import { capitalized } from '../../lib/inline.ts'
-import { Alert, PANEL } from '../Alert.tsx'
-import { AreaTags } from '../Areas.tsx'
-import { CriteriaList } from '../Criteria.tsx'
-import { Diagram } from '../Diagram.tsx'
-import { Inline } from './Inline.tsx'
+import type { Block, Source } from '@/lib/blocks.ts'
+import { capitalized } from '@/lib/inline.ts'
+import { Alert, PANEL } from '@/components/Alert.tsx'
+import { AreaTags } from '@/components/Areas.tsx'
+import { CriteriaList } from '@/components/Criteria.tsx'
+import { Diagram } from '@/components/Diagram.tsx'
+import { Inline } from '@/components/blocks/Inline.tsx'
 
 /** One Bench template for each kind of block. The context brings what the ledger knows, such as the state of each criterion. */
 

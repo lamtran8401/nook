@@ -1,5 +1,5 @@
-import type { Block, Source } from './blocks.ts'
-import { capitalized, type Inline, plainText, splitSentence, takePrefix, takeSuffix } from './inline.ts'
+import type { Block, Source } from '@/lib/blocks.ts'
+import { capitalized, type Inline, plainText, splitSentence, takePrefix, takeSuffix } from '@/lib/inline.ts'
 
 /** The tag before a criterion, such as `[ADD]`, in a spec and in the ledger. */
 export const CRITERION_TAG = /^\[(ADD|CHANGE|REMOVE|NONE)\]\s*/

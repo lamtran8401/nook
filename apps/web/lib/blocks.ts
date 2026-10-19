@@ -3,10 +3,10 @@ import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import { unified } from 'unified'
 
-import type { DiagramSpec } from '../components/Diagram.tsx'
-import { fenceDrawing, type Legend } from './fences.ts'
-import { type Inline, plainText } from './inline.ts'
-import { applyRules } from './rules.ts'
+import type { DiagramSpec } from '@/components/Diagram.tsx'
+import { fenceDrawing, type Legend } from '@/lib/fences.ts'
+import { type Inline, plainText } from '@/lib/inline.ts'
+import { applyRules } from '@/lib/rules.ts'
 
 export { type Inline, plainText }
 

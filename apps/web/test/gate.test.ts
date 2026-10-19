@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { Gate, gateAnswer, type GateRequest, type PairStore } from '../lib/gate.ts'
+import { Gate, gateAnswer, type GateRequest, type PairStore } from '@/lib/gate.ts'
 
 const PORT = 4321
 const HOST = `127.0.0.1:${PORT}`

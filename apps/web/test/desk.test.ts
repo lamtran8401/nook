@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { packTabs } from '../lib/desk.ts'
+import { packTabs } from '@/lib/desk.ts'
 
 let desk: string
 beforeEach(() => {

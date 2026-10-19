@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { type Block, parseDoc, plainText } from '../lib/blocks.ts'
+import { type Block, parseDoc, plainText } from '@/lib/blocks.ts'
 
 const blocks = (md: string) => parseDoc(md).blocks
 const find = <K extends Block['kind']>(list: Block[], kind: K) => list.find(b => b.kind === kind) as Extract<Block, { kind: K }>

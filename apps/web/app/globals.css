@@ -1,0 +1,63 @@
+/* Tailwind and the shadcn theme. Every value is a Bench token, so the web app keeps the look of the docs pages. */
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--fg);
+  --color-popover: var(--surface-raised);
+  --color-popover-foreground: var(--fg);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+  --color-secondary: var(--bg-muted);
+  --color-secondary-foreground: var(--fg);
+  --color-muted: var(--bg-muted);
+  --color-muted-foreground: var(--fg-muted);
+  --color-accent: var(--bg-muted);
+  --color-accent-foreground: var(--fg);
+  --color-destructive: var(--danger);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--focus-ring);
+  --color-hairline: var(--hairline);
+  --color-surface: var(--surface);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-violet: var(--violet);
+  --color-violet-subtle: var(--violet-subtle);
+  --color-aqua: var(--aqua);
+  --color-aqua-subtle: var(--aqua-subtle);
+  --color-tone: var(--t);
+  --color-tone-subtle: var(--t-subtle);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  --shadow-xs: var(--shadow-1);
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-2);
+  --shadow-lg: var(--shadow-3);
+}
+
+@layer base {
+  * { border-color: var(--border); }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); }
+  /* a document of the desk keeps the lists that the preflight takes away */
+  .nk-doc__body ul { list-style: disc; }
+  .nk-doc__body ol { list-style: decimal; }
+  .nk-doc__body li + li { margin-top: 6px; }
+}

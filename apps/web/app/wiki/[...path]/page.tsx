@@ -1,7 +1,7 @@
-import { orGap } from '../../../components/Gap.tsx'
-import { ShelfPage } from '../../../components/wiki/WikiHome.tsx'
-import { WikiPage } from '../../../components/wiki/WikiPage.tsx'
-import { wiki, wikiPage } from '../../../lib/desk.ts'
+import { orGap } from '@/components/Gap.tsx'
+import { ShelfPage } from '@/components/wiki/WikiHome.tsx'
+import { WikiPage } from '@/components/wiki/WikiPage.tsx'
+import { wiki, wikiPage } from '@/lib/desk.ts'
 
 export const dynamic = 'force-dynamic'
 

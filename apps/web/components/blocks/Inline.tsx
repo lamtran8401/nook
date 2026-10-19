@@ -1,7 +1,7 @@
 import type { PhrasingContent } from 'mdast'
 import type { ReactNode } from 'react'
 
-import type { Inline as InlineContent } from '../../lib/blocks.ts'
+import type { Inline as InlineContent } from '@/lib/blocks.ts'
 
 /** The words of a block: marks, code, safe links, and the `{status:…}` and `{date:…}` chips. */
 

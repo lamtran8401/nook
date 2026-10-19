@@ -3,10 +3,10 @@ import { describe, expect, test } from 'bun:test'
 import type { CourseView } from '@nook/learn/read.ts'
 import type { WikiView } from '@nook/wiki/read.ts'
 
-import { Courses, CoursePage, trendChart } from '../components/learn/CoursePage.tsx'
-import { WikiHome } from '../components/wiki/WikiHome.tsx'
-import { WikiPage } from '../components/wiki/WikiPage.tsx'
-import { html, text } from './markup.ts'
+import { Courses, CoursePage, trendChart } from '@/components/learn/CoursePage.tsx'
+import { WikiHome } from '@/components/wiki/WikiHome.tsx'
+import { WikiPage } from '@/components/wiki/WikiPage.tsx'
+import { html, text } from '@/test/markup.ts'
 
 const wiki: WikiView = {
   dir: '/desk/docs/wiki',

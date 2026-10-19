@@ -3,7 +3,7 @@ import { join, relative } from 'node:path'
 
 import { SecretPolicy } from '@nook/desk/secrets.ts'
 
-import { deskPlaces } from './places.ts'
+import { deskPlaces } from '@/lib/places.ts'
 
 /**
  * The search box: a scan of the Markdown files of each pack of the desk, read again at each search, so a page changed

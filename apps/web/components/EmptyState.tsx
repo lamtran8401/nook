@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { Icon, type IconName } from './Icon.tsx'
+import { Icon, type IconName } from '@/components/Icon.tsx'
 
 /** A place with nothing in it yet: what is missing, and what to type to fill it. `compact` fits inside a section. */
 export function EmptyState({ icon, title, children, compact = false }: { icon: IconName; title: string; children?: ReactNode; compact?: boolean }) {

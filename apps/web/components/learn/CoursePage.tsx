@@ -1,9 +1,9 @@
 import type { CourseView, CriterionTrend } from '@nook/learn/read.ts'
 
-import { Diagram } from '../Diagram.tsx'
-import { Cmd } from '../Cmd.tsx'
-import { EmptyState } from '../EmptyState.tsx'
-import { Records } from '../Records.tsx'
+import { Diagram } from '@/components/Diagram.tsx'
+import { Cmd } from '@/components/Cmd.tsx'
+import { EmptyState } from '@/components/EmptyState.tsx'
+import { Records } from '@/components/Records.tsx'
 
 const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 

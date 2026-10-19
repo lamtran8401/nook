@@ -1,4 +1,4 @@
-import { KIND_TONE, STATE_TONE } from './tones.ts'
+import { KIND_TONE, STATE_TONE } from '@/components/tones.ts'
 
 /** The small marks of an item that every page shares: its state, its kind and whose turn it is. */
 

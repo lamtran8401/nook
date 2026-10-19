@@ -1,7 +1,7 @@
 import type { Slice } from '@nook/engineering/stores/slices.ts'
 
-import { Diagram } from '../Diagram.tsx'
-import { EmptyState } from '../EmptyState.tsx'
+import { Diagram } from '@/components/Diagram.tsx'
+import { EmptyState } from '@/components/EmptyState.tsx'
 
 const COLUMNS: { title: string; tone: string; states: Slice['state'][] }[] = [
   { title: 'To do', tone: 'neutral', states: ['todo', 'waiting'] },

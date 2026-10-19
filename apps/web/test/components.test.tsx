@@ -3,13 +3,13 @@ import { describe, expect, test } from 'bun:test'
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 import { refused } from '@nook/shared/errors.ts'
 
-import { Board } from '../components/Board.tsx'
-import { Criteria } from '../components/Criteria.tsx'
-import { Diagram } from '../components/Diagram.tsx'
-import { Gap } from '../components/Gap.tsx'
-import { ItemCard } from '../components/ItemCard.tsx'
-import { TabLinks } from '../components/TabLinks.tsx'
-import { html, text } from './markup.ts'
+import { Board } from '@/components/Board.tsx'
+import { Criteria } from '@/components/Criteria.tsx'
+import { Diagram } from '@/components/Diagram.tsx'
+import { Gap } from '@/components/Gap.tsx'
+import { ItemCard } from '@/components/ItemCard.tsx'
+import { TabLinks } from '@/components/TabLinks.tsx'
+import { html, text } from '@/test/markup.ts'
 
 const card = (fields: Partial<BoardCard> = {}): BoardCard => ({
   id: 'SHOP-12', title: 'Filter shipments by status', kind: 'feature', size: 'M', state: 'cooking', areas: ['api', 'web'], criteria: { met: 1, total: 3 },

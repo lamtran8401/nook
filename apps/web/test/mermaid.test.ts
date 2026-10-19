@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 
 import { checkSpec } from '@nook/desk/bench-check.ts'
 
-import { parseDoc } from '../lib/blocks.ts'
+import { parseDoc } from '@/lib/blocks.ts'
 
 const fence = (lang: string, body: string) => `\`\`\`${lang}\n${body}\n\`\`\`\n`
 const diagram = (md: string, places?: string[]) => {

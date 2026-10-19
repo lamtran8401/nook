@@ -3,8 +3,8 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { GET } from '../app/live/route.ts'
-import { watchDesk } from '../lib/watch.ts'
+import { GET } from '@/app/live/route.ts'
+import { watchDesk } from '@/lib/watch.ts'
 
 let desk: string
 beforeEach(() => {

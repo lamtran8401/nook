@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test'
 import { renderToStaticMarkup } from 'react-dom/server'
 
-import { Blocks } from '../components/blocks/Blocks.tsx'
-import { parseDoc } from '../lib/blocks.ts'
-import { text } from './markup.ts'
+import { Blocks } from '@/components/blocks/Blocks.tsx'
+import { parseDoc } from '@/lib/blocks.ts'
+import { text } from '@/test/markup.ts'
 
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 

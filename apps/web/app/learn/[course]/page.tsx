@@ -1,7 +1,7 @@
-import { EmptyState } from '../../../components/EmptyState.tsx'
-import { orGap } from '../../../components/Gap.tsx'
-import { CoursePage } from '../../../components/learn/CoursePage.tsx'
-import { courses } from '../../../lib/desk.ts'
+import { EmptyState } from '@/components/EmptyState.tsx'
+import { orGap } from '@/components/Gap.tsx'
+import { CoursePage } from '@/components/learn/CoursePage.tsx'
+import { courses } from '@/lib/desk.ts'
 
 export const dynamic = 'force-dynamic'
 

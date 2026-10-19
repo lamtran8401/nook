@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import type { PanelTone } from '../lib/blocks.ts'
+import type { PanelTone } from '@/lib/blocks.ts'
 
 /** The look of each panel tone: the Bench tone, the icon and the label. */
 export const PANEL: Record<PanelTone, { tone: string; icon: string; label: string }> = {

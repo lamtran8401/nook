@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { join } from 'node:path'
 
 import { itemAt, LEAD, makeHome, OWNER, PLAN, TASKS, type TestHome, writeDoc } from '../../../packages/engineering/test/helpers.ts'
-import { moveArgs, nookCommand, runMove } from '../lib/moves.ts'
+import { moveArgs, nookCommand, runMove } from '@/lib/moves.ts'
 
 describe('moveArgs', () => {
   test('gives the words of each owner move, with --via viewer before the item', () => {

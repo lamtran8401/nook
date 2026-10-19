@@ -1,8 +1,8 @@
 import type { ItemDocs, ItemView } from '@nook/engineering/read/reader.ts'
 
-import { ItemHeader } from './ItemHeader.tsx'
-import { DocTab, type DocName } from './DocTab.tsx'
-import { Overview } from './Overview.tsx'
+import { ItemHeader } from '@/components/item/ItemHeader.tsx'
+import { DocTab, type DocName } from '@/components/item/DocTab.tsx'
+import { Overview } from '@/components/item/Overview.tsx'
 
 export const ITEM_TABS = ['overview', 'spec', 'plan', 'tasks', 'walkthrough'] as const
 export type ItemTab = (typeof ITEM_TABS)[number]

@@ -1,6 +1,6 @@
 import type { ItemMove } from '@nook/engineering/read/reader.ts'
 
-import { clock, day } from '../../lib/time.ts'
+import { clock, day } from '@/lib/time.ts'
 
 const FLOW = ['backlog', 'framing', 'planning', 'ready', 'cooking', 'review', 'done']
 

@@ -1,6 +1,6 @@
-import { orGap } from '../../../components/Gap.tsx'
-import { ItemPage, tabOf } from '../../../components/item/ItemPage.tsx'
-import { item } from '../../../lib/desk.ts'
+import { orGap } from '@/components/Gap.tsx'
+import { ItemPage, tabOf } from '@/components/item/ItemPage.tsx'
+import { item } from '@/lib/desk.ts'
 
 export const dynamic = 'force-dynamic'
 

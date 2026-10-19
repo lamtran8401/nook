@@ -1,10 +1,10 @@
 import type { ItemView } from '@nook/engineering/read/reader.ts'
 
-import { clock, day } from '../../lib/time.ts'
-import { Criteria } from '../Criteria.tsx'
-import { EmptyState } from '../EmptyState.tsx'
-import { Records } from '../Records.tsx'
-import { ItemChips } from './ItemChips.tsx'
+import { clock, day } from '@/lib/time.ts'
+import { Criteria } from '@/components/Criteria.tsx'
+import { EmptyState } from '@/components/EmptyState.tsx'
+import { Records } from '@/components/Records.tsx'
+import { ItemChips } from '@/components/item/ItemChips.tsx'
 
 const SLICE_TONE: Record<string, string> = { todo: 'neutral', running: 'primary', waiting: 'warning', done: 'success', failed: 'danger', cancelled: 'neutral' }
 const LAST_EVENTS = 5

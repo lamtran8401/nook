@@ -1,4 +1,4 @@
-import { CRITERION_TAG } from '../lib/rules.ts'
+import { CRITERION_TAG } from '@/lib/rules.ts'
 
 /** The tone of the badge of each item state, as the Bench badges read it. */
 export const STATE_TONE: Record<string, string> = {

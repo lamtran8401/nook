@@ -4,9 +4,9 @@ import type { ItemView } from '@nook/engineering/read/reader.ts'
 import type { Guess } from '@nook/engineering/stores/guesses.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
 
-import { clock, day } from '../../lib/time.ts'
-import { Records } from '../Records.tsx'
-import { Move } from './Move.tsx'
+import { clock, day } from '@/lib/time.ts'
+import { Records } from '@/components/Records.tsx'
+import { Move } from '@/components/item/Move.tsx'
 
 const GUESS_TONE: Record<Guess['status'], string> = { open: 'warning', accepted: 'success', flipped: 'primary' }
 

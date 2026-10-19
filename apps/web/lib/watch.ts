@@ -1,7 +1,7 @@
 import { type FSWatcher, existsSync, watch } from 'node:fs'
 import { join } from 'node:path'
 
-import { deskPlaces } from './places.ts'
+import { deskPlaces } from '@/lib/places.ts'
 
 /**
  * Watches what a page shows: the folders of the packs, and `.nook/`, where each write of the ledger lands. A burst of

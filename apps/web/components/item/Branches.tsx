@@ -1,10 +1,10 @@
 import type { AreaChange } from '@nook/engineering/read/reader.ts'
 import type { CheckRun } from '@nook/engineering/stores/checks.ts'
 
-import { clock } from '../../lib/time.ts'
-import { AreaTags } from '../Areas.tsx'
-import { EmptyState } from '../EmptyState.tsx'
-import { Icon } from '../Icon.tsx'
+import { clock } from '@/lib/time.ts'
+import { AreaTags } from '@/components/Areas.tsx'
+import { EmptyState } from '@/components/EmptyState.tsx'
+import { Icon } from '@/components/Icon.tsx'
 
 const toneOf = (runs: CheckRun[]) => (!runs.length ? undefined : runs.some(r => r.result === 'fail') ? 'danger' : 'success')
 

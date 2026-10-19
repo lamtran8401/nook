@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { type Block, parseDoc } from '../lib/blocks.ts'
+import { type Block, parseDoc } from '@/lib/blocks.ts'
 
 const kinds = (blocks: Block[]) => blocks.map(b => b.kind)
 const only = (md: string) => {

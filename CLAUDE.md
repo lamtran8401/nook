@@ -40,6 +40,8 @@ A desk is a folder with `nook.yml`. Desks nest: `company/` is a top desk, and `c
 - A guard hook blocks when it cannot decide. A helper hook (style, context) lets the call pass when it fails.
 - An agent runs the tool as `nook` only; the guard blocks the short form `nk`. The names live in `packages/shared/src/names.ts`.
 - `nook init` writes only what it marks: the Nook block, `.claude/rules/nook/`, `.claude/output-styles/nook-companion.md`, its settings keys, `.nook/`, and the folders of each pack. Never a line of the owner.
+- `apps/web` imports its own files through the alias `@/`, such as `@/components/ui/button.tsx`. Node runs `server.ts`, `lib/handler.ts`, `lib/gate.ts` and `e2e/render.ts` with no bundler and reads no alias, so those files use relative imports.
+- `apps/web` builds on shadcn/ui and Tailwind v4: a part comes with `bunx --bun shadcn@<version> add <part>` into `components/ui/`; check its imports and `package.json` after each add.
 - Write clear code: clear names, small functions, early returns.
 - Each edit of the Nook code leaves `nook` runnable. The hooks run this code, so a broken `nook` binary blocks the guards of the session. Write a new function before the line that calls it, or write the whole file at once.
 

@@ -2,8 +2,8 @@
 
 import { type ReactNode, useActionState } from 'react'
 
-import { ownerMove } from '../../app/actions.ts'
-import { PAIR_HINT, usePaired } from '../Owner.tsx'
+import { ownerMove } from '@/app/actions.ts'
+import { PAIR_HINT, usePaired } from '@/components/Owner.tsx'
 
 /**
  * A form that runs one owner move through the CLI. Its fields name the move; its children are the buttons and inputs.

@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test'
 
-import { AreaTags, AreaTones } from '../components/Areas.tsx'
-import { Cmd } from '../components/Cmd.tsx'
-import { KindIcon, StateIcon, StateTag, Turn } from '../components/Marks.tsx'
-import { areaTone } from '../components/tones.ts'
-import { html, text } from './markup.ts'
+import { AreaTags, AreaTones } from '@/components/Areas.tsx'
+import { Cmd } from '@/components/Cmd.tsx'
+import { KindIcon, StateIcon, StateTag, Turn } from '@/components/Marks.tsx'
+import { areaTone } from '@/components/tones.ts'
+import { html, text } from '@/test/markup.ts'
 
 describe('the state of an item', () => {
   test('its icon takes the tone of the state and fills its ring as far as the state is in the flow', () => {

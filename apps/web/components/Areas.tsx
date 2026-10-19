@@ -2,7 +2,7 @@
 
 import { createContext, type ReactNode, useContext } from 'react'
 
-import { areaTone } from './tones.ts'
+import { areaTone } from '@/components/tones.ts'
 
 /** The areas of the desk in the order of `nook.yml`; the layout passes them down, so each tag finds its tone. */
 const DeskAreas = createContext<string[]>([])

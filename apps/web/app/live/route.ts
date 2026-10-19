@@ -1,5 +1,5 @@
-import { deskDir } from '../../lib/desk.ts'
-import { watchDesk } from '../../lib/watch.ts'
+import { deskDir } from '@/lib/desk.ts'
+import { watchDesk } from '@/lib/watch.ts'
 
 export const dynamic = 'force-dynamic'
 

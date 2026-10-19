@@ -3,9 +3,9 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSyn
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
-import { SearchResults } from '../components/SearchResults.tsx'
-import { search } from '../lib/search.ts'
-import { html, text } from './markup.ts'
+import { SearchResults } from '@/components/SearchResults.tsx'
+import { search } from '@/lib/search.ts'
+import { html, text } from '@/test/markup.ts'
 
 let desk: string
 const write = (rel: string, text: string) => {

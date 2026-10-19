@@ -1,8 +1,8 @@
 import type { ItemView } from '@nook/engineering/read/reader.ts'
 
-import { clock, day } from '../../lib/time.ts'
-import { ItemChips } from './ItemChips.tsx'
-import { Move } from './Move.tsx'
+import { clock, day } from '@/lib/time.ts'
+import { ItemChips } from '@/components/item/ItemChips.tsx'
+import { Move } from '@/components/item/Move.tsx'
 
 /** The head of an item page: the way back to the board, the title, the chips with the mode, which the owner can switch, and the key moments. */
 export function ItemHeader({ view }: { view: ItemView }) {

@@ -5,13 +5,14 @@ import type { ReactNode } from 'react'
 
 import { uiKit } from '@nook/desk/ui-kit.ts'
 
-import { AreaTones } from '../components/Areas.tsx'
-import { Live } from '../components/Live.tsx'
-import { Owner, ViewerNote } from '../components/Owner.tsx'
-import { PackNav } from '../components/PackNav.tsx'
-import { deskAreas, deskDir, packTabs } from '../lib/desk.ts'
-import { OWNER_HEADER } from '../lib/gate.ts'
-import './app.css'
+import { AreaTones } from '@/components/Areas.tsx'
+import { Live } from '@/components/Live.tsx'
+import { Owner, ViewerNote } from '@/components/Owner.tsx'
+import { PackNav } from '@/components/PackNav.tsx'
+import { deskAreas, deskDir, packTabs } from '@/lib/desk.ts'
+import { OWNER_HEADER } from '@/lib/gate.ts'
+import '@/app/globals.css'
+import '@/app/app.css'
 
 export const dynamic = 'force-dynamic'
 

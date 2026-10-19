@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react'
 
 import type { ItemView } from '@nook/engineering/read/reader.ts'
 
-import { span } from '../../lib/time.ts'
+import { span } from '@/lib/time.ts'
 
 function Ring({ part, whole, tone }: { part: number; whole: number; tone: string }) {
   const percent = Math.round((part / whole) * 100)

@@ -1,7 +1,7 @@
-import { DialogFrame } from '../../../../components/DialogFrame.tsx'
-import { orGap } from '../../../../components/Gap.tsx'
-import { ItemDialog } from '../../../../components/item/ItemDialog.tsx'
-import { itemView } from '../../../../lib/desk.ts'
+import { DialogFrame } from '@/components/DialogFrame.tsx'
+import { orGap } from '@/components/Gap.tsx'
+import { ItemDialog } from '@/components/item/ItemDialog.tsx'
+import { itemView } from '@/lib/desk.ts'
 
 export const dynamic = 'force-dynamic'
 

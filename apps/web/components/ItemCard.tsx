@@ -2,9 +2,9 @@ import Link from 'next/link'
 
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 
-import { turnTitle } from '../lib/turn.ts'
-import { AreaTags } from './Areas.tsx'
-import { KindIcon, Turn } from './Marks.tsx'
+import { turnTitle } from '@/lib/turn.ts'
+import { AreaTags } from '@/components/Areas.tsx'
+import { KindIcon, Turn } from '@/components/Marks.tsx'
 
 /**
  * One item on the board: the title, the areas, the criteria met as a bar, a flag for what holds it up, and a foot with
