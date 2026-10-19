@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { commandOnly, shellWords } from '../../src/hooks/shell.ts'
+import { commandOnly, shellWords } from '../src/shell.ts'
 
 describe('commandOnly', () => {
   test('drops heredoc bodies and comments, and keeps the commands', () => {

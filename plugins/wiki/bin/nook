@@ -5,7 +5,7 @@ self=$(readlink -f "$0")
 project=$(cd "$(dirname "$self")/../../.." 2>/dev/null && pwd)
 guard=no
 case "$*" in
-  "hook read"|"hook bash"|"hook edit"|"eng hook bash"|"eng hook edit") guard=yes ;;
+  "hook read"|"hook bash"|"hook edit"|"eng hook bash"|"eng hook edit"|"issues hook bash") guard=yes ;;
 esac
 
 # 0 and 2 are the answers of a hook; any other code means that Nook itself failed

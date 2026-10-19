@@ -6,13 +6,13 @@ This repo builds Nook itself. Read `docs/report.md` for the current build, `docs
 ```
 apps/nook/             the one binary `nook`: it joins the commands of each package and runs them. No logic.
 apps/web/              the web app of `nook web`: Next.js on Node; its pages call the read paths of the packages.
-packages/shared/       the CLI router, the exit codes, the hook input and output, the names of the tool, the SQLite file, the command runner
+packages/shared/       the CLI router, the exit codes, the hook input and output, the names of the tool, the SQLite file, the command runner, the shell parser of the guards
 packages/desk/         desks, nook.yml, the desk list of the owner, the pack manifests, the plugin folders, the UI kit
 packages/core/         init, doctor, packs, where, the writing check, brief, retro, the core hooks
 packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks, the read paths of the web app
 packages/wiki/         the shelves of the wiki, their indexes, the link check
 packages/learn/        the courses: roadmap, cards, mistakes, scores, the study log
-packages/issues/       the pack issue-tracker: the sources of Jira and GitHub, their logins, the map of the fields
+packages/issues/       the pack issue-tracker: the sources of Jira and GitHub, their logins, the map of the fields, the guard of the writes
 packages/ui/           the UI base of the web app: the shadcn/ui parts, cn(), and the Tailwind theme from the Bench tokens
 plugins/<pack>/        one Claude Code plugin each: pack.json, .claude-plugin/, bin/nook (a shim), hooks/, skills/, agents/, templates/. No code.
 docs/guide/            the guide book: how to use Nook, one chapter for each task

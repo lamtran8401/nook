@@ -26,7 +26,7 @@ const runShimWith = (extra: Record<string, string>, ...args: string[]) => {
 }
 
 describe('the plugin shim with no nook binary', () => {
-  test.each(['hook read', 'hook bash', 'hook edit', 'eng hook bash', 'eng hook edit'])('the guard `%s` blocks with exit 2', call => {
+  test.each(['hook read', 'hook bash', 'hook edit', 'eng hook bash', 'eng hook edit', 'issues hook bash'])('the guard `%s` blocks with exit 2', call => {
     expect(runShim(...call.split(' ')).code).toBe(2)
   })
 

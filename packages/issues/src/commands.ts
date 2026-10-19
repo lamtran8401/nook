@@ -1,7 +1,9 @@
 import type { Program } from '@nook/shared/cli.ts'
 import { Exit, usage } from '@nook/shared/errors.ts'
+import { readInput, runHook } from '@nook/shared/hook.ts'
 
 import { listFields } from './fields.ts'
+import { trackerHook } from './guard.ts'
 import { requireIssues } from './module.ts'
 import { pull, type PullReport } from './pull.ts'
 import { checkSource, run, type SourceCheck } from './sources.ts'
@@ -53,6 +55,19 @@ export const issuesProgram: Program = {
         const checks = requireIssues().config.sources.map(source => checkSource(source))
         c.out(checks, all => (all.length ? all.map(line).join('\n') : 'no source: add one to issue-tracker.sources with /setup'))
         return checks.every(check => check.ok) ? Exit.ok : Exit.refused
+      },
+    },
+    {
+      path: ['hook'],
+      summary: 'run one hook with the Claude Code event on stdin (bash: the guard that blocks a write of twg or gh)',
+      usage: '<name>',
+      async run(c) {
+        if (c.args[0] !== 'bash') {
+          c.say(`no hook is named ${c.args[0] ?? '(none)'}`)
+          return Exit.usage
+        }
+        const input = await readInput()
+        return runHook(() => trackerHook(input), true)
       },
     },
   ],

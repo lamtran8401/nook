@@ -8,7 +8,7 @@ import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.
 import { ROLE_VAR } from '@nook/shared/names.ts'
 
 import { readWebState } from '../web/web-state.ts'
-import { plainWords, shellWords } from './shell.ts'
+import { plainWords, shellWords } from '@nook/shared/shell.ts'
 
 /** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside a desk they do nothing. */
 

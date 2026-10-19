@@ -43,6 +43,7 @@ issue-tracker:
 | `nook issues pull <ref...>` | reads each ticket and writes `backlog/<KEY>/ticket.md`; a ref is a Jira key such as `SHOP-12`, `GH-482` by the prefix of a GitHub source, or `acme/shop#482` by its repo |
 | `nook issues fields <ref>` | each field of a Jira ticket, or each heading of a GitHub issue, with its id, its name and the start of its value; `/setup` writes the map from it |
 | `nook issues sources` | each source, and whether its CLI is on the path and has a login; exit 3 with the fix when one does not |
+| `nook issues hook bash` | the guard of the Bash calls of an agent: it reads the Claude Code event on stdin and blocks a write to a tracker |
 
 ## The pull
 
@@ -86,3 +87,26 @@ Nook keeps no token: `twg` and `gh` hold the logins. A check reads only the exit
 - `nook doctor` shows the same gaps as `nook issues sources`, one line for each source.
 - The web app leaves these checks out of its home page: a login check asks the server of the tracker, and the home page reads the disk only.
 - The files `~/.config/twg` and `~/.config/gh` are secret files for every agent.
+
+## The guard
+
+The hook `nook issues hook bash` blocks each write of `twg` and `gh` in a Bash call of an agent. It runs only in a desk that turns the pack on. The pack reads with its own calls, so the guard never stops a pull.
+
+| Call | The guard |
+|---|---|
+| `gh issue view`, `list`, `status` | passes |
+| another `gh issue` call, such as `comment` or `close` | blocks |
+| `gh api` with `-X` or `--method` other than `GET` or `HEAD` | blocks |
+| `gh api` with `-f`, `-F`, `--field`, `--raw-field` or `--input` | blocks |
+| another `gh` call, such as `gh pr view` | passes |
+| a `twg` command that the map marks a read | passes |
+| a `twg` command that the map marks `*` (a write) | blocks |
+| a `twg` command that the map marks `?`, or does not have | blocks |
+| `twg --version`, `twg --help` | passes |
+
+- The map comes from `twg help-map`, once for each Bash call that runs `twg`. It names each command of the installed `twg`, so a new command of `twg` needs no change in Nook.
+- The guard skips the global options of `twg` and their values, such as `--site company.atlassian.net` and `-o json`. It takes the longest command of the map that the words start with. An alias of a group, such as `bb` for `bitbucket`, counts.
+- When `twg help-map` fails, the guard blocks every `twg` command but `--version` and `--help`.
+- The guard reads the words with the shell parser of `packages/shared`. A call inside `$(...)`, backticks, `eval` or `sh -c` counts. A quoted text such as `grep "gh issue comment" notes.md` is one word, so it passes.
+- A block names the command and says to ask the owner, such as `gh issue comment writes to the tracker: the agents of this desk only read tickets. Ask the owner to do it.`
+- The guard fails closed: when it fails, it blocks the call with the reason.
