@@ -83,7 +83,8 @@ Each page of the web app reads the desk when the browser asks for it. A gap of t
 | Page | It shows |
 |---|---|
 | `/` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done |
-| `/works` | the board: one column for each state that holds an item; a card shows its flags and whose move is next; a click opens the item in a dialog |
+| `/works` | the Bench board: a column for each state that holds an item; a card shows its flags and whose move is next |
+| `/works/<id>` over the board | a click on a card opens the item in a dialog of 80% of the screen: the title, the next step, the criteria, the slices and the activity, with the details beside them |
 | `/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document |
 | `/wiki` | the drafts that wait for a yes, then a group for each shelf: each page with its summary and type |
 | `/wiki/<shelf>`, `/wiki/<page>` | one shelf, or one page with its blocks and its links; a `[[name]]` links to its page |

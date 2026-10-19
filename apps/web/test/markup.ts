@@ -1,7 +1,11 @@
+import { mock } from 'bun:test'
 import type { ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
 const ENTITY: Record<string, string> = { '&quot;': '"', '&lt;': '<', '&gt;': '>', '&amp;': '&', '&#x27;': "'" }
+
+// a static render has no app router: the client parts that ask for it get one that goes nowhere
+mock.module('next/navigation', () => ({ useRouter: () => ({ push() {}, back() {}, replace() {}, refresh() {} }), usePathname: () => '/' }))
 
 export const html = (node: ReactElement) => renderToStaticMarkup(node)
 

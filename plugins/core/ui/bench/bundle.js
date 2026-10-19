@@ -283,7 +283,7 @@
     return root;
   }
 
-  window.Bench = { version: '6.5.1', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
+  window.Bench = { version: '6.6.0', icon: icon, icons: Object.keys(P), init: init, toast: toast, setTheme: setTheme, themes: THEMES };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(document); });
   else init(document);
 })();
@@ -1294,7 +1294,10 @@
     }).join('')
     if (c.auto) foot += '<span class="bd-auto">' + esc(c.auto === true ? 'auto' : c.auto) + '</span>'
     if (foot) html += '<div class="bd-foot">' + foot + '</div>'
-    return '<article class="bd-card"' + (c.flag ? ' data-flag="' + esc(c.flag) + '"' : '') + '>' + html + '</article>'
+    var flag = c.flag ? ' data-flag="' + esc(c.flag) + '"' : ''
+    // a card with an address is a link to it, so the whole card opens the thing it shows
+    if (c.href) return '<a class="bd-card" href="' + esc(c.href) + '"' + flag + '>' + html + '</a>'
+    return '<article class="bd-card"' + flag + '>' + html + '</article>'
   }
   function renderBoard(el, spec) {
     var cols = spec.columns, rest = spec.rest || []

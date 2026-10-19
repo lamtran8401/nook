@@ -1218,6 +1218,10 @@ a.bn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
 .bd-col:has(> .bd-empty) .bd-empty { padding: 14px 6px; }
 .bd-empty .dg-i { width: 18px; height: 18px; color: var(--border-strong); }
 .bd-card { display: flex; flex-direction: column; gap: 9px; padding: 12px; background: var(--surface); }
+a.bd-card { color: inherit; text-decoration: none; transition: transform .15s var(--bn-ease), box-shadow .15s var(--bn-ease); }
+a.bd-card:hover { transform: translateY(-1px); }
+a.bd-card:focus-visible { outline: var(--stroke-3) solid var(--focus-ring); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { a.bd-card { transition: none; } a.bd-card:hover { transform: none; } }
 .bd-card h4 { margin: 0; font: 600 14px/19px var(--font-sans); }
 .bd-top { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .bd-id { font: 600 11.5px/18px var(--font-mono); color: var(--fg-muted); }

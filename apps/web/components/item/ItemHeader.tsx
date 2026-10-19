@@ -1,16 +1,14 @@
 import type { ItemView } from '@nook/engineering/read/reader.ts'
 
+import { keyMoments } from '@/lib/moments.ts'
 import { clock, day } from '@/lib/time.ts'
 import { ItemChips } from '@/components/item/ItemChips.tsx'
 import { Move } from '@/components/item/Move.tsx'
 
 /** The head of an item page: the way back to the board, the title, the chips with the mode, which the owner can switch, and the key moments. */
 export function ItemHeader({ view }: { view: ItemView }) {
-  const { item, moves } = view
-  const last = (move: string) => moves.findLast(m => m.move === move)?.at
-  const started = last('start')
-  const approved = last('approve')
-  const sentBack = moves.filter(m => m.move === 'reject').length
+  const { item } = view
+  const { started, approved, sentBack } = keyMoments(view.moves)
   return (
     <header className="nk-head">
       <ol className="bn-breadcrumb">

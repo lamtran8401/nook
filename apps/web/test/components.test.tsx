@@ -7,7 +7,6 @@ import { Board } from '@/components/Board.tsx'
 import { Criteria } from '@/components/Criteria.tsx'
 import { Diagram } from '@/components/Diagram.tsx'
 import { Gap } from '@/components/Gap.tsx'
-import { ItemCard } from '@/components/ItemCard.tsx'
 import { TabLinks } from '@/components/TabLinks.tsx'
 import { html, text } from '@/test/markup.ts'
 
@@ -16,39 +15,40 @@ const card = (fields: Partial<BoardCard> = {}): BoardCard => ({
   slices: { done: 2, total: 5 }, next: { owner: false, skill: '/cook SHOP-12' }, flags: [], ...fields,
 })
 
-describe('ItemCard', () => {
-  test('shows the title, the areas, the id, the criteria met, the size and whose turn it is, and links to the item', () => {
-    const markup = html(<ItemCard card={card()} />)
-    expect(markup).toContain('href="/works/SHOP-12"')
-    expect(markup).toContain('<span class="nk-kind" data-tone="success" title="feature"')
-    expect(markup).toContain('<span class="nk-turn" data-tone="violet" title="The lead runs /cook SHOP-12">AI</span>')
-    expect(text(markup)).toBe('Filter shipments by status api web SHOP-12 1/3 M AI')
-  })
-
-  test('draws the criteria met as a bar, and none for an item with no criteria yet', () => {
-    expect(html(<ItemCard card={card()} />)).toContain('<span class="nk-bar" title="1 of 3 criteria met"><i style="width:33%"></i></span>')
-    const none = html(<ItemCard card={card({ criteria: { met: 0, total: 0 } })} />)
-    expect(none).not.toContain('nk-bar')
-    expect(text(none)).not.toContain('0/0')
-  })
-
-  test('a move of the owner is YOU, and each blocking question and failed slice is a flag', () => {
-    const markup = html(<ItemCard card={card({ next: { owner: true, skill: 'answer Q2: nook eng answer SHOP-12 Q2 "<answer>"' }, flags: ['Q2 blocks', 'T4 failed'] })} />)
-    expect(markup).toContain('title="Your move: answer Q2">YOU</span>')
-    expect(markup).toContain('<span class="nk-flag">Q2 blocks</span><span class="nk-flag">T4 failed</span>')
-  })
-})
+const specOf = (markup: string) => JSON.parse(/data-nook-diagram="([^"]*)"/.exec(markup)![1]!.replaceAll('&quot;', '"').replaceAll('&amp;', '&'))
 
 describe('Board', () => {
-  test('gives one column for each state that holds items, in the order of the flow', () => {
-    const markup = html(<Board cards={[card({ id: 'SHOP-3', state: 'done' }), card({ id: 'SHOP-1', state: 'backlog' }), card({ id: 'SHOP-2', state: 'cooking' })]} />)
-    expect([...markup.matchAll(/data-state="(\w+)"/g)].map(m => m[1])).toEqual(['backlog', 'cooking', 'done'])
-    expect(text(markup)).toContain('cooking 1')
-    expect(markup).toContain('<section class="nk-col" data-state="cooking" data-tone="primary">')
+  test('draws the Bench board: one column for each state that holds items, in the order of the flow, the empty ones in the panel', () => {
+    const spec = specOf(html(<Board cards={[card({ id: 'SHOP-3', state: 'done' }), card({ id: 'SHOP-1', state: 'backlog' }), card({ id: 'SHOP-2', state: 'cooking' })]} areas={['api', 'web']} />))
+    expect(spec).toMatchObject({ type: 'board', frame: false })
+    expect(spec.columns.map((c: { title: string; tone: string }) => [c.title, c.tone])).toEqual([['backlog', 'neutral'], ['cooking', 'primary'], ['done', 'success']])
+    expect(spec.rest.map((r: { title: string }) => r.title)).toEqual(['framing', 'planning', 'ready', 'review'])
+  })
+
+  test('a card links to its item and shows the kind, the size, the areas in their tones, the criteria met and whose move is next', () => {
+    const spec = specOf(html(<Board cards={[card()]} areas={['api', 'web']} />))
+    expect(spec.columns[0].cards[0]).toEqual({
+      id: 'SHOP-12', title: 'Filter shipments by status', href: '/works/SHOP-12',
+      kind: 'feature', kindTone: 'success', kindIcon: 'sparkle', size: 'M',
+      areas: [{ name: 'api', tone: 'primary' }, { name: 'web', tone: 'violet' }],
+      meter: { value: 1, max: 3, text: '1/3 criteria', tone: 'success' },
+      note: 'The lead runs /cook', noteIcon: 'bot',
+    })
+  })
+
+  test('a failed slice rings the card red and a blocking question amber, each named in the foot; a move of the owner names it', () => {
+    const spec = specOf(html(<Board cards={[card({ flags: ['Q2 blocks', 'T4 failed'], next: { owner: true, skill: 'owner: /gate approve SHOP-12' } }), card({ id: 'SHOP-13', flags: ['Q1 blocks'] })]} areas={[]} />))
+    const [failed, waiting] = spec.columns[0].cards
+    expect(failed).toMatchObject({ flag: 'fail', note: 'Your move: approve', noteIcon: 'user', foot: [{ icon: 'clock', text: 'Q2 blocks', kind: 'wait' }, { icon: 'alert', text: 'T4 failed', kind: 'fail' }] })
+    expect(waiting).toMatchObject({ flag: 'wait', foot: [{ icon: 'clock', text: 'Q1 blocks', kind: 'wait' }] })
+  })
+
+  test('a card with no criteria yet has no meter', () => {
+    expect(specOf(html(<Board cards={[card({ criteria: { met: 0, total: 0 } })]} areas={[]} />)).columns[0].cards[0].meter).toBeUndefined()
   })
 
   test('says so when the desk has no item', () => {
-    expect(text(html(<Board cards={[]} />))).toBe('No item yet Type /intake in the agent session to start one.')
+    expect(text(html(<Board cards={[]} areas={[]} />))).toBe('No item yet Type /intake in the agent session to start one.')
   })
 })
 

@@ -437,6 +437,7 @@ A board shows many things in a few states. Each state that holds items gets a co
 | `auto` | `true` or a word. A chip in the foot. |
 | `flag` | `wait` (amber ring), `fail` (red ring) or `muted` (dashed, struck through). |
 | `note`, `noteIcon` | A muted line under the title. The default icon is `link`. |
+| `href` | The address that the card opens. The whole card is a link. |
 
 ### Example
 

@@ -84,9 +84,9 @@ describe('the web app', () => {
 
   test('/works gives the board, with a card for each item that links to it', () => {
     const page = body('page')
-    expect(page).toContain('<a class="bn-card nk-card" data-item="SHOP-12" href="/works/SHOP-12">')
-    expect(page).toContain('<span class="nk-card__title">Filter shipments by status</span>')
-    expect(page).toContain('<section class="nk-col" data-state="backlog" data-tone="neutral">')
+    expect(page).toContain('&quot;type&quot;:&quot;board&quot;')
+    expect(page).toContain('&quot;title&quot;:&quot;Filter shipments by status&quot;,&quot;href&quot;:&quot;/works/SHOP-12&quot;')
+    expect(page).toContain('{&quot;title&quot;:&quot;backlog&quot;,&quot;tone&quot;:&quot;neutral&quot;,&quot;cards&quot;:')
     expect(page).toContain('<a href="/works" aria-current="page">Works</a>')
   })
 
