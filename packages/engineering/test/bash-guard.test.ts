@@ -172,6 +172,13 @@ describe('bashGuard: a reader runs read commands only', () => {
     expect(reason(bash('for f in a.ts; do rm "$f"; done', REVIEWER))).toBe('the reviewer is read-only: may not run `rm`.')
   })
 
+  test('the common shell reads pass; a command that prints the environment, writes or runs code is blocked', () => {
+    for (const c of ['date && nook eng item verify SHOP-1 2>&1 | tail -150', 'basename a/b.ts', 'du -sh src', 'uname -a', 'cut -d, -f1 a.csv | sort | uniq -c', 'jq .name package.json', 'shasum -a 256 a.tgz', 'sleep 1', "printf '%s\\n' a"])
+      expect([c, bash(c, VERIFIER).kind]).not.toEqual([c, 'block'])
+    for (const c of ['env', 'printenv', "awk '{print}' a", 'sed -i s/a/b/ x', 'python3 -c 1', 'node -e 1', 'echo a | tee b', 'ls | xargs rm'])
+      expect([c, bash(c, VERIFIER).kind]).toEqual([c, 'block'])
+  })
+
   test('the git reads pass, such as the current branch, and a git branch that writes is blocked', () => {
     for (const c of ['cd /x/frontend; git status; git branch --show-current; git diff; cat a.spec.tsx b.spec.tsx', 'git branch', 'git branch -a', 'git branch -vv', 'git branch --contains HEAD', "git branch --list 'nook/*'", 'git rev-parse HEAD', 'git ls-files src', 'git blame a.ts', 'git merge-base main HEAD', 'git grep -n foo', 'git ls-tree HEAD', 'git shortlog -sn', 'git describe --tags', 'git rev-list --count main..HEAD'])
       expect([c, bash(c, REVIEWER).kind]).toEqual([c, 'pass'])

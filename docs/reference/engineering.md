@@ -350,7 +350,8 @@ The Bash hook:
 - It blocks `nook` inside `env`, `exec`, `xargs`, `eval`, `sh -c` and the like, and a call by a path to its code.
 - It blocks a call as `nk`: the one name of the tool is `nook`. It blocks a command that sets `NOOK_ROLE`, `NOOK_ACTOR` or `NOOK_SESSION`, or unsets `CLAUDECODE`.
 - It adds `--as`, `--actor` and `--session` to each call by an agent, so the rule `Bash(nook eng *)` still matches.
-- A reader runs only reads: shell reads such as `ls`, `cat`, `grep` and `find`, and the git reads `status`, `diff`, `log`, `show`, `rev-parse`, `ls-files`, `ls-tree`, `blame`, `grep`, `merge-base`, `rev-list`, `describe` and `shortlog`.
+- A reader runs only reads: shell reads such as `ls`, `cat`, `grep`, `find`, `date`, `jq` and `du`, and the git reads `status`, `diff`, `log`, `show`, `rev-parse`, `ls-files`, `ls-tree`, `blame`, `grep`, `merge-base`, `rev-list`, `describe` and `shortlog`.
+- A reader never runs `env`, `printenv`, `awk`, `sed`, `perl`, `python`, `node`, `xargs` or `tee`. They print the environment, write files or run code.
 - A reader can run `git branch` only to list, such as `git branch --show-current` or `git branch -a`. A name, `-d`, `-m` or `-u` blocks it.
 - A loop or a condition of reads passes, such as `for f in a b; do cat "$f"; done`. The guard checks each command inside it.
 - A reader also runs the read commands of the tool. The verifier adds `task prove` and `item verify`; the reviewer adds `item ac done`.

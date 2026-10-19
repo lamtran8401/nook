@@ -5,7 +5,10 @@ import { TOOL } from '@nook/shared/names.ts'
 import type { Caller, CallerKind } from './caller.ts'
 import { segments, words } from './shell.ts'
 
-/** What a reader can run: shell reads, git reads and the read commands of the tool. */
+/**
+ * What a reader can run: shell reads, git reads and the read commands of the tool. A command that prints the
+ * environment (env, printenv), writes or runs code (awk, sed, perl, python, node, xargs, tee) is never a read.
+ */
 
 const READ_VERBS = new Set([
   'ls',
@@ -30,6 +33,36 @@ const READ_VERBS = new Set([
   '[',
   'read',
   'which',
+  'type',
+  'date',
+  'sleep',
+  'printf',
+  'expr',
+  'seq',
+  'basename',
+  'dirname',
+  'realpath',
+  'readlink',
+  'du',
+  'df',
+  'whoami',
+  'uname',
+  'hostname',
+  'id',
+  'cut',
+  'tr',
+  'column',
+  'nl',
+  'tac',
+  'comm',
+  'cmp',
+  'jq',
+  'od',
+  'xxd',
+  'hexdump',
+  'shasum',
+  'sha256sum',
+  'md5',
 ])
 const GIT_READ = new Set(['status', 'diff', 'log', 'show', 'rev-parse', 'ls-files', 'ls-tree', 'blame', 'grep', 'merge-base', 'rev-list', 'describe', 'shortlog'])
 const GIT_DENIAL = 'may use only the git reads: status, diff, log, show, branch to list, rev-parse, ls-files, ls-tree, blame, grep, merge-base, rev-list, describe and shortlog.'
