@@ -76,18 +76,21 @@ describe('NextStep', () => {
     const markup = html(<NextStep next={{ ...view.next, state: 'planning', owner: true, skill: 'owner: /gate approve SHOP-42' }} />)
     expect(markup).toContain('<input type="hidden" name="kind" value="gate"/><input type="hidden" name="item" value="SHOP-42"/><input type="hidden" name="move" value="approve"/>')
     expect(markup).toContain('<button type="submit" class="bn-btn" data-variant="primary">Approve</button>')
-    expect(text(markup)).toBe('Next step Your move: approve The button runs the move with the same guards as /gate approve. Approve')
+    expect(text(markup)).toBe('Next step YOU Your move: approve The button runs the move with the same guards as /gate approve. Approve')
   })
 
   test('a blocking question is a move of the owner with no gate: it names the answer to give', () => {
     const next = { ...view.next, owner: true, skill: 'answer Q3: nook eng answer SHOP-42 Q3 "<answer>"', detail: 'Q3 Must a refund go to the same card?' }
-    expect(text(html(<NextStep next={next} />))).toBe('Next step Your move: answer Q3 Q3 Must a refund go to the same card?')
+    const markup = html(<NextStep next={next} />)
+    expect(text(markup)).toBe('Next step YOU Your move: answer Q3 Q3 Must a refund go to the same card? nook eng answer SHOP-42 Q3 "<answer>"')
+    expect(markup).toContain('<code class="nk-cmd">nook eng answer SHOP-42 Q3 &quot;&lt;answer&gt;&quot;')
   })
 
-  test('a move of the lead says that nothing waits, with no button', () => {
+  test('a move of the lead names its command to copy and says that nothing waits, with no move button', () => {
     const markup = html(<NextStep next={view.next} />)
-    expect(markup).not.toContain('<button')
-    expect(text(markup)).toBe('Next step The lead runs /cook SHOP-42 Nothing waits for you.')
+    expect(markup).not.toContain('class="bn-btn"')
+    expect(markup).toContain('<span class="nk-turn" data-tone="violet" title="The lead runs /cook SHOP-42">AI</span>')
+    expect(text(markup)).toBe('Next step AI The lead runs /cook SHOP-42 Nothing waits for you.')
   })
 })
 

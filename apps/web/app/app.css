@@ -8,7 +8,7 @@ body { margin: 0; background: var(--bg); color: var(--fg); }
 .nk-tabs a { padding: 6px 12px; border-radius: var(--radius-full); color: var(--fg-muted); text-decoration: none; font: 500 14px/20px var(--font-sans); }
 .nk-tabs a[aria-current="page"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow-1); }
 .nk-main { max-width: 1120px; margin: 0 auto; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 80px; display: grid; gap: 24px; }
-.nk-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+.nk-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
 /* the board takes the whole width: six columns fit 1440 px, and more columns scroll by column */
 .nk-main:has(> .nk-board) { max-width: none; }
 .nk-board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(216px, 1fr); align-items: start; gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; }
@@ -143,3 +143,8 @@ a.nk-group__head:hover .nk-group__title { text-decoration: underline; text-under
 .nk-line__words { display: grid; gap: 6px; justify-items: start; min-width: 0; }
 .nk-line__words p { margin: 0; font: 400 14px/20px var(--font-sans); }
 @media (max-width: 640px) { .nk-group__row { flex-wrap: wrap; padding: 0 16px 10px 0; } .nk-group__row .nk-cmd { margin-left: 16px; } .nk-line { padding-left: 16px; } }
+.nk-kindlabel { display: inline-flex; align-items: center; gap: 6px; padding: 0 4px; font: 600 12px/22px var(--font-sans); color: var(--fg-muted); }
+.bn-next .nk-turn { align-self: center; }
+.bn-next__text .nk-cmd { margin-top: 6px; }
+.bn-next__text > span .nk-cmd { margin: 0 0 0 4px; vertical-align: middle; }
+.nk-viewer .nk-cmd { margin: 0 2px; vertical-align: middle; }

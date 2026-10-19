@@ -1,6 +1,7 @@
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 
 import { parseDoc } from '../../lib/blocks.ts'
+import { Cmd } from '../Cmd.tsx'
 import { EmptyState } from '../EmptyState.tsx'
 import { Blocks } from '../blocks/Blocks.tsx'
 
@@ -19,7 +20,7 @@ export function DocTab({ id, name, text, areas, criteria }: { id: string; name: 
   if (text === null)
     return (
       <EmptyState icon="file" title={`The ${name} is not written yet`}>
-        {WRITES[name][0]} <code className="bn-inline-code">{`${WRITES[name][1]} ${id}`}</code> in the agent session.
+        {WRITES[name][0]} <Cmd text={`${WRITES[name][1]} ${id}`} /> in the agent session.
       </EmptyState>
     )
   const doc = parseDoc(text, { places: areas })

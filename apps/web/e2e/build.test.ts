@@ -92,7 +92,7 @@ describe('the web app', () => {
     const item = body('item')
     expect(item).toContain('<h1 class="nk-head__title">Filter shipments by status</h1>')
     expect(item).toContain('aria-selected="true" href="/works/SHOP-12?tab=walkthrough">Walkthrough</a>')
-    expect(item).toContain('type <code class="bn-inline-code">/view SHOP-12</code> in the agent session')
+    expect(item).toContain('type <code class="nk-cmd">/view SHOP-12<button')
     expect(item).not.toContain('Open in new tab')
   })
 

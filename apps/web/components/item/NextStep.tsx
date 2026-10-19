@@ -1,14 +1,27 @@
 import type { Next } from '@nook/engineering/report/next.ts'
 
-import { ownerGate } from '../../lib/turn.ts'
+import { ownerGate, turnTitle } from '../../lib/turn.ts'
+import { Cmd } from '../Cmd.tsx'
+import { Turn } from '../Marks.tsx'
 import { Move } from './Move.tsx'
 
-/** Who moves the item next: a gate of the owner gets its button, which runs the move; a move of the lead says that nothing waits. */
+/** A step such as `answer Q3: nook eng answer …`: the words before the colon, and the command after it. */
+function splitStep(skill: string): { words: string; command?: string } {
+  const at = skill.indexOf(': ')
+  return at < 0 ? { words: skill } : { words: skill.slice(0, at), command: skill.slice(at + 2) }
+}
+
+/**
+ * Who moves the item next, with YOU or AI: a gate of the owner gets its button, which runs the move; another move
+ * of the owner names its command; a move of the lead names what it runs and says that nothing waits.
+ */
 export function NextStep({ next }: { next: Next }) {
   const gate = ownerGate(next)
+  const step = splitStep(next.skill)
   return (
     <div className="bn-next">
       <span className="bn-next__label">Next step</span>
+      <Turn owner={next.owner} title={turnTitle(next)} />
       {gate ? (
         <>
           <span className="bn-next__text">
@@ -23,12 +36,15 @@ export function NextStep({ next }: { next: Next }) {
         </>
       ) : next.owner ? (
         <span className="bn-next__text">
-          Your move: {next.skill.split(':')[0]}
+          Your move: {step.words}
           <small>{next.detail}</small>
+          {step.command ? <Cmd text={step.command} /> : null}
         </span>
       ) : (
         <span className="bn-next__text">
-          The lead runs {next.skill}
+          <span>
+            The lead runs <Cmd text={next.skill} />
+          </span>
           <small>Nothing waits for you.</small>
         </span>
       )}

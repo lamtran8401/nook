@@ -4,7 +4,7 @@ import { clock, day } from '../../lib/time.ts'
 import { Criteria } from '../Criteria.tsx'
 import { EmptyState } from '../EmptyState.tsx'
 import { Records } from '../Records.tsx'
-import { STATE_TONE } from '../tones.ts'
+import { ItemChips } from './ItemChips.tsx'
 
 const SLICE_TONE: Record<string, string> = { todo: 'neutral', running: 'primary', waiting: 'warning', done: 'success', failed: 'danger', cancelled: 'neutral' }
 const LAST_EVENTS = 5
@@ -18,14 +18,7 @@ export function ItemDialog({ view }: { view: ItemView }) {
         <div>
           <p className="nk-head__kicker">{item.id}</p>
           <h2 className="bn-dialog__title">{item.title}</h2>
-          <p className="nk-chips">
-            <span className="bn-badge" data-variant="solid" data-tone={STATE_TONE[item.state] ?? 'neutral'}>{item.state}</span>
-            <span className="bn-badge" data-variant="plain">{item.kind}</span>
-            <span className="bn-badge" data-variant="plain">size {item.size}</span>
-            {item.areas.map(area => (
-              <span className="bn-badge" key={area}>{area}</span>
-            ))}
-          </p>
+          <ItemChips item={item} />
         </div>
       </div>
       <div className="bn-dialog__body">

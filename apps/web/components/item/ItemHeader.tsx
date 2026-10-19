@@ -1,7 +1,7 @@
 import type { ItemView } from '@nook/engineering/read/reader.ts'
 
 import { clock, day } from '../../lib/time.ts'
-import { STATE_TONE } from '../tones.ts'
+import { ItemChips } from './ItemChips.tsx'
 import { Move } from './Move.tsx'
 
 /** The head of an item page: the way back to the board, the title, the chips with the mode, which the owner can switch, and the key moments. */
@@ -18,13 +18,7 @@ export function ItemHeader({ view }: { view: ItemView }) {
         <li><span aria-current="page">{item.id}</span></li>
       </ol>
       <h1 className="nk-head__title">{item.title}</h1>
-      <div className="nk-chips">
-        <span className="bn-badge" data-variant="solid" data-tone={STATE_TONE[item.state] ?? 'neutral'}>{item.state}</span>
-        <span className="bn-badge" data-variant="plain">{item.kind}</span>
-        <span className="bn-badge" data-variant="plain">size {item.size}</span>
-        {item.areas.map(area => (
-          <span className="bn-badge" key={area}>{area}</span>
-        ))}
+      <ItemChips item={item}>
         <Move fields={{ kind: 'mode', item: item.id }} className="nk-mode">
           {(['normal', 'yolo'] as const).map(mode => (
             <button type="submit" name="mode" value={mode} key={mode} aria-pressed={item.mode === mode} title={mode === 'yolo' ? 'The lead runs the stages alone' : 'Each stage waits for its skill'}>
@@ -32,7 +26,7 @@ export function ItemHeader({ view }: { view: ItemView }) {
             </button>
           ))}
         </Move>
-      </div>
+      </ItemChips>
       <p className="nk-keys">
         {started ? <span>Started<b>{day(started)}</b></span> : null}
         {approved ? <span>Approved<b>{day(approved)} {clock(approved)}</b></span> : null}

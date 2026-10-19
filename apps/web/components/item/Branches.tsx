@@ -2,6 +2,7 @@ import type { AreaChange } from '@nook/engineering/read/reader.ts'
 import type { CheckRun } from '@nook/engineering/stores/checks.ts'
 
 import { clock } from '../../lib/time.ts'
+import { AreaTags } from '../Areas.tsx'
 import { EmptyState } from '../EmptyState.tsx'
 import { Icon } from '../Icon.tsx'
 
@@ -29,7 +30,7 @@ function Change({ change, runs }: { change: AreaChange; runs: CheckRun[] }) {
       <span className="bn-changes__ico" data-tone={toneOf(runs)}><Icon name="branch" size={17} /></span>
       <div>
         <div className="bn-changes__head">
-          <span className="bn-badge">{change.area}</span>
+          <AreaTags names={[change.area]} />
           <code className="bn-inline-code">{change.branch}</code>
         </div>
         <div className="bn-changes__diff">

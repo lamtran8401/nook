@@ -2,6 +2,8 @@
 
 import { createContext, type ReactNode, useContext } from 'react'
 
+import { Cmd } from './Cmd.tsx'
+
 /** Whether this browser is paired, so its owner moves run; the gate decides it, and the layout passes it down. */
 const Paired = createContext(false)
 
@@ -18,7 +20,7 @@ export function ViewerNote() {
   if (usePaired()) return null
   return (
     <p className="nk-viewer">
-      <b>View only.</b> To run your moves here, run <code className="bn-inline-code">nook web pair</code> in your terminal and open its link in this browser.
+      <b>View only.</b> To run your moves here, run <Cmd text="nook web pair" /> in your terminal and open its link in this browser.
     </p>
   )
 }

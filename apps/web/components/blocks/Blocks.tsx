@@ -6,6 +6,7 @@ import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 import type { Block, Source } from '../../lib/blocks.ts'
 import { capitalized } from '../../lib/inline.ts'
 import { Alert, PANEL } from '../Alert.tsx'
+import { AreaTags } from '../Areas.tsx'
 import { CriteriaList } from '../Criteria.tsx'
 import { Diagram } from '../Diagram.tsx'
 import { Inline } from './Inline.tsx'
@@ -185,7 +186,7 @@ function BlockView({ block, context }: { block: Block; context: DocContext }) {
       <article className="bn-task">
         <div className="bn-task__kicker">
           <span>{b.id}</span>
-          {b.area ? <span className="bn-badge">{b.area}</span> : null}
+          {b.area ? <AreaTags names={[b.area]} /> : null}
           {b.size ? <span>size {b.size}</span> : null}
         </div>
         <h3 className="bn-task__title">{b.title}</h3>
