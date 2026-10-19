@@ -42,7 +42,8 @@ A desk is a folder with `nook.yml`. Desks nest: `company/` is a top desk, and `c
 - An agent runs the tool as `nook` only; the guard blocks the short form `nk`. The names live in `packages/shared/src/names.ts`.
 - `nook init` writes only what it marks: the Nook block, `.claude/rules/nook/`, `.claude/output-styles/nook-companion.md`, its settings keys, `.nook/`, and the folders of each pack. Never a line of the owner.
 - `apps/web` imports its own files through the alias `@/`, such as `@/components/Board.tsx`, and the UI base as `@nook/ui/components/button.tsx`. Node runs `server.ts`, `lib/handler.ts`, `lib/gate.ts` and `e2e/render.ts` with no bundler and reads no alias, so those files use relative imports.
-- `packages/ui` holds the shadcn/ui parts and the Tailwind theme; it imports no other `@nook` package. Add a part from `packages/ui` with `bunx --bun shadcn@<version> add <part>`, then check its imports and `package.json`: the CLI once pulled an unrelated npm package.
+- `packages/ui` is the source UI kit: the shadcn primitives and the parts of Nook on them, and the Tailwind theme; it imports no other `@nook` package. `apps/web` composes the kit with Tailwind classes and has no CSS file of its own. A part that a page needs goes into the kit first.
+- Name each file of `packages/ui` and `apps/web` in kebab-case, such as `record-list.tsx`. Add a part from `packages/ui` with `bunx --bun shadcn@<version> add <part>`, then check its imports and `package.json`: the CLI once pulled an unrelated npm package.
 - Write clear code: clear names, small functions, early returns.
 - Each edit of the Nook code leaves `nook` runnable. The hooks run this code, so a broken `nook` binary blocks the guards of the session. Write a new function before the line that calls it, or write the whole file at once.
 

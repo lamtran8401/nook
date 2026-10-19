@@ -20,10 +20,15 @@
       "@nook/ui/*": [
         "./src/*"
       ]
-    }
+    },
+    "types": [
+      "bun"
+    ]
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx"
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "test/**/*.tsx"
   ]
 }
