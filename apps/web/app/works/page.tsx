@@ -1,5 +1,5 @@
-import { Board } from '@/components/Board.tsx'
-import { orGap } from '@/components/Gap.tsx'
+import { Board } from '@/components/board.tsx'
+import { orGap } from '@/components/gap.tsx'
 import { board, deskAreas } from '@/lib/desk.ts'
 
 export const dynamic = 'force-dynamic'

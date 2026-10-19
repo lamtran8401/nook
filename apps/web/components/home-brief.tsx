@@ -1,10 +1,10 @@
 import type { HomeView } from '@nook/core/read.ts'
 import type { BriefItem, BriefLine } from '@nook/desk/desks.ts'
 
-import { Cmd } from '@/components/Cmd.tsx'
-import { Group, GroupLine } from '@/components/Group.tsx'
-import { Move } from '@/components/item/Move.tsx'
-import { StateIcon, StateTag } from '@/components/Marks.tsx'
+import { Cmd } from '@/components/cmd.tsx'
+import { Group, GroupLine } from '@/components/group.tsx'
+import { Move } from '@/components/item/move.tsx'
+import { StateIcon, StateTag } from '@/components/marks.tsx'
 
 const GATE = /^\/gate (approve|accept) (\S+)$/
 const ANSWER = /^nook eng answer (\S+) /

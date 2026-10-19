@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 
-import { Records } from '@/components/Records.tsx'
+import { Records } from '@/components/records.tsx'
 import { CRITERION_TONE, criterionTag } from '@/components/tones.ts'
 
 /** One criterion as a row: its tag, its words and the cases it rests on; `met` is unknown when the ledger has no row for it. */

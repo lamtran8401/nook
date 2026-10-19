@@ -1,6 +1,6 @@
-import { orGap } from '@/components/Gap.tsx'
-import { ItemDialog } from '@/components/item/ItemDialog.tsx'
-import { ItemModal } from '@/components/item/ItemModal.tsx'
+import { orGap } from '@/components/gap.tsx'
+import { ItemDialog } from '@/components/item/item-dialog.tsx'
+import { ItemModal } from '@/components/item/item-modal.tsx'
 import { itemView } from '@/lib/desk.ts'
 
 export const dynamic = 'force-dynamic'

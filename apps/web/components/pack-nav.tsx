@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 
-import { type Tab, TabLinks } from '@/components/TabLinks.tsx'
+import { type Tab, TabLinks } from '@/components/tab-links.tsx'
 
 /** The pack tabs with the tab of the current page marked. */
 export function PackNav({ tabs }: { tabs: Tab[] }) {

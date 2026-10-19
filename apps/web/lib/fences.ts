@@ -1,4 +1,4 @@
-import type { DiagramSpec } from '@/components/Diagram.tsx'
+import type { DiagramSpec } from '@/components/diagram.tsx'
 
 /**
  * The code fences that draw: a mermaid flowchart, sequenceDiagram or erDiagram, and a `tree` of files. A flowchart gives

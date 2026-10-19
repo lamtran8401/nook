@@ -3,11 +3,11 @@ import { describe, expect, test } from 'bun:test'
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 import { refused } from '@nook/shared/errors.ts'
 
-import { Board } from '@/components/Board.tsx'
-import { Criteria } from '@/components/Criteria.tsx'
-import { Diagram } from '@/components/Diagram.tsx'
-import { Gap } from '@/components/Gap.tsx'
-import { TabLinks } from '@/components/TabLinks.tsx'
+import { Board } from '@/components/board.tsx'
+import { Criteria } from '@/components/criteria.tsx'
+import { Diagram } from '@/components/diagram.tsx'
+import { Gap } from '@/components/gap.tsx'
+import { TabLinks } from '@/components/tab-links.tsx'
 import { html, text } from '@/test/markup.ts'
 
 const card = (fields: Partial<BoardCard> = {}): BoardCard => ({

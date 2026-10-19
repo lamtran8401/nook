@@ -3,7 +3,7 @@ import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import { unified } from 'unified'
 
-import type { DiagramSpec } from '@/components/Diagram.tsx'
+import type { DiagramSpec } from '@/components/diagram.tsx'
 import { fenceDrawing, type Legend } from '@/lib/fences.ts'
 import { type Inline, plainText } from '@/lib/inline.ts'
 import { applyRules } from '@/lib/rules.ts'

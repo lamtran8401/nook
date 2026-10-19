@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSyn
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
-import { SearchResults } from '@/components/SearchResults.tsx'
+import { SearchResults } from '@/components/search-results.tsx'
 import { search } from '@/lib/search.ts'
 import { html, text } from '@/test/markup.ts'
 

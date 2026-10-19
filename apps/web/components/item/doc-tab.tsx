@@ -1,9 +1,9 @@
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 
 import { parseDoc } from '@/lib/blocks.ts'
-import { Cmd } from '@/components/Cmd.tsx'
-import { EmptyState } from '@/components/EmptyState.tsx'
-import { Blocks } from '@/components/blocks/Blocks.tsx'
+import { Cmd } from '@/components/cmd.tsx'
+import { EmptyState } from '@/components/empty-state.tsx'
+import { Blocks } from '@/components/blocks/blocks.tsx'
 
 export type DocName = 'spec' | 'plan' | 'tasks' | 'walkthrough'
 

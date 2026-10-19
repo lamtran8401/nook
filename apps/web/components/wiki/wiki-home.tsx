@@ -1,9 +1,9 @@
 import type { ShelfView, WikiView } from '@nook/wiki/read.ts'
 
-import { Cmd } from '@/components/Cmd.tsx'
-import { EmptyState } from '@/components/EmptyState.tsx'
-import { Count, Group, GroupLine } from '@/components/Group.tsx'
-import { Icon } from '@/components/Icon.tsx'
+import { Cmd } from '@/components/cmd.tsx'
+import { EmptyState } from '@/components/empty-state.tsx'
+import { Count, Group, GroupLine } from '@/components/group.tsx'
+import { Icon } from '@/components/icon.tsx'
 import { PAGE_TYPE_TONE } from '@/components/tones.ts'
 
 // `payment-retries.md` reads as `Payment retries`

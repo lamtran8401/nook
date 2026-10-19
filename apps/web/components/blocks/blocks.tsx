@@ -5,11 +5,11 @@ import type { Criterion } from '@nook/engineering/stores/criteria.ts'
 
 import type { Block, Source } from '@/lib/blocks.ts'
 import { capitalized } from '@/lib/inline.ts'
-import { Alert, PANEL } from '@/components/Alert.tsx'
-import { AreaTags } from '@/components/Areas.tsx'
-import { CriteriaList } from '@/components/Criteria.tsx'
-import { Diagram } from '@/components/Diagram.tsx'
-import { Inline } from '@/components/blocks/Inline.tsx'
+import { Alert, PANEL } from '@/components/alert.tsx'
+import { AreaTags } from '@/components/areas.tsx'
+import { CriteriaList } from '@/components/criteria.tsx'
+import { Diagram } from '@/components/diagram.tsx'
+import { Inline } from '@/components/blocks/inline.tsx'
 
 /** One Bench template for each kind of block. The context brings what the ledger knows, such as the state of each criterion. */
 

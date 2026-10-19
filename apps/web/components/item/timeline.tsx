@@ -1,7 +1,7 @@
 import type { EventLine } from '@nook/engineering/read/event-lines.ts'
 
 import { clock, dayHeading } from '@/lib/time.ts'
-import { Diagram } from '@/components/Diagram.tsx'
+import { Diagram } from '@/components/diagram.tsx'
 
 const ICON: Record<EventLine['tone'], string> = { success: 'check', danger: 'alert', warning: 'alert', primary: 'play', neutral: 'clock' }
 

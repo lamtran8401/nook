@@ -1,9 +1,9 @@
 import type { Next } from '@nook/engineering/report/next.ts'
 
 import { ownerGate, turnTitle } from '@/lib/turn.ts'
-import { Cmd } from '@/components/Cmd.tsx'
-import { Turn } from '@/components/Marks.tsx'
-import { Move } from '@/components/item/Move.tsx'
+import { Cmd } from '@/components/cmd.tsx'
+import { Turn } from '@/components/marks.tsx'
+import { Move } from '@/components/item/move.tsx'
 
 /** A step such as `answer Q3: nook eng answer …`: the words before the colon, and the command after it. */
 function splitStep(skill: string): { words: string; command?: string } {

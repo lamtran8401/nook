@@ -5,8 +5,8 @@ import type { Guess } from '@nook/engineering/stores/guesses.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
 
 import { clock, day } from '@/lib/time.ts'
-import { Records } from '@/components/Records.tsx'
-import { Move } from '@/components/item/Move.tsx'
+import { Records } from '@/components/records.tsx'
+import { Move } from '@/components/item/move.tsx'
 
 const GUESS_TONE: Record<Guess['status'], string> = { open: 'warning', accepted: 'success', flipped: 'primary' }
 

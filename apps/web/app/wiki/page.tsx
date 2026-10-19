@@ -1,5 +1,5 @@
-import { orGap } from '@/components/Gap.tsx'
-import { WikiHome } from '@/components/wiki/WikiHome.tsx'
+import { orGap } from '@/components/gap.tsx'
+import { WikiHome } from '@/components/wiki/wiki-home.tsx'
 import { wiki } from '@/lib/desk.ts'
 
 export const dynamic = 'force-dynamic'

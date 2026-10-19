@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test'
 
-import { AreaTags, AreaTones } from '@/components/Areas.tsx'
-import { Cmd } from '@/components/Cmd.tsx'
-import { KindIcon, StateIcon, StateTag, Turn } from '@/components/Marks.tsx'
+import { AreaTags, AreaTones } from '@/components/areas.tsx'
+import { Cmd } from '@/components/cmd.tsx'
+import { KindIcon, StateIcon, StateTag, Turn } from '@/components/marks.tsx'
 import { areaTone } from '@/components/tones.ts'
 import { html, text } from '@/test/markup.ts'
 

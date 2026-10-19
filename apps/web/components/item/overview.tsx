@@ -2,13 +2,13 @@ import type { ReactNode } from 'react'
 
 import type { ItemView } from '@nook/engineering/read/reader.ts'
 
-import { Branches } from '@/components/item/Branches.tsx'
-import { NeedsYou } from '@/components/item/NeedsYou.tsx'
-import { NextStep } from '@/components/item/NextStep.tsx'
-import { SliceBoard } from '@/components/item/SliceBoard.tsx'
-import { Stats } from '@/components/item/Stats.tsx'
-import { Stepper } from '@/components/item/Stepper.tsx'
-import { Timeline } from '@/components/item/Timeline.tsx'
+import { Branches } from '@/components/item/branches.tsx'
+import { NeedsYou } from '@/components/item/needs-you.tsx'
+import { NextStep } from '@/components/item/next-step.tsx'
+import { SliceBoard } from '@/components/item/slice-board.tsx'
+import { Stats } from '@/components/item/stats.tsx'
+import { Stepper } from '@/components/item/stepper.tsx'
+import { Timeline } from '@/components/item/timeline.tsx'
 
 function Part({ title, children }: { title: string; children: ReactNode }) {
   return (

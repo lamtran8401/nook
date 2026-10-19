@@ -1,6 +1,6 @@
 import type { Hit } from '@/lib/search.ts'
-import { EmptyState } from '@/components/EmptyState.tsx'
-import { Count, Group, GroupLine } from '@/components/Group.tsx'
+import { EmptyState } from '@/components/empty-state.tsx'
+import { Count, Group, GroupLine } from '@/components/group.tsx'
 
 /** A line as a reader sees it: no list, heading, quote or table marks at its ends, no bold or code marks. */
 const plain = (line: string) => line.replace(/^[\s>#*|-]+/, '').replace(/\s*\|\s*$/, '').replace(/\*\*|`/g, '')

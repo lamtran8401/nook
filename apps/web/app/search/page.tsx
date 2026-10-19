@@ -1,5 +1,5 @@
-import { orGap } from '@/components/Gap.tsx'
-import { SearchResults } from '@/components/SearchResults.tsx'
+import { orGap } from '@/components/gap.tsx'
+import { SearchResults } from '@/components/search-results.tsx'
 import { find } from '@/lib/desk.ts'
 
 export const dynamic = 'force-dynamic'

@@ -1,7 +1,7 @@
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 
-import { Diagram } from '@/components/Diagram.tsx'
-import { EmptyState } from '@/components/EmptyState.tsx'
+import { Diagram } from '@/components/diagram.tsx'
+import { EmptyState } from '@/components/empty-state.tsx'
 import { areaTone, KIND_TONE, STATE_TONE } from '@/components/tones.ts'
 import { turnTitle } from '@/lib/turn.ts'
 

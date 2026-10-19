@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { renderToStaticMarkup } from 'react-dom/server'
 
-import { Blocks } from '@/components/blocks/Blocks.tsx'
+import { Blocks } from '@/components/blocks/blocks.tsx'
 import { parseDoc } from '@/lib/blocks.ts'
 import { text } from '@/test/markup.ts'
 

@@ -3,9 +3,9 @@ import { describe, expect, test } from 'bun:test'
 import type { CourseView } from '@nook/learn/read.ts'
 import type { WikiView } from '@nook/wiki/read.ts'
 
-import { Courses, CoursePage, trendChart } from '@/components/learn/CoursePage.tsx'
-import { WikiHome } from '@/components/wiki/WikiHome.tsx'
-import { WikiPage } from '@/components/wiki/WikiPage.tsx'
+import { Courses, CoursePage, trendChart } from '@/components/learn/course-page.tsx'
+import { WikiHome } from '@/components/wiki/wiki-home.tsx'
+import { WikiPage } from '@/components/wiki/wiki-page.tsx'
 import { html, text } from '@/test/markup.ts'
 
 const wiki: WikiView = {

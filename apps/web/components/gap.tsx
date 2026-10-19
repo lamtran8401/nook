@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { EvError } from '@nook/shared/errors.ts'
 
-import { Alert } from '@/components/Alert.tsx'
+import { Alert } from '@/components/alert.tsx'
 
 /** A gap of the desk, such as a ledger that needs a migration, with its fix, in place of the data of a page. */
 export function Gap({ error }: { error: EvError }) {

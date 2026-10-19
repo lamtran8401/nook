@@ -2,7 +2,7 @@
 
 import { createContext, type ReactNode, useContext } from 'react'
 
-import { Cmd } from '@/components/Cmd.tsx'
+import { Cmd } from '@/components/cmd.tsx'
 
 /** Whether this browser is paired, so its owner moves run; the gate decides it, and the layout passes it down. */
 const Paired = createContext(false)

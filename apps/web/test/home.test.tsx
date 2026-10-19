@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 
 import type { HomeView } from '@nook/core/read.ts'
 
-import { HomeBrief } from '@/components/HomeBrief.tsx'
+import { HomeBrief } from '@/components/home-brief.tsx'
 import { html, text } from '@/test/markup.ts'
 
 const view = (fields: Partial<HomeView>): HomeView => ({ dir: '/desk', brief: [], findings: [], ...fields })

@@ -1,9 +1,9 @@
 import type { PageView } from '@nook/wiki/read.ts'
 
 import { parseDoc } from '@/lib/blocks.ts'
-import { Alert, PANEL } from '@/components/Alert.tsx'
-import { Blocks } from '@/components/blocks/Blocks.tsx'
-import { Records } from '@/components/Records.tsx'
+import { Alert, PANEL } from '@/components/alert.tsx'
+import { Blocks } from '@/components/blocks/blocks.tsx'
+import { Records } from '@/components/records.tsx'
 
 /** One page of the wiki, block by block, with each link it makes; a draft says that it waits for the owner's yes. */
 export function WikiPage({ page }: { page: PageView }) {
