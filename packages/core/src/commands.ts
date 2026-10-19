@@ -3,13 +3,14 @@ import { resolve } from 'node:path'
 import { arg, list, type Program } from '@nook/shared/cli.ts'
 import { activePacks, desksAbove, nearestDesk, type PackModule, projectRoot } from '@nook/desk/desks.ts'
 import { DeskList } from '@nook/desk/desk-list.ts'
+import { hookRecorder, readEvents } from '@nook/desk/events.ts'
 import { Exit, usage } from '@nook/shared/errors.ts'
 import { readInput, runHook } from '@nook/shared/hook.ts'
 import { Catalog } from '@nook/desk/pack.ts'
 
 import { briefSources, collectBrief, formatBrief, startOfYesterday } from './brief/brief.ts'
 import { doctor } from './doctor/doctor.ts'
-import { formatFacts, retroFile, retroSince } from './retro/retro.ts'
+import { blockFacts, eventLines, formatFacts, retroFile, retroSince } from './retro/retro.ts'
 import { formatDoctor } from './doctor/format.ts'
 import { gateHook } from './hooks/gate.ts'
 import { styleCheck } from './hooks/style.ts'
@@ -114,6 +115,22 @@ export const coreProgram =(modules: PackModule[] = []): Program => ({
       },
     },
     {
+      path: ['events'],
+      summary: 'the event log of this desk: each block of a guard and each prompt of the owner, oldest first',
+      usage: '[--kind block|prompt] [--since <date>]',
+      flags: { kind: { type: 'string', help: 'block or prompt' }, since: { type: 'string', help: 'a date or a time, such as 2026-10-01' } },
+      run(c) {
+        const desk = nearestDesk(process.cwd())
+        if (!desk) throw usage('not inside a desk', 'run nook init in a folder first')
+        const kind = c.flags.kind
+        if (kind !== undefined && kind !== 'block' && kind !== 'prompt') throw usage('--kind is block or prompt')
+        const since = typeof c.flags.since === 'string' ? new Date(c.flags.since) : undefined
+        if (since && Number.isNaN(since.getTime())) throw usage(`--since is not a date: ${c.flags.since}`, 'write it as 2026-10-01 or 2026-10-01T09:00')
+        const events = readEvents(desk.dir, { ...(kind ? { kind } : {}), ...(since ? { since } : {}) })
+        c.out(events, all => (all.length ? eventLines(all) : 'no event in the log'))
+      },
+    },
+    {
       path: ['retro'],
       summary: 'the facts since the last retro of this desk: items sent back, guesses flipped, slow questions, weak proofs',
       run(c) {
@@ -123,6 +140,7 @@ export const coreProgram =(modules: PackModule[] = []): Program => ({
         const facts = activePacks(desk.dir)
           .filter(p => p.home.dir === desk.dir)
           .flatMap(p => modules.find(m => m.name === p.name)?.retro?.(desk.dir, since) ?? [])
+          .concat(blockFacts(readEvents(desk.dir, { kind: 'block', since })))
         const file = retroFile(desk.dir)
         c.out({ desk: desk.dir, since: since.toISOString(), file, facts }, r =>
           [`since ${r.since}; the file of today: ${r.file.path}${r.file.exists ? ' (exists)' : ''}`, '', formatFacts(r.facts)].join('\n'),
@@ -175,7 +193,7 @@ export const coreProgram =(modules: PackModule[] = []): Program => ({
           return Exit.usage
         }
         const input = await readInput()
-        return runHook(() => hook.handler(input), hook.closed)
+        return runHook(() => hook.handler(input), hook.closed, hookRecorder(input, `core ${name}`))
       },
     },
   ],

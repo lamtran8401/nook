@@ -36,3 +36,21 @@ describe('readInput', () => {
     expect(readWith('bun', '  \n')).toEqual({})
   })
 })
+
+describe('runHook and its record of the result', () => {
+  test('hands the result to the recorder, and a recorder that fails leaves the block a block and names the fault', async () => {
+    const { runHook, block } = await import('../src/hook.ts')
+    const seen: string[] = []
+    const errors: string[] = []
+    const write = process.stderr.write.bind(process.stderr)
+    process.stderr.write = ((chunk: string) => (errors.push(String(chunk)), true)) as typeof process.stderr.write
+    try {
+      expect(await runHook(() => block('no'), true, result => seen.push(result.kind))).toBe(2)
+      expect(await runHook(() => block('no'), true, () => { throw new Error('disk full') })).toBe(2)
+    } finally {
+      process.stderr.write = write
+    }
+    expect(seen).toEqual(['block'])
+    expect(errors).toEqual(['no\n', 'nook: could not record the event: disk full\n', 'no\n'])
+  })
+})

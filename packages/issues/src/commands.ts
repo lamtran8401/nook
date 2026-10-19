@@ -1,6 +1,7 @@
 import type { Program } from '@nook/shared/cli.ts'
 import { Exit, usage } from '@nook/shared/errors.ts'
 import { readInput, runHook } from '@nook/shared/hook.ts'
+import { hookRecorder } from '@nook/desk/events.ts'
 
 import { listFields } from './fields.ts'
 import { trackerHook } from './guard.ts'
@@ -67,7 +68,7 @@ export const issuesProgram: Program = {
           return Exit.usage
         }
         const input = await readInput()
-        return runHook(() => trackerHook(input), true)
+        return runHook(() => trackerHook(input), true, hookRecorder(input, 'issues bash'))
       },
     },
   ],

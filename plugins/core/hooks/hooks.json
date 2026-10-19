@@ -13,6 +13,9 @@
     ],
     "UserPromptExpansion": [
       { "matcher": ".*(gate|yolo)", "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" hook gate", "timeout": 30 }] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/nook\" hook prompt", "timeout": 10 }] }
     ]
   }
 }

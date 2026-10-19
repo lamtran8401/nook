@@ -2,6 +2,7 @@ import { existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 import type { RetroFact } from '@nook/desk/desks.ts'
+import type { DeskEvent } from '@nook/desk/events.ts'
 
 /** `nook retro`: the facts since the last retro of a desk, and the file that the retro of today writes. */
 
@@ -38,4 +39,22 @@ export function formatFacts(facts: RetroFact[]): string {
       return [`${kind} (${of.length})`, ...of.map(f => `- ${f.item}: ${f.text}`)].join('\n')
     })
     .join('\n\n')
+}
+
+/** The blocks of the guards as facts: each hook and reason once, with its count and its last time, the most frequent first. */
+export function blockFacts(events: DeskEvent[]): RetroFact[] {
+  const groups = new Map<string, { hook: string; reason: string; count: number; at: string }>()
+  for (const event of events.filter(e => e.kind === 'block')) {
+    const key = `${event.hook}\n${event.reason}`
+    const group = groups.get(key) ?? { hook: event.hook ?? '', reason: event.reason ?? '', count: 0, at: event.at }
+    groups.set(key, { ...group, count: group.count + 1, at: event.at > group.at ? event.at : group.at })
+  }
+  return [...groups.values()].sort((a, b) => b.count - a.count).map(g => ({ kind: 'guard blocks', item: g.hook, text: `${g.count}× ${g.reason}`, at: g.at }))
+}
+
+/** One line for each event of the log: its time, then the prompt, or the block with its hook, its agent and its command. */
+export function eventLines(events: DeskEvent[]): string {
+  return events
+    .map(e => (e.kind === 'prompt' ? `${e.at}  prompt  ${e.text}` : `${e.at}  block   ${e.hook} (${e.agent}): ${e.reason} · ${e.command}`))
+    .join('\n')
 }

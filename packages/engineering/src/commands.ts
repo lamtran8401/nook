@@ -4,6 +4,7 @@ import { dirname, relative, resolve } from 'node:path'
 import { arg, type Command, type Context, list, type Program, text } from '@nook/shared/cli.ts'
 import { Exit, usage } from '@nook/shared/errors.ts'
 import { readInput, runHook } from '@nook/shared/hook.ts'
+import { hookRecorder } from '@nook/desk/events.ts'
 
 import {
   adrList,
@@ -631,7 +632,7 @@ const homeCommands: Command[] = [
       const name = arg(c, 0, 'hook name')
       const input = await readInput()
       const hook = hookNamed(name)
-      if (hook) return runHook(() => hook.run(input), hook.closed)
+      if (hook) return runHook(() => hook.run(input), hook.closed, hookRecorder(input, `eng ${name}`))
       c.say(`no hook is named ${name}`)
       return Exit.usage
     },

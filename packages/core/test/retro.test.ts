@@ -4,7 +4,7 @@ import { join } from 'node:path'
 
 import type { RetroFact } from '@nook/desk/desks.ts'
 
-import { formatFacts, retroFile, retroSince } from '../src/retro/retro.ts'
+import { blockFacts, eventLines, formatFacts, retroFile, retroSince } from '../src/retro/retro.ts'
 import { removeDir, tempDir } from './helpers.ts'
 
 let root: string
@@ -51,5 +51,23 @@ describe('formatFacts', () => {
 
   test('a span with no fact says so', () => {
     expect(formatFacts([])).toBe('Nothing went wrong in the span.')
+  })
+})
+
+describe('blockFacts', () => {
+  test('gives each reason of a block once with its count, the most frequent first', () => {
+    const block = (hook: string, reason: string, at: string) => ({ kind: 'block' as const, hook, reason, at })
+    expect(blockFacts([block('eng bash', 'may not run `date`.', '2026-10-19T09:00:00Z'), block('core bash', 'a secret', '2026-10-19T09:10:00Z'), block('eng bash', 'may not run `date`.', '2026-10-19T09:20:00Z')])).toEqual([
+      { kind: 'guard blocks', item: 'eng bash', text: '2× may not run `date`.', at: '2026-10-19T09:20:00Z' },
+      { kind: 'guard blocks', item: 'core bash', text: '1× a secret', at: '2026-10-19T09:10:00Z' },
+    ])
+  })
+})
+
+describe('eventLines', () => {
+  test('gives one line for each event: its time, then the prompt or the block with its hook', () => {
+    expect(eventLines([{ kind: 'prompt', at: '2026-10-19T09:00:00Z', text: 'merge' }, { kind: 'block', at: '2026-10-19T09:05:00Z', hook: 'eng bash', agent: 'nk-eng:reviewer', reason: 'no', command: 'date' }])).toBe(
+      '2026-10-19T09:00:00Z  prompt  merge\n2026-10-19T09:05:00Z  block   eng bash (nk-eng:reviewer): no · date',
+    )
   })
 })

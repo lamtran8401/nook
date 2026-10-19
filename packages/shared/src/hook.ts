@@ -51,14 +51,22 @@ export const context = (event: string, additionalContext: string): HookResult =>
 /** Stop or SubagentStop: keep the agent working, with the reason as its next instruction. */
 export const hold = (reason: string): HookResult => ({ kind: 'json', value: { decision: 'block', reason } })
 
-/** Writes the result and returns the exit code. A thrown error in a guard blocks (fail closed) when `closed` is true. */
-export async function runHook(handler: () => Promise<HookResult> | HookResult, closed: boolean): Promise<number> {
+/**
+ * Writes the result and returns the exit code. A thrown error in a guard blocks (fail closed) when `closed` is true.
+ * `record` gets the result first; a record that fails names its fault on stderr and never changes the answer.
+ */
+export async function runHook(handler: () => Promise<HookResult> | HookResult, closed: boolean, record?: (result: HookResult) => void): Promise<number> {
   let result: HookResult
   try {
     result = await handler()
   } catch (error) {
     if (!closed) return 0
     result = block(`the guard failed, so the call is blocked: ${(error as Error).message}`)
+  }
+  try {
+    record?.(result)
+  } catch (error) {
+    process.stderr.write(`nook: could not record the event: ${(error as Error).message}\n`)
   }
   if (result.kind === 'block') {
     process.stderr.write(`${result.reason}\n`)
