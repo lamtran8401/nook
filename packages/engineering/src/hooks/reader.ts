@@ -27,9 +27,18 @@ const READ_VERBS = new Set([
   'uniq',
   'diff',
   'test',
+  '[',
+  'read',
   'which',
 ])
-const GIT_READ = new Set(['status', 'diff', 'log', 'show'])
+const GIT_READ = new Set(['status', 'diff', 'log', 'show', 'rev-parse', 'ls-files', 'ls-tree', 'blame', 'grep', 'merge-base', 'rev-list', 'describe', 'shortlog'])
+const GIT_DENIAL = 'may use only the git reads: status, diff, log, show, branch to list, rev-parse, ls-files, ls-tree, blame, grep, merge-base, rev-list, describe and shortlog.'
+// the flags of git branch that only list; each other flag can create, delete, move or track a branch
+const BRANCH_LIST_FLAGS = /^(--show-current|--list|-l|-a|--all|-r|--remotes|-v|-vv|--verbose|-i|--ignore-case|--no-color|--color(=.*)?|--column(=.*)?|--no-column|--sort=.*|--format=.*|--abbrev=.*|--contains|--no-contains|--merged|--no-merged|--points-at)$/
+const BRANCH_TAKES_COMMIT = new Set(['--contains', '--no-contains', '--merged', '--no-merged', '--points-at'])
+// the words of shell structure: what follows them is the command, and `for x in …` lists words only
+const KEYWORDS = new Set(['if', 'then', 'else', 'elif', 'while', 'until', 'do', '!', '{'])
+const CLOSERS = new Set(['done', 'fi', 'esac', '}'])
 const CORE_READ = new Set(['doctor', 'packs', 'where', 'ste', 'help', '--help', '-h'])
 const READ_CALLS = [
   ['item', 'show'],
@@ -80,9 +89,10 @@ export function readerDenial(plain: string, caller: Caller): string | null {
 }
 
 function segmentDenial(segment: string, kind: CallerKind, who: string): string | null {
-  const tokens = words(segment)
-  const verb = tokens[0]
-  if (!verb) return null
+  const all = words(segment)
+  const tokens = all.slice(Math.max(0, all.findIndex(token => !KEYWORDS.has(token))))
+  const verb = KEYWORDS.has(tokens[0] ?? '') ? undefined : tokens[0]
+  if (!verb || CLOSERS.has(verb) || verb === 'for') return null
   if (segment.replace(/\d?>&\d|\d?>>?\s*\/dev\/null/g, '').includes('>'))
     return `${who} is read-only: no output redirection.`
   if (verb === 'find' && /\s-(exec|delete|fprint|ok)\b/.test(segment))
@@ -94,8 +104,17 @@ function segmentDenial(segment: string, kind: CallerKind, who: string): string |
 }
 
 function gitDenial(tokens: string[], who: string): string | null {
-  const sub = tokens.slice(1).find((t, i, all) => !t.startsWith('-') && all[i - 1] !== '-C')
-  return sub && GIT_READ.has(sub) ? null : `${who} may use only git status, diff, log and show.`
+  const at = tokens.findIndex((t, i) => i > 0 && !t.startsWith('-') && tokens[i - 1] !== '-C')
+  const sub = tokens[at]
+  if (sub && GIT_READ.has(sub)) return null
+  if (sub === 'branch' && branchLists(tokens.slice(at + 1))) return null
+  return `${who} ${GIT_DENIAL}`
+}
+
+/** Whether a git branch call only lists: list flags only, and a name only as the commit of a filter or a pattern of --list. */
+function branchLists(args: string[]): boolean {
+  const listing = args.some(arg => arg === '--list' || arg === '-l')
+  return args.every((arg, i) => (arg.startsWith('-') ? BRANCH_LIST_FLAGS.test(arg) : listing || BRANCH_TAKES_COMMIT.has(args[i - 1] ?? '')))
 }
 
 function nookDenial(tokens: string[], kind: CallerKind, who: string): string | null {

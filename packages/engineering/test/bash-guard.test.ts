@@ -165,6 +165,19 @@ describe('bashGuard: a reader runs read commands only', () => {
     expect(bash('nook eng item verify SHOP-1', REVIEWER).kind).toBe('block')
     expect(bash('cat x 2>/dev/null', SCOUT).kind).toBe('pass')
   })
+
+  test('a loop or a condition of reads passes, and each command inside it is checked', () => {
+    for (const c of ['for f in a.ts b.ts; do cat "$f"; done', 'if [ -f a.ts ]; then cat a.ts; else ls; fi', 'while read line; do echo "$line"; done < list.txt', 'for f in a b\ndo\n  wc -l "$f"\ndone'])
+      expect([c, bash(c, REVIEWER).kind]).toEqual([c, 'pass'])
+    expect(reason(bash('for f in a.ts; do rm "$f"; done', REVIEWER))).toBe('the reviewer is read-only: may not run `rm`.')
+  })
+
+  test('the git reads pass, such as the current branch, and a git branch that writes is blocked', () => {
+    for (const c of ['cd /x/frontend; git status; git branch --show-current; git diff; cat a.spec.tsx b.spec.tsx', 'git branch', 'git branch -a', 'git branch -vv', 'git branch --contains HEAD', "git branch --list 'nook/*'", 'git rev-parse HEAD', 'git ls-files src', 'git blame a.ts', 'git merge-base main HEAD', 'git grep -n foo', 'git ls-tree HEAD', 'git shortlog -sn', 'git describe --tags', 'git rev-list --count main..HEAD'])
+      expect([c, bash(c, REVIEWER).kind]).toEqual([c, 'pass'])
+    for (const c of ['git branch new-x', 'git branch -d x', 'git branch -m a b', 'git branch -u origin/x', 'git branch --set-upstream-to=origin/x', 'git branch -D x'])
+      expect([c, reason(bash(c, REVIEWER))]).toEqual([c, 'the reviewer may use only the git reads: status, diff, log, show, branch to list, rev-parse, ls-files, ls-tree, blame, grep, merge-base, rev-list, describe and shortlog.'])
+  })
 })
 
 describe('bashGuard: a reader and the item page', () => {
