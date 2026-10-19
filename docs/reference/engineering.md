@@ -185,11 +185,14 @@ The read paths of the web app are in `packages/engineering/src/read/reader.ts`. 
 
 | Function | Gives |
 |---|---|
-| `readBoard(desk)` | each open item, and each done item not yet archived, with its kind, size, state, areas and criteria met out of all |
+| `readAreas(desk)` | the areas of the home in the order of `nook.yml`; none for a desk with no home |
+| `readBoard(desk)` | each open item, and each done item not yet archived: kind, size, state, areas, criteria met, slices done, next step, flags |
 | `readItem(desk, id)` | the item, its next step and owner, what waits for the owner, the criteria, slices, questions, guesses, each change of state with its time, the events as sentences, the last verify run and the changed files |
 | `readDocs(desk, id)` | the text of `spec.md`, `plan.md`, `tasks.md` and `walkthrough.md`, or null for one not written yet |
 
 - What waits for the owner: the open questions, the blocking ones first, then the open guesses.
+- A flag of a card names what holds the item up: each blocking question, such as `Q2 blocks`, and each failed slice, such as `T4 failed`.
+- Each line of the brief of the module names its item: the id, the title and the state. The home page groups the lines by item.
 - Each event reads as a sentence, such as "You approved the plan" or "The lead began the build", with a tone for its mark.
 - The changed files of an area come from git: each file that differs from the merge base with the main branch, with its state and its added and removed lines. A folder, a link, a binary file or a file over 1 MB counts no lines. An area still on its main branch has none. Git runs with no optional lock, so a read never refreshes the index.
 - A ledger that needs a migration is a gap: any `nook eng` command migrates it.

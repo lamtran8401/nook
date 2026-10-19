@@ -87,11 +87,17 @@ export const engineeringModule: PackModule = {
     if (!home) return []
     return reading(
       home,
-      eng => [
-        ...brief(eng).map(l => ({ part: 'waits' as const, urgent: l.urgency === 'now', text: l.text, action: l.action })),
-        ...doneSince(eng, since).map(l => ({ part: 'done' as const, text: l.text })),
-        ...runs(eng).map(l => ({ part: 'runs' as const, text: l.text, action: l.action })),
-      ],
+      eng => {
+        const about = (ref: string) => {
+          const item = eng.stores.items.find(ref)
+          return item ? { item: { id: item.id, title: item.title, state: item.state } } : {}
+        }
+        return [
+          ...brief(eng).map(l => ({ part: 'waits' as const, urgent: l.urgency === 'now', text: l.text, action: l.action, ...about(l.ref) })),
+          ...doneSince(eng, since).map(l => ({ part: 'done' as const, text: l.text, ...about(l.ref) })),
+          ...runs(eng).map(l => ({ part: 'runs' as const, text: l.text, action: l.action, ...about(l.ref) })),
+        ]
+      },
       () => [],
     )
   },

@@ -20,7 +20,13 @@ import { type EventLine, eventLine } from './event-lines.ts'
  * read-only as a reader, so it never migrates, never writes a row, and runs under Bun or Node.
  */
 
-export type BoardCard = Pick<Item, 'id' | 'title' | 'kind' | 'size' | 'state' | 'areas'> & { criteria: { met: number; total: number } }
+/** One card of the board: the item, its criteria met and slices done, whose move is next, and what holds it up. */
+export type BoardCard = Pick<Item, 'id' | 'title' | 'kind' | 'size' | 'state' | 'areas'> & {
+  criteria: { met: number; total: number }
+  slices: { done: number; total: number }
+  next: Pick<Next, 'owner' | 'skill'>
+  flags: string[]
+}
 /** One change of state of an item: the move, the state it went to, and when. */
 export type ItemMove = { move: MoveName | 'new'; to: State; at: string }
 export type AreaChange = { area: string; branch: string; files: FileChange[] }
@@ -60,9 +66,19 @@ export function readAreas(desk: string): string[] {
 export function readBoard(desk: string): BoardCard[] {
   return withReader(desk, eng => {
     const items = [...eng.stores.items.open(), ...eng.stores.items.list('done').filter(i => !isArchived(eng, i.id))]
-    return items.map(({ id, title, kind, size, state, areas }) => {
+    return items.map(item => {
+      const { id, title, kind, size, state, areas } = item
       const criteria = eng.stores.criteria.list(id)
-      return { id, title, kind, size, state, areas, criteria: { met: criteria.filter(c => c.done).length, total: criteria.length } }
+      const slices = eng.stores.slices.live(id)
+      const { owner, skill } = nextFor(eng, item)
+      const flags = [...eng.stores.questions.openBlocking(id).map(q => `${q.id} blocks`), ...slices.filter(s => s.state === 'failed').map(s => `${s.id} failed`)]
+      return {
+        id, title, kind, size, state, areas,
+        criteria: { met: criteria.filter(c => c.done).length, total: criteria.length },
+        slices: { done: slices.filter(s => s.state === 'done').length, total: slices.length },
+        next: { owner, skill },
+        flags,
+      }
     })
   })
 }

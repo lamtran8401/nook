@@ -12,18 +12,30 @@ import { TabLinks } from '../components/TabLinks.tsx'
 import { html, text } from './markup.ts'
 
 const card = (fields: Partial<BoardCard> = {}): BoardCard => ({
-  id: 'SHOP-12', title: 'Filter shipments by status', kind: 'feature', size: 'M', state: 'cooking', areas: ['api', 'web'], criteria: { met: 1, total: 3 }, ...fields,
+  id: 'SHOP-12', title: 'Filter shipments by status', kind: 'feature', size: 'M', state: 'cooking', areas: ['api', 'web'], criteria: { met: 1, total: 3 },
+  slices: { done: 2, total: 5 }, next: { owner: false, skill: '/cook SHOP-12' }, flags: [], ...fields,
 })
 
 describe('ItemCard', () => {
-  test('shows the id, the title, the kind, the size, the areas and the criteria met, and links to the item', () => {
+  test('shows the title, the areas, the id, the criteria met, the size and whose turn it is, and links to the item', () => {
     const markup = html(<ItemCard card={card()} />)
     expect(markup).toContain('href="/works/SHOP-12"')
-    expect(text(markup)).toBe('SHOP-12 Filter shipments by status feature M api web 1/3 criteria')
+    expect(markup).toContain('<span class="nk-kind" data-tone="success" title="feature"')
+    expect(markup).toContain('<span class="nk-turn" data-tone="violet" title="The lead runs /cook SHOP-12">AI</span>')
+    expect(text(markup)).toBe('Filter shipments by status api web SHOP-12 1/3 M AI')
   })
 
-  test('says that an item has no criteria yet, in place of 0/0', () => {
-    expect(text(html(<ItemCard card={card({ criteria: { met: 0, total: 0 } })} />))).toEndWith('no criteria yet')
+  test('draws the criteria met as a bar, and none for an item with no criteria yet', () => {
+    expect(html(<ItemCard card={card()} />)).toContain('<span class="nk-bar" title="1 of 3 criteria met"><i style="width:33%"></i></span>')
+    const none = html(<ItemCard card={card({ criteria: { met: 0, total: 0 } })} />)
+    expect(none).not.toContain('nk-bar')
+    expect(text(none)).not.toContain('0/0')
+  })
+
+  test('a move of the owner is YOU, and each blocking question and failed slice is a flag', () => {
+    const markup = html(<ItemCard card={card({ next: { owner: true, skill: 'answer Q2: nook eng answer SHOP-12 Q2 "<answer>"' }, flags: ['Q2 blocks', 'T4 failed'] })} />)
+    expect(markup).toContain('title="Your move: answer Q2">YOU</span>')
+    expect(markup).toContain('<span class="nk-flag">Q2 blocks</span><span class="nk-flag">T4 failed</span>')
   })
 })
 
@@ -32,6 +44,7 @@ describe('Board', () => {
     const markup = html(<Board cards={[card({ id: 'SHOP-3', state: 'done' }), card({ id: 'SHOP-1', state: 'backlog' }), card({ id: 'SHOP-2', state: 'cooking' })]} />)
     expect([...markup.matchAll(/data-state="(\w+)"/g)].map(m => m[1])).toEqual(['backlog', 'cooking', 'done'])
     expect(text(markup)).toContain('cooking 1')
+    expect(markup).toContain('<section class="nk-col" data-state="cooking" data-tone="primary">')
   })
 
   test('says so when the desk has no item', () => {

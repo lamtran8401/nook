@@ -189,7 +189,7 @@ describe('engineeringModule: the retro', () => {
 })
 
 describe('engineeringModule: the daily brief', () => {
-  test('gives the waits of the owner first, what is done since the time, and what runs', () => {
+  test('gives the waits of the owner first, what is done since the time, and what runs, each with its item', () => {
     t = makeHome()
     readyToApprove(t)
     itemAt(t, 'planning', 'SHOP-2')
@@ -198,10 +198,10 @@ describe('engineeringModule: the daily brief', () => {
     lead.ledger.run("INSERT INTO event (item, type, from_state, to_state, actor, role, at) VALUES ('SHOP-2', 'accept', 'review', 'done', 'owner', 'owner', '2026-10-16T09:00:00.000Z')")
     lead.newItem({ id: 'SHOP-3', title: 'the new export', areas: ['bff'] })
     expect(engineeringModule.brief!(t.root, new Date('2026-10-15T00:00:00.000Z'))).toEqual([
-      { part: 'waits', urgent: true, text: 'SHOP-1 waits for your approve: the export date is off', action: '/gate approve SHOP-1' },
-      { part: 'waits', urgent: false, text: 'SHOP-2 is done and waits for its close: the export date is off', action: '/close SHOP-2' },
-      { part: 'done', text: 'SHOP-2 accepted: the export date is off' },
-      { part: 'runs', text: 'SHOP-3 backlog: the new export', action: '/spec SHOP-3' },
+      { part: 'waits', urgent: true, text: 'SHOP-1 waits for your approve: the export date is off', action: '/gate approve SHOP-1', item: { id: 'SHOP-1', title: 'the export date is off', state: 'planning' } },
+      { part: 'waits', urgent: false, text: 'SHOP-2 is done and waits for its close: the export date is off', action: '/close SHOP-2', item: { id: 'SHOP-2', title: 'the export date is off', state: 'done' } },
+      { part: 'done', text: 'SHOP-2 accepted: the export date is off', item: { id: 'SHOP-2', title: 'the export date is off', state: 'done' } },
+      { part: 'runs', text: 'SHOP-3 backlog: the new export', action: '/spec SHOP-3', item: { id: 'SHOP-3', title: 'the new export', state: 'backlog' } },
     ])
   })
 })

@@ -1,12 +1,11 @@
 import type { Next } from '@nook/engineering/report/next.ts'
 
+import { ownerGate } from '../../lib/turn.ts'
 import { Move } from './Move.tsx'
-
-const GATE = /^owner: \/gate (\w+)/
 
 /** Who moves the item next: a gate of the owner gets its button, which runs the move; a move of the lead says that nothing waits. */
 export function NextStep({ next }: { next: Next }) {
-  const gate = next.owner ? GATE.exec(next.skill)?.[1] : undefined
+  const gate = ownerGate(next)
   return (
     <div className="bn-next">
       <span className="bn-next__label">Next step</span>

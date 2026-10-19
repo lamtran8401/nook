@@ -82,8 +82,8 @@ Each page of the web app reads the desk when the browser asks for it. A gap of t
 
 | Page | It shows |
 |---|---|
-| `/` | the parts of `nook brief`: what waits, with each gap of `nook doctor` on top, then what is done and what runs |
-| `/works` | the board: one column for each state that holds an item; a click on a card opens the item in a dialog over the board, with its criteria, slices, last events and the link Open in new tab |
+| `/` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done |
+| `/works` | the board: one column for each state that holds an item; a card shows its flags and whose move is next; a click opens the item in a dialog |
 | `/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document |
 | `/wiki` | the drafts that wait for a yes, then each shelf with the lines of its index |
 | `/wiki/<shelf>`, `/wiki/<page>` | one shelf, or one page with its blocks and its links; a `[[name]]` links to its page |
@@ -101,6 +101,8 @@ The search box reads the Markdown files of each pack again at each search, so a 
 An open page renders again by itself when the desk changes, with no reload, within a second. `/live` sends an event when a file of a pack folder or the ledger in `.nook/` changes; a burst of writes gives one event. A change in the code of an area sends none.
 
 `bun run demo <dir>` builds a desk with mock work items in a new folder: one item in each state of the flow, made through the real moves. Open it with `nook web` from a terminal outside Claude Code.
+
+On the home, a gate line has its button, such as Approve, and an answer line links to its item. A line of no item, such as a gap of `nook doctor`, sits under This desk. Each command shows as code with a copy button.
 
 `nook doctor` and `nook brief` only read. `readHome(desk, modules)` in `packages/core/src/read.ts` gives the same brief of one desk and the findings of its doctor, for the home page of the web app.
 

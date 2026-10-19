@@ -5,7 +5,9 @@ export type Finding = { level: 'error' | 'warn' | 'ok'; where: string; text: str
 export type GateResult = { ok: boolean; lines: string[] }
 
 /** One line of the daily brief: its part, what it says, the action for it, and for a wait whether it comes first. */
-export type BriefLine = { part: 'waits' | 'done' | 'runs'; text: string; action?: string; urgent?: boolean }
+/** One line of the brief; `item` names the work item that the line is about, when there is one. */
+export type BriefLine = { part: 'waits' | 'done' | 'runs'; text: string; action?: string; urgent?: boolean; item?: BriefItem }
+export type BriefItem = { id: string; title: string; state: string }
 
 /** One fact of a retro: what went wrong or cost time, the item, and when its event happened. */
 export type RetroFact = { item: string; kind: string; text: string; at: string }
