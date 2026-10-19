@@ -6,9 +6,9 @@ import type { Source } from './config.ts'
 export type SourceCheck = { label: string; tool: 'twg' | 'gh'; ok: boolean; problem?: string; fix?: string }
 export type Runner = (argv: string[]) => CommandRun
 
-// a login check asks the server, so it gets a time limit
+// a login check or a read asks the server, so it gets a time limit
 const CHECK_MS = 15_000
-const run: Runner = argv => runCommand(argv, { timeoutMs: CHECK_MS })
+export const run: Runner = argv => runCommand(argv, { timeoutMs: CHECK_MS })
 
 const TOOL = {
   jira: { tool: 'twg', install: 'install the twg CLI of Atlassian Teamwork Graph, then twg login' },

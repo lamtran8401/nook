@@ -40,7 +40,28 @@ issue-tracker:
 
 | Command | What it does |
 |---|---|
+| `nook issues pull <ref...>` | reads each ticket and writes `backlog/<KEY>/ticket.md`; a ref is `GH-482` by the prefix of a source, or `acme/shop#482` by its repo |
 | `nook issues sources` | each source, and whether its CLI is on the path and has a login; exit 3 with the fix when one does not |
+
+## The pull
+
+The pull checks every ref before it writes a file. It reads a GitHub issue with `gh issue view <number> --repo <repo> --json`, and writes this shape:
+
+```text
+# GH-482: Filter orders by status
+## Fields                 Source, State, Author, Labels, Milestone, Assignees
+## Description            the body, with the parts of the map taken out
+## Acceptance criteria    the part of the body under its heading, or "None in the ticket."
+## Technical solution     one part for each other use of the map
+## Comments               each comment with its author and its day
+```
+
+- A heading of the map matches at any level and with any case. A heading in the words of the ticket sits two levels lower, so it never reads as a part of the ticket.
+- A second pull writes the new text and names each part that changed. It never touches the ledger, so the item keeps its state.
+- The report names each use of the map that the ticket does not have. A ticket with no acceptance criteria is still pulled; `/spec` asks for them.
+- A read that fails because the CLI or its login is missing exits 3 with the fix, such as `gh auth login`. A read that fails for another reason gives the first line of the CLI.
+- An image in a GitHub issue stays a link: a download from a private repo needs a token, and Nook keeps none.
+- `/intake <KEY>` runs the pull when the pack is on, then makes the item with the link as its source.
 
 ## The logins
 

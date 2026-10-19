@@ -1,16 +1,38 @@
 import type { Program } from '@nook/shared/cli.ts'
-import { Exit } from '@nook/shared/errors.ts'
+import { Exit, usage } from '@nook/shared/errors.ts'
 
 import { requireIssues } from './module.ts'
+import { pull, type PullReport } from './pull.ts'
 import { checkSource, type SourceCheck } from './sources.ts'
+import { headingOf } from './ticket.ts'
 
 const line = (check: SourceCheck) => (check.ok ? `✓ ${check.label}: ${check.tool} has a login` : `✗ ${check.label}: ${check.problem}\n  fix: ${check.fix}`)
+
+/** One pull in a few lines: the file, the title and the link, then what the next stage must know. */
+function pulled(report: PullReport): string {
+  const lines = [`✓ ${report.key} ${report.status}: ${report.file}`, `  ${report.title} · ${report.link}`]
+  if (report.changed.length) lines.push(`  changed: ${report.changed.join(', ')}`)
+  if (!report.criteria) lines.push('  no acceptance criteria in the ticket: /spec asks for them')
+  const missing = report.missing.filter(use => use !== 'acceptanceCriteria')
+  if (missing.length) lines.push(`  not in the ticket: ${missing.map(headingOf).join(', ')}`)
+  return lines.join('\n')
+}
 
 /** The commands of the pack issue-tracker. Each one only reads a tracker; the guard blocks the writes of `twg` and `gh`. */
 export const issuesProgram: Program = {
   name: 'nook issues',
   summary: 'the issue-tracker pack of Nook: tickets of Jira and GitHub into the backlog, read only',
   commands: [
+    {
+      path: ['pull'],
+      summary: 'reads each ticket and writes backlog/<KEY>/ticket.md; a second pull names each part that changed',
+      usage: '<ref...>',
+      run(c) {
+        if (!c.args.length) throw usage('name a ticket, such as GH-482 or acme/shop#482')
+        c.out(pull(requireIssues(), c.args), reports => reports.map(pulled).join('\n'))
+        return Exit.ok
+      },
+    },
     {
       path: ['sources'],
       summary: 'the sources of this desk, and whether the CLI of each one is on the path and has a login',

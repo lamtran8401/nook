@@ -1,0 +1,16 @@
+{
+  "number": 482,
+  "title": "Filter orders by status",
+  "url": "https://github.com/acme/shop/issues/482",
+  "state": "OPEN",
+  "author": { "login": "dana" },
+  "createdAt": "2026-10-10T09:00:00Z",
+  "labels": [{ "id": "L1", "name": "feature", "color": "0e8a16", "description": "" }, { "id": "L2", "name": "orders", "color": "fbca04", "description": "" }],
+  "milestone": { "number": 3, "title": "v2.1", "description": "", "dueOn": null },
+  "assignees": [{ "id": "U1", "login": "lam", "name": "Lam" }],
+  "body": "The list of orders is long. A person wants to see only the orders in one status.\n\n## Acceptance criteria\n- The list shows a status filter.\n- An empty filter shows every order.\n\n## Technical solution\nA query parameter `status` on GET /orders.\n\n## Notes\nThe export comes later.",
+  "comments": [
+    { "id": "C1", "author": { "login": "ana" }, "authorAssociation": "MEMBER", "body": "Must the filter keep its value after a reload?", "createdAt": "2026-10-11T08:30:00Z", "url": "https://github.com/acme/shop/issues/482#issuecomment-1" },
+    { "id": "C2", "author": { "login": "dana" }, "authorAssociation": "OWNER", "body": "Yes, in the address.\nAs ?status=paid.", "createdAt": "2026-10-11T09:15:00Z", "url": "https://github.com/acme/shop/issues/482#issuecomment-2" }
+  ]
+}

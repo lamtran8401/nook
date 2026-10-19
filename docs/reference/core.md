@@ -50,7 +50,7 @@ A fault stops the command and names the key: `packs.on must be a list of strings
 | `nook ste <file\|folder...> [--min N] [--quiet]` | the writing score of Markdown files; a file passes above `N`, default 80 |
 | `nook hook <name>` | one core hook, with the Claude Code event on stdin |
 
-Each pack adds its commands under its name: `nook eng …`, `nook issues …`, `nook wiki …`, `nook learn …`. `nook --help` lists all 94 commands.
+Each pack adds its commands under its name: `nook eng …`, `nook issues …`, `nook wiki …`, `nook learn …`. `nook --help` lists all 95 commands.
 
 `nook web` runs only in the owner's terminal:
 
