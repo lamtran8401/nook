@@ -8,7 +8,7 @@ allowed-tools: Bash(nook eng *), Bash(git status *), Bash(git diff *), Bash(git 
 
 Goal: a small fix with the least process. The speed comes from skipping documents, not the test or the checks.
 The first word of the arguments is a key (`SHOP-30`) or an item in the backlog; else the words are the title of a fix with no ticket.
-No arguments, or no words that say what to change: ask the owner with AskUserQuestion what to fix. Offer the items in the backlog as options.
+No arguments, or no words that say what to change: ask the owner with AskUserQuestion what to fix. Offer the two likeliest items of the backlog as options, and name the others in the question.
 
 ## Is it quick?
 All of these must be true, or you stop and send the owner to `/spec`.
