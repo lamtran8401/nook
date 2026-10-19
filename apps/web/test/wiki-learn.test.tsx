@@ -18,14 +18,16 @@ const wiki: WikiView = {
 }
 
 describe('WikiHome', () => {
-  test('lists the drafts that wait for a yes first, then each shelf with its pages', () => {
+  test('lists the drafts that wait for a yes first, then a group for each shelf with its pages and their type', () => {
     const markup = html(<WikiHome wiki={wiki} />)
     expect(markup).toContain('<a href="/wiki/drafts/payment-retries.md">Payment retries</a>')
     expect(markup).toContain('<a href="/wiki/resources/shipments-api.md">Shipments api</a>')
+    expect(markup).toContain('<a class="nk-group__head" href="/wiki/resources">')
+    expect(markup).toContain('<span class="nk-tag" data-tone="primary">system</span>')
     expect(text(markup)).toBe(
-      'Drafts that wait for your yes draft Payment retries drafts/payment-retries.md ' +
-        'ideas an idea that has not started No page yet A page joins the shelf after your yes to its draft. ' +
-        'resources how a system works system Shipments api The api lists the shipments in pages of 20.',
+      'Drafts that wait for your yes 1 Payment retries drafts/payment-retries.md draft ' +
+        'ideas 0 an idea that has not started No page yet. A page joins the shelf after your yes to its draft. ' +
+        'resources 1 how a system works Shipments api The api lists the shipments in pages of 20. system',
     )
   })
 

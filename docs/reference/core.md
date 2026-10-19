@@ -85,10 +85,10 @@ Each page of the web app reads the desk when the browser asks for it. A gap of t
 | `/` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done |
 | `/works` | the board: one column for each state that holds an item; a card shows its flags and whose move is next; a click opens the item in a dialog |
 | `/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document |
-| `/wiki` | the drafts that wait for a yes, then each shelf with the lines of its index |
+| `/wiki` | the drafts that wait for a yes, then a group for each shelf: each page with its summary and type |
 | `/wiki/<shelf>`, `/wiki/<page>` | one shelf, or one page with its blocks and its links; a `[[name]]` links to its page |
 | `/learn`, `/learn/<course>` | the courses; a course gives its cards due, the top patterns of the mistakes, and the bands of each criterion |
-| `/search?q=<words>` | each line that holds every word, in the item documents, the wiki and the courses, with its file and heading, as a link to its page |
+| `/search?q=<words>` | each line that holds every word, in the item documents, the wiki and the courses, in groups by file, as a link to its page |
 
 The Overview of an item gives the states of the flow with their times, the next step and its owner, four numbers, Needs you, the slices on a board, the branch and checks of each area, and the events. Needs you lists the blocking questions first, then the open questions, the guesses to check and the gate. A document tab renders its file block by block; a document not written yet names the command that writes it, such as `/view SHOP-12` for the walkthrough. Each tab has its own address, such as `/works/SHOP-12?tab=plan`.
 

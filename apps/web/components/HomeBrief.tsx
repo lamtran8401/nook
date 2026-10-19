@@ -2,6 +2,7 @@ import type { HomeView } from '@nook/core/read.ts'
 import type { BriefItem, BriefLine } from '@nook/desk/desks.ts'
 
 import { Cmd } from './Cmd.tsx'
+import { Group, GroupLine } from './Group.tsx'
 import { Move } from './item/Move.tsx'
 import { StateIcon, StateTag } from './Marks.tsx'
 
@@ -29,14 +30,15 @@ function LineAction({ action }: { action?: string | undefined }) {
   return answer ? <a className="bn-btn" data-variant="primary" data-size="sm" href={`/works/${answer[1]}`}>Answer</a> : null
 }
 
+/** The head of the lines of one item: its state, id and title. */
 function ItemHead({ item }: { item: BriefItem }) {
   return (
-    <a className="nk-group__head" href={`/works/${item.id}`}>
+    <>
       <StateIcon state={item.state} />
       <span className="nk-group__id">{item.id}</span>
       <span className="nk-group__title">{item.title}</span>
       <StateTag state={item.state} />
-    </a>
+    </>
   )
 }
 
@@ -58,21 +60,18 @@ function Waits({ lines }: { lines: BriefLine[] }) {
   return (
     <div className="nk-groups">
       {groupsOf(lines).map(group => (
-        <div className="bn-card nk-group" key={group.item?.id ?? 'desk'}>
-          {group.item ? <ItemHead item={group.item} /> : <div className="nk-group__head">This desk</div>}
-          <ul className="nk-lines">
-            {group.lines.map(line => (
-              <li className="nk-line" key={`${line.text}${line.action}`}>
-                <span className="nk-line__ico" data-tone={line.urgent ? 'danger' : 'warning'} aria-label={line.urgent ? 'urgent' : 'today'}>!</span>
-                <div className="nk-line__words">
-                  <p>{wordsOf(line)}</p>
-                  {line.action ? <Cmd text={line.action} /> : null}
-                </div>
-                <LineAction action={line.action} />
-              </li>
-            ))}
-          </ul>
-        </div>
+        <Group key={group.item?.id ?? 'desk'} head={group.item ? <ItemHead item={group.item} /> : 'This desk'} href={group.item ? `/works/${group.item.id}` : undefined} indent>
+          {group.lines.map(line => (
+            <GroupLine
+              key={`${line.text}${line.action}`}
+              mark={<span className="nk-line__ico" data-tone={line.urgent ? 'danger' : 'warning'} aria-label={line.urgent ? 'urgent' : 'today'}>!</span>}
+              end={<LineAction action={line.action} />}
+            >
+              <p>{wordsOf(line)}</p>
+              {line.action ? <Cmd text={line.action} /> : null}
+            </GroupLine>
+          ))}
+        </Group>
       ))}
     </div>
   )
@@ -84,7 +83,13 @@ function Rows({ lines }: { lines: BriefLine[] }) {
     <div className="bn-card nk-group">
       {lines.map(line => (
         <div className="nk-group__row" key={`${line.text}${line.action}`}>
-          {line.item ? <ItemHead item={line.item} /> : <p className="nk-group__head">{line.text}</p>}
+          {line.item ? (
+            <a className="nk-group__head" href={`/works/${line.item.id}`}>
+              <ItemHead item={line.item} />
+            </a>
+          ) : (
+            <p className="nk-group__head">{line.text}</p>
+          )}
           {line.action ? <Cmd text={line.action} /> : null}
         </div>
       ))}

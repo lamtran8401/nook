@@ -74,17 +74,19 @@ describe('the web app', () => {
     expect(item).toContain('<fieldset class="nk-move__controls">')
   })
 
-  test('the home page gives the brief of the desk, each gap of the doctor with its fix', () => {
+  test('the home page gives the brief of the desk: each gap of the doctor with its fix, and each item that runs', () => {
     const home = body('home')
-    expect(home).toContain('<b>engineering: works/ is missing</b><small>nook init --update</small>')
-    expect(home).toContain('<b>SHOP-12 backlog: Filter shipments by status</b><small>/spec SHOP-12</small>')
+    expect(home).toContain('<div class="nk-group__head">This desk</div>')
+    expect(home).toContain('<p>engineering: works/ is missing</p><code class="nk-cmd">nook init --update<button')
+    expect(home).toContain('<a class="nk-group__head" href="/works/SHOP-12">')
+    expect(home).toContain('<code class="nk-cmd">/spec SHOP-12<button')
   })
 
   test('/works gives the board, with a card for each item that links to it', () => {
     const page = body('page')
     expect(page).toContain('<a class="bn-card nk-card" data-item="SHOP-12" href="/works/SHOP-12">')
     expect(page).toContain('<span class="nk-card__title">Filter shipments by status</span>')
-    expect(page).toContain('<section class="nk-col" data-state="backlog">')
+    expect(page).toContain('<section class="nk-col" data-state="backlog" data-tone="neutral">')
     expect(page).toContain('<a href="/works" aria-current="page">Works</a>')
   })
 

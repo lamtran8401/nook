@@ -51,10 +51,19 @@ describe('search', () => {
 })
 
 describe('SearchResults', () => {
-  test('lists each line with its file and heading, as a link to its page', () => {
+  test('lists each line with its heading under its file, as a link to its page', () => {
     const markup = html(<SearchResults query="payment retry" hits={[{ file: 'works/SHOP-42/plan.md', href: '/works/SHOP-42?tab=plan', heading: 'Risks', line: 5, text: 'A payment retry charges twice.' }]} />)
     expect(markup).toContain('<a href="/works/SHOP-42?tab=plan">A payment retry charges twice.</a>')
-    expect(text(markup)).toBe('1 line holds "payment retry" L5 A payment retry charges twice. works/SHOP-42/plan.md · Risks')
+    expect(text(markup)).toBe('1 line holds "payment retry" works/SHOP-42/plan.md 1 L5 A payment retry charges twice. Risks')
+  })
+
+  test('groups the lines by file, and reads a line without the marks of Markdown', () => {
+    const hit = (file: string, line: number, words: string) => ({ file, href: `/${file}`, heading: '', line, text: words })
+    const hits = [hit('works/SHOP-42/spec.md', 3, '- **api:** the `list` pages'), hit('docs/wiki/a.md', 1, '# Retry pages'), hit('works/SHOP-42/spec.md', 9, '| 1 | api, call |')]
+    const markup = html(<SearchResults query="pages" hits={hits} />)
+    expect([...markup.matchAll(/<div class="nk-group__head">([^<]+)/g)].map(m => m[1])).toEqual(['works/SHOP-42/spec.md', 'docs/wiki/a.md'])
+    expect(text(markup)).toContain('L3 api: the list pages L9 1 | api, call')
+    expect(text(markup)).toContain('L1 Retry pages')
   })
 
   test('says so when nothing holds the words', () => {

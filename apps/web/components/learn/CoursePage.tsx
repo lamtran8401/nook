@@ -1,6 +1,7 @@
 import type { CourseView, CriterionTrend } from '@nook/learn/read.ts'
 
 import { Diagram } from '../Diagram.tsx'
+import { Cmd } from '../Cmd.tsx'
 import { EmptyState } from '../EmptyState.tsx'
 import { Records } from '../Records.tsx'
 
@@ -20,7 +21,7 @@ export function trendChart(trends: CriterionTrend[]): object | null {
 }
 
 function Scores({ trends }: { trends: CriterionTrend[] }) {
-  if (!trends.length) return <EmptyState compact icon="check" title="No score yet">The coach scores an answer in /learn-practice.</EmptyState>
+  if (!trends.length) return <EmptyState compact icon="check" title="No score yet">The coach scores an answer in <Cmd text="/learn-practice" />.</EmptyState>
   const chart = trendChart(trends)
   return (
     <>
@@ -72,7 +73,7 @@ export function CoursePage({ course }: { course: CourseView }) {
 
 /** The courses of the desk, each a link to its page. */
 export function Courses({ courses }: { courses: CourseView[] }) {
-  if (!courses.length) return <EmptyState icon="file" title="No course yet">Type /learn-setup in the agent session to start one.</EmptyState>
+  if (!courses.length) return <EmptyState icon="file" title="No course yet">Type <Cmd text="/learn-setup" /> in the agent session to start one.</EmptyState>
   return (
     <section className="nk-sec">
       <h2 className="nk-h2">Courses</h2>
