@@ -14,7 +14,7 @@ beforeEach(() => {
 })
 afterEach(() => rmSync(desk, { recursive: true, force: true }))
 
-const GAP = { level: 'warn' as const, where: 'SHOP-2', text: 'SHOP-2 T3 is failed', fix: 'nook eng task retry SHOP-2 T3' }
+const GAP = { level: 'warn' as const, where: 'SHOP-2', text: 'SHOP-2: plan.md changed after the approve', fix: 'nook eng item replan SHOP-2' }
 const pack: PackModule = {
   name: 'engineering',
   setup: () => [],
@@ -30,8 +30,8 @@ describe('readHome', () => {
   test('gives the gaps of the doctor, and the brief of the desk with those gaps first as urgent waits', () => {
     const home = readHome(desk, [pack], new Date(2026, 9, 18, 12))
     expect(home.dir).toBe(desk)
-    expect(home.findings).toContainEqual({ ...GAP, text: 'engineering: SHOP-2 T3 is failed' })
-    expect(home.brief).toContainEqual({ part: 'waits', urgent: true, text: 'engineering: SHOP-2 T3 is failed', action: 'nook eng task retry SHOP-2 T3' })
+    expect(home.findings).toContainEqual({ ...GAP, text: 'engineering: SHOP-2: plan.md changed after the approve' })
+    expect(home.brief).toContainEqual({ part: 'waits', urgent: true, text: 'engineering: SHOP-2: plan.md changed after the approve', action: 'nook eng item replan SHOP-2' })
     expect(home.brief.slice(-2)).toEqual([
       { part: 'waits', text: 'SHOP-1 waits for your approve', action: '/gate approve SHOP-1' },
       { part: 'done', text: `SHOP-0 closed since ${new Date(2026, 9, 17).toISOString().slice(0, 10)}` },

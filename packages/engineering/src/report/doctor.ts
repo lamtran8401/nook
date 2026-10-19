@@ -109,16 +109,6 @@ function itemFindings(eng: Engineering, item: Item): Finding[] {
       fix: `nook eng item replan ${id} --reason "no slices", then write tasks.md`,
     })
   }
-  for (const s of live.filter(s => s.state === 'waiting' || s.state === 'failed')) {
-    const fix =
-      s.state === 'failed' ? `nook eng task retry ${id} ${s.id}` : `nook eng task resume ${id} ${s.id}`
-    found.push({
-      level: 'warn',
-      where: id,
-      text: `${id} ${s.id} is ${s.state}${s.reason ? `: ${cut(s.reason, 80)}` : ''}`,
-      fix,
-    })
-  }
   for (const q of eng.stores.questions
     .openBlocking(id)
     .filter(q => Date.now() - Date.parse(q.asked_at) > DAY_MS)) {

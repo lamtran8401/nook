@@ -12,6 +12,14 @@ beforeEach(() => {
 afterEach(() => t.cleanup())
 
 describe('doctor', () => {
+  test('leaves a failed or waiting slice to the brief: it is the state of the work, not a gap', () => {
+    itemAt(t, 'cooking')
+    const lead = t.eng(LEAD)
+    lead.moveSlice('start', 'SHOP-1', 'T1')
+    lead.moveSlice('wait', 'SHOP-1', 'T1', { reason: 'the schema' })
+    expect(doctor(lead).map(f => f.text).filter(text => text.includes('T1'))).toEqual([])
+  })
+
   test('lists each gap of the pack in the home with its fix', () => {
     itemAt(t, 'cooking')
     const lead = t.eng(LEAD)
@@ -27,7 +35,6 @@ describe('doctor', () => {
     const texts = found.map(f => f.text)
     expect(texts).toContain('SHOP-1 names an area that nook.yml does not have: ghost')
     expect(texts).toContain('SHOP-1: plan.md changed after the approve')
-    expect(texts).toContain('SHOP-1 T1 is waiting: the schema')
     expect(texts).toContain('SHOP-2 is cooking with no slice')
     expect(texts).toContain('two items cook in area bff: SHOP-1, SHOP-2')
     expect(texts).toContain('SHOP-2 Q1 has blocked for more than a day: what?')
