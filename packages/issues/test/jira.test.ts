@@ -75,6 +75,21 @@ describe('readJira', () => {
     expect(readJira(JIRA, 'SHOP-12', twg([], nested)).ticket.sections[0]!.text).toBe('- A refund of a card payment goes to that card.')
   })
 
+  test('reads the item of an answer whose data is a list', () => {
+    const list = JSON.stringify({ data: [JSON.parse(SHOP_12).data] })
+    expect(readJira(JIRA, 'SHOP-12', twg([], list)).ticket.title).toBe('Refund to the same card')
+  })
+
+  test('an answer with no work item stops and names its shape, never an empty ticket', () => {
+    expect(() => readJira(JIRA, 'SHOP-12', twg([], '{"data":[]}'))).toThrow(expect.objectContaining({ message: 'twg gave no work item for SHOP-12: data is a list of 0' }))
+    expect(() => readJira(JIRA, 'SHOP-12', twg([], '{"data":{"errors":[],"meta":{}}}'))).toThrow(expect.objectContaining({ message: 'twg gave no work item for SHOP-12: data has errors, meta' }))
+    expect(() => readJira(JIRA, 'SHOP-12', twg([], '{"ok":true}'))).toThrow(expect.objectContaining({ message: 'twg gave no work item for SHOP-12: the answer has ok' }))
+  })
+
+  test('an item with another key stops the read', () => {
+    expect(() => readJira(JIRA, 'SHOP-12', twg([], SHOP_12.replace('"SHOP-12"', '"SHOP-99"')))).toThrow(expect.objectContaining({ message: 'twg gave SHOP-99 when asked for SHOP-12' }))
+  })
+
   test('takes the files from the attachment query, not from the item', () => {
     const one = JSON.stringify({ data: [JSON.parse(FILES).data[1]] })
     expect(readJira(JIRA, 'SHOP-12', twg([], SHOP_12, one)).attachments.map(a => a.name)).toEqual(['notes.pdf'])

@@ -75,7 +75,8 @@ A Jira work item:
 - An Epic is not a work item. Its pull stops with exit 3 and lists its stories from `twg jira workitem query --jql "parent = <KEY>"`.
 - The files come from `twg jira workitem attachment query --issue-id <KEY>`. Each file of 10 MB or less downloads into `attachments/` through `twg jira workitem attachment download`. A larger file stays a link. A file name keeps only its last part.
 - A file that is already in `attachments/` stays as it is, and the pull does not download it again. The owner keeps context files in that folder too.
-- The reader takes a field from the item or from its `fields`, and the item from `data` or from the first of `data.items`. The real answer of `twg` is checked on a desk with a Jira login.
+- The reader takes the item by the rule of `twg`: the first of `data.items`, the first of `data` as a list, or `data`. It takes a field from the item or from its `fields`.
+- An answer with no work item stops the pull and names its shape by its keys only, such as `twg gave no work item for SHOP-12: data is a list of 0`. An item with another key stops it too. The pull never writes an empty ticket.
 - `/intake <KEY>` runs the pull when the pack is on, then makes the item with the link as its source.
 
 ## The logins

@@ -15,24 +15,33 @@ export type Item = Record<string, unknown> & { fields?: Record<string, unknown> 
 
 const CRITERIA = 'acceptanceCriteria'
 
-/** The item of a twg answer: `data` for one key, `data.items[0].data` for a batch. */
-function itemOf(answer: unknown): Item {
-  const data = (answer as { data?: unknown })?.data as Record<string, unknown> | undefined
-  const items = data?.items as { data?: Item }[] | undefined
-  const item = items?.[0]?.data ?? data
-  if (!item || typeof item !== 'object') throw new EvError('twg gave no work item', Exit.error)
-  return item as Item
-}
-
 /** A field of the item, on the item or under its fields, as twg can give either. */
 const fieldOf = (item: Item, id: string): unknown => item[id] ?? item.fields?.[id]
+
+/** The shape of an answer by its keys only, so an error names it without the text of a ticket. */
+function shapeOf(answer: unknown): string {
+  const data = (answer as { data?: unknown } | null)?.data
+  if (Array.isArray(data)) return `data is a list of ${data.length}`
+  if (data && typeof data === 'object') return `data has ${Object.keys(data).join(', ') || 'no key'}`
+  return `the answer has ${(answer && typeof answer === 'object' ? Object.keys(answer).join(', ') : '') || 'nothing'}`
+}
+
+/** The item of a twg answer, by the rule that twg gives: `data.items[0].data`, the first of `data` as a list, or `data`. */
+function itemOf(answer: unknown, key: string): Item {
+  const data = (answer as { data?: unknown } | null)?.data
+  const items = (data as { items?: { data?: unknown }[] } | undefined)?.items
+  const item = (Array.isArray(items) ? items[0]?.data : Array.isArray(data) ? data[0] : data) as Item | undefined
+  if (!item || typeof item !== 'object' || (!item.key && !fieldOf(item, 'summary'))) throw new EvError(`twg gave no work item for ${key}: ${shapeOf(answer)}`, Exit.error)
+  if (typeof item.key === 'string' && item.key.toUpperCase() !== key.toUpperCase()) throw new EvError(`twg gave ${item.key} when asked for ${key}`, Exit.error)
+  return item
+}
 
 /** The map of a key: the map of the source, with the override of its project for each use it names. */
 const mapOf = (source: JiraSource, key: string) => ({ ...source.fields, ...source.projects[key.split('-')[0]!]?.fields })
 
 /** Reads one work item with `twg jira workitem get --full`, and each field id of the map by name. */
 export function getItem(site: string, key: string, fieldIds: string[], runner: Runner): Item {
-  return itemOf(twgJson(runner, site, ['jira', 'workitem', 'get', key, '--full', ...fieldIds.flatMap(id => ['--field', id])], key))
+  return itemOf(twgJson(runner, site, ['jira', 'workitem', 'get', key, '--full', ...fieldIds.flatMap(id => ['--field', id])], key), key)
 }
 
 /** The files of a work item, from the attachment query of twg: its `data` is the list. */
