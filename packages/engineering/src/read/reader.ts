@@ -51,6 +51,11 @@ function withReader<T>(desk: string, read: (eng: Engineering) => T): T {
   }
 }
 
+/** The areas of the engineering home of the desk, in the order of `nook.yml`; none when the desk has no home. */
+export function readAreas(desk: string): string[] {
+  return Home.find(desk)?.config.areas.map(area => area.name) ?? []
+}
+
 /** The open items and the done ones not yet archived, as `nook eng next` lists them. */
 export function readBoard(desk: string): BoardCard[] {
   return withReader(desk, eng => {

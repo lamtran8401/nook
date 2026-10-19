@@ -5,10 +5,11 @@ import type { ReactNode } from 'react'
 
 import { uiKit } from '@nook/desk/ui-kit.ts'
 
+import { AreaTones } from '../components/Areas.tsx'
 import { Live } from '../components/Live.tsx'
 import { Owner, ViewerNote } from '../components/Owner.tsx'
 import { PackNav } from '../components/PackNav.tsx'
-import { deskDir, packTabs } from '../lib/desk.ts'
+import { deskAreas, deskDir, packTabs } from '../lib/desk.ts'
 import { OWNER_HEADER } from '../lib/gate.ts'
 import './app.css'
 
@@ -38,7 +39,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         </header>
         <Owner paired={paired}>
           <ViewerNote />
-          <main className="nk-main">{children}</main>
+          <AreaTones names={deskAreas()}>
+            <main className="nk-main">{children}</main>
+          </AreaTones>
         </Owner>
         <Live />
         <script dangerouslySetInnerHTML={{ __html: kit.js }} />

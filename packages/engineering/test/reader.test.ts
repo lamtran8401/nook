@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { readBoard, readDocs, readItem } from '../src/read/reader.ts'
+import { readAreas, readBoard, readDocs, readItem } from '../src/read/reader.ts'
 import { itemAt, LEAD, makeHome, PLAN, READER, SPEC, TASKS, type TestHome, writeDoc } from './helpers.ts'
 
 let t: TestHome
@@ -10,6 +11,21 @@ beforeEach(() => {
   t = makeHome()
 })
 afterEach(() => t.cleanup())
+
+describe('readAreas', () => {
+  test('gives the areas of the desk in the order of nook.yml', () => {
+    expect(readAreas(t.root)).toEqual(['bff', 'web'])
+  })
+
+  test('gives none for a folder with no engineering home', () => {
+    const bare = mkdtempSync(join(tmpdir(), 'nook-no-home-'))
+    try {
+      expect(readAreas(bare)).toEqual([])
+    } finally {
+      rmSync(bare, { recursive: true, force: true })
+    }
+  })
+})
 
 describe('readBoard', () => {
   test('gives each open item with its kind, size, state, areas and criteria met out of all', () => {

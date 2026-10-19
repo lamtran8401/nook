@@ -101,3 +101,17 @@ body { margin: 0; background: var(--bg); color: var(--fg); }
 .nk-mode button:focus-visible { outline: var(--stroke-3) solid var(--focus-ring); outline-offset: 1px; }
 .nk-move.nk-mode { flex-wrap: wrap; }
 .nk-move__refused { flex-basis: 100%; }
+
+/* the marks of an item that every page shares: state, kind, turn, areas, and a command to copy */
+.nk-stateicon { flex: none; color: var(--t); }
+.nk-state { display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px 1px 6px; border-radius: var(--radius-full); background: var(--t-subtle); color: var(--t); font: 600 12px/20px var(--font-sans); }
+.nk-kind { flex: none; display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 4px; background: var(--t); color: var(--surface); }
+.nk-turn { flex: none; display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 5px; box-sizing: border-box; border-radius: var(--radius-full); background: var(--t); color: var(--surface); font: 700 9.5px/1 var(--font-sans); letter-spacing: .02em; }
+.nk-tags { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.nk-tag { padding: 1px 6px; border-radius: 4px; background: color-mix(in oklab, var(--t) 13%, transparent); color: var(--t); font: 700 10.5px/16px var(--font-sans); letter-spacing: .03em; text-transform: uppercase; }
+.nk-cmd { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 2px 3px 2px 8px; border-radius: 6px; background: var(--bg-muted); box-shadow: inset 0 0 0 1px var(--hairline); color: var(--fg); font: 500 12px/18px var(--font-mono); overflow-wrap: anywhere; }
+.nk-cmd__copy { all: unset; flex: none; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 4px; color: var(--fg-muted); cursor: pointer; }
+.nk-cmd__copy:hover { background: var(--surface); color: var(--fg); }
+.nk-cmd__copy:focus-visible { outline: var(--stroke-3) solid var(--focus-ring); }
+.nk-cmd__copy[data-copy="copied"] { color: var(--success); }
+.nk-cmd__copy[data-copy="failed"] { color: var(--danger); }
