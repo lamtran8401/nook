@@ -21,7 +21,7 @@ const ticketFile = () => join(home, 'backlog', 'GH-482', 'ticket.md')
 describe('pull', () => {
   test('writes backlog/<KEY>/ticket.md and reports the key, the title, the link and that the ticket is new', () => {
     const [report] = pull({ home, config }, ['GH-482'], answer(GH_482))
-    expect(report).toEqual({ key: 'GH-482', title: 'Filter orders by status', link: 'https://github.com/acme/shop/issues/482', file: 'backlog/GH-482/ticket.md', status: 'new', changed: [], missing: [], criteria: true })
+    expect(report).toEqual({ key: 'GH-482', title: 'Filter orders by status', link: 'https://github.com/acme/shop/issues/482', file: 'backlog/GH-482/ticket.md', status: 'new', changed: [], missing: [], criteria: true, attachments: 0, links: 0 })
     expect(readFileSync(ticketFile(), 'utf8')).toStartWith('# GH-482: Filter orders by status\n\n## Fields\n')
   })
 

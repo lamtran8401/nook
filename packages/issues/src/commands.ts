@@ -1,9 +1,10 @@
 import type { Program } from '@nook/shared/cli.ts'
 import { Exit, usage } from '@nook/shared/errors.ts'
 
+import { listFields } from './fields.ts'
 import { requireIssues } from './module.ts'
 import { pull, type PullReport } from './pull.ts'
-import { checkSource, type SourceCheck } from './sources.ts'
+import { checkSource, run, type SourceCheck } from './sources.ts'
 import { headingOf } from './ticket.ts'
 
 const line = (check: SourceCheck) => (check.ok ? `✓ ${check.label}: ${check.tool} has a login` : `✗ ${check.label}: ${check.problem}\n  fix: ${check.fix}`)
@@ -30,6 +31,18 @@ export const issuesProgram: Program = {
       run(c) {
         if (!c.args.length) throw usage('name a ticket, such as GH-482 or acme/shop#482')
         c.out(pull(requireIssues(), c.args), reports => reports.map(pulled).join('\n'))
+        return Exit.ok
+      },
+    },
+    {
+      path: ['fields'],
+      summary: 'each field of a Jira ticket, or each heading of a GitHub issue, with its id, its name and the start of its value',
+      usage: '<ref>',
+      run(c) {
+        const ref = c.args[0]
+        if (!ref) throw usage('name one ticket, such as SHOP-12 or GH-482')
+        const rows = listFields(ref, requireIssues().config, run)
+        c.out(rows, all => all.map(r => `${r.id.padEnd(22)} ${r.name.padEnd(24)} ${r.start}`).join('\n'))
         return Exit.ok
       },
     },

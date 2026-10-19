@@ -13,14 +13,12 @@ describe('resolveRef', () => {
   const config = IssuesConfig.from({ sources: [SOURCE, { type: 'github', repo: 'acme/web', prefix: 'WEB' }] })
 
   test('a prefix and a number, or owner/name#number, name a GitHub issue and the item it makes', () => {
-    const shop = resolveRef('GH-482', config)
-    expect([shop.source.repo, shop.key, shop.number]).toEqual(['acme/shop', 'GH-482', 482])
-    const web = resolveRef('acme/web#9', config)
-    expect([web.source.repo, web.key, web.number]).toEqual(['acme/web', 'WEB-9', 9])
+    expect(resolveRef('GH-482', config)).toMatchObject({ key: 'GH-482', number: 482, source: { repo: 'acme/shop' } })
+    expect(resolveRef('acme/web#9', config)).toMatchObject({ key: 'WEB-9', number: 9, source: { repo: 'acme/web' } })
   })
 
   test('a ref of no source of the desk stops with the forms that work', () => {
-    expect(() => resolveRef('other/repo#1', config)).toThrow(expect.objectContaining({ message: 'other/repo#1 names no source of this desk', fix: 'use a prefix such as GH-482 or a repo of issue-tracker.sources, such as acme/shop#482' }))
+    expect(() => resolveRef('other/repo#1', config)).toThrow(expect.objectContaining({ message: 'other/repo#1 names no source of this desk', fix: 'use a Jira key such as SHOP-12, a prefix such as GH-482, or a repo of issue-tracker.sources, such as acme/shop#482' }))
     expect(() => resolveRef('482', config)).toThrow(expect.objectContaining({ message: '482 names no source of this desk' }))
   })
 })

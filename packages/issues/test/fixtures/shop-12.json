@@ -1,0 +1,25 @@
+{
+  "data": {
+    "key": "SHOP-12",
+    "summary": "Refund to the same card",
+    "url": "https://company.atlassian.net/browse/SHOP-12",
+    "issuetype": { "name": "Story" },
+    "status": { "name": "To Do" },
+    "priority": { "name": "High" },
+    "assignee": { "displayName": "Lam" },
+    "reporter": { "displayName": "Dana" },
+    "labels": ["payments"],
+    "description": { "type": "doc", "version": 1, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "A refund goes back to the card that paid." }] }] },
+    "customfield_10095": { "type": "doc", "version": 1, "content": [{ "type": "bulletList", "content": [{ "type": "listItem", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "A refund of a card payment goes to that card." }] }] }] }] },
+    "customfield_10096": "Call the refund API of the vault with the payment id.\nKeep the refund id on the order.",
+    "customfield_10019": [{ "id": 51, "name": "Sprint 12", "state": "active" }],
+    "comments": [
+      { "author": { "displayName": "Ana" }, "created": "2026-10-12T08:00:00.000+0000", "body": { "type": "doc", "version": 1, "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "What about a card that expired?" }] }] } }
+    ],
+    "attachments": [
+      { "id": "10001", "filename": "flow.png", "size": 204800, "mimeType": "image/png", "content": "https://company.atlassian.net/rest/api/3/attachment/content/10001" },
+      { "id": "10002", "filename": "notes.pdf", "size": 1048576, "mimeType": "application/pdf", "content": "https://company.atlassian.net/rest/api/3/attachment/content/10002" },
+      { "id": "10003", "filename": "demo.mov", "size": 52428800, "mimeType": "video/quicktime", "content": "https://company.atlassian.net/rest/api/3/attachment/content/10003" }
+    ]
+  }
+}
