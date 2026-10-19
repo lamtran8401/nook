@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils.ts"
+import { cn } from "@nook/ui/lib/utils.ts"
 import { Slot } from "radix-ui"
 
 const badgeVariants = cva(

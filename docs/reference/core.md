@@ -302,13 +302,14 @@ nook/
 │   ├── core/             init, doctor, packs, where, ste, brief, retro, the core hooks
 │   ├── engineering/      the ledger, the item machine, the guards, the documents, git, the hooks
 │   ├── wiki/             the shelves, their indexes, the link check
-│   └── learn/            the courses: roadmap, cards, mistakes, scores, the study log
+│   ├── learn/            the courses: roadmap, cards, mistakes, scores, the study log
+│   └── ui/               the UI base of the web app: the shadcn/ui parts and the Tailwind theme from the Bench tokens
 ├── plugins/<pack>/       pack.json, .claude-plugin/, bin/nook, skills/, templates/, and agents/, hooks/ or ui/ where a pack has them; no code
 ├── docs/                 the guide book, the reference, the report, the expectation
 └── .claude-plugin/       the marketplace
 ```
 
-The dependency rule: `apps/nook` and `apps/web` import the packages. A package imports `@nook/shared/*` and `@nook/desk/*` only, never another pack. Each package names the `@nook` packages that it imports in its `package.json`, so Node finds them. A plugin holds no code: its hooks call `bin/nook`.
+The dependency rule: `apps/nook` and `apps/web` import the packages. A package imports `@nook/shared/*` and `@nook/desk/*` only, never another pack; `packages/ui` imports no `@nook` package. Each package names the `@nook` packages that it imports in its `package.json`, so Node finds them. A plugin holds no code: its hooks call `bin/nook`.
 
 Every package runs under Bun and under Node, so the web app can import it. The SQLite file and the command runner of `shared` use `node:sqlite` and `node:child_process`. A test fails when a package source uses a Bun API.
 

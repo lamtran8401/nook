@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils.ts"
+import { cn } from "@nook/ui/lib/utils.ts"
 import { Tabs as TabsPrimitive } from "radix-ui"
 
 function Tabs({

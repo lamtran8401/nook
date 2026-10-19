@@ -11,7 +11,7 @@ import { Owner, ViewerNote } from '@/components/Owner.tsx'
 import { PackNav } from '@/components/PackNav.tsx'
 import { deskAreas, deskDir, packTabs } from '@/lib/desk.ts'
 import { OWNER_HEADER } from '@/lib/gate.ts'
-import '@/app/globals.css'
+import '@nook/ui/styles/globals.css'
 import '@/app/app.css'
 
 export const dynamic = 'force-dynamic'

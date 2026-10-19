@@ -4,8 +4,12 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ESNext"],
-    "types": ["bun"],
+    "lib": [
+      "ESNext"
+    ],
+    "types": [
+      "bun"
+    ],
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
@@ -16,13 +20,36 @@
     "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
     "paths": {
-      "@nook/shared/*": ["./packages/shared/src/*"],
-      "@nook/desk/*": ["./packages/desk/src/*"],
-      "@nook/core/*": ["./packages/core/src/*"],
-      "@nook/engineering/*": ["./packages/engineering/src/*"],
-      "@nook/wiki/*": ["./packages/wiki/src/*"],
-      "@nook/learn/*": ["./packages/learn/src/*"]
+      "@nook/shared/*": [
+        "./packages/shared/src/*"
+      ],
+      "@nook/desk/*": [
+        "./packages/desk/src/*"
+      ],
+      "@nook/core/*": [
+        "./packages/core/src/*"
+      ],
+      "@nook/engineering/*": [
+        "./packages/engineering/src/*"
+      ],
+      "@nook/wiki/*": [
+        "./packages/wiki/src/*"
+      ],
+      "@nook/learn/*": [
+        "./packages/learn/src/*"
+      ],
+      "@nook/ui/*": [
+        "./packages/ui/src/*"
+      ]
     }
   },
-  "include": ["apps/*/src", "packages/*/src", "packages/*/test", "scripts"]
+  "include": [
+    "apps/*/src",
+    "packages/*/src",
+    "packages/*/test",
+    "scripts"
+  ],
+  "exclude": [
+    "packages/ui"
+  ]
 }

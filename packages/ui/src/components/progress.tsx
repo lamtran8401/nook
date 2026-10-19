@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { cn } from "@/lib/utils.ts"
+import { cn } from "@nook/ui/lib/utils.ts"
 import { Progress as ProgressPrimitive } from "radix-ui"
 
 function Progress({

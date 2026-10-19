@@ -1,6 +1,11 @@
-/* Tailwind and the shadcn theme. Every value is a Bench token, so the web app keeps the look of the docs pages. */
+/* Tailwind and the shadcn theme of Nook. Every value is a Bench token, so the web app keeps the look of the docs pages. */
 @import 'tailwindcss';
 @import 'tw-animate-css';
+
+/* the classes come from the parts of this package and from the pages of the web app */
+@source '../components';
+@source '../../../../apps/web/app';
+@source '../../../../apps/web/components';
 
 @theme inline {
   --color-background: var(--bg);

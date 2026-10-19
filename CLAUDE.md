@@ -12,6 +12,7 @@ packages/core/         init, doctor, packs, where, the writing check, brief, ret
 packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks, the read paths of the web app
 packages/wiki/         the shelves of the wiki, their indexes, the link check
 packages/learn/        the courses: roadmap, cards, mistakes, scores, the study log
+packages/ui/           the UI base of the web app: the shadcn/ui parts, cn(), and the Tailwind theme from the Bench tokens
 plugins/<pack>/        one Claude Code plugin each: pack.json, .claude-plugin/, bin/nook (a shim), hooks/, skills/, agents/, templates/. No code.
 docs/guide/            the guide book: how to use Nook, one chapter for each task
 docs/reference/        the contract of each pack: core, engineering, wiki, learn
@@ -40,8 +41,8 @@ A desk is a folder with `nook.yml`. Desks nest: `company/` is a top desk, and `c
 - A guard hook blocks when it cannot decide. A helper hook (style, context) lets the call pass when it fails.
 - An agent runs the tool as `nook` only; the guard blocks the short form `nk`. The names live in `packages/shared/src/names.ts`.
 - `nook init` writes only what it marks: the Nook block, `.claude/rules/nook/`, `.claude/output-styles/nook-companion.md`, its settings keys, `.nook/`, and the folders of each pack. Never a line of the owner.
-- `apps/web` imports its own files through the alias `@/`, such as `@/components/ui/button.tsx`. Node runs `server.ts`, `lib/handler.ts`, `lib/gate.ts` and `e2e/render.ts` with no bundler and reads no alias, so those files use relative imports.
-- `apps/web` builds on shadcn/ui and Tailwind v4: a part comes with `bunx --bun shadcn@<version> add <part>` into `components/ui/`; check its imports and `package.json` after each add.
+- `apps/web` imports its own files through the alias `@/`, such as `@/components/Board.tsx`, and the UI base as `@nook/ui/components/button.tsx`. Node runs `server.ts`, `lib/handler.ts`, `lib/gate.ts` and `e2e/render.ts` with no bundler and reads no alias, so those files use relative imports.
+- `packages/ui` holds the shadcn/ui parts and the Tailwind theme; it imports no other `@nook` package. Add a part from `packages/ui` with `bunx --bun shadcn@<version> add <part>`, then check its imports and `package.json`: the CLI once pulled an unrelated npm package.
 - Write clear code: clear names, small functions, early returns.
 - Each edit of the Nook code leaves `nook` runnable. The hooks run this code, so a broken `nook` binary blocks the guards of the session. Write a new function before the line that calls it, or write the whole file at once.
 
