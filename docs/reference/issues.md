@@ -47,7 +47,7 @@ issue-tracker:
 
 ## The pull
 
-The pull checks every ref before it writes a file. It reads a GitHub issue with `gh issue view <number> --repo <repo> --json`, and a Jira work item with `twg --site <site> jira workitem get <KEY> --full -o json`. It writes this shape:
+The pull checks every ref before it writes a file. It reads a GitHub issue with `gh issue view <number> --repo <repo> --json`, and a Jira work item with `twg --site <site> jira workitem get <KEY> --full`, with `--field <id>` for each field id of the map. It writes this shape:
 
 ```text
 # GH-482: Filter orders by status
@@ -70,7 +70,11 @@ A Jira work item:
 - The map of the key is the map of the source with the override of its project, use by use.
 - Rich text in the Atlassian Document Format becomes Markdown: headings, lists, code, quotes, tables, links, mentions and panels.
 - The acceptance criteria always get their own part. Another use gets a part when its value is rich text, has a line break or is longer than 80 characters. A shorter value, such as a sprint, is a row of Fields.
-- Each file of 10 MB or less downloads into `attachments/` through `twg jira workitem attachment download`. A larger file stays a link. A file name keeps only its last part.
+- Each call of `twg` that reads JSON adds `-o json --output-summary none`. Without it, `twg` in an agent session can write a large answer to a file and print only `output_files:` and the path.
+- An answer that is not JSON stops the pull with its first line, such as `twg gave no JSON for SHOP-12: output_files:`.
+- An Epic is not a work item. Its pull stops with exit 3 and lists its stories from `twg jira workitem query --jql "parent = <KEY>"`.
+- The files come from `twg jira workitem attachment query --issue-id <KEY>`. Each file of 10 MB or less downloads into `attachments/` through `twg jira workitem attachment download`. A larger file stays a link. A file name keeps only its last part.
+- A file that is already in `attachments/` stays as it is, and the pull does not download it again. The owner keeps context files in that folder too.
 - The reader takes a field from the item or from its `fields`, and the item from `data` or from the first of `data.items`. The real answer of `twg` is checked on a desk with a Jira login.
 - `/intake <KEY>` runs the pull when the pack is on, then makes the item with the link as its source.
 
@@ -107,6 +111,8 @@ The hook `nook issues hook bash` blocks each write of `twg` and `gh` in a Bash c
 - The map comes from `twg help-map`, once for each Bash call that runs `twg`. It names each command of the installed `twg`, so a new command of `twg` needs no change in Nook.
 - The guard skips the global options of `twg` and their values, such as `--site company.atlassian.net` and `-o json`. It takes the longest command of the map that the words start with. An alias of a group, such as `bb` for `bitbucket`, counts.
 - When `twg help-map` fails, the guard blocks every `twg` command but `--version` and `--help`.
-- The guard reads the words with the shell parser of `packages/shared`. A call inside `$(...)`, backticks, `eval` or `sh -c` counts. A quoted text such as `grep "gh issue comment" notes.md` is one word, so it passes.
+- The guard reads each simple command with the shell parser of `packages/shared`. A call inside `$(...)`, backticks, `eval`, `sh -c` or a heredoc to a shell counts.
+- Only the command word is a call, such as `gh` in `FOO=1 gh issue close 1`. A word in the arguments of another program passes, such as `grep -rn twg src`.
+- After a program that runs a command, such as `xargs`, `env`, `sudo`, `timeout` or `find -exec`, each `gh` or `twg` word is a call.
 - A block names the command and says to ask the owner, such as `gh issue comment writes to the tracker: the agents of this desk only read tickets. Ask the owner to do it.`
 - The guard fails closed: when it fails, it blocks the call with the reason.

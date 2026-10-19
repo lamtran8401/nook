@@ -14,7 +14,10 @@ describe('listFields', () => {
   test('lists each field of a Jira item with its id, its name from the metadata and the start of its value', () => {
     const ran: string[][] = []
     const rows = listFields('SHOP-12', config, argv => (ran.push(argv), { code: 0, out: argv.includes('update-metadata') ? METADATA : SHOP_12, err: '' }))
-    expect(ran[1]).toEqual(['twg', '--site', 'company.atlassian.net', 'jira', 'workitem', 'field', 'update-metadata', '--id', 'SHOP-12', '-o', 'json'])
+    expect(ran).toEqual([
+      ['twg', '--site', 'company.atlassian.net', 'jira', 'workitem', 'get', 'SHOP-12', '--full', '-o', 'json', '--output-summary', 'none'],
+      ['twg', '--site', 'company.atlassian.net', 'jira', 'workitem', 'field', 'update-metadata', '--id', 'SHOP-12', '--include-system-fields', '-o', 'json', '--output-summary', 'none'],
+    ])
     expect(rows.filter(r => r.id.startsWith('customfield'))).toEqual([
       { id: 'customfield_10095', name: 'Acceptance criteria', start: '- A refund of a card payment goes to that card.' },
       { id: 'customfield_10096', name: 'Technical solution', start: 'Call the refund API of the vault with the payment id. Keep the r…' },

@@ -88,9 +88,16 @@ describe('the write guard of the trackers', () => {
     expect(verdict('echo "twg jira workitem update SHOP-1" | sh')).toContain('twg jira workitem update writes')
   })
 
+  test('a call behind a wrapper, an assignment or a keyword is found', () => {
+    for (const command of ['FOO=1 gh issue close 1', 'echo 1 | xargs -n1 gh issue close', 'env GH_HOST=x gh issue close 1', 'sudo -u bob /usr/local/bin/gh issue close 1', 'timeout 5 gh issue close 1', 'if true; then gh issue close 1; fi', 'find . -name x -exec twg jira workitem update SHOP-1 \\;'])
+      expect([command, verdict(command)]).toEqual([command, expect.stringContaining('writes to the tracker')])
+  })
+
   test('a command with no tracker CLI passes, also one that only names gh in its words', () => {
     expect(verdict('ls backlog')).toBeNull()
     expect(verdict('grep "gh issue comment" notes.md')).toBeNull()
+    for (const command of ['grep -rn twg packages/issues/src', 'echo gh issue close 1', 'rg -l "twg jira" .', 'cat twg', 'ls ~/bin/twg'])
+      expect([command, verdict(command)]).toEqual([command, null])
   })
 
   test('with no map of twg, each twg command but --version and --help is blocked', () => {

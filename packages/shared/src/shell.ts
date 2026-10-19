@@ -50,6 +50,27 @@ export const plainWords = (command: string): { plain: string; words: string[] } 
 const SHELL = /(^|\/)(?:sh|bash|zsh|dash|ksh)$/
 const SCRIPT_FLAG = /^-\w*c\w*$/
 
+/** The code that a command runs itself: the words after `eval`, the script of `sh -c`, and whether a shell reads its input. */
+function scriptsOf(words: string[]): { scripts: string[]; readsInput: boolean } {
+  const scripts: string[] = []
+  let readsInput = false
+  words.forEach((word, i) => {
+    if (/(^|\/)eval$/.test(word)) scripts.push(words.slice(i + 1).join(' '))
+    if (!SHELL.test(word)) return
+    let flag = i + 1
+    while (words[flag]?.startsWith('-') && !SCRIPT_FLAG.test(words[flag]!)) flag++
+    if (SCRIPT_FLAG.test(words[flag] ?? '')) scripts.push(words[flag + 1] ?? '')
+    else readsInput = true
+  })
+  return { scripts, readsInput }
+}
+
+/** The code nested in a command line: its substitutions, its scripts, and its quoted words and heredoc bodies when a shell reads its input. */
+function nestedCode(words: string[], parts: { quoted: string[]; code: string[] }, bodies: string[]): string[] {
+  const { scripts, readsInput } = scriptsOf(words)
+  return [...parts.code, ...scripts, ...(readsInput ? [...parts.quoted, ...bodies] : [])]
+}
+
 /**
  * The words of a command as the shell reads them: quotes join a word and go. The code that the command runs adds
  * its own words: a `$(...)` or backtick substitution, the words after `eval`, and the script of `sh -c`. A shell with
@@ -57,34 +78,43 @@ const SCRIPT_FLAG = /^-\w*c\w*$/
  */
 export function shellWords(command: string): string[] {
   const { code: text, bodies } = splitHeredocs(command)
-  const { words, quoted, code } = splitWords(text)
-  const nested = [...code]
-  let readsInput = false
-  words.forEach((word, i) => {
-    if (/(^|\/)eval$/.test(word)) nested.push(words.slice(i + 1).join(' '))
-    if (!SHELL.test(word)) return
-    let flag = i + 1
-    while (words[flag]?.startsWith('-') && !SCRIPT_FLAG.test(words[flag]!)) flag++
-    if (SCRIPT_FLAG.test(words[flag] ?? '')) nested.push(words[flag + 1] ?? '')
-    else readsInput = true
-  })
-  if (readsInput) nested.push(...quoted, ...bodies)
-  return [...words, ...nested.flatMap(shellWords)]
+  const parts = splitWords(text)
+  const words = parts.commands.flat()
+  return [...words, ...nestedCode(words, parts, bodies).flatMap(shellWords)]
 }
 
-/** One pass over the text: its words, the ones that held a quote, and the code of each substitution outside single quotes. */
-function splitWords(text: string): { words: string[]; quoted: string[]; code: string[] } {
-  const words: string[] = []
+const ASSIGNMENT = /^[A-Za-z_]\w*=/
+
+/**
+ * The simple commands of a line, each as its words with the leading `NAME=value` assignments dropped. The commands
+ * of its nested code, read as `shellWords` reads it, follow the commands of the line.
+ */
+export function shellCommands(command: string): string[][] {
+  const { code: text, bodies } = splitHeredocs(command)
+  const parts = splitWords(text)
+  const own = parts.commands.map(words => words.slice(Math.max(0, words.findIndex(word => !ASSIGNMENT.test(word))))).filter(words => words.length)
+  return [...own, ...nestedCode(parts.commands.flat(), parts, bodies).flatMap(shellCommands)]
+}
+
+/** One pass over the text: its simple commands, the words that held a quote, and the code of each substitution outside single quotes. */
+function splitWords(text: string): { commands: string[][]; quoted: string[]; code: string[] } {
+  const commands: string[][] = []
   const quoted: string[] = []
   const code: string[] = []
+  let current: string[] = []
   let word = ''
   let quote: string | null = null
   let held = false
   const endWord = () => {
-    if (word) words.push(word)
+    if (word) current.push(word)
     if (word && held) quoted.push(word)
     word = ''
     held = false
+  }
+  const endCommand = () => {
+    endWord()
+    if (current.length) commands.push(current)
+    current = []
   }
   for (let i = 0; i < text.length; i++) {
     const char = text[i]!
@@ -103,11 +133,12 @@ function splitWords(text: string): { words: string[]; quoted: string[]; code: st
     } else if (char === '"' || char === "'") {
       quote = char
       held = true
-    } else if (/[\s;|&()<>{}!]/.test(char)) endWord()
+    } else if (/[\n;|&()]/.test(char)) endCommand()
+    else if (/[\s<>{}!]/.test(char)) endWord()
     else word += char
   }
-  endWord()
-  return { words, quoted, code }
+  endCommand()
+  return { commands, quoted, code }
 }
 
 function closingParen(text: string, open: number): number {

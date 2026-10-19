@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "id": "10001",
+      "filename": "flow.png",
+      "size": 204800,
+      "mimeType": "image/png",
+      "content": "https://company.atlassian.net/rest/api/3/attachment/content/10001"
+    },
+    {
+      "id": "10002",
+      "filename": "notes.pdf",
+      "size": 1048576,
+      "mimeType": "application/pdf",
+      "content": "https://company.atlassian.net/rest/api/3/attachment/content/10002"
+    },
+    {
+      "id": "10003",
+      "filename": "demo.mov",
+      "size": 52428800,
+      "mimeType": "video/quicktime",
+      "content": "https://company.atlassian.net/rest/api/3/attachment/content/10003"
+    }
+  ]
+}

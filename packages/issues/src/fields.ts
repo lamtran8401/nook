@@ -1,8 +1,10 @@
 import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import type { IssuesConfig } from './config.ts'
+import { getItem } from './jira.ts'
 import { resolveRef } from './ref.ts'
 import type { Runner } from './sources.ts'
+import { twgJson } from './twg.ts'
 import { valueText } from './values.ts'
 
 /** One field or heading of a ticket, as `/setup` reads it to write the map: its id, its name and the start of its value. */
@@ -14,7 +16,7 @@ const startOf = (text: string) => {
   return line.length > START ? `${line.slice(0, START)}…` : line
 }
 
-function json(runner: Runner, argv: string[], what: string): unknown {
+function ghJson(runner: Runner, argv: string[], what: string): unknown {
   const run = runner(argv)
   if (run.code !== 0) throw new EvError(`${argv[0]} could not read ${what}: ${run.err.trim().split('\n')[0] ?? `exit ${run.code}`}`, Exit.error)
   return JSON.parse(run.out || '{}')
@@ -33,9 +35,8 @@ function namesIn(value: unknown, names = new Map<string, string>()): Map<string,
 }
 
 function jiraRows(site: string, key: string, runner: Runner): FieldRow[] {
-  const answer = json(runner, ['twg', '--site', site, 'jira', 'workitem', 'get', key, '--full', '-o', 'json'], key) as { data?: Record<string, unknown> & { items?: { data: Record<string, unknown> }[] } }
-  const item = answer.data?.items?.[0]?.data ?? answer.data ?? {}
-  const names = namesIn(json(runner, ['twg', '--site', site, 'jira', 'workitem', 'field', 'update-metadata', '--id', key, '-o', 'json'], `the fields of ${key}`))
+  const item = getItem(site, key, [], runner)
+  const names = namesIn(twgJson(runner, site, ['jira', 'workitem', 'field', 'update-metadata', '--id', key, '--include-system-fields'], `the fields of ${key}`))
   const all = { ...item, ...((item.fields as Record<string, unknown> | undefined) ?? {}) }
   return Object.entries(all).flatMap(([id, value]) => {
     if (id === 'fields' || id === 'comments' || id === 'attachments') return []
@@ -45,7 +46,7 @@ function jiraRows(site: string, key: string, runner: Runner): FieldRow[] {
 }
 
 function githubRows(repo: string, number: number, runner: Runner): FieldRow[] {
-  const issue = json(runner, ['gh', 'issue', 'view', String(number), '--repo', repo, '--json', 'body,labels,milestone'], `${repo}#${number}`) as { body?: string; labels?: { name: string }[]; milestone?: { title: string } | null }
+  const issue = ghJson(runner, ['gh', 'issue', 'view', String(number), '--repo', repo, '--json', 'body,labels,milestone'], `${repo}#${number}`) as { body?: string; labels?: { name: string }[]; milestone?: { title: string } | null }
   const rows: FieldRow[] = []
   const lines = (issue.body ?? '').split('\n')
   lines.forEach((line, i) => {

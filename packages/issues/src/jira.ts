@@ -1,16 +1,17 @@
-import { EvError, Exit } from '@nook/shared/errors.ts'
+import { EvError, Exit, refused } from '@nook/shared/errors.ts'
 
 import type { JiraSource } from './config.ts'
 import type { Read } from './github.ts'
 import type { Runner } from './sources.ts'
 import { headingOf, type Section } from './ticket.ts'
+import { twgJson } from './twg.ts'
 import { isLong, valueText } from './values.ts'
 
 /** A file of a work item: its name, its size and its address. */
 export type Attachment = { id: string; name: string; size: number; link: string }
 export type JiraRead = Read & { attachments: Attachment[] }
 
-type Item = Record<string, unknown> & { fields?: Record<string, unknown> }
+export type Item = Record<string, unknown> & { fields?: Record<string, unknown> }
 
 const CRITERIA = 'acceptanceCriteria'
 
@@ -29,9 +30,29 @@ const fieldOf = (item: Item, id: string): unknown => item[id] ?? item.fields?.[i
 /** The map of a key: the map of the source, with the override of its project for each use it names. */
 const mapOf = (source: JiraSource, key: string) => ({ ...source.fields, ...source.projects[key.split('-')[0]!]?.fields })
 
-function attachmentsOf(item: Item): Attachment[] {
-  const list = (fieldOf(item, 'attachments') ?? fieldOf(item, 'attachment') ?? []) as Record<string, unknown>[]
-  return list.map(file => ({ id: String(file.id), name: String(file.filename ?? file.name ?? file.id), size: Number(file.size) || 0, link: String(file.content ?? file.url ?? '') }))
+/** Reads one work item with `twg jira workitem get --full`, and each field id of the map by name. */
+export function getItem(site: string, key: string, fieldIds: string[], runner: Runner): Item {
+  return itemOf(twgJson(runner, site, ['jira', 'workitem', 'get', key, '--full', ...fieldIds.flatMap(id => ['--field', id])], key))
+}
+
+/** The files of a work item, from the attachment query of twg: its `data` is the list. */
+function filesOf(site: string, key: string, runner: Runner): Attachment[] {
+  const list = (twgJson(runner, site, ['jira', 'workitem', 'attachment', 'query', '--issue-id', key], `the files of ${key}`) as { data?: unknown })?.data
+  if (!Array.isArray(list)) throw new EvError(`twg gave no list of the files of ${key}`, Exit.error)
+  return (list as Record<string, unknown>[]).map(file => ({
+    id: String(file.id),
+    name: String(file.filename ?? file.name ?? file.id),
+    size: Number(file.size) || 0,
+    link: String(file.content ?? file.url ?? `https://${site}/browse/${key}`),
+  }))
+}
+
+/** An Epic holds work items and is none itself, so the pull stops and names its stories. */
+function refuseEpic(site: string, key: string, runner: Runner): never {
+  const answer = twgJson(runner, site, ['jira', 'workitem', 'query', '--jql', `parent = ${key}`], `the stories of ${key}`) as { data?: { issues?: Record<string, unknown>[] } }
+  const stories = (answer?.data?.issues ?? []).map(story => `${String(story.key)} ${valueText(story.summary) ?? ''}`.trim())
+  if (!stories.length) throw refused(`${key} is an Epic, not a work item, and it has no story`, 'pull a story or a task of the Epic')
+  throw refused(`${key} is an Epic, not a work item. Its stories: ${stories.join(', ')}`, `pull one story, such as nook issues pull ${stories[0]!.split(' ')[0]}`)
 }
 
 function commentsOf(item: Item) {
@@ -39,11 +60,11 @@ function commentsOf(item: Item) {
   return (raw as Record<string, unknown>[]).map(c => ({ author: valueText(c.author) ?? 'someone', at: String(c.created ?? '').slice(0, 10), body: valueText(c.body) ?? '' }))
 }
 
-/** Reads one work item with `twg jira workitem get --full`; `twg` holds the login. */
+/** Reads one work item and its files through twg, which holds the login. An Epic stops the read. */
 export function readJira(source: JiraSource, key: string, runner: Runner): JiraRead {
-  const run = runner(['twg', '--site', source.site, 'jira', 'workitem', 'get', key, '--full', '-o', 'json'])
-  if (run.code !== 0) throw new EvError(`twg could not read ${key}: ${run.err.trim().split('\n')[0] ?? `exit ${run.code}`}`, Exit.error)
-  const item = itemOf(JSON.parse(run.out))
+  const map = mapOf(source, key)
+  const item = getItem(source.site, key, [...new Set(Object.values(map))], runner)
+  if (valueText(fieldOf(item, 'issuetype') ?? fieldOf(item, 'issueType'))?.toLowerCase() === 'epic') refuseEpic(source.site, key, runner)
   const link = valueText(item.url) ?? `https://${source.site}/browse/${key}`
   const fields: [string, string][] = [['Source', link]]
   for (const [name, id] of [['Type', 'issuetype'], ['Status', 'status'], ['Priority', 'priority'], ['Assignee', 'assignee'], ['Reporter', 'reporter'], ['Labels', 'labels']] as const) {
@@ -52,7 +73,7 @@ export function readJira(source: JiraSource, key: string, runner: Runner): JiraR
   }
   const sections: Section[] = []
   const missing: string[] = []
-  for (const [use, id] of Object.entries(mapOf(source, key))) {
+  for (const [use, id] of Object.entries(map)) {
     const value = fieldOf(item, id)
     const text = valueText(value)
     if (text === null) missing.push(use)
@@ -63,6 +84,6 @@ export function readJira(source: JiraSource, key: string, runner: Runner): JiraR
   return {
     ticket: { key, title: valueText(fieldOf(item, 'summary')) ?? key, link, fields, description: valueText(fieldOf(item, 'description')) ?? '', sections, comments: commentsOf(item) },
     missing,
-    attachments: attachmentsOf(item),
+    attachments: filesOf(source.site, key, runner),
   }
 }

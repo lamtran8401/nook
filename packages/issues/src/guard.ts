@@ -3,7 +3,7 @@ import { basename } from 'node:path'
 import { activePacks } from '@nook/desk/desks.ts'
 import { block, pass, type HookInput, type HookResult } from '@nook/shared/hook.ts'
 import { runCommand } from '@nook/shared/run.ts'
-import { shellWords } from '@nook/shared/shell.ts'
+import { shellCommands } from '@nook/shared/shell.ts'
 
 /** The guard of the trackers: the agents of a desk read tickets and never write them, through `gh` or `twg`. */
 
@@ -115,16 +115,28 @@ function ghVerdict(args: string[]): string | null {
 }
 
 const PROGRAMS = new Set(['gh', 'twg'])
+const KEYWORDS = new Set(['if', 'then', 'else', 'elif', 'while', 'until', 'do', 'time'])
+// programs that run the command in their words; after one, a gh or twg word anywhere counts as a call
+const WRAPPERS = new Set(['env', 'sudo', 'doas', 'time', 'nohup', 'exec', 'command', 'builtin', 'xargs', 'nice', 'timeout', 'watch', 'caffeinate', 'stdbuf', 'find'])
+
+/** Where the call of gh or twg starts in a simple command: its command word, or any word after a wrapper. */
+function callAt(words: string[]): number {
+  const head = words.findIndex(word => !KEYWORDS.has(word))
+  if (head < 0) return -1
+  const name = basename(words[head]!)
+  if (PROGRAMS.has(name)) return head
+  return WRAPPERS.has(name) ? words.findIndex((word, i) => i > head && PROGRAMS.has(basename(word))) : -1
+}
 
 /**
- * The reason to block a command line, or null when it writes to no tracker. The words come from the shell parser of
- * shared, so a call inside `$(...)`, backticks, `eval` or `sh -c` counts too. Each call reads up to the next call.
+ * The reason to block a command line, or null when it writes to no tracker. The commands come from the shell parser
+ * of shared, so a call inside `$(...)`, backticks, `eval`, `sh -c` or a heredoc to a shell counts too.
  */
 export function writeGuard(command: string, twgMap: () => TwgCommand[] | null): string | null {
-  const words = shellWords(command)
-  const calls = words.flatMap((word, i) => (PROGRAMS.has(basename(word)) ? [i] : []))
-  for (const [n, at] of calls.entries()) {
-    const args = words.slice(at + 1, calls[n + 1] ?? words.length)
+  for (const words of shellCommands(command)) {
+    const at = callAt(words)
+    if (at < 0) continue
+    const args = words.slice(at + 1)
     const reason = basename(words[at]!) === 'gh' ? ghVerdict(args) : twgVerdict(args, twgMap())
     if (reason) return reason
   }

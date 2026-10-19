@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { commandOnly, shellWords } from '../src/shell.ts'
+import { commandOnly, shellCommands, shellWords } from '../src/shell.ts'
 
 describe('commandOnly', () => {
   test('drops heredoc bodies and comments, and keeps the commands', () => {
@@ -44,5 +44,24 @@ describe('shellWords', () => {
 
   test('adds the words that eval runs', () => {
     expect(shellWords('eval "ls -a"')).toEqual(['eval', 'ls -a', 'ls', '-a'])
+  })
+})
+
+describe('shellCommands', () => {
+  test('splits a line into its simple commands, quotes joined, the leading assignments dropped', () => {
+    expect(shellCommands('FOO=1 gh issue view 1 && grep -n "twg x" a.ts | xargs -n1 echo; ls\npwd')).toEqual([
+      ['gh', 'issue', 'view', '1'], ['grep', '-n', 'twg x', 'a.ts'], ['xargs', '-n1', 'echo'], ['ls'], ['pwd'],
+    ])
+  })
+
+  test('adds the commands of each substitution, then of sh -c and eval, after the commands of the line', () => {
+    expect(shellCommands('echo $(gh issue close 1); sh -c "twg whoami"; eval `pwd`')).toEqual([
+      ['echo'], ['sh', '-c', 'twg whoami'], ['eval'], ['gh', 'issue', 'close', '1'], ['pwd'], ['twg', 'whoami'],
+    ])
+  })
+
+  test('reads a heredoc body as commands when a shell reads its input', () => {
+    expect(shellCommands('bash <<EOF\ngh issue close 1\nEOF')).toEqual([['bash', 'EOF'], ['gh', 'issue', 'close', '1']])
+    expect(shellCommands('cat <<EOF\ngh issue close 1\nEOF')).toEqual([['cat', 'EOF']])
   })
 })

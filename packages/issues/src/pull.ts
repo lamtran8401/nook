@@ -9,6 +9,7 @@ import type { Issues } from './module.ts'
 import { type Ref, resolveRef } from './ref.ts'
 import { checkSource, run, type Runner } from './sources.ts'
 import { renderTicket, sectionsOf, type TicketFile } from './ticket.ts'
+import { twgArgs } from './twg.ts'
 
 /** What one pull did: the item it is for, whether the ticket is new, changed or the same, and the gaps of its map. */
 export type PullReport = {
@@ -40,14 +41,19 @@ function changedParts(before: string, after: string): string[] {
   return [...(titleChanged ? ['Title'] : []), ...[...new Set([...Object.keys(old), ...Object.keys(now)])].filter(h => old[h] !== now[h])]
 }
 
-/** Each file of 10 MB or less into `attachments/`, through twg; a larger one stays a link. The name keeps only its last part. */
+/**
+ * Each file of 10 MB or less into `attachments/`, through twg; a larger one stays a link. The name keeps only its last
+ * part. A file already there stays as it is: the owner keeps context files in that folder too.
+ */
 function keepFiles(ref: Ref, attachments: Attachment[], folder: string, runner: Runner): TicketFile[] {
   return attachments.map(file => {
     if (file.size > KEEP_BYTES) return { name: file.name, link: file.link, size: megabytes(file.size) }
     const name = basename(file.name)
+    const target = join(folder, 'attachments', name)
+    if (existsSync(target)) return { name, kept: `attachments/${name}` }
     mkdirSync(join(folder, 'attachments'), { recursive: true })
     const site = ref.source.type === 'jira' ? ref.source.site : ''
-    const saved = runner(['twg', '--site', site, 'jira', 'workitem', 'attachment', 'download', '--attachment-id', file.id, '--output-path', join(folder, 'attachments', name)])
+    const saved = runner([...twgArgs(site, 'jira', 'workitem', 'attachment', 'download', '--attachment-id', file.id, '--output-path', target)])
     if (saved.code !== 0) throw new EvError(`twg could not download ${file.name} of ${ref.key}: ${saved.err.trim().split('\n')[0] ?? `exit ${saved.code}`}`)
     return { name, kept: `attachments/${name}` }
   })
