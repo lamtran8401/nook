@@ -43,18 +43,27 @@ export function formatFacts(facts: RetroFact[]): string {
 
 /** The blocks of the guards as facts: each hook and reason once, with its count and its last time, the most frequent first. */
 export function blockFacts(events: DeskEvent[]): RetroFact[] {
+  return groupFacts(events.filter(e => e.kind === 'block'), 'guard blocks')
+}
+
+function groupFacts(events: DeskEvent[], kind: string): RetroFact[] {
   const groups = new Map<string, { hook: string; reason: string; count: number; at: string }>()
-  for (const event of events.filter(e => e.kind === 'block')) {
+  for (const event of events) {
     const key = `${event.hook}\n${event.reason}`
     const group = groups.get(key) ?? { hook: event.hook ?? '', reason: event.reason ?? '', count: 0, at: event.at }
     groups.set(key, { ...group, count: group.count + 1, at: event.at > group.at ? event.at : group.at })
   }
-  return [...groups.values()].sort((a, b) => b.count - a.count).map(g => ({ kind: 'guard blocks', item: g.hook, text: `${g.count}× ${g.reason}`, at: g.at }))
+  return [...groups.values()].sort((a, b) => b.count - a.count).map(g => ({ kind, item: g.hook, text: `${g.count}× ${g.reason}`, at: g.at }))
 }
 
-/** One line for each event of the log: its time, then the prompt, or the block with its hook, its agent and its command. */
+/** The errors of the hooks as facts: each hook and message once, with its count, the most frequent first. */
+export function errorFacts(events: DeskEvent[]): RetroFact[] {
+  return groupFacts(events.filter(e => e.kind === 'error'), 'hook errors')
+}
+
+/** One line for each event of the log: its time, then the prompt, or the block or error with its hook, its agent and its command. */
 export function eventLines(events: DeskEvent[]): string {
   return events
-    .map(e => (e.kind === 'prompt' ? `${e.at}  prompt  ${e.text}` : `${e.at}  block   ${e.hook} (${e.agent}): ${e.reason} · ${e.command}`))
+    .map(e => (e.kind === 'prompt' ? `${e.at}  prompt  ${e.text}` : `${e.at}  ${e.kind.padEnd(6)}  ${e.hook} (${e.agent}): ${e.reason} · ${e.command}`))
     .join('\n')
 }

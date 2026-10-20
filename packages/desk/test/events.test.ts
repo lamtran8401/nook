@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -12,8 +12,10 @@ beforeEach(() => {
 afterEach(() => rmSync(root, { recursive: true, force: true }))
 
 const desk = (dir: string) => (mkdirSync(dir, { recursive: true }), writeFileSync(join(dir, 'nook.yml'), 'packs: [core]\n'))
-const lines = (dir: string) => readFileSync(join(dir, '.nook', 'events.jsonl'), 'utf8').trim().split('\n').map(line => JSON.parse(line))
-const NOW = new Date('2026-10-19T09:30:00Z')
+const NOW = new Date(2026, 9, 19, 9, 30)
+const AT = NOW.toISOString()
+const dayFile = (dir: string, day = '2026-10-19') => join(dir, '.nook', 'events', `${day}.jsonl`)
+const lines = (dir: string, day?: string) => readFileSync(dayFile(dir, day), 'utf8').trim().split('\n').map(line => JSON.parse(line))
 
 describe('maskSecrets', () => {
   test('puts [secret] in place of a token, a key and a password, and keeps the rest', () => {
@@ -28,12 +30,12 @@ describe('maskSecrets', () => {
 describe('the event log of a desk', () => {
   const block = { kind: 'block' as const, reason: 'the reviewer is read-only: may not run `date`.' }
 
-  test('a block of a hook writes one line to the log of the nearest desk, the command masked', () => {
+  test('a block of a hook writes one line to the file of its day in the log of the nearest desk, the command masked', () => {
     desk(root)
     mkdirSync(join(root, 'shop'))
     const input = { cwd: join(root, 'shop'), session_id: 's1', agent_type: 'nk-eng:reviewer', tool_name: 'Bash', tool_input: { command: 'date && echo ghp_abcdefghijklmnopqrstuvwx1234' } }
     hookRecorder(input, 'eng bash', NOW)(block)
-    expect(lines(root)).toEqual([{ at: '2026-10-19T09:30:00.000Z', kind: 'block', session: 's1', hook: 'eng bash', agent: 'nk-eng:reviewer', tool: 'Bash', reason: 'the reviewer is read-only: may not run `date`.', command: 'date && echo [secret]' }])
+    expect(lines(root)).toEqual([{ at: AT, kind: 'block', session: 's1', hook: 'eng bash', agent: 'nk-eng:reviewer', tool: 'Bash', reason: 'the reviewer is read-only: may not run `date`.', command: 'date && echo [secret]' }])
   })
 
   test('the lead is the agent of an event with no agent type; an edit names its file; a long command keeps 200 characters', () => {
@@ -48,15 +50,15 @@ describe('the event log of a desk', () => {
   test('a hook that lets the call pass writes nothing', () => {
     desk(root)
     hookRecorder({ cwd: root, tool_name: 'Bash', tool_input: { command: 'ls' } }, 'core bash', NOW)({ kind: 'pass' })
-    expect(existsSync(join(root, '.nook', 'events.jsonl'))).toBe(false)
+    expect(existsSync(dayFile(root))).toBe(false)
   })
 
   test('a desk inside a desk keeps its own log; a folder that is no desk keeps none', () => {
     desk(root)
     desk(join(root, 'shop'))
     recordEvent(join(root, 'shop'), { kind: 'prompt', text: 'hello' }, NOW)
-    expect(lines(join(root, 'shop'))).toEqual([{ at: '2026-10-19T09:30:00.000Z', kind: 'prompt', text: 'hello' }])
-    expect(existsSync(join(root, '.nook', 'events.jsonl'))).toBe(false)
+    expect(lines(join(root, 'shop'))).toEqual([{ at: AT, kind: 'prompt', text: 'hello' }])
+    expect(existsSync(dayFile(root))).toBe(false)
     const loose = realpathSync(mkdtempSync(join(tmpdir(), 'nook-loose-')))
     recordEvent(loose, { kind: 'prompt', text: 'hello' }, NOW)
     expect(existsSync(join(loose, '.nook'))).toBe(false)
@@ -69,13 +71,22 @@ describe('the event log of a desk', () => {
     expect(() => recordEvent(root, { kind: 'prompt', text: 'hello' }, NOW)).toThrow()
   })
 
-  test('reads the events of a kind since a time, oldest first, and skips a broken line', () => {
+  test('reads the events of a kind since a time across the files of the days, oldest first, and skips a broken line', () => {
     desk(root)
-    recordEvent(root, { kind: 'prompt', text: 'old' }, new Date('2026-09-30T10:00:00Z'))
-    recordEvent(root, { kind: 'block', reason: 'r' }, new Date('2026-10-02T10:00:00Z'))
-    recordEvent(root, { kind: 'prompt', text: 'new' }, new Date('2026-10-03T10:00:00Z'))
-    writeFileSync(join(root, '.nook', 'events.jsonl'), '{broken\n', { flag: 'a' })
-    expect(readEvents(root, { kind: 'prompt', since: new Date('2026-10-01T00:00:00Z') }).map(e => e.text)).toEqual(['new'])
+    recordEvent(root, { kind: 'prompt', text: 'old' }, new Date(2026, 8, 30, 10))
+    recordEvent(root, { kind: 'block', reason: 'r' }, new Date(2026, 9, 2, 10))
+    recordEvent(root, { kind: 'prompt', text: 'new' }, new Date(2026, 9, 3, 10))
+    expect(readdirSync(join(root, '.nook', 'events')).sort()).toEqual(['2026-09-30.jsonl', '2026-10-02.jsonl', '2026-10-03.jsonl'])
+    writeFileSync(dayFile(root, '2026-10-03'), '{broken\n', { flag: 'a' })
+    expect(readEvents(root, { kind: 'prompt', since: new Date(2026, 9, 1) }).map(e => e.text)).toEqual(['new'])
     expect(readEvents(root).map(e => e.kind)).toEqual(['prompt', 'block', 'prompt'])
+  })
+
+  test('a hook that throws writes an error event with its message, also when the result is a block of the failed guard', () => {
+    desk(root)
+    const input = { cwd: root, tool_name: 'Bash', tool_input: { command: 'ls' } }
+    hookRecorder(input, 'core start', NOW)({ kind: 'pass' }, new Error('cannot read nook.yml'))
+    hookRecorder(input, 'core bash', NOW)({ kind: 'block', reason: 'the guard failed, so the call is blocked: boom' }, new Error('boom'))
+    expect(lines(root).map(e => [e.kind, e.hook, e.reason])).toEqual([['error', 'core start', 'cannot read nook.yml'], ['error', 'core bash', 'boom']])
   })
 })

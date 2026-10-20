@@ -46,7 +46,7 @@ A fault stops the command and names the key: `packs.on must be a list of strings
 | `nook web pair` | prints a one-time link that pairs one more browser with the web app that runs |
 | `nook web forget` | removes each paired browser; the pages stay free to read |
 | `nook retro` | the facts since the last retro of this desk: items sent back, guesses flipped, slow questions, weak proofs, guard blocks by reason |
-| `nook events [--kind block\|prompt] [--since <date>]` | the event log of this desk, oldest first |
+| `nook events [--kind block\|error\|prompt] [--since <date>]` | the event log of this desk, oldest first |
 | `nook where` | the desks above this folder and the Nook repo |
 | `nook ste <file\|folder...> [--min N] [--quiet]` | the writing score of Markdown files; a file passes above `N`, default 80 |
 | `nook hook <name>` | one core hook, with the Claude Code event on stdin |
@@ -183,18 +183,21 @@ The plugin shim `bin/nook` runs the binary of the repo that holds the plugin, th
 
 ### The event log
 
-Each desk keeps `.nook/events.jsonl`, one JSON line for each event, so `/retro` finds the friction of a span.
+Each desk keeps `.nook/events/`, one file for each day, such as `2026-10-20.jsonl`, and one JSON line for each event. `/retro` reads it for the friction of a span.
 
 | Event | When | Fields |
 |---|---|---|
 | `block` | a guard of any pack blocks a call | `at`, `session`, `hook` (such as `eng bash`), `agent` (`lead` or the agent type), `tool`, `reason`, `command` |
+| `error` | a hook of any pack throws | `at`, `session`, `hook`, `agent`, `tool`, `reason` (the message), `command` |
 | `prompt` | the owner sends a prompt | `at`, `session`, `text` |
 
 - The log belongs to the nearest desk above the folder of the session. A folder that is no desk keeps no log.
 - A token, a private key and the value of `password=` or `token:` become `[secret]` before the line is written. The command keeps its first 200 characters.
 - A guard that lets a call pass writes nothing.
 - A log that cannot be written never changes the answer of a hook. The hook names the fault on stderr.
-- `nook retro` groups the blocks since the last retro by hook and reason, the most frequent first. `/retro` reads the prompts with `nook events --kind prompt`.
+- A guard that throws still blocks the call, and the log gets an `error` line, not a `block` line.
+- A `nook` that cannot start writes no line: the shim names the fault on stderr.
+- `nook retro` groups the blocks and the errors since the last retro by hook and reason, the most frequent first. `/retro` reads the prompts with `nook events --kind prompt`.
 
 ## 7. Skills of the core
 

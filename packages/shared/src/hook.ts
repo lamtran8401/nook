@@ -53,18 +53,24 @@ export const hold = (reason: string): HookResult => ({ kind: 'json', value: { de
 
 /**
  * Writes the result and returns the exit code. A thrown error in a guard blocks (fail closed) when `closed` is true.
- * `record` gets the result first; a record that fails names its fault on stderr and never changes the answer.
+ * `record` gets the result first, and the error of a handler that threw; a record that fails names its fault on
+ * stderr and never changes the answer.
  */
-export async function runHook(handler: () => Promise<HookResult> | HookResult, closed: boolean, record?: (result: HookResult) => void): Promise<number> {
+export async function runHook(
+  handler: () => Promise<HookResult> | HookResult,
+  closed: boolean,
+  record?: (result: HookResult, error?: Error) => void,
+): Promise<number> {
   let result: HookResult
+  let failure: Error | undefined
   try {
     result = await handler()
   } catch (error) {
-    if (!closed) return 0
-    result = block(`the guard failed, so the call is blocked: ${(error as Error).message}`)
+    failure = error as Error
+    result = closed ? block(`the guard failed, so the call is blocked: ${failure.message}`) : pass
   }
   try {
-    record?.(result)
+    record?.(result, failure)
   } catch (error) {
     process.stderr.write(`nook: could not record the event: ${(error as Error).message}\n`)
   }

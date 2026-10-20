@@ -4,7 +4,7 @@ import { join } from 'node:path'
 
 import type { RetroFact } from '@nook/desk/desks.ts'
 
-import { blockFacts, eventLines, formatFacts, retroFile, retroSince } from '../src/retro/retro.ts'
+import { blockFacts, errorFacts, eventLines, formatFacts, retroFile, retroSince } from '../src/retro/retro.ts'
 import { removeDir, tempDir } from './helpers.ts'
 
 let root: string
@@ -64,10 +64,17 @@ describe('blockFacts', () => {
   })
 })
 
+describe('errorFacts', () => {
+  test('gives each hook error once with its count', () => {
+    const error = (at: string) => ({ kind: 'error' as const, hook: 'core start', reason: 'cannot read nook.yml', at })
+    expect(errorFacts([error('2026-10-19T09:00:00Z'), error('2026-10-19T10:00:00Z')])).toEqual([{ kind: 'hook errors', item: 'core start', text: '2× cannot read nook.yml', at: '2026-10-19T10:00:00Z' }])
+  })
+})
+
 describe('eventLines', () => {
   test('gives one line for each event: its time, then the prompt or the block with its hook', () => {
-    expect(eventLines([{ kind: 'prompt', at: '2026-10-19T09:00:00Z', text: 'merge' }, { kind: 'block', at: '2026-10-19T09:05:00Z', hook: 'eng bash', agent: 'nk-eng:reviewer', reason: 'no', command: 'date' }])).toBe(
-      '2026-10-19T09:00:00Z  prompt  merge\n2026-10-19T09:05:00Z  block   eng bash (nk-eng:reviewer): no · date',
+    expect(eventLines([{ kind: 'prompt', at: '2026-10-19T09:00:00Z', text: 'merge' }, { kind: 'block', at: '2026-10-19T09:05:00Z', hook: 'eng bash', agent: 'nk-eng:reviewer', reason: 'no', command: 'date' }, { kind: 'error', at: '2026-10-19T09:06:00Z', hook: 'core start', agent: 'lead', reason: 'boom', command: '' }])).toBe(
+      '2026-10-19T09:00:00Z  prompt  merge\n2026-10-19T09:05:00Z  block   eng bash (nk-eng:reviewer): no · date\n2026-10-19T09:06:00Z  error   core start (lead): boom · ',
     )
   })
 })

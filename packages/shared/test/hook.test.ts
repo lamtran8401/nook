@@ -53,4 +53,18 @@ describe('runHook and its record of the result', () => {
     expect(seen).toEqual(['block'])
     expect(errors).toEqual(['no\n', 'nook: could not record the event: disk full\n', 'no\n'])
   })
+
+  test('hands the error of a handler that throws to the recorder, with the result that the hook gives', async () => {
+    const { runHook } = await import('../src/hook.ts')
+    const seen: string[] = []
+    const write = process.stderr.write.bind(process.stderr)
+    process.stderr.write = (() => true) as typeof process.stderr.write
+    try {
+      expect(await runHook(() => { throw new Error('boom') }, true, (result, error) => seen.push(`${result.kind} ${error?.message}`))).toBe(2)
+      expect(await runHook(() => { throw new Error('soft') }, false, (result, error) => seen.push(`${result.kind} ${error?.message}`))).toBe(0)
+    } finally {
+      process.stderr.write = write
+    }
+    expect(seen).toEqual(['block boom', 'pass soft'])
+  })
 })
