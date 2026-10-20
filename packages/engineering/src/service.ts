@@ -14,6 +14,7 @@ import { TasksDocument } from './documents/tasks.ts'
 import { Templates } from './documents/templates.ts'
 import { WorkFolder } from './documents/work-folder.ts'
 import { flowOf } from './flows.ts'
+import type { TypeKind } from './stores/type-kinds.ts'
 import { gapsHeading } from './format.ts'
 import { type BranchResult, Branching, branchName } from './git/branching.ts'
 import { type CommitPlan, planCommits, runCommits } from './git/commits.ts'
@@ -64,6 +65,8 @@ export type NewItem = {
   state?: State
   /** The item that this one belongs to; it must be in the ledger. */
   parent?: string
+  /** The type of the ticket, such as Sub-Bug: with no kind given, the kind that the desk learned for it. */
+  type?: string
 }
 export type MoveResult = { item: Item; warnings: string[]; notes: string[] }
 export type MoveInput = { reason?: string; ifVersion?: string }
@@ -151,9 +154,11 @@ export class Engineering {
     return { id: item.id, state: item.state, move, gaps: move ? this.gaps(item, move) : [] }
   }
 
-  newItem(input: NewItem): Item {
+  newItem(given: NewItem): Item {
     this.permissions.assert('item new')
-    const { items, events } = this.stores
+    const { items, events, typeKinds } = this.stores
+    const learned = given.kind === undefined && given.type ? typeKinds.kindOf(given.type) : null
+    const input = learned ? { ...given, kind: learned } : given
     if (!isOneOf(ITEM_KINDS, input.kind ?? 'feature'))
       throw usage(`kind must be one of ${ITEM_KINDS.join(', ')}`)
     if (!isOneOf(SIZES, input.size ?? 'M')) throw usage('size must be S, M or L')
@@ -178,6 +183,18 @@ export class Engineering {
     })
     if (input.backlog) this.writeTicket(id, input.title)
     return this.item(id)
+  }
+
+  /** `kind set`: the desk keeps the kind of a ticket type, so the next ticket of that type gets it. */
+  setTypeKind(type: string, kind: string): void {
+    this.permissions.assert('kind set')
+    if (!isOneOf(ITEM_KINDS, kind)) throw usage(`kind must be one of ${ITEM_KINDS.join(', ')}`)
+    if (!type.trim()) throw usage('give the type, such as Sub-Bug')
+    this.stores.typeKinds.set(type.trim(), kind, this.who.actor)
+  }
+
+  typeKinds(): TypeKind[] {
+    return this.stores.typeKinds.list()
   }
 
   /** `item detach`: takes an item out of its parent, such as a minor sub-bug for a later sprint; the ledger keeps the reason. */

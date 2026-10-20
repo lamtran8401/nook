@@ -5,7 +5,7 @@ import type { CommandRun } from '@nook/shared/run.ts'
 import { checkSource } from '../src/sources.ts'
 
 const GITHUB = { type: 'github' as const, repo: 'acme/shop', prefix: 'GH', sections: {} }
-const JIRA = { type: 'jira' as const, site: 'company.atlassian.net', fields: {}, projects: {}, kinds: {}, skip: [] }
+const JIRA = { type: 'jira' as const, site: 'company.atlassian.net', fields: {}, projects: {}, skip: [] }
 
 /** A runner that answers each command by its first words, and keeps each command that it ran. */
 function runner(answers: Record<string, CommandRun>) {

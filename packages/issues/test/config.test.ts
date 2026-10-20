@@ -13,7 +13,7 @@ describe('IssuesConfig', () => {
     })
     expect(config.backlog).toBe('tickets')
     expect(config.sources).toEqual([
-      { type: 'jira', site: 'company.atlassian.net', fields: { acceptanceCriteria: 'customfield_10095', sprint: 'customfield_10019' }, projects: { PAY: { fields: { acceptanceCriteria: 'customfield_10210' } } }, kinds: {}, skip: [] },
+      { type: 'jira', site: 'company.atlassian.net', fields: { acceptanceCriteria: 'customfield_10095', sprint: 'customfield_10019' }, projects: { PAY: { fields: { acceptanceCriteria: 'customfield_10210' } } }, skip: [] },
       { type: 'github', repo: 'acme/shop', prefix: 'GH', sections: { acceptanceCriteria: 'Acceptance criteria' } },
     ])
     expect(config.missing).toBe(false)
@@ -24,14 +24,13 @@ describe('IssuesConfig', () => {
     expect(config.backlog).toBe('backlog')
     expect(config.sources).toEqual([
       { type: 'github', repo: 'acme/shop', prefix: 'GH', sections: {} },
-      { type: 'jira', site: 'company.atlassian.net', fields: {}, projects: {}, kinds: {}, skip: [] },
+      { type: 'jira', site: 'company.atlassian.net', fields: {}, projects: {}, skip: [] },
     ])
   })
 
-  test('a Jira source maps the types of its tracker onto kinds, and lists the types that it skips', () => {
-    const config = IssuesConfig.from({ sources: [{ type: 'jira', site: 'company.atlassian.net', kinds: { Story: 'feature', 'Sub-Bug': 'fix' }, skip: ['Epic', 'Release'] }] })
-    expect(config.sources[0]).toMatchObject({ kinds: { Story: 'feature', 'Sub-Bug': 'fix' }, skip: ['Epic', 'Release'] })
-    expect(() => IssuesConfig.from({ sources: [{ type: 'jira', site: 'x.atlassian.net', kinds: ['Story'] }] })).toThrow(expect.objectContaining({ message: 'nook.yml: issue-tracker.sources[0].kinds must be a map of tracker types to kinds, such as { Story: feature, Bug: fix }' }))
+  test('a Jira source lists the types that it skips', () => {
+    const config = IssuesConfig.from({ sources: [{ type: 'jira', site: 'company.atlassian.net', skip: ['Epic', 'Release'] }] })
+    expect(config.sources[0]).toMatchObject({ skip: ['Epic', 'Release'] })
     expect(() => IssuesConfig.from({ sources: [{ type: 'jira', site: 'x.atlassian.net', skip: 'Epic' }] })).toThrow(expect.objectContaining({ message: 'nook.yml: issue-tracker.sources[0].skip must be a list of tracker types, such as [Epic, Release]' }))
   })
 

@@ -1,6 +1,6 @@
 # The build report
 
-> In short: Nook has five packs, 100 commands, 45 skills, 12 agents and 14 hooks. All 1109 tests pass. Engineering is in real use; the wiki and learn are built and wait for more use. The next step is the viewer.
+> In short: Nook has five packs, 102 commands, 45 skills, 12 agents and 14 hooks. All 1112 tests pass. Engineering is in real use; the wiki and learn are built and wait for more use. The next step is the viewer.
 
 This file states the build of today. Update its numbers in the same commit as the change that moves them.
 
@@ -9,12 +9,12 @@ This file states the build of today. Update its numbers in the same commit as th
 | Part | Count | Check it with |
 |---|---|---|
 | packs | 5: core, engineering, issue-tracker, wiki, learn | `nook packs` |
-| commands | 100: core 12, engineering 71, issue-tracker 4, wiki 4, learn 9 | `nook --help` |
+| commands | 102: core 12, engineering 73, issue-tracker 4, wiki 4, learn 9 | `nook --help` |
 | skills | 45: core 6, engineering 29, wiki 4, learn 6 | `ls plugins/*/skills` |
 | agents | 12: engineering 10, wiki 1, learn 1 | `ls plugins/*/agents` |
 | hooks | 14: core 7, engineering 6, issue-tracker 1 | `plugins/*/hooks/hooks.json` |
 | base rules | 9: writing, safety, questions, approach, comments, engineering, testing, wiki, learn | `ls plugins/*/templates/rules` |
-| tests | 1109 in 116 files, 0 failures | `bun run check` |
+| tests | 1112 in 117 files, 0 failures | `bun run check` |
 | source | about 9,800 lines of TypeScript in 6 packages | `find packages/*/src -name '*.ts' \| xargs cat \| wc -l` |
 | runtime dependencies | 2: `yaml` 2.9.1, `ts-pattern` 5.9.0 | `packages/*/package.json` |
 
@@ -94,7 +94,7 @@ Each step starts with its expectation file in `docs/expect/`, before code.
 | Step | What it gives | State |
 |---|---|---|
 | v0.3 | one release: the pack `issue-tracker` pulls a Jira ticket or a GitHub issue into `backlog/<KEY>/`, read only; install the dependencies of an area when they are missing; `nook web`, the desk in the browser, with your gates there; `nook search` across the wiki, the items and the courses | planned, next |
-| kinds | one flow file for each kind; a fix with its repro and root cause; an investigation with results; sub-bugs under their story; the tracker types mapped onto kinds (`docs/plan/kinds.md`) | built |
+| kinds | one flow file for each kind; a fix with its repro and root cause; an investigation with results; sub-bugs under their story; the kind of each ticket type learned in the desk (`docs/plan/kinds.md`) | built |
 | research | `/research`: analysts in parallel, each finding with a source, a fact-checker | planned |
 | visual | the page of every pack: diagrams, decks, sketches | planned |
 | `/learn-progress` | a level for each skill of a course, and the plan of the next month | planned |

@@ -13,6 +13,7 @@ import { NoteStore } from './notes.ts'
 import { QuestionStore } from './questions.ts'
 import { SessionStore } from './sessions.ts'
 import { SliceStore } from './slices.ts'
+import { TypeKindStore } from './type-kinds.ts'
 
 /** One store for each table of the ledger, and the ADR files. */
 export class Stores {
@@ -28,6 +29,7 @@ export class Stores {
   readonly notes: NoteStore
   readonly sessions: SessionStore
   readonly adrs: AdrStore
+  readonly typeKinds: TypeKindStore
 
   constructor(ledger: Ledger, who: Who, home: Home) {
     this.items = new ItemStore(ledger)
@@ -38,6 +40,7 @@ export class Stores {
     this.questions = new QuestionStore(ledger)
     this.guesses = new GuessStore(ledger)
     this.checks = new CheckStore(ledger)
+    this.typeKinds = new TypeKindStore(ledger)
     this.installs = new InstallStore(ledger)
     this.notes = new NoteStore(ledger)
     this.sessions = new SessionStore(ledger, who)

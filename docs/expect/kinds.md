@@ -37,13 +37,13 @@ The plan is `docs/plan/kinds.md`. Each row must pass before the step is done.
 | K14 | a child that is done or cancelled | the owner runs `accept` on the parent | the children pass |
 | K15 | an open child | `nook eng item detach <child> --reason "next sprint"` runs | the child has no parent; the ledger records the reason; the `accept` of the parent passes |
 
-## Part 5: the tracker types
+## Part 5: the ticket types
 
 | # | Given | When | Then |
 |---|---|---|---|
-| K16 | a source with `kinds` and a ticket of a mapped type | `nook issues pull` runs | `ticket.md` has a row `Kind: fix` in Fields |
-| K17 | a ticket of a type in `skip` | the pull runs | it stops: the type has no local work in this desk |
-| K18 | a ticket of a type in neither list | the pull runs | it stops with the fix: add the type to `kinds` or to `skip` |
+| K16 | the desk keeps `Sub-Bug` → `fix` (`nook eng kind set`) | `nook eng item new SHOP-31 "x" --type Sub-Bug` runs | the item is a fix; a `--kind` given wins over the map |
+| K17 | a source with `skip: [Release]` and a ticket of type Release | the pull runs | it stops: the type has no local work in this desk |
+| K18 | a ticket of a type that the desk does not know | the pull runs, then `/spec` | the pull writes the row `Type:`; triage decides the kind; `/spec` asks once to keep it |
 | K19 | a ticket with a parent in the tracker | the pull runs | `ticket.md` has a row `Parent: SHOP-12`; `/intake` sets the parent of the item |
 
 ## Part 6: the metrics
@@ -54,7 +54,7 @@ The plan is `docs/plan/kinds.md`. Each row must pass before the step is done.
 
 ## Part 7: the docs
 
-- The engineering reference states the flow files, the root cause, the parent and `item detach`. The reference of issue-tracker states `kinds` and `skip`.
+- The engineering reference states the flow files, the root cause, the parent and `item detach`. The reference of issue-tracker states `skip` and the rows `Type:` and `Parent:`; the engineering reference states `kind set` and `kind list`.
 - The guide shows a fix and an investigation from intake to done.
 - The skills `/spec`, `/intake`, `triage`, `/deep-review` and `/close` follow the flow of the kind.
 - Each Markdown file passes `nook ste`. A sample list of root causes in the docs names no real team.

@@ -12,7 +12,7 @@ Run it before framing, and again when the plan changes the scope.
 ## Order
 1. An item id: run `nook eng item brief <id>` and read the ticket in `backlog/<id>/`. Else the subject is a title.
 2. Run `nook eng area list` for the areas and their kinds, and `nook eng area status` for dirty files.
-   A row `Kind:` in the Fields of `ticket.md` is the first answer for the kind: the tracker type, mapped by the source. Its evidence is that row; change it only with a reason from the ticket.
+   A row `Type:` in the Fields of `ticket.md` with a kind in `nook eng kind list` is the first answer for the kind. Its evidence is that row; change it only with a reason from the ticket.
 3. Decide each point, with one line of evidence. A bare label is a guess.
 ```
 kind       fix (repairs behavior that must work already) · feature (adds behavior) · chore (build, tools, docs) · investigate ("find out why", "check if")

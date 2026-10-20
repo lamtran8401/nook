@@ -37,6 +37,7 @@ export type Action =
   | 'item new'
   | 'item edit'
   | 'item detach'
+  | 'kind set'
   | 'item ac add'
   | 'item archive'
   | 'ask'
@@ -78,6 +79,7 @@ export const PERMISSIONS: Record<Action, Role[]> = {
   'item new': LEADERS,
   'item edit': LEADERS,
   'item detach': LEADERS,
+  'kind set': LEADERS,
   'item ac add': LEADERS,
   'item archive': LEADERS,
   ask: LEADERS,

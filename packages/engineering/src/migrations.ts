@@ -68,4 +68,7 @@ export const MIGRATIONS: string[] = [
   `
   ALTER TABLE item ADD COLUMN parent TEXT;
   `,
+  `
+  CREATE TABLE type_kind (type TEXT PRIMARY KEY, kind TEXT NOT NULL, by TEXT NOT NULL, at TEXT NOT NULL);
+  `,
 ]

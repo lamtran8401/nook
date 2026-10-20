@@ -90,6 +90,7 @@ const READ_CALLS = [
   ['notes'],
   ['next'],
   ['metrics'],
+  ['kind', 'list'],
   ['area', 'list'],
   ['area', 'status'],
   ['adr', 'list'],

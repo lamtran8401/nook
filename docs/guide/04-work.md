@@ -44,12 +44,12 @@ Each item has one of four kinds. The flow file of the kind, in `plugins/engineer
 
 A fix, step by step. QA logs `SHOP-31` under the story `SHOP-12`:
 
-1. `/intake SHOP-31` pulls the ticket. With `kinds` in the source, its type `Sub-Bug` gives the row `Kind: fix`, and its parent the row `Parent: SHOP-12`. The item `SHOP-31` belongs to `SHOP-12`.
+1. `/intake SHOP-31` pulls the ticket with the rows `Type: Sub-Bug` and `Parent: SHOP-12`. The item `SHOP-31` belongs to `SHOP-12`. The first time the desk meets a `Sub-Bug`, `/spec` asks you once: "Take every Sub-Bug as fix from now on?"
 2. `/spec SHOP-31` copies the steps, the actual and the expected result from the ticket.
 3. `/cook SHOP-31` writes the regression test first, then the fix. Before the submit, the companion fills `root-cause.md`, such as `type: Integration error` and two lines of analysis.
 4. You accept `SHOP-31`. Until then, the accept of `SHOP-12` waits for it. A minor sub-bug for a later sprint leaves the story with `nook eng item detach SHOP-31 --reason "next sprint"`.
 
-Your desk lists its root cause types in `nook.yml`, as `engineering.rootCauses`. `nook eng metrics` and `nook retro` count them, so the team session of a retro starts from the most frequent cause.
+Nothing needs setting up first. Your desk learns the kind of each ticket type from your answers, and can list its root cause types in `nook.yml`, as `engineering.rootCauses`. `nook eng metrics` and `nook retro` count them, so the team session of a retro starts from the most frequent cause.
 
 ## The full path, step by step
 

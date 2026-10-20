@@ -18,6 +18,7 @@ The flow, the question round and the confirm question: `${CLAUDE_PLUGIN_ROOT}/sk
    Run `find-repos` for the areas, with the proof for each. Skip it when `triage` ran it.
 4. Write your reading in five lines or fewer, so the owner corrects a wrong reading before the questions.
 5. The question round, once: collect every blocking question, register each with `nook eng ask <id> "<text>" --blocking --rec "<answer>"`, ask them in one call, record the answers with `nook eng answer`.
+   The ticket has a `Type:` row that `nook eng kind list` does not know: add one question to the same call, "Take every <Type> as <kind> from now on?". On yes, run `nook eng kind set <Type> <kind>`.
    A question that does not block becomes a guess with `nook eng guess`.
 6. Write `works/<id>/spec.md` with `write-spec`: the front matter with its dates, In short, Why, What changes, Acceptance criteria, Details, Out of scope.
 7. Run `spec-check`. Fix each gap. Then `nook eng item check <id>` must list no gap for `agree`.

@@ -132,7 +132,7 @@ const itemCommands: Command[] = [
   {
     path: ['item', 'new'],
     summary: 'make an item in the backlog; with no id, Nook makes the next IT-NNN',
-    usage: '[<id>] <title...> [--kind k --size s --area a... --source s --parent <id> --backlog]',
+    usage: '[<id>] <title...> [--kind k --type t --size s --area a... --source s --parent <id> --backlog]',
     flags: {
       kind: { type: 'string', help: 'feature | fix | chore | investigate' },
       size: { type: 'string', help: 'S | M | L' },
@@ -140,6 +140,7 @@ const itemCommands: Command[] = [
       source: { type: 'string', help: 'where the item comes from' },
       backlog: { type: 'boolean', help: 'also make backlog/<id>/ticket.md' },
       parent: { type: 'string', help: 'the item that this one belongs to, such as the story of a sub-bug' },
+      type: { type: 'string', help: 'the type of the ticket, such as Sub-Bug; with no --kind, the kind that the desk learned for it' },
     },
     run(c) {
       const { id, title } = idAndTitle(c.args)
@@ -153,6 +154,7 @@ const itemCommands: Command[] = [
         source: text(c, 'source'),
         backlog: c.flags.backlog === true,
         parent: text(c, 'parent'),
+        type: text(c, 'type'),
       }
       c.out(eng().newItem(input), itemLine)
     },
@@ -193,6 +195,23 @@ const itemCommands: Command[] = [
       const value = rest(c, 2)
       if (!value) throw usage('give the value')
       c.out(eng().editItem(arg(c, 0, 'item id'), arg(c, 1, 'field'), value, ifVersion(c)), itemLine)
+    },
+  },
+  {
+    path: ['kind', 'set'],
+    summary: 'keep the kind of a ticket type in this desk, such as Sub-Bug fix; item new --type uses it',
+    usage: '<type> <feature|fix|chore|investigate>',
+    run(c) {
+      const k = eng()
+      k.setTypeKind(arg(c, 0, 'type'), arg(c, 1, 'kind'))
+      c.out(k.typeKinds(), all => all.map(t => `${t.type} → ${t.kind}`).join('\n'))
+    },
+  },
+  {
+    path: ['kind', 'list'],
+    summary: 'the kind of each ticket type that this desk learned',
+    run(c) {
+      c.out(eng().typeKinds(), all => (all.length ? all.map(t => `${t.type} → ${t.kind}`).join('\n') : 'no type learned yet: /spec asks when it meets a new one'))
     },
   },
   {

@@ -1,6 +1,6 @@
 # Plan: kinds and their flows
 
-> In short: each kind of item gets one flow file that says what the kind needs, and the guards read it. A fix needs its repro and a root cause before review. An investigation leaves results, with code or with none. A sub-bug is an item under its story, and the story waits for it. A desk maps the types of its tracker onto the four kinds.
+> In short: each kind of item gets one flow file that says what the kind needs, and the guards read it. A fix needs its repro and a root cause before review. An investigation leaves results, with code or with none. A sub-bug is an item under its story, and the story waits for it. The desk learns the kind of each ticket type from the answers of the owner, with no vendor and no setup.
 
 ## Why
 
@@ -18,7 +18,7 @@
 | fix | the documents of a feature | `spec.md` has `## Reproduce`, `## Actual` and `## Expected`; `submit` needs `root-cause.md` |
 | investigation | questions, `findings.md`, no slices | questions, `findings.md` with a `## Results` part; slices and areas are optional |
 | sub-bug | no place | an item of kind `fix` with a `parent`; the `accept` of the parent waits for each open child |
-| tracker types | not read | each source maps its types onto the kinds; a type with no local work is not pulled |
+| ticket types | not read | the desk learns the kind of each type (`nook eng kind set`); `item new --type` uses it; a source can skip the types with no local work |
 | metrics | no root cause | `nook eng metrics` and `nook retro` count the root causes of the fixes |
 
 ## The flow file
@@ -74,21 +74,13 @@ The flows of `feature` and `chore` hold the rules of today. The first slice move
 - `accept` of an item refuses while one of its children is open, and names each child.
 - `nook eng item detach <id> --reason <r>` takes a child out of its parent, such as a minor sub-bug for a later sprint. The ledger records the reason.
 
-## Tracker types
+## Ticket types
 
-```yaml
-issue-tracker:
-  sources:
-    - type: jira
-      site: company.atlassian.net
-      kinds: { Story: feature, Bug: fix, Sub-Bug: fix, Kaizen: investigate, Task: chore }
-      skip: [Epic, Release, Test]
-```
-
-- The pull writes the kind of the ticket as a row of Fields. Triage takes it as its first answer and shows its evidence.
-- A type in `skip` stops the pull: it has no local work in this desk.
-- A type in neither list stops the pull too, with the fix: add it to `kinds` or to `skip`.
-- A source with no `kinds` pulls each type, as today.
+- The pull writes the type of a ticket as a row `Type:` of Fields. A pasted ticket with a `Type:` line works the same.
+- The ledger keeps the kind of each type that the desk learned: `nook eng kind set Sub-Bug fix`. No vendor is in the map.
+- `item new --type Sub-Bug` with no `--kind` takes the learned kind. Triage takes it as its first answer.
+- A type that the desk does not know: triage decides from the ticket, and `/spec` asks once to keep the kind of that type.
+- A source can list `skip`, such as `[Release, Test]`: a pull of such a type stops, with no local work. Every other type is pulled.
 
 ## Order
 
@@ -98,7 +90,7 @@ issue-tracker:
 | F2 | the fix: the three sections and `root-cause.md` at submit, the list of the desk | K3 to K8 |
 | F3 | the investigation: `## Results`, and slices and areas optional | K9 to K11 |
 | F4 | the parent: migration, `accept` waits, `item detach` | K12 to K15 |
-| F5 | the tracker: `kinds`, `skip`, the parent row | K16 to K19 |
+| F5 | the ticket types: the learned map, `item new --type`, `skip`, the parent row | K16 to K19 |
 | F6 | the metrics and the retro count the root causes | K20 |
 | F7 | the guide, the reference, the report, the skills (`/spec`, `/close`, triage) | `nook ste`; `bun run check` |
 
