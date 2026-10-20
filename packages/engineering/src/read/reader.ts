@@ -10,6 +10,7 @@ import type { Event } from '../stores/events.ts'
 import type { Criterion } from '../stores/criteria.ts'
 import type { Guess } from '../stores/guesses.ts'
 import type { Item } from '../stores/items.ts'
+import type { TypeKind } from '../stores/type-kinds.ts'
 import type { Question } from '../stores/questions.ts'
 import type { Slice } from '../stores/slices.ts'
 import { Who } from '../who.ts'
@@ -56,6 +57,21 @@ function withReader<T>(desk: string, read: (eng: Engineering) => T): T {
   } finally {
     eng.ledger.close()
   }
+}
+
+/** What the settings page shows of the engineering home: the areas, the kinds that the desk learned, the root cause types. */
+export type EngineeringSettings = { areas: { name: string; path: string; kind: string; checks: string[] }[]; kinds: TypeKind[]; rootCauses: string[]; unknownRootCause: string | null }
+
+export function readSettings(desk: string): EngineeringSettings | null {
+  const home = Home.find(desk)
+  if (!home) return null
+  const { config } = home
+  return withReader(desk, eng => ({
+    areas: config.areas.map(area => ({ name: area.name, path: area.path, kind: area.kind, checks: area.checks ?? [] })),
+    kinds: eng.stores.typeKinds.list(),
+    rootCauses: config.rootCauses,
+    unknownRootCause: config.unknownRootCause ?? null,
+  }))
 }
 
 /** The metrics of the last 30 days; null when the desk has no engineering home. */

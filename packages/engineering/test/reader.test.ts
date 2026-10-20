@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { readAreas, readBoard, readDocs, readItem, readMetrics } from '../src/read/reader.ts'
+import { readAreas, readBoard, readDocs, readItem, readMetrics, readSettings } from '../src/read/reader.ts'
 import { itemAt, LEAD, makeHome, PLAN, READER, SPEC, TASKS, type TestHome, writeDoc } from './helpers.ts'
 
 let t: TestHome
@@ -21,6 +21,25 @@ describe('readAreas', () => {
     const bare = mkdtempSync(join(tmpdir(), 'nook-no-home-'))
     try {
       expect(readAreas(bare)).toEqual([])
+    } finally {
+      rmSync(bare, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('readSettings', () => {
+  test('gives the areas with their checks, the kinds that the desk learned, and the root cause types', () => {
+    t.eng(LEAD).setTypeKind('Sub-Bug', 'fix')
+    const settings = readSettings(t.root)!
+    expect(settings.areas.map(a => [a.name, a.path, a.kind, a.checks.join(' ')])).toEqual([['bff', 'projects/bff', 'backend', 'sh test.sh'], ['web', 'projects/web', 'frontend', 'sh test.sh']])
+    expect(settings.kinds).toEqual([{ type: 'Sub-Bug', kind: 'fix' }])
+    expect(settings.rootCauses).toEqual([])
+  })
+
+  test('gives null for a folder with no engineering home', () => {
+    const bare = mkdtempSync(join(tmpdir(), 'nook-no-home-'))
+    try {
+      expect(readSettings(bare)).toBeNull()
     } finally {
       rmSync(bare, { recursive: true, force: true })
     }

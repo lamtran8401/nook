@@ -14,12 +14,12 @@ afterEach(() => rmSync(desk, { recursive: true, force: true }))
 describe('deskPages', () => {
   test('gives Home, then a page for each pack on in the desk that has one', () => {
     writeFileSync(join(desk, 'nook.yml'), 'packs: [engineering, learn]\n')
-    expect(deskPages(desk).map(page => [page.key, page.path])).toEqual([['home', ''], ['works', '/works'], ['learn', '/learn']])
+    expect(deskPages(desk).map(page => [page.key, page.path])).toEqual([['home', ''], ['works', '/works'], ['learn', '/learn'], ['metrics', '/metrics'], ['agents', '/agents'], ['events', '/events'], ['settings', '/settings']])
   })
 
-  test('gives only Home in a desk with no pack', () => {
+  test('gives Home and the pages of core in a desk with no pack', () => {
     writeFileSync(join(desk, 'nook.yml'), 'packs: []\n')
-    expect(deskPages(desk).map(page => page.key)).toEqual(['home'])
+    expect(deskPages(desk).map(page => page.key)).toEqual(['home', 'agents', 'events', 'settings'])
   })
 })
 

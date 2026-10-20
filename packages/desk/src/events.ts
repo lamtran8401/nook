@@ -43,7 +43,7 @@ export function maskSecrets(text: string): string {
 
 const logDir = (dir: string) => join(dir, STATE_DIR, LOG_DIR)
 /** The local day of a time, such as 2026-10-20: the name of the file of the log that holds its events. */
-const dayOf = (time: Date) => `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}-${String(time.getDate()).padStart(2, '0')}`
+export const dayOf = (time: Date) => `${time.getFullYear()}-${String(time.getMonth() + 1).padStart(2, '0')}-${String(time.getDate()).padStart(2, '0')}`
 
 /**
  * Appends one event to the file of its day in the log of the nearest desk above `cwd`, such as

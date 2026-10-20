@@ -46,15 +46,21 @@ export function blockFacts(events: DeskEvent[]): RetroFact[] {
   return groupFacts(events.filter(e => e.kind === 'block'), 'guard blocks')
 }
 
-function groupFacts(events: DeskEvent[], kind: string): RetroFact[] {
-  const groups = new Map<string, { hook: string; reason: string; count: number; at: string }>()
+/** One hook and reason of the log, with how many events it has and the time of the last one. */
+export type EventGroup = { hook: string; reason: string; count: number; at: string }
+
+/** The events in groups by hook and reason, the most frequent first. */
+export function groupEvents(events: DeskEvent[]): EventGroup[] {
+  const groups = new Map<string, EventGroup>()
   for (const event of events) {
     const key = `${event.hook}\n${event.reason}`
     const group = groups.get(key) ?? { hook: event.hook ?? '', reason: event.reason ?? '', count: 0, at: event.at }
     groups.set(key, { ...group, count: group.count + 1, at: event.at > group.at ? event.at : group.at })
   }
-  return [...groups.values()].sort((a, b) => b.count - a.count).map(g => ({ kind, item: g.hook, text: `${g.count}× ${g.reason}`, at: g.at }))
+  return [...groups.values()].sort((a, b) => b.count - a.count)
 }
+
+const groupFacts = (events: DeskEvent[], kind: string): RetroFact[] => groupEvents(events).map(g => ({ kind, item: g.hook, text: `${g.count}× ${g.reason}`, at: g.at }))
 
 /** The errors of the hooks as facts: each hook and message once, with its count, the most frequent first. */
 export function errorFacts(events: DeskEvent[]): RetroFact[] {

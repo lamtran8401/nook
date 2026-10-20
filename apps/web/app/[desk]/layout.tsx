@@ -28,7 +28,7 @@ export default async function DeskLayout({ children, params }: Props) {
   const paired = (await headers()).get(OWNER_HEADER) === '1'
   const rail = listDesks().map((d, i) => ({ name: d.name, href: `/${d.slug}`, tone: DESK_TONES[i % DESK_TONES.length]!, active: d.slug === desk.slug }))
   const open = deskPages(desk.dir).some(page => page.key === 'works') ? openCount(desk.dir) : undefined
-  const pages = deskPages(desk.dir).map(page => ({ key: page.key, label: page.label, href: `${desk.base}${page.path}`, ...(page.key === 'works' && open !== undefined ? { count: open } : {}) }))
+  const pages = deskPages(desk.dir).map(page => ({ key: page.key, label: page.label, href: `${desk.base}${page.path}`, ...(page.footer ? { footer: true } : {}), ...(page.key === 'works' && open !== undefined ? { count: open } : {}) }))
   return (
     <AppShell rail={<AppRail desks={rail} />} nav={<DeskNav title={desk.name} base={desk.base} pages={pages} />}>
       <Owner paired={paired}>
