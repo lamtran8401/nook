@@ -2,6 +2,9 @@ import { describe, expect, test } from 'bun:test'
 
 import type { HomeView } from '@nook/core/read.ts'
 
+import type { Metrics } from '@nook/engineering/report/metrics.ts'
+
+import { FlowMetrics } from '@/components/flow-metrics.tsx'
 import { HomeBrief } from '@/components/home-brief.tsx'
 import { html, text } from '@/test/markup.ts'
 
@@ -48,5 +51,29 @@ describe('HomeBrief', () => {
 
   test('says that nothing waits when no line waits', () => {
     expect(text(html(<HomeBrief view={view({ brief: [BRIEF[2]!] })} />))).toBe('0 Urgent 0 Wait for you 0 The lead runs 1 Done since yesterday Nothing waits for you. Done since yesterday SHOP-11 Show the total done')
+  })
+})
+
+describe('FlowMetrics', () => {
+  const H = 3_600_000
+  const metrics: Metrics = {
+    since: '2026-09-20T00:00:00.000Z', until: '2026-10-20T00:00:00.000Z',
+    rework: { part: 1, whole: 4, rejects: 2 }, firstPass: { part: 2, whole: 3 }, sliceRework: { part: 1, whole: 10 },
+    cycle: { median: 25 * H, longest: { ms: 48 * H, item: 'SHOP-1' }, count: 3 },
+    approveWait: { median: 2 * H, longest: { ms: 3 * H, item: 'SHOP-1' }, count: 2 },
+    acceptWait: { median: 6 * H, longest: { ms: 18 * H, item: 'SHOP-1' }, count: 3 },
+  }
+
+  test('shows the rework rate, the first pass and the median cycle time of the last 30 days', () => {
+    expect(text(html(<FlowMetrics metrics={metrics} />))).toBe('Last 30 days Rework rate 25% 1 of 4 sent back First pass 67% 2 of 3 accepted Cycle time 25 h median of 3')
+  })
+
+  test('a metric with no data says so, never 0%', () => {
+    const empty: Metrics = { ...metrics, rework: { part: 0, whole: 0, rejects: 0 }, firstPass: { part: 0, whole: 0 }, cycle: { median: null, longest: null, count: 0 } }
+    expect(text(html(<FlowMetrics metrics={empty} />))).toBe('Last 30 days Rework rate No data First pass No data Cycle time No data')
+  })
+
+  test('a desk with no engineering shows no metrics', () => {
+    expect(html(<FlowMetrics metrics={null} />)).toBe('')
   })
 })

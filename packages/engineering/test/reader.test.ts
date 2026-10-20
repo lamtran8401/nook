@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { readAreas, readBoard, readDocs, readItem } from '../src/read/reader.ts'
+import { readAreas, readBoard, readDocs, readItem, readMetrics } from '../src/read/reader.ts'
 import { itemAt, LEAD, makeHome, PLAN, READER, SPEC, TASKS, type TestHome, writeDoc } from './helpers.ts'
 
 let t: TestHome
@@ -21,6 +21,22 @@ describe('readAreas', () => {
     const bare = mkdtempSync(join(tmpdir(), 'nook-no-home-'))
     try {
       expect(readAreas(bare)).toEqual([])
+    } finally {
+      rmSync(bare, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('readMetrics', () => {
+  test('gives the metrics of the last 30 days from the ledger of the desk', () => {
+    itemAt(t, 'ready')
+    expect(readMetrics(t.root)).toMatchObject({ rework: { part: 0, whole: 0, rejects: 0 }, approveWait: { count: 1 } })
+  })
+
+  test('gives null for a folder with no engineering home', () => {
+    const bare = mkdtempSync(join(tmpdir(), 'nook-no-home-'))
+    try {
+      expect(readMetrics(bare)).toBeNull()
     } finally {
       rmSync(bare, { recursive: true, force: true })
     }

@@ -270,19 +270,31 @@ Each read command takes `--json`. `nook eng --help` lists each command with its 
 | slices | `task import`, `task list`, `task show`, `task brief`, `task <move> <id> <T>`, `task prove` |
 | questions | `ask [--blocking] [--rec]`, `answer`, `questions` |
 | guesses | `guess`, `guesses`, `guess accept`, `guess flip`, `guess slices` |
-
-An owner move from the web app adds `--via viewer`: `item <move>`, `item mode`, `answer`, `guess accept` and `guess flip`. The ledger then records the actor as `owner (viewer)`. The role and the guards stay the same.
-| the day | `next`, `pickup`, `quick`, `note add`, `notes` |
+| the day | `next`, `pickup`, `quick`, `note add`, `notes`, `metrics [--since <date>]` |
 | decisions | `adr new`, `adr list`, `adr accept`, `adr supersede` |
 | areas | `area list`, `area status` |
 | pages | `item page <id> [--tab t] [--out f]`, `doc page <file.md> [--out f]` |
 | the contract | `brief`, `doctor`, `init`, `hook <name>` |
+
+An owner move from the web app adds `--via viewer`: `item <move>`, `item mode`, `answer`, `guess accept` and `guess flip`. The ledger then records the actor as `owner (viewer)`. The role and the guards stay the same.
 
 What the commands do:
 - `item new [<id>] <title>`: a first word such as `SHOP-12` is the id. With no id, Nook makes the next `IT-NNN`. `--backlog` writes `backlog/<id>/ticket.md`.
 - `item brief`: the context of an item for an agent, about 1800 characters at most. It holds the state, the next step, the areas, the ACs, the slices, the open questions and guesses, and the mode.
 - `next [<id>]`: the next step of each item and the skill to type, the owner's steps first.
 - `pickup <id>`: this session leads the item. It prints the brief and the last `handoff.md`.
+- `metrics [--since <date>]`: how the flow went in a span, the last 30 days by default. Each metric comes from the events of the ledger:
+
+  | Metric | How it counts |
+  |---|---|
+  | rework rate | the items submitted in the span that got a `reject` in it, out of the items submitted; and the count of rejects |
+  | first pass | the items accepted in the span with no `reject` before the accept, out of the items accepted |
+  | slice rework | the done slices that were reopened, out of the slices done |
+  | cycle time | from the first event of an item to its accept: the median, and the longest with its item |
+  | approve wait | from the last import of the slices, or the agree, to the approve; a `proceed` of a yolo run is no wait |
+  | accept wait | from the last submit to the accept |
+
+  A metric with no event in the span says "no data", never 0%.
 - `item verify`: runs the checks of each area of the item in the area folder, and writes one `check_run` for each check. An install that runs first is a row `install: <command>` of the same run. A failed install runs no check of its area, and its row keeps the lines that name the error. `--last` prints the last run.
 - `task prove <id> <T> --files <tests>`: see the proof list below.
 - `item branch`: makes `nook/<id>-<slug>` in each git area of the item and switches to it. It refuses an area that another item in cooking uses.

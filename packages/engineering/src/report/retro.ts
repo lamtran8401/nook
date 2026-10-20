@@ -1,6 +1,6 @@
 import type { RetroFact } from '@nook/desk/desks.ts'
 
-import { cut } from '../format.ts'
+import { cut, duration } from '../format.ts'
 import type { Engineering } from '../service.ts'
 import type { Event } from '../stores/events.ts'
 
@@ -30,14 +30,6 @@ function weakProofs(item: string, events: Event[], since: number): RetroFact[] {
   return [...last.values()]
     .filter(e => /^\S+ (?:none|weak):/.test(e.reason ?? '') && Date.parse(e.at) >= since)
     .map(e => ({ item, kind: 'weak proof', text: cut(e.reason ?? '', TEXT_MAX), at: e.at }))
-}
-
-const duration = (ms: number): string => {
-  const minutes = Math.round(ms / 60_000)
-  if (minutes < 1) return `${Math.round(ms / 1000)} s`
-  if (minutes < 60) return `${minutes} min`
-  const rest = minutes % 60
-  return `${Math.floor(minutes / 60)} h${rest ? ` ${rest} min` : ''}`
 }
 
 /** Each slow blocking question of the span: it waited 30 min or more for the owner, or it still waits. */

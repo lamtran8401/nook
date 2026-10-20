@@ -83,7 +83,7 @@ Each page of the web app reads the desk when the browser asks for it. A gap of t
 
 | Page | It shows |
 |---|---|
-| `/` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done |
+| `/` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done; then the rework rate, the first pass and the median cycle time of the last 30 days |
 | `/works` | the Bench board: a column for each state of the flow, the empty ones too, and `blocked` while an item is blocked; a narrow page scrolls the board sideways; a card shows its flags and whose move is next |
 | `/works/<id>` over the board | a click on a card opens the item in a dialog of 80% of the screen: the title, the next step, the criteria, the slices and the activity, with the details beside them |
 | `/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document; the Tasks tab draws the lanes of the slices first, one for each area |

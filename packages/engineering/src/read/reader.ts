@@ -14,6 +14,7 @@ import type { Question } from '../stores/questions.ts'
 import type { Slice } from '../stores/slices.ts'
 import { Who } from '../who.ts'
 import { type EventLine, eventLine } from './event-lines.ts'
+import { deskMetrics, type Metrics, METRICS_SPAN_MS } from '../report/metrics.ts'
 
 /**
  * The read paths of engineering for the web app: plain functions on a desk folder. Each one opens the ledger
@@ -55,6 +56,11 @@ function withReader<T>(desk: string, read: (eng: Engineering) => T): T {
   } finally {
     eng.ledger.close()
   }
+}
+
+/** The metrics of the last 30 days; null when the desk has no engineering home. */
+export function readMetrics(desk: string, now = new Date()): Metrics | null {
+  return Home.find(desk) ? withReader(desk, eng => deskMetrics(eng, new Date(now.getTime() - METRICS_SPAN_MS), now)) : null
 }
 
 /** The areas of the engineering home of the desk, in the order of `nook.yml`; none when the desk has no home. */

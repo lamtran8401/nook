@@ -38,6 +38,7 @@ import { brief } from './report/brief.ts'
 import { doctor } from './report/doctor.ts'
 import { itemBrief, pickup } from './report/item-brief.ts'
 import { docPage, itemPage } from './report/item-page.ts'
+import { deskMetrics, METRICS_SPAN_MS, metricsText } from './report/metrics.ts'
 import { next } from './report/next.ts'
 import { taskBrief } from './report/task-brief.ts'
 import { Engineering, idAndTitle } from './service.ts'
@@ -493,6 +494,17 @@ const dayCommands: Command[] = [
     usage: '[<id>]',
     run(c) {
       c.out(next(eng(), c.args[0]), nextText)
+    },
+  },
+  {
+    path: ['metrics'],
+    summary: 'how the flow went: rework rate, first pass, slice rework, cycle time, and the waits at the gates of the owner',
+    usage: '[--since <date>]',
+    flags: { since: { type: 'string', help: 'the start of the span, such as 2026-10-01; the default is 30 days back' } },
+    run(c) {
+      const since = typeof c.flags.since === 'string' ? new Date(c.flags.since) : new Date(Date.now() - METRICS_SPAN_MS)
+      if (Number.isNaN(since.getTime())) throw usage(`--since is not a date: ${c.flags.since}`, 'write it as 2026-10-01')
+      c.out(deskMetrics(eng(), since), metricsText)
     },
   },
   {
