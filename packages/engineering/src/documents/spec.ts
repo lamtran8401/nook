@@ -66,7 +66,6 @@ function frontProblems(kind: string | undefined, size: string | undefined, areas
     problems.push(`front matter: kind must be one of ${ITEM_KINDS.join(', ')}`)
   if (!size) problems.push('front matter: size is missing')
   else if (!isOneOf(SIZES, size)) problems.push('front matter: size must be S, M or L')
-  if (!areas.length) problems.push('front matter: areas is missing')
   return problems
 }
 

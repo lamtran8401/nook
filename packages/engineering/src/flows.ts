@@ -17,14 +17,16 @@ export type Flow = {
   kind: ItemKind
   spec: { criteria: 'required' | 'none'; questions: 'required' | 'none'; sections: string[] }
   slices: Need
+  areas: 'required' | 'optional'
   submit: SubmitCheck[]
 }
 
-const RULES = ['kind', 'spec', 'slices', 'submit']
+const RULES = ['kind', 'spec', 'slices', 'areas', 'submit']
 const SPEC_RULES = ['criteria', 'questions', 'sections']
 const SPEC_CHOICES = ['criteria', 'questions']
 const ON_OFF = ['required', 'none']
 const NEEDS = ['required', 'optional', 'none']
+const AREA_NEEDS = ['required', 'optional']
 const SUBMIT_CHECKS = ['findings', 'root-cause']
 
 type Raw = Record<string, unknown>
@@ -53,13 +55,13 @@ export function parseFlow(text: string, file: string): { flow: Flow | null; prob
       .map(key => `${file}: spec.${key} is no rule of a flow; the rules of spec are ${SPEC_RULES.join(', ')}`),
     ...SPEC_CHOICES.map(rule => valueProblem(file, `spec.${rule}`, spec[rule], ON_OFF)).filter(problem => problem !== null),
     ...(spec.sections === undefined || (Array.isArray(spec.sections) && spec.sections.every(s => typeof s === 'string')) ? [] : [`${file}: spec.sections is a list of headings, such as [Reproduce, Actual]`]),
-    ...[valueProblem(file, 'slices', raw.slices, NEEDS)].filter(problem => problem !== null),
+    ...[valueProblem(file, 'slices', raw.slices, NEEDS), valueProblem(file, 'areas', raw.areas, AREA_NEEDS)].filter(problem => problem !== null),
     ...(Array.isArray(raw.submit) ? [] : [`${file}: submit is a list, such as [] or [findings]`]),
     ...submit.filter(check => !SUBMIT_CHECKS.includes(String(check))).map(check => `${file}: submit names "${String(check)}"; it takes ${SUBMIT_CHECKS.join(', ')}`),
   ]
   if (problems.length) return { flow: null, problems }
   const sections = (spec.sections ?? []) as string[]
-  return { flow: { kind: kind as ItemKind, spec: { ...(spec as Omit<Flow['spec'], 'sections'>), sections }, slices: raw.slices as Need, submit: submit as SubmitCheck[] }, problems }
+  return { flow: { kind: kind as ItemKind, spec: { ...(spec as Omit<Flow['spec'], 'sections'>), sections }, slices: raw.slices as Need, areas: raw.areas as Flow['areas'], submit: submit as SubmitCheck[] }, problems }
 }
 
 /** The flow of each kind in a folder, and each problem: a broken file, or a kind with no file. */

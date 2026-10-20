@@ -300,7 +300,9 @@ export class Engineering {
       const warnings = this.moveWarnings(moveName, item)
       const notes = this.applyMove(moveName, item, reason)
       // a document that cannot be written fails the move, so no item sits in a stage without its document
-      for (const doc of move.scaffolds ?? [])
+      // tasks.md comes from its template only when the flow needs slices; a flow that allows them writes its own
+      const slicesNeeded = flowOf(this.item(id).kind).slices === 'required'
+      for (const doc of (move.scaffolds ?? []).filter(doc => doc !== 'tasks.md' || slicesNeeded))
         notes.push(...this.templates.scaffold(this.folder(id), this.item(id), doc))
       if (moveName === 'begin') notes.push(...this.workDocs(id))
       return { item, warnings, notes }

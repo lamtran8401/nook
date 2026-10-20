@@ -3,9 +3,9 @@ import { match } from 'ts-pattern'
 import { sameAsSpec, type Slice } from '../stores/slices.ts'
 import type { Gap, Guard, GuardContext } from './guard.ts'
 
-/** The guards on the slices. None of them applies to a flow with no slices. */
+/** The guards on the slices. None of them applies when the slices of the item do not apply (GuardContext.slicesApply). */
 
-const noSlices = (ctx: GuardContext) => ctx.flow.slices === 'none'
+const noSlices = (ctx: GuardContext) => !ctx.slicesApply()
 
 const fixWith = (ctx: GuardContext, change: string) =>
   `${change} in ${ctx.folder.path('tasks.md')}, then nook eng task import ${ctx.id}`

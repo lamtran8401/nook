@@ -207,11 +207,9 @@ describe('EveryAcInSlice', () => {
 })
 
 describe('the slice guards on an investigation', () => {
-  test('an investigation has no slices, so a criterion in no slice and a foreign area are no gap', () => {
+  test('an investigation with no tasks.md and no slice is no gap for the slice guards', () => {
     const lead = t.eng(LEAD)
     lead.newItem({ id: 'SHOP-5', title: 'why?', kind: 'investigate', areas: ['bff'] })
-    lead.addCriterion('SHOP-5', 'an answer')
-    writeDoc(t, 'SHOP-5', 'tasks.md', TASKS([{ id: 'T1', area: 'web', acs: '2', depends: 'T1' }]))
     const c = ctx('SHOP-5')
     expect([new SlicesImported(), new EveryAcInSlice(), new SliceAreasOfItem(), new NoDependsCycle(), new SlicesDone()].flatMap(g => g.check(c))).toEqual([])
   })

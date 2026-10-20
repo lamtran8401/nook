@@ -3,5 +3,6 @@ kind: feature
 spec:
   criteria: required   # acceptance criteria under ## Acceptance criteria
   questions: none
+areas: required        # the spec names the areas of nook.yml that the item changes
 slices: required       # tasks.md with slices; the slices done and verified before submit
 submit: []

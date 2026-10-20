@@ -20,6 +20,7 @@ export class SpecParses implements Guard {
         fix: `edit ${file}`,
       })
     }
+    if (flow.areas === 'required' && !spec.areas.length) found.push({ text: 'spec.md: front matter: areas is missing', fix: `edit ${file}` })
     for (const section of flow.spec.sections.filter(s => !spec.hasText(s)))
       found.push({ text: `spec.md: ${withArticle(kind)} item needs text under ## ${section}`, fix: `edit ${file}` })
     if (flow.spec.criteria === 'required' && !spec.criteria.length) {

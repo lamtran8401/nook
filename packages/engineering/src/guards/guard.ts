@@ -42,6 +42,13 @@ export class GuardContext {
     return flowOf(this.item.kind)
   }
 
+  /** True when the slice guards apply: the flow needs slices, or allows them and the item has a tasks.md or a slice. */
+  slicesApply(): boolean {
+    const { slices } = this.flow
+    if (slices === 'none') return false
+    return slices === 'required' || this.tasks() !== null || this.stores.slices.live(this.id).length > 0
+  }
+
   spec(): SpecDocument | null {
     if (this.specDoc === undefined) {
       const text = this.folder.read('spec.md')

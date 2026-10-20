@@ -3,6 +3,7 @@ kind: investigate
 spec:
   criteria: none
   questions: required  # the questions under ## Questions
-slices: none           # no tasks.md, no verify
+areas: optional        # an investigation can touch no code
+slices: optional       # with a tasks.md, its slices run and verify as the slices of a feature
 submit:
-  - findings           # submit: findings.md has text; accept: each question has an answer with evidence
+  - findings           # submit: findings.md has a ## Results part; accept: each question has an answer with evidence

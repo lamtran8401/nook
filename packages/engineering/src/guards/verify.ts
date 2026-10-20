@@ -9,7 +9,7 @@ export class VerifyPassed implements Guard {
   constructor(private readonly scope: VerifyScope) {}
 
   check(ctx: GuardContext): Gap[] {
-    if (ctx.flow.slices === 'none' || !this.applies(ctx) || ctx.stores.checks.verifiedAt(ctx.item)) return []
+    if (!ctx.slicesApply() || !this.applies(ctx) || ctx.stores.checks.verifiedAt(ctx.item)) return []
     const text = match(this.scope)
       .with('slices', () => 'the checks have not passed since the last move back')
       .with('quick', () => 'the checks have not passed')

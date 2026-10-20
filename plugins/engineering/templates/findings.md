@@ -7,3 +7,7 @@
 - Answer: 
 - Evidence: 
 - Open: 
+
+## Results
+
+<!-- What the work left, one line each: a decision or a document, a proof of concept, new tickets, a session, a wiki page. -->

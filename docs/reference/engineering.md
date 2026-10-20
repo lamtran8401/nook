@@ -157,10 +157,11 @@ Rules:
   | `spec.criteria` | `required`, `none` | `agree` needs an AC line; `accept` needs each AC marked |
   | `spec.questions` | `required`, `none` | `agree` needs a question under `## Questions`; the spec template has Questions in place of the criteria |
   | `spec.sections` | a list of headings | `agree` needs text under each one; the spec template has them before the criteria |
-  | `slices` | `required`, `optional`, `none` | the slice guards and the verify of `submit` apply unless it is `none` |
+  | `areas` | `required`, `optional` | `agree` needs areas in the front matter of `spec.md` |
+  | `slices` | `required`, `optional`, `none` | `required`: the slice guards and the verify of `submit` apply, and `agree` writes `tasks.md` from its template. `optional`: they apply when the item has a `tasks.md` or a slice |
   | `submit` | a list of `findings`, `root-cause` | `findings`: `submit` needs text in `findings.md`, and `accept` an answer with evidence for each question. `root-cause`: `submit` needs `root-cause.md` with a type and the analysis |
 
-- The kinds `feature` and `chore` need criteria and slices. The kind `fix` needs them too, and `## Reproduce`, `## Actual`, `## Expected` and its root cause. The kind `investigate` needs questions and findings, and has no slices.
+- The kinds `feature` and `chore` need criteria and slices. The kind `fix` needs them too, and `## Reproduce`, `## Actual`, `## Expected` and its root cause. The kind `investigate` needs questions and findings with a `## Results` part. Its areas and slices are optional: with a `tasks.md`, its slices run and verify as the slices of a feature.
 - The root cause of a fix: a type of `engineering.rootCauses` when the desk lists them, else any type. The type of `engineering.unknownRootCause` needs a `reason`. `submit` keeps the type in the ledger. The action that prevents the cause is not asked: a team session decides it.
 - `nook doctor` names a flow file with a problem: an unknown rule, a value that the rule does not take, or a kind with no file. A move refuses while a flow file has a problem.
 - Mode `yolo`: only the owner sets it, with `/gate mode <id> yolo` or `/yolo`. The Stop hook keeps the lead on the next stage; the accept stays the owner's.
@@ -220,7 +221,7 @@ The pack gives `nook doctor`, `nook brief`, `nook retro` and the waiting gates t
 | `spec.md` | start | see below |
 | `plan.md` | agree | see below |
 | `tasks.md` | agree | see below |
-| `findings.md` | kind investigate | `## Q<n>` with Answer, Evidence, Open |
+| `findings.md` | kind investigate | `## Q<n>` with Answer, Evidence, Open; `## Results` with one line for each result |
 | `root-cause.md` | kind fix; `begin` and `quick` write it | front matter `type`, and `reason` for the unknown type; the analysis under the title |
 | `walkthrough.md` | `/view`, and in review | the report of the finished work |
 | `handoff.md` | `/handoff` | State, Done, Next, Open, Guesses, Watch; 40 lines at most |
