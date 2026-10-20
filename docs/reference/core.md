@@ -84,7 +84,7 @@ Each page of the web app reads the desk when the browser asks for it. A gap of t
 | Page | It shows |
 |---|---|
 | `/` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done |
-| `/works` | the Bench board: a column for each state that holds an item; a card shows its flags and whose move is next |
+| `/works` | the Bench board: a column for each state of the flow, the empty ones too, and `blocked` while an item is blocked; a narrow page scrolls the board sideways; a card shows its flags and whose move is next |
 | `/works/<id>` over the board | a click on a card opens the item in a dialog of 80% of the screen: the title, the next step, the criteria, the slices and the activity, with the details beside them |
 | `/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document; the Tasks tab draws the lanes of the slices first, one for each area |
 | `/wiki` | the drafts that wait for a yes, then a group for each shelf: each page with its summary and type |
@@ -272,7 +272,7 @@ The web app uses the same files. Its layout puts the tokens and `bundle.css` inl
 
 | Component | Shows |
 |---|---|
-| `Board`, `ItemCard` | one column for each state that holds an item, in the order of the flow; each card links to its item |
+| `Board`, `ItemCard` | one column for each state of the flow, in its order; each card links to its item |
 | `ItemHeader` | the title, the chips and the next step, with the button when the step is the owner's |
 | `Criteria` | each criterion with its number, its state and its evidence |
 | `Diagram` | a Bench diagram from its spec |

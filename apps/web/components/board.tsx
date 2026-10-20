@@ -6,7 +6,7 @@ import { EmptyState } from '@nook/ui/components/empty-state.tsx'
 import { areaTone, KIND_TONE, STATE_TONE } from '@/components/tones.ts'
 import { turnTitle } from '@/lib/turn.ts'
 
-// the states in the order of the flow; a blocked item keeps its own column
+// the states in the order of the flow; blocked is no step, so its column shows only while an item is blocked
 const FLOW = ['backlog', 'framing', 'planning', 'ready', 'cooking', 'review', 'blocked', 'done']
 const KIND_ICON: Record<string, string> = { feature: 'sparkle', fix: 'alert', chore: 'settings', investigate: 'search' }
 
@@ -34,15 +34,15 @@ function benchCard(card: BoardCard, areas: string[]) {
   }
 }
 
-/** The items of the desk on the Bench board: a column for each state that holds an item, the empty states in its panel. */
+/** The items of the desk on the Bench board: a column for each state of the flow, the empty ones too; a narrow page scrolls sideways. */
 export function Board({ cards, areas }: { cards: BoardCard[]; areas: string[] }) {
   if (!cards.length) return <EmptyState icon={<Inbox className="size-5" aria-hidden="true" />} title="No item yet">Type /intake in the agent session to start one.</EmptyState>
-  const states = FLOW.map(state => ({ state, cards: cards.filter(c => c.state === state) }))
-  const columns = states.filter(s => s.cards.length).map(s => ({ title: s.state, tone: STATE_TONE[s.state] ?? 'neutral', cards: s.cards.map(c => benchCard(c, areas)) }))
-  const rest = states.filter(s => !s.cards.length && s.state !== 'blocked').map(s => ({ title: s.state, tone: STATE_TONE[s.state] ?? 'neutral', count: 0 }))
+  const columns = FLOW.map(state => ({ state, cards: cards.filter(c => c.state === state) }))
+    .filter(column => column.state !== 'blocked' || column.cards.length)
+    .map(column => ({ title: column.state, tone: STATE_TONE[column.state] ?? 'neutral', cards: column.cards.map(c => benchCard(c, areas)) }))
   return (
     <div data-wide>
-      <Diagram spec={{ type: 'board', frame: false, colWidth: 190, colHeight: 0, columns, ...(rest.length ? { rest, restTitle: 'No items' } : {}) }} />
+      <Diagram spec={{ type: 'board', frame: false, colWidth: 190, colHeight: 0, emptyText: 'None', columns }} />
     </div>
   )
 }
