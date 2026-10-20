@@ -95,6 +95,8 @@ Each step starts with its expectation file in `docs/expect/`, before code.
 |---|---|---|
 | v0.3 | one release: the pack `issue-tracker` pulls a Jira ticket or a GitHub issue into `backlog/<KEY>/`, read only; install the dependencies of an area when they are missing; `nook web`, the desk in the browser, with your gates there; `nook search` across the wiki, the items and the courses | planned, next |
 | kinds | one flow file for each kind; a fix with its repro and root cause; an investigation with results; sub-bugs under their story; the kind of each ticket type learned in the desk (`docs/plan/kinds.md`) | built |
+| web shell | a rail of desks, a side nav, page headers and cards; one `nook web` for every desk; the log of Next.js; Metrics, Agents and skills, Events, Settings (`docs/plan/web-shell.md`) | built |
+| desk → board | the word desk becomes board everywhere; the kanban of items becomes the flow | planned, next |
 | research | `/research`: analysts in parallel, each finding with a source, a fact-checker | planned |
 | visual | the page of every pack: diagrams, decks, sketches | planned |
 | `/learn-progress` | a level for each skill of a course, and the plan of the next month | planned |

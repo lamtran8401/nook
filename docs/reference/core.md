@@ -79,18 +79,26 @@ The answer to a pair token is a page that sets the cookie and then moves to the 
 
 The shell guard blocks a call to the port in `.nook/web.json` on any spelling of this machine, such as `127.1:<port>`, `localhost <port>` or `/dev/tcp/127.0.0.1/<port>`. A broken `web.json` blocks each shell call until the owner deletes it.
 
-Each page of the web app reads the desk when the browser asks for it. A gap of the desk, such as a ledger that needs a migration, shows with its fix in place of the data.
+One `nook web` serves each desk of the desk list of the owner (`~/.config/nook/desks`) and the desk where it started. Each desk has its own path: its folder name, such as `/personal`. Two desks with one folder name get a number, such as `/shop-2`. `/` sends the browser to the start desk, and a path of no desk is a 404. One pair lets the owner move items in each desk.
+
+The shell of each page: a dark rail with one tile for each desk, the open one with a ring; a side nav with the search, the pages that the packs of the desk turn on, the count of open items next to Works, and Settings at its foot; then the page, with a header of its title and its use. Below 900 px the rail and the nav fold into a menu. Each kind has one color on every page: feature blue, fix red, investigate violet, chore aqua.
+
+Each page reads the desk when the browser asks for it. A gap of the desk, such as a ledger that needs a migration, shows with its fix in place of the data. The table names each page under the path of its desk.
 
 | Page | It shows |
 |---|---|
-| `/` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done; then the rework rate, the first pass and the median cycle time of the last 30 days |
-| `/works` | the Bench board: a column for each state of the flow, the empty ones too, and `blocked` while an item is blocked; a narrow page scrolls the board sideways; a card shows its flags and whose move is next |
-| `/works/<id>` over the board | a click on a card opens the item in a dialog of 80% of the screen: the title, the next step, the criteria, the slices and the activity, with the details beside them |
-| `/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document; the Tasks tab draws the lanes of the slices first, one for each area |
-| `/wiki` | the drafts that wait for a yes, then a group for each shelf: each page with its summary and type |
-| `/wiki/<shelf>`, `/wiki/<page>` | one shelf, or one page with its blocks and its links; a `[[name]]` links to its page |
-| `/learn`, `/learn/<course>` | the courses; a course gives its cards due, the top patterns of the mistakes, and the bands of each criterion |
-| `/search?q=<words>` | each line that holds every word, in the item documents, the wiki and the courses, in groups by file, as a link to its page |
+| `/<desk>` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done; then the rework rate, the first pass and the median cycle time of the last 30 days |
+| `/<desk>/works` | the Bench board: a column for each state of the flow, the empty ones too, and `blocked` while an item is blocked; a narrow page scrolls the board sideways; a card shows its flags and whose move is next |
+| `/<desk>/works/<id>` over the board | a click on a card opens the item in a dialog of 80% of the screen: the title, the next step, the criteria, the slices and the activity, with the details beside them |
+| `/<desk>/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document; the Tasks tab draws the lanes of the slices first, one for each area |
+| `/<desk>/wiki` | the drafts that wait for a yes, then a card for each shelf with its use, its count of pages and their types |
+| `/<desk>/wiki/<shelf>`, `/<desk>/wiki/<page>` | one shelf, or one page with its blocks and its links; a `[[name]]` links to its page |
+| `/<desk>/learn`, `/<desk>/learn/<course>` | a card for each course; a course gives its cards due, the top patterns of the mistakes, and the bands of each criterion |
+| `/<desk>/search?q=<words>` | each line that holds every word, in the item documents, the wiki and the courses, in groups by file, as a link to its page |
+| `/<desk>/metrics` | the six numbers of `nook eng metrics` for the last 30 days, the root causes and the guard blocks as bars |
+| `/<desk>/agents` | a card for each agent and skill of core and of the packs on in the desk, with its job and its pack |
+| `/<desk>/events` | the event log of the desk, newest first, with a filter by kind |
+| `/<desk>/settings` | the packs, the areas with their checks, the kinds that the desk learned, the root cause types and the path of `nook.yml` |
 
 The Overview of an item gives the states of the flow with their times, the next step and its owner, four numbers, Needs you, the slices on a board, the branch and checks of each area, and the events. Needs you lists the blocking questions first, then the open questions, the guesses to check and the gate. A document tab renders its file block by block; a document not written yet names the command that writes it, such as `/view SHOP-12` for the walkthrough. Each tab has its own address, such as `/works/SHOP-12?tab=plan`.
 
