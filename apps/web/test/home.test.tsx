@@ -62,6 +62,7 @@ describe('FlowMetrics', () => {
     cycle: { median: 25 * H, longest: { ms: 48 * H, item: 'SHOP-1' }, count: 3 },
     approveWait: { median: 2 * H, longest: { ms: 3 * H, item: 'SHOP-1' }, count: 2 },
     acceptWait: { median: 6 * H, longest: { ms: 18 * H, item: 'SHOP-1' }, count: 3 },
+    rootCauses: [],
   }
 
   test('shows the rework rate, the first pass and the median cycle time of the last 30 days', () => {

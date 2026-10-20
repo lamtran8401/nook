@@ -311,6 +311,7 @@ What the commands do:
   | cycle time | from the first event of an item to its accept: the median, and the longest with its item |
   | approve wait | from the last import of the slices, or the agree, to the approve; a `proceed` of a yolo run is no wait |
   | accept wait | from the last submit to the accept |
+  | root causes | the root cause type of each item accepted in the span, with its count, the most frequent first; `nook retro` shows them too |
 
   A metric with no event in the span says "no data", never 0%.
 - `item verify`: runs the checks of each area of the item in the area folder, and writes one `check_run` for each check. An install that runs first is a row `install: <command>` of the same run. A failed install runs no check of its area, and its row keeps the lines that name the error. `--last` prints the last run.

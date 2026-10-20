@@ -1,3 +1,5 @@
+import type { RetroFact } from '@nook/desk/desks.ts'
+
 import { duration } from '../format.ts'
 import type { Engineering } from '../service.ts'
 import type { Event } from '../stores/events.ts'
@@ -8,6 +10,8 @@ import type { Event } from '../stores/events.ts'
 export type Share = { part: number; whole: number }
 /** Times of one kind: the median, the longest with its item, and how many there were. */
 export type Times = { median: number | null; longest: { ms: number; item: string } | null; count: number }
+/** One root cause type of the items accepted in a span: how many, which ones, and the time of the last accept. */
+export type CauseCount = { type: string; count: number; items: string[]; at: string }
 export type Metrics = {
   since: string
   until: string
@@ -17,8 +21,10 @@ export type Metrics = {
   cycle: Times
   approveWait: Times
   acceptWait: Times
+  rootCauses: CauseCount[]
 }
-export type History = { item: string; events: Event[] }
+/** The events of one item, and the root cause type that its submit kept. */
+export type History = { item: string; events: Event[]; rootCause?: string | null }
 
 /** The default span of the metrics: the last 30 days. */
 export const METRICS_SPAN_MS = 30 * 24 * 60 * 60 * 1000
@@ -51,6 +57,17 @@ const waits = (h: History, end: Event, starts: string[]) => {
   return ms === null ? [] : [{ item: h.item, ms }]
 }
 
+/** The root cause types of the accepted items, the most frequent first, then by name. */
+function causesOf(accepted: { h: History; accept: Event }[]): CauseCount[] {
+  const counts = new Map<string, CauseCount>()
+  for (const { h, accept } of accepted) {
+    if (!h.rootCause) continue
+    const found = counts.get(h.rootCause) ?? { type: h.rootCause, count: 0, items: [], at: accept.at }
+    counts.set(h.rootCause, { ...found, count: found.count + 1, items: [...found.items, h.item], at: accept.at > found.at ? accept.at : found.at })
+  }
+  return [...counts.values()].sort((a, b) => b.count - a.count || a.type.localeCompare(b.type))
+}
+
 /** The metrics of the events from `since` to `until`. An item counts by its events in the span; one wait is one owner move. */
 export function metricsOf(histories: History[], since: Date, until: Date): Metrics {
   const inSpan = (e: Event) => time(e) >= since.getTime() && time(e) <= until.getTime()
@@ -67,12 +84,13 @@ export function metricsOf(histories: History[], since: Date, until: Date): Metri
     cycle: timesOf(accepted.map(({ h, accept }) => ({ item: h.item, ms: time(accept) - time(h.events[0]!) }))),
     approveWait: timesOf(histories.flatMap(h => spanOf(h, 'approve').flatMap(e => waits(h, e, ['import', 'agree'])))),
     acceptWait: timesOf(accepted.flatMap(({ h, accept }) => waits(h, accept, ['submit']))),
+    rootCauses: causesOf(accepted),
   }
 }
 
 /** The metrics of a desk for the span, from each item of its ledger. */
 export const deskMetrics = (eng: Engineering, since: Date, until = new Date()): Metrics =>
-  metricsOf(eng.stores.items.list().map(item => ({ item: item.id, events: eng.stores.events.history(item.id) })), since, until)
+  metricsOf(eng.stores.items.list().map(item => ({ item: item.id, events: eng.stores.events.history(item.id), rootCause: item.root_cause })), since, until)
 
 const LABEL = 12
 const share = (s: Share, words: string) => (s.whole ? `${Math.round((s.part / s.whole) * 100)}%  ${s.part} of ${s.whole} ${words}` : 'no data')
@@ -89,7 +107,12 @@ export function metricsText(m: Metrics): string {
     ['cycle time', times(m.cycle, 'items')],
     ['approve wait', times(m.approveWait, 'approves')],
     ['accept wait', times(m.acceptWait, 'accepts')],
+    ['root causes', m.rootCauses.length ? m.rootCauses.map(c => `${c.type} ${c.count}`).join(' · ') : 'no data'],
   ]
     .map(line => (typeof line === 'string' ? line : `${line[0]!.padEnd(LABEL)}  ${line[1]}`))
     .join('\n')
 }
+
+/** The root causes of a span as facts of the retro: one for each type, with its count and its items. */
+export const rootCauseFacts = (m: Metrics): RetroFact[] =>
+  m.rootCauses.map(c => ({ kind: 'root causes', item: c.type, text: `${c.count} accepted: ${c.items.join(', ')}`, at: c.at }))

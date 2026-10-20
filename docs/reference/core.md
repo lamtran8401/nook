@@ -45,7 +45,7 @@ A fault stops the command and names the key: `packs.on must be a list of strings
 | `nook web [--build]` | the desk in the browser: builds the web app when the Nook code changed, then serves it on `127.0.0.1` until Ctrl-C |
 | `nook web pair` | prints a one-time link that pairs one more browser with the web app that runs |
 | `nook web forget` | removes each paired browser; the pages stay free to read |
-| `nook retro` | the facts since the last retro of this desk: items sent back, guesses flipped, slow questions, weak proofs, guard blocks by reason |
+| `nook retro` | the facts since the last retro of this desk: items sent back, guesses flipped, slow questions, weak proofs, the root causes of the fixes, guard blocks by reason |
 | `nook events [--kind block\|error\|prompt] [--since <date>]` | the event log of this desk, oldest first |
 | `nook where` | the desks above this folder and the Nook repo |
 | `nook ste <file\|folder...> [--min N] [--quiet]` | the writing score of Markdown files; a file passes above `N`, default 80 |

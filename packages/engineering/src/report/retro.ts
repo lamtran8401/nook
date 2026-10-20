@@ -3,6 +3,7 @@ import type { RetroFact } from '@nook/desk/desks.ts'
 import { cut, duration } from '../format.ts'
 import type { Engineering } from '../service.ts'
 import type { Event } from '../stores/events.ts'
+import { deskMetrics, rootCauseFacts } from './metrics.ts'
 
 /** `retro`: what went wrong or cost time since a date, each fact from one event of the ledger. */
 
@@ -59,4 +60,5 @@ export function retroFacts(eng: Engineering, since: Date): RetroFact[] {
       return [...moves, ...weakProofs(item.id, events, from), ...slowQuestions(item.id, events, from)]
     })
     .sort((a, b) => a.at.localeCompare(b.at) || a.item.localeCompare(b.item))
+    .concat(rootCauseFacts(deskMetrics(eng, since)))
 }

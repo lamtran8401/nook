@@ -29,6 +29,7 @@ Goal: the next span loses less time, from changes that the owner picked, each wi
 
 ## Gotchas
 - The facts come from `nook retro` and `nook events`, not from memory. A thing that neither holds is not a fact; ask the owner when it matters.
+- The facts `root causes` group the fixes of the span by their root cause type. A type with a high count is a cause to dig into with the team, by 5 Whys. The action that prevents it is the team's, not a change of Nook.
 - A guard block with a high count can be a false alarm: a plain read that the guard does not know. Read its commands in `nook events --kind block` before you call it a cause.
 - One cause can explain many facts. Five rejects for one missing test list are one cause, not five.
 - Make no change before the owner's yes. Proposing is not changing.
