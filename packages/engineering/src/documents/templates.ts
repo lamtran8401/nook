@@ -3,12 +3,14 @@ import { join } from 'node:path'
 
 import { pluginDir } from '@nook/desk/pack.ts'
 
+import { flowOf } from '../flows.ts'
 import { now } from '../ledger.ts'
+import type { ItemKind } from '../vocabulary.ts'
 import type { ItemDoc, WorkFolder } from './work-folder.ts'
 
 /** The templates of the documents in `plugins/engineering/templates/`. */
 
-export type TemplateItem = { id: string; title: string; kind: string; size: string; areas: string[] }
+export type TemplateItem = { id: string; title: string; kind: ItemKind; size: string; areas: string[] }
 
 const INVESTIGATE_QUESTIONS =
   '## Questions\n\n<!-- One `- question` line each. findings.md answers each one with evidence. -->\n'
@@ -44,7 +46,7 @@ export function fill(template: string, item: TemplateItem, date: string): string
     .replaceAll('{{today}}', date)
   // only a plan of size L needs the Flow
   if (item.size !== 'L') text = text.replace(/\n## Flow\n[\s\S]*?(?=\n## |$)/, '')
-  if (item.kind !== 'investigate') return text
-  // an investigation asks questions in place of criteria
+  if (flowOf(item.kind).spec.questions !== 'required') return text
+  // a flow that asks questions has them in place of the criteria
   return text.replace(/## Acceptance criteria\n[\s\S]*?(?=\n## |$)/, INVESTIGATE_QUESTIONS)
 }

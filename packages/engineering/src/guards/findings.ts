@@ -2,12 +2,12 @@ import { answeredQuestions } from '../documents/findings.ts'
 import { isFilled } from '../documents/markdown.ts'
 import type { Gap, Guard, GuardContext } from './guard.ts'
 
-/** The guards of an investigation, which answers questions in findings.md in place of slices and criteria. */
+/** The guards of a flow whose submit asks for findings: it answers questions in findings.md in place of slices and criteria. */
 
 /** submit: findings.md holds text. */
 export class FindingsFilled implements Guard {
   check(ctx: GuardContext): Gap[] {
-    if (!ctx.investigates) return []
+    if (!ctx.flow.submit.includes('findings')) return []
     const text = ctx.folder.read('findings.md')
     if (text && isFilled(text)) return []
     return [
@@ -22,7 +22,7 @@ export class FindingsFilled implements Guard {
 /** accept: each question of the spec has an Answer and an Evidence in findings.md. */
 export class QuestionsAnswered implements Guard {
   check(ctx: GuardContext): Gap[] {
-    if (!ctx.investigates) return []
+    if (!ctx.flow.submit.includes('findings')) return []
     const questions = ctx.spec()?.questions ?? []
     const answered = answeredQuestions(ctx.folder.read('findings.md') ?? '')
     return questions

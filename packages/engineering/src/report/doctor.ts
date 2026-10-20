@@ -4,6 +4,7 @@ import type { Finding } from '@nook/desk/desks.ts'
 
 import { DEFAULTS, LEGACY_DIR } from '../config.ts'
 import { cut } from '../format.ts'
+import { flowFindings, flowOf } from '../flows.ts'
 import { FingerprintsUnchanged } from '../guards/fingerprints.ts'
 import { GuardContext } from '../guards/guard.ts'
 import type { Home } from '../home.ts'
@@ -20,6 +21,7 @@ const drift = new FingerprintsUnchanged()
 export function doctor(eng: Engineering): Finding[] {
   const found = [
     ...configFindings(eng.home),
+    ...flowFindings(),
     ...eng.stores.items.open().flatMap(item => itemFindings(eng, item)),
     ...sharedAreas(eng),
   ]
@@ -108,7 +110,7 @@ function itemFindings(eng: Engineering, item: Item): Finding[] {
     }
   }
   const live = eng.stores.slices.live(id)
-  if (item.state === 'cooking' && item.kind !== 'investigate' && !live.length) {
+  if (item.state === 'cooking' && flowOf(item.kind).slices === 'required' && !live.length) {
     found.push({
       level: 'warn',
       where: id,

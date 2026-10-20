@@ -2,6 +2,7 @@ import type { Area } from '../config.ts'
 import { SpecDocument } from '../documents/spec.ts'
 import { TasksDocument } from '../documents/tasks.ts'
 import { WorkFolder } from '../documents/work-folder.ts'
+import { type Flow, flowOf } from '../flows.ts'
 import type { Home } from '../home.ts'
 import type { Stores } from '../stores/index.ts'
 import type { Item } from '../stores/items.ts'
@@ -36,8 +37,9 @@ export class GuardContext {
     return this.item.id
   }
 
-  get investigates(): boolean {
-    return this.item.kind === 'investigate'
+  /** What the kind of the item asks for, from its flow file. */
+  get flow(): Flow {
+    return flowOf(this.item.kind)
   }
 
   spec(): SpecDocument | null {

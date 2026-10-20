@@ -3,7 +3,9 @@ import { match } from 'ts-pattern'
 import { sameAsSpec, type Slice } from '../stores/slices.ts'
 import type { Gap, Guard, GuardContext } from './guard.ts'
 
-/** The guards on the slices. An investigation has no slices, so none of them applies to it. */
+/** The guards on the slices. None of them applies to a flow with no slices. */
+
+const noSlices = (ctx: GuardContext) => ctx.flow.slices === 'none'
 
 const fixWith = (ctx: GuardContext, change: string) =>
   `${change} in ${ctx.folder.path('tasks.md')}, then nook eng task import ${ctx.id}`
@@ -11,7 +13,7 @@ const fixWith = (ctx: GuardContext, change: string) =>
 /** approve: tasks.md parses, has a slice, and the ledger holds the same slices. */
 export class SlicesImported implements Guard {
   check(ctx: GuardContext): Gap[] {
-    if (ctx.investigates) return []
+    if (noSlices(ctx)) return []
     const tasks = ctx.tasks()
     const file = ctx.folder.path('tasks.md')
     if (!tasks)
@@ -43,7 +45,7 @@ export class SlicesImported implements Guard {
 export class EveryAcInSlice implements Guard {
   check(ctx: GuardContext): Gap[] {
     const tasks = ctx.cleanTasks()
-    if (ctx.investigates || !tasks) return []
+    if (noSlices(ctx) || !tasks) return []
     const criteria = ctx.stores.criteria.list(ctx.id)
     const missing = criteria
       .filter(c => !tasks.slices.some(s => s.acs.includes(c.n)))
@@ -68,7 +70,7 @@ export class EveryAcInSlice implements Guard {
 export class SliceAreasOfItem implements Guard {
   check(ctx: GuardContext): Gap[] {
     const tasks = ctx.cleanTasks()
-    if (ctx.investigates || !tasks) return []
+    if (noSlices(ctx) || !tasks) return []
     const areas = ctx.item.areas
     return tasks.slices
       .filter(s => !areas.includes(s.area))
@@ -81,7 +83,7 @@ export class SliceAreasOfItem implements Guard {
 
 export class NoDependsCycle implements Guard {
   check(ctx: GuardContext): Gap[] {
-    const cycle = ctx.investigates ? null : ctx.cleanTasks()?.cycle()
+    const cycle = noSlices(ctx) ? null : ctx.cleanTasks()?.cycle()
     if (!cycle) return []
     return [{ text: `depends has a cycle: ${cycle.join(' → ')}`, fix: fixWith(ctx, 'break it') }]
   }
@@ -90,7 +92,7 @@ export class NoDependsCycle implements Guard {
 /** submit: at least one slice is done, and every other live slice is done too. */
 export class SlicesDone implements Guard {
   check(ctx: GuardContext): Gap[] {
-    if (ctx.investigates) return []
+    if (noSlices(ctx)) return []
     const live = ctx.stores.slices.live(ctx.id)
     const found: Gap[] = []
     if (!live.some(s => s.state === 'done'))

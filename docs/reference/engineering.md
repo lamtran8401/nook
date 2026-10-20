@@ -148,7 +148,17 @@ Rules:
 - From `ready` on, the slices, the criteria, and the fields `kind`, `size` and `areas` are frozen. A change stops with exit 3 and the fix `nook eng item replan <id>`.
 - `item ac add` writes the new line into `spec.md` too. A quick item can add a criterion in any state.
 - `quick <id|title> --area <a>` makes an item in `cooking` with one running slice for the lead. It has no spec and no plan.
-- Kind `investigate` has Questions in place of ACs and no slices. It writes `findings.md`.
+- The flow file of a kind says what the guards ask for: `plugins/engineering/flows/<kind>.yml`. Each guard reads the flow of the item; no guard names a kind.
+
+  | Rule | Values | What it does |
+  |---|---|---|
+  | `spec.criteria` | `required`, `none` | `agree` needs an AC line; `accept` needs each AC marked |
+  | `spec.questions` | `required`, `none` | `agree` needs a question under `## Questions`; the spec template has Questions in place of the criteria |
+  | `slices` | `required`, `optional`, `none` | the slice guards and the verify of `submit` apply unless it is `none` |
+  | `submit` | a list of `findings` | `submit` needs text in `findings.md`; `accept` needs an answer with evidence for each question |
+
+- The kinds `feature`, `fix` and `chore` need criteria and slices. The kind `investigate` needs questions and findings, and has no slices.
+- `nook doctor` names a flow file with a problem: an unknown rule, a value that the rule does not take, or a kind with no file. A move refuses while a flow file has a problem.
 - Mode `yolo`: only the owner sets it, with `/gate mode <id> yolo` or `/yolo`. The Stop hook keeps the lead on the next stage; the accept stays the owner's.
 
 ## 5. The ledger: `<home>/.nook/engineering.db`

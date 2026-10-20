@@ -1,0 +1,8 @@
+# The flow of an item of kind investigate: what the guards of each move ask for. nook doctor checks this file.
+kind: investigate
+spec:
+  criteria: none
+  questions: required  # the questions under ## Questions
+slices: none           # no tasks.md, no verify
+submit:
+  - findings           # submit: findings.md has text; accept: each question has an answer with evidence

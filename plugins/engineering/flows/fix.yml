@@ -1,0 +1,7 @@
+# The flow of an item of kind fix: what the guards of each move ask for. nook doctor checks this file.
+kind: fix
+spec:
+  criteria: required   # acceptance criteria under ## Acceptance criteria
+  questions: none
+slices: required       # tasks.md with slices; the slices done and verified before submit
+submit: []

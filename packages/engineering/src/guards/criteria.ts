@@ -4,7 +4,7 @@ import type { Gap, Guard, GuardContext } from './guard.ts'
 /** accept: every criterion is marked, and each mark was made for the text that the spec holds now. */
 export class CriteriaMarked implements Guard {
   check(ctx: GuardContext): Gap[] {
-    if (ctx.investigates) return []
+    if (ctx.flow.spec.criteria === 'none') return []
     const id = ctx.id
     const marks = ctx.stores.criteria.list(id)
     const found: Gap[] = []

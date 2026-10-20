@@ -3,11 +3,11 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { fill, Templates } from '../src/documents/templates.ts'
+import { fill, type TemplateItem, Templates } from '../src/documents/templates.ts'
 import { WorkFolder } from '../src/documents/work-folder.ts'
 
 const TEMPLATES = join(import.meta.dir, '..', '..', '..', 'plugins', 'engineering', 'templates')
-const ITEM = { id: 'SHOP-12', title: 'Filter by status', kind: 'feature', size: 'M', areas: ['bff', 'web'] }
+const ITEM: TemplateItem = { id: 'SHOP-12', title: 'Filter by status', kind: 'feature', size: 'M', areas: ['bff', 'web'] }
 
 let dir: string
 beforeEach(() => {
