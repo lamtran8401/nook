@@ -20,7 +20,7 @@ export function ItemPage({ view, docs, tab, now, base }: { view: ItemView; docs:
   return (
     <div className="mx-auto grid w-full max-w-[920px] gap-5">
       <ItemHeader view={view} base={base} />
-      <div className="sticky top-[58px] z-30 flex justify-center">
+      <div className="sticky top-3 z-30 flex justify-center">
         <LinkTabs label="Item" variant="bar" tabs={tabs} />
       </div>
       {tab === 'overview' ? <Overview view={view} now={now} /> : <DocTab id={item.id} name={tab as DocName} text={docs[tab]} areas={item.areas} criteria={view.criteria} slices={view.slices} />}

@@ -1,12 +1,14 @@
-import { Check, FileText } from 'lucide-react'
+import { Check, FileText, GraduationCap } from 'lucide-react'
 
 import type { CourseView, CriterionTrend } from '@nook/learn/read.ts'
 import { Badge } from '@nook/ui/components/badge.tsx'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@nook/ui/components/breadcrumb.tsx'
 import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
 import { EmptyState } from '@nook/ui/components/empty-state.tsx'
+import { IconCard } from '@nook/ui/components/icon-card.tsx'
 import { RecordList } from '@nook/ui/components/record-list.tsx'
 import { Section } from '@nook/ui/components/section.tsx'
+import { SectionHeader } from '@nook/ui/components/section-header.tsx'
 
 import { Diagram } from '@/components/diagram.tsx'
 
@@ -76,12 +78,25 @@ export function CoursePage({ course, base }: { course: CourseView; base: string 
   )
 }
 
-/** The courses of the desk, each a link to its page. */
+/** The courses of the desk: a card for each, with what is due today and how much is scored, as a link to its page. */
 export function Courses({ courses, base }: { courses: CourseView[]; base: string }) {
   if (!courses.length) return <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title="No course yet">Type <CopyCommand text="/learn-setup" /> in the agent session to start one.</EmptyState>
   return (
-    <Section title="Courses">
-      <RecordList rows={courses.map(c => ({ id: String(c.due.length), main: <a href={`${base}/learn/${c.name}`} className="hover:underline">{c.name}</a>, sub: `${count(c.due.length, 'card')} due · ${count(c.patterns.length, 'pattern')} · ${c.trends.length} scored ${c.trends.length === 1 ? 'criterion' : 'criteria'}` }))} />
-    </Section>
+    <section className="grid gap-3">
+      <SectionHeader title="Courses" count={courses.length} />
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {courses.map(c => (
+          <IconCard
+            key={c.name}
+            href={`${base}/learn/${c.name}`}
+            icon={<GraduationCap aria-hidden="true" />}
+            tone="violet"
+            title={c.name}
+            description={`${count(c.due.length, 'card')} due today · ${count(c.patterns.length, 'pattern')} of mistakes`}
+            tags={[`${c.trends.length} scored ${c.trends.length === 1 ? 'criterion' : 'criteria'}`]}
+          />
+        ))}
+      </div>
+    </section>
   )
 }

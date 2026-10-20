@@ -28,7 +28,7 @@ describe('the state of an item', () => {
 
 describe('the kind of an item', () => {
   test('a tile in the tone of the kind, named for a reader of the screen', () => {
-    expect(html(<KindIcon kind="feature" />)).toStartWith('<span data-slot="icon-tile" data-tone="success" role="img" aria-label="feature"')
+    expect(html(<KindIcon kind="feature" />)).toStartWith('<span data-slot="icon-tile" data-tone="primary" role="img" aria-label="feature"')
     expect(html(<KindIcon kind="fix" />)).toContain('data-tone="danger"')
   })
 })

@@ -4,7 +4,7 @@ import type { CourseView } from '@nook/learn/read.ts'
 import type { WikiView } from '@nook/wiki/read.ts'
 
 import { Courses, CoursePage, trendChart } from '@/components/learn/course-page.tsx'
-import { WikiHome } from '@/components/wiki/wiki-home.tsx'
+import { ShelfPage, WikiHome } from '@/components/wiki/wiki-home.tsx'
 import { WikiPage } from '@/components/wiki/wiki-page.tsx'
 import { html, text } from '@/test/markup.ts'
 
@@ -18,17 +18,24 @@ const wiki: WikiView = {
 }
 
 describe('WikiHome', () => {
-  test('lists the drafts that wait for a yes first, then a group for each shelf with its pages and their type', () => {
+  test('lists the drafts that wait for a yes first, then a card for each shelf with its use, its count of pages and their types', () => {
     const markup = html(<WikiHome wiki={wiki} base="/personal" />)
     expect(markup).toContain('<a href="/personal/wiki/drafts/payment-retries.md" class="hover:underline">Payment retries</a>')
-    expect(markup).toContain('<a href="/personal/wiki/resources/shipments-api.md" class="hover:underline">Shipments api</a>')
-    expect(markup).toContain('<a href="/personal/wiki/resources"')
-    expect(markup).toMatch(/data-slot="badge" data-tone="primary" data-variant="label"[^>]*>system</)
+    expect(markup).toContain('<a data-slot="icon-card" href="/personal/wiki/resources"')
     expect(text(markup)).toBe(
       'Drafts that wait for your yes 1 Payment retries drafts/payment-retries.md draft ' +
-        'ideas 0 an idea that has not started No page yet. A page joins the shelf after your yes to its draft. ' +
-        'resources 1 how a system works Shipments api The api lists the shipments in pages of 20. system',
+        'Shelves 2 ideas an idea that has not started 0 pages resources how a system works 1 page system',
     )
+  })
+
+  test('a wiki with no shelf says how to make them', () => {
+    expect(text(html(<WikiHome wiki={{ ...wiki, drafts: [], shelves: [] }} base="/personal" />))).toBe('Shelves 0 No shelf yet Run /setup in the agent session: it writes the shelves of the wiki into nook.yml.')
+  })
+
+  test('a shelf alone lists its pages with their summary and type', () => {
+    const markup = html(<ShelfPage shelf={wiki.shelves[1]!} base="/personal" />)
+    expect(markup).toContain('<a href="/personal/wiki/resources/shipments-api.md" class="hover:underline">Shipments api</a>')
+    expect(markup).toMatch(/data-slot="badge" data-tone="primary" data-variant="label"[^>]*>system</)
   })
 
   test('says how to turn the wiki on in a desk with none', () => {
@@ -73,7 +80,7 @@ describe('CoursePage', () => {
   })
 
   test('lists each course with what waits in it', () => {
-    expect(text(html(<Courses courses={[course]} base="/personal" />))).toBe('Courses 1 english 1 card due · 1 pattern · 2 scored criteria')
+    expect(text(html(<Courses courses={[course]} base="/personal" />))).toBe('Courses 1 english 1 card due today · 1 pattern of mistakes 2 scored criteria')
   })
 })
 

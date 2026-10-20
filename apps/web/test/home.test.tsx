@@ -46,11 +46,11 @@ describe('HomeBrief', () => {
   })
 
   test('what runs and what is done is one line for each item, with the command of the lead', () => {
-    expect(text(html(<HomeBrief view={view({ brief: BRIEF })} base="/personal" />))).toEndWith('Runs SHOP-14 Export the list cooking /cook SHOP-14 Done since yesterday SHOP-11 Show the total done')
+    expect(text(html(<HomeBrief view={view({ brief: BRIEF })} base="/personal" />))).toEndWith('Runs 1 SHOP-14 Export the list cooking /cook SHOP-14 Done since yesterday 1 SHOP-11 Show the total done')
   })
 
   test('says that nothing waits when no line waits', () => {
-    expect(text(html(<HomeBrief view={view({ brief: [BRIEF[2]!] })} base="/personal" />))).toBe('0 Urgent 0 Wait for you 0 The lead runs 1 Done since yesterday Nothing waits for you. Done since yesterday SHOP-11 Show the total done')
+    expect(text(html(<HomeBrief view={view({ brief: [BRIEF[2]!] })} base="/personal" />))).toBe('0 Urgent 0 Wait for you 0 The lead runs 1 Done since yesterday Nothing waits for you. Done since yesterday 1 SHOP-11 Show the total done')
   })
 })
 

@@ -16,8 +16,8 @@ export const STATE_TONE: Record<string, string> = {
 /** The tone of the tag of each type of wiki page. */
 export const PAGE_TYPE_TONE: Record<string, string> = { system: 'primary', concept: 'violet', idea: 'warning', source: 'aqua', lesson: 'success', draft: 'warning' }
 
-/** The tone of the tile of each item kind. */
-export const KIND_TONE: Record<string, string> = { feature: 'success', fix: 'danger', chore: 'neutral', investigate: 'violet' }
+/** The color of each item kind, the same on every page: feature blue, fix red, investigate violet, chore aqua. */
+export const KIND_TONE: Record<string, string> = { feature: 'primary', fix: 'danger', chore: 'aqua', investigate: 'violet' }
 
 const AREA_TONES = ['primary', 'violet', 'aqua', 'warning', 'success', 'ink']
 

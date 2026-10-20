@@ -1,11 +1,13 @@
-import { FileText } from 'lucide-react'
+import { FileText, Library } from 'lucide-react'
 
 import type { ShelfView, WikiView } from '@nook/wiki/read.ts'
 import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
 import { EmptyState } from '@nook/ui/components/empty-state.tsx'
 import { Group, GroupCount, GroupLine } from '@nook/ui/components/group.tsx'
+import { IconCard } from '@nook/ui/components/icon-card.tsx'
 import { InlineCode } from '@nook/ui/components/inline-code.tsx'
 import { Badge } from '@nook/ui/components/badge.tsx'
+import { SectionHeader } from '@nook/ui/components/section-header.tsx'
 
 import { PAGE_TYPE_TONE } from '@/components/tones.ts'
 
@@ -49,19 +51,28 @@ function Shelf({ shelf, base }: { shelf: ShelfView; base: string }) {
   )
 }
 
-/** The wiki: the drafts that wait for a yes first, then each shelf with the lines of its index. */
+const SHELF_TONES = ['primary', 'violet', 'aqua', 'warning', 'success']
+const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
+
+/** The wiki: the drafts that wait for a yes first, then a card for each shelf with its use and its count of pages. */
 export function WikiHome({ wiki, base }: { wiki: WikiView | null; base: string }) {
   if (!wiki) return <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title="This desk has no wiki">Add <InlineCode>wiki</InlineCode> to the packs of nook.yml, then run <CopyCommand text="/setup" /> in the agent session.</EmptyState>
   return (
-    <div className="grid gap-2.5">
+    <div className="grid gap-5">
       {wiki.drafts.length ? (
         <Group head={<><b className="font-semibold">Drafts that wait for your yes</b><GroupCount n={wiki.drafts.length} /></>}>
           {wiki.drafts.map(draft => <PageLine key={draft} href={`${base}/wiki/drafts/${draft}`} page={draft} sub={`drafts/${draft}`} type="draft" />)}
         </Group>
       ) : null}
-      {wiki.shelves.map(shelf => (
-        <Shelf key={shelf.name} shelf={shelf} base={base} />
-      ))}
+      <section className="grid gap-3">
+        <SectionHeader title="Shelves" count={wiki.shelves.length} />
+        {wiki.shelves.length ? null : <EmptyState icon={<Library className="size-5" aria-hidden="true" />} title="No shelf yet">Run <CopyCommand text="/setup" /> in the agent session: it writes the shelves of the wiki into nook.yml.</EmptyState>}
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {wiki.shelves.map((shelf, i) => (
+            <IconCard key={shelf.name} href={`${base}/wiki/${shelf.name}`} icon={<Library aria-hidden="true" />} tone={SHELF_TONES[i % SHELF_TONES.length]} title={shelf.name} description={shelf.use} tags={[count(shelf.lines.length, 'page'), ...new Set(shelf.lines.map(l => l.type).filter(Boolean))]} />
+          ))}
+        </div>
+      </section>
     </div>
   )
 }

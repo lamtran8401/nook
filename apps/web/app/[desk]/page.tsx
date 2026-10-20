@@ -1,3 +1,5 @@
+import { PageHeader } from '@nook/ui/components/page-header.tsx'
+
 import { FlowMetrics } from '@/components/flow-metrics.tsx'
 import { HomeBrief } from '@/components/home-brief.tsx'
 import { orGap } from '@/components/gap.tsx'
@@ -10,6 +12,7 @@ export default async function Home({ params }: { params: Promise<{ desk: string 
   const desk = await openDesk(params)
   return orGap(() => (
     <>
+      <PageHeader title="Home" description={`What waits for you in ${desk.name}, what runs, and how the last 30 days went.`} />
       <HomeBrief view={home(desk.dir)} base={desk.base} />
       <FlowMetrics metrics={metrics(desk.dir)} />
     </>

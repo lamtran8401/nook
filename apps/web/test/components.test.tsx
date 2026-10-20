@@ -37,7 +37,7 @@ describe('Board', () => {
     const spec = specOf(html(<Board cards={[card()]} areas={['api', 'web']} base="/personal" />))
     expect(cardsOf(spec)[0]).toEqual({
       id: 'SHOP-12', title: 'Filter shipments by status', href: '/personal/works/SHOP-12',
-      kind: 'feature', kindTone: 'success', kindIcon: 'sparkle', size: 'M',
+      kind: 'feature', kindTone: 'primary', kindIcon: 'sparkle', size: 'M',
       areas: [{ name: 'api', tone: 'primary' }, { name: 'web', tone: 'violet' }],
       meter: { value: 1, max: 3, text: '1/3 criteria', tone: 'success' },
       note: 'The lead runs /cook', noteIcon: 'bot',

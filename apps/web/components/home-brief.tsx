@@ -5,6 +5,7 @@ import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
 import { CountTile } from '@nook/ui/components/count-tile.tsx'
 import { Group, GroupLine } from '@nook/ui/components/group.tsx'
 import { IconTile } from '@nook/ui/components/icon-tile.tsx'
+import { SectionHeader } from '@nook/ui/components/section-header.tsx'
 
 import { Move } from '@/components/item/move.tsx'
 import { StateIcon, StateTag } from '@/components/marks.tsx'
@@ -113,10 +114,10 @@ const TILES: { label: string; tone: string; count: (lines: BriefLine[]) => numbe
   { label: 'Done since yesterday', tone: 'success', count: lines => lines.filter(l => l.part === 'done').length },
 ]
 
-function Part({ title, children }: { title: string; children: React.ReactNode }) {
+function Part({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
   return (
     <section className="grid gap-3">
-      <h2 className="text-[19px] font-semibold">{title}</h2>
+      <SectionHeader title={title} count={count} />
       {children}
     </section>
   )
@@ -134,9 +135,9 @@ export function HomeBrief({ view, base }: { view: HomeView; base: string }) {
           <CountTile key={tile.label} count={tile.count(view.brief)} label={tile.label} tone={tile.tone} />
         ))}
       </div>
-      {waits.length ? <Part title="Waits for you"><Waits lines={waits} base={base} /></Part> : <p className="text-[17px] font-medium">Nothing waits for you.</p>}
-      {runs.length ? <Part title="Runs"><Rows lines={runs} base={base} /></Part> : null}
-      {done.length ? <Part title="Done since yesterday"><Rows lines={done} base={base} /></Part> : null}
+      {waits.length ? <Part title="Waits for you" count={waits.length}><Waits lines={waits} base={base} /></Part> : <p className="text-[17px] font-medium">Nothing waits for you.</p>}
+      {runs.length ? <Part title="Runs" count={runs.length}><Rows lines={runs} base={base} /></Part> : null}
+      {done.length ? <Part title="Done since yesterday" count={done.length}><Rows lines={done} base={base} /></Part> : null}
     </>
   )
 }
