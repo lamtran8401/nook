@@ -30,7 +30,7 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 7. Hand-over: when work stays open, write `handoff.md` as `/handoff` says. Else skip it.
 8. Archive: `nook eng item archive <id>` moves the ticket folder to `backlog/archive/`. `nook eng doctor` at the end. Report.
 
-Kind `investigate`: no commit; a follow-up for each Follow-up line that the owner says yes to. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
+Kind `investigate`: no commit unless the owner says so; for each line of `## Results`, a ticket for the owner to create, a wiki page or a session; a follow-up for each Follow-up line that the owner says yes to. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
 
 ## The report
 ```

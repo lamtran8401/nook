@@ -94,6 +94,7 @@ Each step starts with its expectation file in `docs/expect/`, before code.
 | Step | What it gives | State |
 |---|---|---|
 | v0.3 | one release: the pack `issue-tracker` pulls a Jira ticket or a GitHub issue into `backlog/<KEY>/`, read only; install the dependencies of an area when they are missing; `nook web`, the desk in the browser, with your gates there; `nook search` across the wiki, the items and the courses | planned, next |
+| kinds | one flow file for each kind; a fix with its repro and root cause; an investigation with results; sub-bugs under their story; the tracker types mapped onto kinds (`docs/plan/kinds.md`) | built |
 | research | `/research`: analysts in parallel, each finding with a source, a fact-checker | planned |
 | visual | the page of every pack: diagrams, decks, sketches | planned |
 | `/learn-progress` | a level for each skill of a course, and the plan of the next month | planned |

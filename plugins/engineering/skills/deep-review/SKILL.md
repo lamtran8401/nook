@@ -28,7 +28,8 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
    A finding about the behavior of this item that no AC covers, such as an error text that the page hides: ask the owner once. Fix it in this item with `nook eng item reframe <id> --reason`, or record it as out of scope in the report. Never open a new item for it on your own.
    Say: accept: type `/gate accept <id>`. Offer `/view <id>`: the page with the walkthrough. Stop. Next: `/close <id>`.
 
-Kind `investigate`: the reviewer checks `findings.md`. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
+Kind `investigate`: the reviewer checks `findings.md` and its `## Results`. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
+Kind `fix`: the reviewer also reads `root-cause.md`. A type that names a symptom, such as "the code is wrong", is a finding for the owner: ask what made the bug possible at its earliest point.
 
 ## Gotchas
 - Early victory: a reviewer that runs two tests and says "all green" has checked the tests, not the criteria. Each AC needs its own evidence that could have failed. Green checks prove that the tests pass.

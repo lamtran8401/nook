@@ -31,6 +31,26 @@ backlog ──/spec──▶ framing ──agree──▶ planning ──★ app
 
 `/quick` skips the spec and the plan, not the test. It writes one criterion, builds one slice test first, proves the test, and stops at your accept. When the fix is not small, it sends you to `/spec`.
 
+## Kinds of item
+
+Each item has one of four kinds. The flow file of the kind, in `plugins/engineering/flows/`, says what the guards ask for.
+
+| Kind | For | What the item needs |
+|---|---|---|
+| `feature` | a story, an improvement | criteria, a plan, slices in areas |
+| `fix` | a bug, a sub-bug | the same, and `## Reproduce`, `## Actual`, `## Expected` in the spec, and `root-cause.md` before the review |
+| `investigate` | a spike, a research, a kaizen | questions, and `findings.md` with a `## Results` part; slices only for a proof of concept |
+| `chore` | a technical task | criteria and slices, often on the quick path |
+
+A fix, step by step. QA logs `SHOP-31` under the story `SHOP-12`:
+
+1. `/intake SHOP-31` pulls the ticket. With `kinds` in the source, its type `Sub-Bug` gives the row `Kind: fix`, and its parent the row `Parent: SHOP-12`. The item `SHOP-31` belongs to `SHOP-12`.
+2. `/spec SHOP-31` copies the steps, the actual and the expected result from the ticket.
+3. `/cook SHOP-31` writes the regression test first, then the fix. Before the submit, the companion fills `root-cause.md`, such as `type: Integration error` and two lines of analysis.
+4. You accept `SHOP-31`. Until then, the accept of `SHOP-12` waits for it. A minor sub-bug for a later sprint leaves the story with `nook eng item detach SHOP-31 --reason "next sprint"`.
+
+Your desk lists its root cause types in `nook.yml`, as `engineering.rootCauses`. `nook eng metrics` and `nook retro` count them, so the team session of a retro starts from the most frequent cause.
+
 ## The full path, step by step
 
 ### 1. Intake
