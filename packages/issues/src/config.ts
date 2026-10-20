@@ -2,8 +2,18 @@ import { usage } from '@nook/shared/errors.ts'
 
 /** The `issue-tracker` section of nook.yml: the folder of the tickets, and each source with the map of its fields by use. */
 
-/** A Jira site: each use, such as acceptanceCriteria, names a field id; a project can override the map. */
-export type JiraSource = { type: 'jira'; site: string; fields: Record<string, string>; projects: Record<string, { fields: Record<string, string> }> }
+/**
+ * A Jira site: each use, such as acceptanceCriteria, names a field id; a project can override the map. `kinds` maps a
+ * type of the tracker onto a kind of engineering, and `skip` lists the types with no local work.
+ */
+export type JiraSource = {
+  type: 'jira'
+  site: string
+  fields: Record<string, string>
+  projects: Record<string, { fields: Record<string, string> }>
+  kinds: Record<string, string>
+  skip: string[]
+}
 /** A GitHub repo: each use names a heading of the issue body; the prefix makes the id of an item, such as GH-482. */
 export type GitHubSource = { type: 'github'; repo: string; prefix: string; sections: Record<string, string> }
 export type Source = JiraSource | GitHubSource
@@ -32,12 +42,25 @@ function fieldIds(value: unknown, where: string): Record<string, string> {
   return map
 }
 
+/** The kind of each type of the tracker, such as { Story: feature }; engineering checks the kind when it makes the item. */
+function kinds(value: unknown, where: string): Record<string, string> {
+  if (value === undefined) return {}
+  if (!isMap(value)) throw usage(`nook.yml: ${where}.kinds must be a map of tracker types to kinds, such as { Story: feature, Bug: fix }`)
+  return Object.fromEntries(Object.entries(value).map(([type, kind]) => [type, text(kind)]))
+}
+
+function skipped(value: unknown, where: string): string[] {
+  if (value === undefined) return []
+  if (!Array.isArray(value)) throw usage(`nook.yml: ${where}.skip must be a list of tracker types, such as [Epic, Release]`)
+  return value.map(text).filter(Boolean)
+}
+
 function jira(raw: Raw, where: string): JiraSource {
   const site = text(raw.site)
   if (!site) throw usage(`nook.yml: ${where}.site must name the Jira site, such as company.atlassian.net`)
   if (raw.projects !== undefined && !isMap(raw.projects)) throw usage(`nook.yml: ${where}.projects must be a map of project keys`)
   const projects = Object.fromEntries(Object.entries((raw.projects as Raw | undefined) ?? {}).map(([key, value]) => [key, { fields: fieldIds(isMap(value) ? value.fields : undefined, `${where}.projects.${key}.fields`) }]))
-  return { type: 'jira', site, fields: fieldIds(raw.fields, `${where}.fields`), projects }
+  return { type: 'jira', site, fields: fieldIds(raw.fields, `${where}.fields`), projects, kinds: kinds(raw.kinds, where), skip: skipped(raw.skip, where) }
 }
 
 function github(raw: Raw, where: string): GitHubSource {

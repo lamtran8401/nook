@@ -21,6 +21,8 @@ const JIRA = {
   site: 'company.atlassian.net',
   fields: { acceptanceCriteria: 'customfield_10095', technicalSolution: 'customfield_10096', sprint: 'customfield_10019' },
   projects: { PAY: { fields: { acceptanceCriteria: 'customfield_10210' } } },
+  kinds: {} as Record<string, string>,
+  skip: [] as string[],
 }
 
 describe('resolveRef for Jira', () => {
@@ -88,6 +90,21 @@ describe('readJira', () => {
 
   test('an item with another key stops the read', () => {
     expect(() => readJira(JIRA, 'SHOP-12', twg([], SHOP_12.replace('"SHOP-12"', '"SHOP-99"')))).toThrow(expect.objectContaining({ message: 'twg gave SHOP-99 when asked for SHOP-12' }))
+  })
+
+  test('with kinds, the kind of the ticket type is a row of Fields after the type, and the parent of the ticket is one too', () => {
+    const child = JSON.stringify({ data: { ...JSON.parse(SHOP_12).data, parent: { key: 'SHOP-1', fields: { summary: 'Refunds' } } } })
+    const read = readJira({ ...JIRA, kinds: { Story: 'feature' } }, 'SHOP-12', twg([], child))
+    expect(read.ticket.fields.slice(1, 3)).toEqual([['Type', 'Story'], ['Kind', 'feature']])
+    expect(read.ticket.fields).toContainEqual(['Parent', 'SHOP-1'])
+  })
+
+  test('a type in skip stops the pull: it has no local work in this desk', () => {
+    expect(() => readJira({ ...JIRA, skip: ['Story'] }, 'SHOP-12', twg())).toThrow(expect.objectContaining({ code: 3, message: 'SHOP-12 is a Story: that type has no local work in this desk', fix: 'pull a ticket of another type, or take Story out of skip of the source in nook.yml' }))
+  })
+
+  test('with kinds, a type in neither kinds nor skip stops the pull with the fix', () => {
+    expect(() => readJira({ ...JIRA, kinds: { Bug: 'fix' } }, 'SHOP-12', twg())).toThrow(expect.objectContaining({ code: 3, message: 'SHOP-12 is a Story, a type in neither kinds nor skip of the source', fix: 'add Story to kinds or to skip of the source in nook.yml' }))
   })
 
   test('takes the files from the attachment query, not from the item', () => {

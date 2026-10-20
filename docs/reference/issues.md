@@ -18,6 +18,8 @@ issue-tracker:
         sprint: customfield_10019
       projects:                               # a project with other fields overrides the map
         PAY: { fields: { acceptanceCriteria: customfield_10210 } }
+      kinds: { Story: feature, Bug: fix, Sub-Bug: fix, Kaizen: investigate, Task: chore }   # the kind of each type
+      skip: [Epic, Release, Test]             # the types with no local work in this desk
     - type: github
       repo: acme/shop
       prefix: GH                              # issue 482 becomes the item GH-482; the default
@@ -67,6 +69,9 @@ The pull checks every ref before it writes a file. It reads a GitHub issue with 
 
 A Jira work item:
 - A key such as `SHOP-12` goes to the only Jira source, or to the site whose `projects` name its project. Two sites that both fit stop the pull with the fix.
+- With `kinds`, the kind of the ticket type is a row `Kind:` of Fields, right after `Type:`. `/intake` and `triage` take it as the kind of the item. Engineering checks the kind when it makes the item.
+- A type in `skip` stops the pull with exit 3: it has no local work in this desk. With `kinds`, a type in neither list stops it too, with the fix: add the type to `kinds` or to `skip`. A source with no `kinds` pulls each type.
+- The parent of a ticket, such as the story of a sub-bug, is a row `Parent:` of Fields. `/intake` makes the item with `--parent` when the parent is in the ledger.
 - The map of the key is the map of the source with the override of its project, use by use.
 - Rich text in the Atlassian Document Format becomes Markdown: headings, lists, code, quotes, tables, links, mentions and panels.
 - The acceptance criteria always get their own part. Another use gets a part when its value is rich text, has a line break or is longer than 80 characters. A shorter value, such as a sprint, is a row of Fields.

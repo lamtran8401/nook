@@ -69,17 +69,34 @@ function commentsOf(item: Item) {
   return (raw as Record<string, unknown>[]).map(c => ({ author: valueText(c.author) ?? 'someone', at: String(c.created ?? '').slice(0, 10), body: valueText(c.body) ?? '' }))
 }
 
+/**
+ * The kind of a ticket type by the map of the source, or null when the source maps no type. A skipped type, or a type
+ * in neither list of a source that maps types, stops the pull.
+ */
+function kindOf(source: JiraSource, key: string, type: string): string | null {
+  if (source.skip.includes(type)) throw refused(`${key} is a ${type}: that type has no local work in this desk`, `pull a ticket of another type, or take ${type} out of skip of the source in nook.yml`)
+  if (!Object.keys(source.kinds).length) return null
+  const kind = source.kinds[type]
+  if (!kind) throw refused(`${key} is a ${type}, a type in neither kinds nor skip of the source`, `add ${type} to kinds or to skip of the source in nook.yml`)
+  return kind
+}
+
 /** Reads one work item and its files through twg, which holds the login. An Epic stops the read. */
 export function readJira(source: JiraSource, key: string, runner: Runner): JiraRead {
   const map = mapOf(source, key)
   const item = getItem(source.site, key, [...new Set(Object.values(map))], runner)
-  if (valueText(fieldOf(item, 'issuetype') ?? fieldOf(item, 'issueType'))?.toLowerCase() === 'epic') refuseEpic(source.site, key, runner)
+  const type = valueText(fieldOf(item, 'issuetype') ?? fieldOf(item, 'issueType')) ?? ''
+  if (type.toLowerCase() === 'epic') refuseEpic(source.site, key, runner)
+  const kind = kindOf(source, key, type)
   const link = valueText(item.url) ?? `https://${source.site}/browse/${key}`
   const fields: [string, string][] = [['Source', link]]
   for (const [name, id] of [['Type', 'issuetype'], ['Status', 'status'], ['Priority', 'priority'], ['Assignee', 'assignee'], ['Reporter', 'reporter'], ['Labels', 'labels']] as const) {
     const text = valueText(fieldOf(item, id) ?? fieldOf(item, id === 'issuetype' ? 'issueType' : id))
     if (text) fields.push([name, text])
+    if (name === 'Type' && kind) fields.push(['Kind', kind])
   }
+  const parent = (fieldOf(item, 'parent') as { key?: unknown } | undefined)?.key
+  if (typeof parent === 'string') fields.push(['Parent', parent])
   const sections: Section[] = []
   const missing: string[] = []
   for (const [use, id] of Object.entries(map)) {
