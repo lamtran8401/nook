@@ -150,7 +150,7 @@ Rules:
 - `reopen` and `restore` bring an archived ticket folder back to `backlog/<id>/`.
 - From `ready` on, the slices, the criteria, and the fields `kind`, `size` and `areas` are frozen. A change stops with exit 3 and the fix `nook eng item replan <id>`.
 - `item ac add` writes the new line into `spec.md` too. A quick item can add a criterion in any state.
-- `quick <id|title> --area <a>` makes an item in `cooking` with one running slice for the lead. It has no spec and no plan.
+- `quick <id|title> --area <a> [--kind fix|chore] [--type t]` makes an item in `cooking` with one running slice for the lead. It has no spec and no plan. Its kind is the one given, else the learned kind of the type, else `fix`; a feature or an investigation goes through `/spec`. Only a fix needs `root-cause.md`.
 - The flow file of a kind says what the guards ask for: `plugins/engineering/flows/<kind>.yml`. Each guard reads the flow of the item; no guard names a kind.
 
   | Rule | Values | What it does |

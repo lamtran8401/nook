@@ -295,6 +295,22 @@ describe('Engineering.moveItem: the moves back, block, cancel and versions', () 
 })
 
 describe('Engineering.quick', () => {
+  test('a quick chore needs no root cause: its submit passes with the slice done and verified', () => {
+    const lead = t.eng(LEAD)
+    expect(lead.quick('SHOP-40', 'bff', { kind: 'chore' }).kind).toBe('chore')
+    expect(existsSync(join(t.root, 'works', 'SHOP-40', 'root-cause.md'))).toBe(false)
+    lead.moveSlice('done', 'SHOP-40', 'T1', { files: ['package.json'] })
+    lead.verify('SHOP-40')
+    expect(lead.moveItem('submit', 'SHOP-40').item.state).toBe('review')
+  })
+
+  test('quick takes the learned kind of a type, and refuses a feature or an investigation', () => {
+    const lead = t.eng(LEAD)
+    lead.setTypeKind('TA Task', 'chore')
+    expect(lead.quick('SHOP-41', 'bff', { type: 'TA Task' }).kind).toBe('chore')
+    fails(() => lead.quick('SHOP-42', 'web', { kind: 'feature' }), Exit.usage, 'quick takes a fix or a chore; a feature goes through /spec')
+  })
+
   test('quick makes a cooking item with one running slice; accept needs an AC and a verify', () => {
     const lead = t.eng(LEAD)
     const owner = t.eng(OWNER)

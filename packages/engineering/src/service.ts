@@ -421,9 +421,14 @@ export class Engineering {
       .map(s => `${s.id} is done with proof ${s.proof}${s.proof_note ? ` (${s.proof_note})` : ''}`)
   }
 
-  /** `quick`: an item in cooking with one running slice for the caller, with no spec and no plan. */
-  quick(idOrTitle: string, areaName: string): Item {
+  /**
+   * `quick`: an item in cooking with one running slice for the caller, with no spec and no plan. Its kind is a fix or a
+   * chore: the one given, else the learned kind of its type, else a fix.
+   */
+  quick(idOrTitle: string, areaName: string, options: { kind?: string; type?: string } = {}): Item {
     this.permissions.assert('quick')
+    const kind = options.kind ?? (options.type ? this.stores.typeKinds.kindOf(options.type) : null) ?? 'fix'
+    if (kind !== 'fix' && kind !== 'chore') throw usage(`quick takes a fix or a chore; a ${kind} goes through /spec`)
     const named = ID_PATTERN.test(idOrTitle) ? idOrTitle : undefined
     const area = this.home.areaNamed(areaName)
     const other = this.stores.items.cookingIn(area.name)
@@ -436,7 +441,7 @@ export class Engineering {
       const { id } = this.newItem({
         id: named,
         title: idOrTitle,
-        kind: 'fix',
+        kind,
         size: 'S',
         areas: [area.name],
         quick: true,

@@ -548,13 +548,19 @@ const dayCommands: Command[] = [
   },
   {
     path: ['quick'],
-    summary: 'a quick fix: an item in cooking with one running slice, no spec and no plan',
-    usage: '<id|title...> --area <a>',
-    flags: { area: { type: 'string', help: 'the one area' } },
+    summary: 'a quick fix or chore: an item in cooking with one running slice, no spec and no plan',
+    usage: '<id|title...> --area <a> [--kind fix|chore] [--type <type>]',
+    flags: {
+      area: { type: 'string', help: 'the one area' },
+      kind: { type: 'string', help: 'fix (the default) or chore; a fix needs its root cause before submit' },
+      type: { type: 'string', help: 'the type of the ticket; with no --kind, the kind that the desk learned for it' },
+    },
     run(c) {
       const area = text(c, 'area')
       if (!area) throw usage('give --area')
-      const item = eng().quick(rest(c, 0) || arg(c, 0, 'id or title'), area)
+      const kind = text(c, 'kind')
+      const type = text(c, 'type')
+      const item = eng().quick(rest(c, 0) || arg(c, 0, 'id or title'), area, { ...(kind ? { kind } : {}), ...(type ? { type } : {}) })
       const id = item.id
       c.out(
         item,

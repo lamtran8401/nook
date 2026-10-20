@@ -23,11 +23,11 @@ low risk      a wrong fix is easy to see and to undo
 ## Order
 1. A key that is not in the ledger: get the ticket as `/intake` says, for this one key.
 2. Run `triage` on the ticket and the owner's words. Find the one area; `find-repos` when two readings exist. Check it: `nook eng area status`.
-3. Run `nook eng quick <id> --area <area>`, or `nook eng quick "<title>" --area <area>` with no ticket. The item is in `cooking` with one running slice for you; `nook eng task list <id>` names it.
+3. Run `nook eng quick <id> --area <area> --kind fix|chore`, or `nook eng quick "<title>" --area <area> --kind fix|chore` with no ticket. Triage gives the kind: a bug is a fix, a small technical task is a chore. A `Type:` row of the ticket can go to `--type` in place of `--kind`. The item is in `cooking` with one running slice for you; `nook eng task list <id>` names it.
 4. Add the criterion: `nook eng item ac add <id> "<the observable result>" --tag ADD|CHANGE|REMOVE|NONE`. The accept needs at least one.
 5. Run `nook eng item branch <id>`. Build in that folder with `tdd`: a failing test for the bug, the smallest fix, `clean-code` on the diff.
 6. Run `nook eng task prove <id> <T> --files <the test files>`, then `verify`. A proof `weak` means the test did not catch the bug: fix the test first.
-7. Fill `works/<id>/root-cause.md`: one `type` from `engineering.rootCauses` of `nook.yml`, then the analysis in a few lines. A quick item is a fix, and every fix needs its root cause.
+7. Kind `fix`: fill `works/<id>/root-cause.md`: one `type` from `engineering.rootCauses` of `nook.yml`, then the analysis in a few lines. Every fix needs its root cause. A chore has none: never invent one.
 8. Run `nook eng task done <id> <T> --files <changed files>`, then `nook eng item submit <id>`.
 9. No reviewer runs here: mark the AC with the proof as evidence, `nook eng item ac done <id> 1 --evidence "<test>: fails on the base, passes on the branch" --grade run`.
    Report. Say: accept: type `/gate accept <id>`. The owner's accept is the review.
