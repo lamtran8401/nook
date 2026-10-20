@@ -19,7 +19,8 @@ The lead directs; a builder writes the code, one for each area. Who builds each 
    - `--state waiting`: look for the answer in `spec.md`, `plan.md`, the ADRs. Found: `nook eng task resume <id> <T>` and send it to the builder. Not found: collect it for one owner round, as `flow.md` says.
    - `--state failed`: read the reason. `nook eng task retry <id> <T>`, or `nook eng item replan <id> --reason "..."` when the plan is wrong.
 4. Run `verify`: the verifier runs `nook eng item verify <id>` and `task prove` for each done slice. A failing area goes back to its builder with the first error lines.
-5. Run `nook eng item submit <id>`. Report as below. Next: `/deep-review <id>`.
+5. Kind `fix`: fill `works/<id>/root-cause.md`: one `type` from `engineering.rootCauses` of `nook.yml`, then the analysis in a few lines. Ask: at the earliest point, what made this bug possible?
+6. Run `nook eng item submit <id>`. Report as below. Next: `/deep-review <id>`.
 
 Kind `investigate`: no branch, no builders; the research writes `findings.md`. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
 

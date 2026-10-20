@@ -36,6 +36,8 @@ type Fields = {
   areas: Area[]
   missing: boolean
   oldTracker: boolean
+  rootCauses: string[]
+  unknownRootCause: string | undefined
 }
 
 export class EngineeringConfig {
@@ -47,6 +49,10 @@ export class EngineeringConfig {
   readonly missing: boolean
   /** True when the section still has `tracker:`, which moved to the pack issue-tracker. */
   readonly oldTracker: boolean
+  /** The root cause types of a fix in this desk; none means any type passes. */
+  readonly rootCauses: string[]
+  /** The type that means "not known yet": it passes only with a reason. */
+  readonly unknownRootCause: string | undefined
 
   private constructor(fields: Fields) {
     this.dir = fields.dir
@@ -55,6 +61,8 @@ export class EngineeringConfig {
     this.areas = fields.areas
     this.missing = fields.missing
     this.oldTracker = fields.oldTracker
+    this.rootCauses = fields.rootCauses
+    this.unknownRootCause = fields.unknownRootCause
   }
 
   static read(dir: string): EngineeringConfig {
@@ -78,11 +86,13 @@ export class EngineeringConfig {
       areas: areas(raw.areas, `${where}.areas`),
       missing: false,
       oldTracker: raw.tracker !== undefined,
+      rootCauses: raw.rootCauses === undefined ? [] : words(raw.rootCauses, `${where}.rootCauses`),
+      unknownRootCause: raw.unknownRootCause === undefined ? undefined : String(raw.unknownRootCause).trim(),
     })
   }
 
   private static empty(): EngineeringConfig {
-    return new EngineeringConfig({ ...DEFAULTS, areas: [], missing: true, oldTracker: false })
+    return new EngineeringConfig({ ...DEFAULTS, areas: [], missing: true, oldTracker: false, rootCauses: [], unknownRootCause: undefined })
   }
 
   area(name: string): Area | undefined {

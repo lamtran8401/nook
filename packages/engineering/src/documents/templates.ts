@@ -46,7 +46,10 @@ export function fill(template: string, item: TemplateItem, date: string): string
     .replaceAll('{{today}}', date)
   // only a plan of size L needs the Flow
   if (item.size !== 'L') text = text.replace(/\n## Flow\n[\s\S]*?(?=\n## |$)/, '')
-  if (flowOf(item.kind).spec.questions !== 'required') return text
+  const flow = flowOf(item.kind)
+  const sections = flow.spec.sections.map(section => `## ${section}\n\n<!-- From the ticket. -->\n\n`).join('')
+  if (sections) text = text.replace('## Acceptance criteria', `${sections}## Acceptance criteria`)
+  if (flow.spec.questions !== 'required') return text
   // a flow that asks questions has them in place of the criteria
   return text.replace(/## Acceptance criteria\n[\s\S]*?(?=\n## |$)/, INVESTIGATE_QUESTIONS)
 }

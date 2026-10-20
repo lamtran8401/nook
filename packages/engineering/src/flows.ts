@@ -12,19 +12,20 @@ import { ITEM_KINDS, type ItemKind } from './vocabulary.ts'
 /** The flow of each kind: what the guards of the moves ask for, read from `plugins/engineering/flows/<kind>.yml`. */
 
 export type Need = 'required' | 'optional' | 'none'
-export type SubmitCheck = 'findings'
+export type SubmitCheck = 'findings' | 'root-cause'
 export type Flow = {
   kind: ItemKind
-  spec: { criteria: 'required' | 'none'; questions: 'required' | 'none' }
+  spec: { criteria: 'required' | 'none'; questions: 'required' | 'none'; sections: string[] }
   slices: Need
   submit: SubmitCheck[]
 }
 
 const RULES = ['kind', 'spec', 'slices', 'submit']
-const SPEC_RULES = ['criteria', 'questions']
+const SPEC_RULES = ['criteria', 'questions', 'sections']
+const SPEC_CHOICES = ['criteria', 'questions']
 const ON_OFF = ['required', 'none']
 const NEEDS = ['required', 'optional', 'none']
-const SUBMIT_CHECKS = ['findings']
+const SUBMIT_CHECKS = ['findings', 'root-cause']
 
 type Raw = Record<string, unknown>
 const isMap = (value: unknown): value is Raw => typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -50,13 +51,15 @@ export function parseFlow(text: string, file: string): { flow: Flow | null; prob
     ...Object.keys(spec)
       .filter(key => !SPEC_RULES.includes(key))
       .map(key => `${file}: spec.${key} is no rule of a flow; the rules of spec are ${SPEC_RULES.join(', ')}`),
-    ...SPEC_RULES.map(rule => valueProblem(file, `spec.${rule}`, spec[rule], ON_OFF)).filter(problem => problem !== null),
+    ...SPEC_CHOICES.map(rule => valueProblem(file, `spec.${rule}`, spec[rule], ON_OFF)).filter(problem => problem !== null),
+    ...(spec.sections === undefined || (Array.isArray(spec.sections) && spec.sections.every(s => typeof s === 'string')) ? [] : [`${file}: spec.sections is a list of headings, such as [Reproduce, Actual]`]),
     ...[valueProblem(file, 'slices', raw.slices, NEEDS)].filter(problem => problem !== null),
     ...(Array.isArray(raw.submit) ? [] : [`${file}: submit is a list, such as [] or [findings]`]),
     ...submit.filter(check => !SUBMIT_CHECKS.includes(String(check))).map(check => `${file}: submit names "${String(check)}"; it takes ${SUBMIT_CHECKS.join(', ')}`),
   ]
   if (problems.length) return { flow: null, problems }
-  return { flow: { kind: kind as ItemKind, spec: spec as Flow['spec'], slices: raw.slices as Need, submit: submit as SubmitCheck[] }, problems }
+  const sections = (spec.sections ?? []) as string[]
+  return { flow: { kind: kind as ItemKind, spec: { ...(spec as Omit<Flow['spec'], 'sections'>), sections }, slices: raw.slices as Need, submit: submit as SubmitCheck[] }, problems }
 }
 
 /** The flow of each kind in a folder, and each problem: a broken file, or a kind with no file. */

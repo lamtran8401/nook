@@ -35,7 +35,7 @@ export type TestHome = {
 }
 
 /** `dir: null` leaves the item folder out of nook.yml, so the default holds. */
-export function makeHome(options: { section?: boolean; checks?: boolean; dir?: string | null; install?: string } = {}): TestHome {
+export function makeHome(options: { section?: boolean; checks?: boolean; dir?: string | null; install?: string; extra?: string } = {}): TestHome {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'nook-eng-')))
   const areas = ['bff', 'web']
   for (const name of areas) {
@@ -56,7 +56,7 @@ ${dir ? `  dir: ${dir}\n` : ''}  backlog: backlog
   areas:
     - { name: bff, path: projects/bff, kind: backend, ${checks ? `${checks}, ` : ''}${options.install ? `install: "${options.install}", ` : ''}test: "sh test.sh {files}" }
     - { name: web, path: projects/web, kind: frontend, checks: [sh test.sh], test: "sh test.sh {files}" }
-`
+${options.extra ?? ''}`
   writeFileSync(join(root, 'nook.yml'), `packs: [engineering]\n${section}`)
   mkdirSync(join(root, dir ?? 'works'), { recursive: true })
   const home = Home.find(root)!
@@ -81,13 +81,17 @@ export function run(cwd: string, ...command: string[]): string {
   return result.stdout.toString().trim()
 }
 
+/** The sections that the flow of a fix asks for, each with text. */
+export const FIX_SECTIONS = '## Reproduce\n\n1. Export the orders of a shop in Tokyo.\n\n## Actual\n\nThe date is one day early.\n\n## Expected\n\nThe date of the order in UTC.\n\n'
+
 export const SPEC = (options: { kind?: string; areas?: string[]; acs?: string[]; questions?: string[]; size?: string } = {}) => {
   const kind = options.kind ?? 'feature'
   const acs = options.acs ?? ['[ADD] the export has the right date', '[CHANGE] the error shows a reason']
   const tail = kind === 'investigate'
     ? `## Questions\n\n${(options.questions ?? ['why does the job retry?']).map(q => `- ${q}`).join('\n')}\n`
     : `## Acceptance criteria\n\n${acs.map(a => `- ${a}`).join('\n')}\n`
-  return `---\nid: SHOP-1\nkind: ${kind}\nsize: ${options.size ?? 'S'}\nareas: [${(options.areas ?? ['bff']).join(', ')}]\ncreated: 2026-10-14\nupdated: 2026-10-15\n---\n\n# SHOP-1: the export date is off\n\n> In short: the export shows the date of the shop.\n\n## Why\n\nFix the export date.\n\n## What changes\n\n- **bff:** shift the date.\n\n${tail}\n## Details\n\n- **Zone:** the export uses UTC, such as 2026-10-14T00:00Z for every shop. (Q1)\n\n## Out of scope\n\nNothing.\n`
+  const repro = kind === 'fix' ? FIX_SECTIONS : ''
+  return `---\nid: SHOP-1\nkind: ${kind}\nsize: ${options.size ?? 'S'}\nareas: [${(options.areas ?? ['bff']).join(', ')}]\ncreated: 2026-10-14\nupdated: 2026-10-15\n---\n\n# SHOP-1: the export date is off\n\n> In short: the export shows the date of the shop.\n\n## Why\n\nFix the export date.\n\n## What changes\n\n- **bff:** shift the date.\n\n${repro}${tail}\n## Details\n\n- **Zone:** the export uses UTC, such as 2026-10-14T00:00Z for every shop. (Q1)\n\n## Out of scope\n\nNothing.\n`
 }
 
 export const PLAN = `---\nid: SHOP-1\napproach: format the date in UTC\ncreated: 2026-10-14\nupdated: 2026-10-15\n---\n\n# SHOP-1: the plan\n\n> In short: format in UTC. The risk is the time zones.\n\n## Today\n\nThe export formats the date in the zone of the server.\n\n## Approach\n\n| Decision | Why |\n|---|---|\n| Use UTC | one zone for every shop |\n\n## Impact\n\nNone: Contract, Data, Cache, Consistency, Performance, Security, Rollout.\n\n## Proof\n\n| AC | Layer | Proof |\n|---|---|---|\n| 1, 2 | bff, unit | a date test and a negative |\n\n## Risks\n\nTime zones.\n`

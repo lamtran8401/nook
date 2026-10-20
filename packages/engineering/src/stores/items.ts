@@ -20,6 +20,8 @@ export type Item = {
   quick: boolean
   evidence_from: number
   version: number
+  /** The root cause type of a fix, kept at its submit. */
+  root_cause: string | null
   created: string
   updated: string
 }

@@ -67,6 +67,14 @@ describe('SpecParses', () => {
     ])
   })
 
+  test('a fix needs text under each section of its flow: Reproduce, Actual and Expected', () => {
+    itemAt(t, 'framing')
+    writeDoc(t, 'SHOP-1', 'spec.md', SPEC({ kind: 'fix' }).replace('1. Export the orders of a shop in Tokyo.', '<!-- the steps -->'))
+    expect(new SpecParses().check(ctx())).toEqual([{ text: 'spec.md: a fix item needs text under ## Reproduce', fix: `edit ${doc('spec.md')}` }])
+    writeDoc(t, 'SHOP-1', 'spec.md', SPEC({ kind: 'fix' }))
+    expect(new SpecParses().check(ctx())).toEqual([])
+  })
+
   test('a filled spec has no gap', () => {
     itemAt(t, 'framing')
     writeDoc(t, 'SHOP-1', 'spec.md', SPEC())
@@ -394,7 +402,7 @@ describe('the guard table', () => {
   })
 
   test('submit and accept compare spec.md first', () => {
-    expect(names('submit')).toEqual(['FingerprintsUnchanged', 'FindingsFilled', 'SlicesDone', 'VerifyPassed'])
+    expect(names('submit')).toEqual(['FingerprintsUnchanged', 'FindingsFilled', 'RootCauseWritten', 'SlicesDone', 'VerifyPassed'])
     expect(names('accept')).toEqual(['FingerprintsUnchanged', 'QuestionsAnswered', 'CriteriaMarked', 'VerifyPassed'])
   })
 

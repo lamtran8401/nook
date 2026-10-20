@@ -12,14 +12,14 @@ beforeEach(() => {
 afterEach(() => rmSync(dir, { recursive: true, force: true }))
 
 const write = (kind: string, text: string) => writeFileSync(join(dir, `${kind}.yml`), text)
-const CODE: Omit<Flow, 'kind'> = { spec: { criteria: 'required', questions: 'none' }, slices: 'required', submit: [] }
+const CODE: Omit<Flow, 'kind'> = { spec: { criteria: 'required', questions: 'none', sections: [] }, slices: 'required', submit: [] }
 
 describe('the flows of the pack', () => {
   test('each kind has its flow: a feature, a fix and a chore build slices to criteria; an investigation answers questions with no slice', () => {
     expect(flowOf('feature')).toEqual({ kind: 'feature', ...CODE })
-    expect(flowOf('fix')).toEqual({ kind: 'fix', ...CODE })
+    expect(flowOf('fix')).toEqual({ kind: 'fix', spec: { criteria: 'required', questions: 'none', sections: ['Reproduce', 'Actual', 'Expected'] }, slices: 'required', submit: ['root-cause'] })
     expect(flowOf('chore')).toEqual({ kind: 'chore', ...CODE })
-    expect(flowOf('investigate')).toEqual({ kind: 'investigate', spec: { criteria: 'none', questions: 'required' }, slices: 'none', submit: ['findings'] })
+    expect(flowOf('investigate')).toEqual({ kind: 'investigate', spec: { criteria: 'none', questions: 'required', sections: [] }, slices: 'none', submit: ['findings'] })
   })
 })
 
@@ -30,7 +30,7 @@ describe('parseFlow', () => {
       'fix.yml: colour is no rule of a flow; the rules are kind, spec, slices, submit',
       'fix.yml: spec.criteria is "maybe"; it takes required or none',
       'fix.yml: slices is "lots"; it takes required, optional or none',
-      'fix.yml: submit names "poem"; it takes findings',
+      'fix.yml: submit names "poem"; it takes findings, root-cause',
     ])
   })
 

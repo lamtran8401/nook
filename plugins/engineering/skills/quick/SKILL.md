@@ -27,8 +27,9 @@ low risk      a wrong fix is easy to see and to undo
 4. Add the criterion: `nook eng item ac add <id> "<the observable result>" --tag ADD|CHANGE|REMOVE|NONE`. The accept needs at least one.
 5. Run `nook eng item branch <id>`. Build in that folder with `tdd`: a failing test for the bug, the smallest fix, `clean-code` on the diff.
 6. Run `nook eng task prove <id> <T> --files <the test files>`, then `verify`. A proof `weak` means the test did not catch the bug: fix the test first.
-7. Run `nook eng task done <id> <T> --files <changed files>`, then `nook eng item submit <id>`.
-8. No reviewer runs here: mark the AC with the proof as evidence, `nook eng item ac done <id> 1 --evidence "<test>: fails on the base, passes on the branch" --grade run`.
+7. Fill `works/<id>/root-cause.md`: one `type` from `engineering.rootCauses` of `nook.yml`, then the analysis in a few lines. A quick item is a fix, and every fix needs its root cause.
+8. Run `nook eng task done <id> <T> --files <changed files>`, then `nook eng item submit <id>`.
+9. No reviewer runs here: mark the AC with the proof as evidence, `nook eng item ac done <id> 1 --evidence "<test>: fails on the base, passes on the branch" --grade run`.
    Report. Say: accept: type `/gate accept <id>`. The owner's accept is the review.
 
 ## The report

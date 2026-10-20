@@ -48,6 +48,11 @@ describe('Templates.scaffold', () => {
     expect(spec.match(/^## .*$/gm)).toEqual(['## Why', '## What changes', '## Questions', '## Details', '## Out of scope'])
   })
 
+  test('the spec of a fix has the sections of its flow before the criteria', () => {
+    const spec = scaffold('spec.md', { ...ITEM, kind: 'fix' })
+    expect(spec.match(/^## .*$/gm)).toEqual(['## Why', '## What changes', '## Reproduce', '## Actual', '## Expected', '## Acceptance criteria', '## Details', '## Out of scope'])
+  })
+
   test('plan.md of size M has both dates and no Flow', () => {
     const plan = scaffold('plan.md')
     expect(plan.startsWith('---\nid: SHOP-12\napproach: \ncreated: 2026-10-15\nupdated: 2026-10-15\n---\n\n# SHOP-12: the plan\n')).toBe(true)

@@ -322,6 +322,8 @@ describe('Engineering.quick', () => {
     expect(second.title).toBe('the web title is wrong')
     lead.moveSlice('done', 'SHOP-30', 'T1', { files: ['src/date.ts'] })
     lead.verify('SHOP-30')
+    fails(() => lead.moveItem('submit', 'SHOP-30'), Exit.refused, 'root-cause.md: the type is missing')
+    writeDoc(t, 'SHOP-30', 'root-cause.md', '---\ntype: Integration error\n---\n\n# SHOP-30: the root cause\n\nThe date was formatted in the zone of the server.\n')
     lead.moveItem('submit', 'SHOP-30')
     fails(() => owner.moveItem('accept', 'SHOP-30'), Exit.refused, 'no acceptance criterion', 'nook eng item ac add SHOP-30')
     lead.addCriterion('SHOP-30', 'the date is right', 'ADD')

@@ -8,10 +8,12 @@ import { errorLines } from '@nook/shared/run.ts'
 
 import type { Area } from './config.ts'
 import { criteriaCap, ticketCriteria } from './documents/criteria-cap.ts'
+import { parseRootCause } from './documents/root-cause.ts'
 import { SpecDocument } from './documents/spec.ts'
 import { TasksDocument } from './documents/tasks.ts'
 import { Templates } from './documents/templates.ts'
 import { WorkFolder } from './documents/work-folder.ts'
+import { flowOf } from './flows.ts'
 import { gapsHeading } from './format.ts'
 import { type BranchResult, Branching, branchName } from './git/branching.ts'
 import { type CommitPlan, planCommits, runCommits } from './git/commits.ts'
@@ -300,9 +302,16 @@ export class Engineering {
       // a document that cannot be written fails the move, so no item sits in a stage without its document
       for (const doc of move.scaffolds ?? [])
         notes.push(...this.templates.scaffold(this.folder(id), this.item(id), doc))
+      if (moveName === 'begin') notes.push(...this.workDocs(id))
       return { item, warnings, notes }
     })
     return { item: this.item(id), warnings, notes }
+  }
+
+  /** The documents that the flow of the item asks for while it cooks, from their templates: the root cause of a fix. */
+  private workDocs(id: string): string[] {
+    const item = this.item(id)
+    return flowOf(item.kind).submit.includes('root-cause') ? this.templates.scaffold(this.folder(id), item, 'root-cause.md') : []
   }
 
   /** The writes of a move that passed its guards; returns the notes for the caller. */
@@ -320,6 +329,8 @@ export class Engineering {
       fields.evidence_from = this.stores.checks.lastId()
     }
     if (move.endsAuto) fields.mode = 'normal'
+    if (name === 'submit' && flowOf(item.kind).submit.includes('root-cause'))
+      fields.root_cause = parseRootCause(this.folder(item.id).read('root-cause.md') ?? '').type || null
     if (move.unarchives) notes.push(...this.unarchive(item.id))
     this.stores.items.update(item.id, fields)
     this.stores.events.record(item.id, name, { from: item.state, to: state, reason })
@@ -397,6 +408,7 @@ export class Engineering {
         state: 'cooking',
       })
       this.stores.slices.insertRunning(id, idOrTitle, area.name, this.who.actor)
+      this.workDocs(id)
       this.stores.events.record(id, 'quick', { to: 'cooking', reason: `T1 running in ${area.name}` })
       if (this.who.role === 'lead') this.stores.sessions.record(id)
       return this.item(id)

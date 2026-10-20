@@ -62,4 +62,7 @@ export const MIGRATIONS: string[] = [
   `
   CREATE TABLE area_install (area TEXT PRIMARY KEY, lock TEXT NOT NULL, at TEXT NOT NULL);
   `,
+  `
+  ALTER TABLE item ADD COLUMN root_cause TEXT;
+  `,
 ]

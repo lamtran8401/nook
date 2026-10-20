@@ -7,6 +7,7 @@ import { FindingsFilled, QuestionsAnswered } from './findings.ts'
 import { FingerprintsUnchanged } from './fingerprints.ts'
 import type { Gap, Guard, GuardContext } from './guard.ts'
 import { PlanFilled } from './plan.ts'
+import { RootCauseWritten } from './root-cause.ts'
 import { NoOpenBlockingQuestion } from './questions.ts'
 import { EveryAcInSlice, NoDependsCycle, SliceAreasOfItem, SlicesDone, SlicesImported } from './slices.ts'
 import { SpecParses } from './spec.ts'
@@ -31,7 +32,7 @@ export const GUARDS: Record<MoveName, Guard[]> = {
   approve: APPROVE,
   proceed: [new AutoByOwner(), ...APPROVE],
   begin: [new FingerprintsUnchanged(), new EachArea(new BranchNotProtected(), new AreaFree())],
-  submit: [SPEC_ONLY, new FindingsFilled(), new SlicesDone(), new VerifyPassed('slices')],
+  submit: [SPEC_ONLY, new FindingsFilled(), new RootCauseWritten(), new SlicesDone(), new VerifyPassed('slices')],
   accept: [SPEC_ONLY, new QuestionsAnswered(), new CriteriaMarked(), new VerifyPassed('quick')],
   reject: [],
   replan: [],

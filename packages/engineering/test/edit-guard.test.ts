@@ -49,6 +49,7 @@ describe('editGuard', () => {
     expect(edit('works/SHOP-1/plan.md').kind).toBe('pass')
     expect(edit('works/SHOP-1/tasks.md').kind).toBe('pass')
     expect(edit('works/SHOP-1/findings.md').kind).toBe('pass')
+    expect(edit('works/SHOP-1/root-cause.md').kind).toBe('pass')
     expect(edit('works/SHOP-1/handoff.md').kind).toBe('pass')
     expect(edit('works/SHOP-1/walkthrough.html').kind).toBe('pass')
     expect(edit('works/SHOP-1/notes.md').kind).toBe('block')

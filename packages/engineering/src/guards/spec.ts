@@ -3,6 +3,7 @@ import { ITEM_KINDS, type ItemKind } from '../vocabulary.ts'
 import type { Gap, Guard, GuardContext } from './guard.ts'
 
 const isKind = (kind: string | undefined): kind is ItemKind => ITEM_KINDS.includes(kind as ItemKind)
+const withArticle = (kind: string) => `${/^[aeiou]/.test(kind) ? 'an' : 'a'} ${kind}`
 
 /** agree: spec.md parses, names the criteria or the questions that the flow of its kind asks for, and names areas of nook.yml. */
 export class SpecParses implements Guard {
@@ -15,10 +16,12 @@ export class SpecParses implements Guard {
     const flow = flowOf(kind)
     if (flow.spec.questions === 'required' && !spec.questions.length) {
       found.push({
-        text: `spec.md: an ${kind} item needs at least one question under ## Questions`,
+        text: `spec.md: ${withArticle(kind)} item needs at least one question under ## Questions`,
         fix: `edit ${file}`,
       })
     }
+    for (const section of flow.spec.sections.filter(s => !spec.hasText(s)))
+      found.push({ text: `spec.md: ${withArticle(kind)} item needs text under ## ${section}`, fix: `edit ${file}` })
     if (flow.spec.criteria === 'required' && !spec.criteria.length) {
       found.push({
         text: 'spec.md: no acceptance criterion',

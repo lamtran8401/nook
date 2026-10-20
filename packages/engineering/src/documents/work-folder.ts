@@ -4,7 +4,7 @@ import { join } from 'node:path'
 
 /** The three documents that the approve fingerprints. */
 export type WorkDoc = 'spec.md' | 'plan.md' | 'tasks.md'
-export type ItemDoc = WorkDoc | 'findings.md' | 'handoff.md' | 'walkthrough.md'
+export type ItemDoc = WorkDoc | 'findings.md' | 'handoff.md' | 'walkthrough.md' | 'root-cause.md'
 
 /** The documents of one item in `<home>/work/<id>/`. */
 export class WorkFolder {

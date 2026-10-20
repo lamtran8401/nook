@@ -27,6 +27,8 @@ engineering:
   dir: works                             # the documents of each item: <home>/works/<id>/
   backlog: backlog                       # the tickets: <home>/backlog/<KEY>/
   protected: [main, master, develop]     # the branches that no agent builds on
+  rootCauses: [Requirement problem, Design problem, Integration error, Unknown]   # the root cause types of a fix; none: any type
+  unknownRootCause: Unknown              # the type that means "not known yet"; it needs a reason
   areas:
     - name: api
       path: projects/shop/api            # relative to the home
@@ -154,10 +156,12 @@ Rules:
   |---|---|---|
   | `spec.criteria` | `required`, `none` | `agree` needs an AC line; `accept` needs each AC marked |
   | `spec.questions` | `required`, `none` | `agree` needs a question under `## Questions`; the spec template has Questions in place of the criteria |
+  | `spec.sections` | a list of headings | `agree` needs text under each one; the spec template has them before the criteria |
   | `slices` | `required`, `optional`, `none` | the slice guards and the verify of `submit` apply unless it is `none` |
-  | `submit` | a list of `findings` | `submit` needs text in `findings.md`; `accept` needs an answer with evidence for each question |
+  | `submit` | a list of `findings`, `root-cause` | `findings`: `submit` needs text in `findings.md`, and `accept` an answer with evidence for each question. `root-cause`: `submit` needs `root-cause.md` with a type and the analysis |
 
-- The kinds `feature`, `fix` and `chore` need criteria and slices. The kind `investigate` needs questions and findings, and has no slices.
+- The kinds `feature` and `chore` need criteria and slices. The kind `fix` needs them too, and `## Reproduce`, `## Actual`, `## Expected` and its root cause. The kind `investigate` needs questions and findings, and has no slices.
+- The root cause of a fix: a type of `engineering.rootCauses` when the desk lists them, else any type. The type of `engineering.unknownRootCause` needs a `reason`. `submit` keeps the type in the ledger. The action that prevents the cause is not asked: a team session decides it.
 - `nook doctor` names a flow file with a problem: an unknown rule, a value that the rule does not take, or a kind with no file. A move refuses while a flow file has a problem.
 - Mode `yolo`: only the owner sets it, with `/gate mode <id> yolo` or `/yolo`. The Stop hook keeps the lead on the next stage; the accept stays the owner's.
 
@@ -165,7 +169,7 @@ Rules:
 
 | Table | Columns |
 |---|---|
-| item | id, title, kind, size, mode, mode_by, state, blocked_from, reason, areas, source, rank, quick, evidence_from, version, created, updated |
+| item | id, title, kind, size, mode, mode_by, state, blocked_from, reason, areas, source, rank, quick, evidence_from, version, root_cause, created, updated |
 | event | id, item, type, from_state, to_state, actor, role, reason, at |
 | approval | item, document, hash, at |
 | criterion | item, n, text, done, evidence, grade, by, at |
@@ -217,6 +221,7 @@ The pack gives `nook doctor`, `nook brief`, `nook retro` and the waiting gates t
 | `plan.md` | agree | see below |
 | `tasks.md` | agree | see below |
 | `findings.md` | kind investigate | `## Q<n>` with Answer, Evidence, Open |
+| `root-cause.md` | kind fix; `begin` and `quick` write it | front matter `type`, and `reason` for the unknown type; the analysis under the title |
 | `walkthrough.md` | `/view`, and in review | the report of the finished work |
 | `handoff.md` | `/handoff` | State, Done, Next, Open, Guesses, Watch; 40 lines at most |
 
@@ -381,7 +386,7 @@ The Bash hook:
 
 The Edit hook:
 - A reader never writes a file.
-- In `works/<id>/`: `spec.md` opens in framing, `plan.md` and `tasks.md` in planning. `findings.md`, `handoff.md` and `walkthrough.*` are free. A builder never edits these documents.
+- In `works/<id>/`: `spec.md` opens in framing, `plan.md` and `tasks.md` in planning. `findings.md`, `root-cause.md`, `handoff.md` and `walkthrough.*` are free. A builder never edits these documents.
 - A file of an area changes only while a slice of that area runs in cooking. A builder edits only in the area of its own slice.
 - A file outside the areas and outside `works/` is free.
 

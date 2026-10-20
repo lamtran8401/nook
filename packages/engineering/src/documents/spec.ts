@@ -19,7 +19,13 @@ export class SpecDocument {
     readonly criteria: SpecCriterion[],
     readonly questions: string[],
     readonly problems: string[],
+    private readonly parts: Map<string, string[]>,
   ) {}
+
+  /** True when the `## heading` section holds text, comments left out. */
+  hasText(heading: string): boolean {
+    return body(this.parts.get(heading.toLowerCase())).length > 0
+  }
 
   static parse(text: string): SpecDocument {
     const front = frontMatter(text)
@@ -37,7 +43,7 @@ export class SpecDocument {
     const questions = body(parts.get('questions'))
       .filter(l => l.startsWith('-'))
       .map(l => l.replace(/^-\s+/, ''))
-    return new SpecDocument(kind, size, areas, inShort(text), why, criteria, questions, problems)
+    return new SpecDocument(kind, size, areas, inShort(text), why, criteria, questions, problems, parts)
   }
 
   /** The text with `- line` added at the end of the criteria section, or null when the section is missing. */

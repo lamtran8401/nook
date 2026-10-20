@@ -3,5 +3,7 @@ kind: fix
 spec:
   criteria: required   # acceptance criteria under ## Acceptance criteria
   questions: none
+  sections: [Reproduce, Actual, Expected]   # each has text before agree; the ticket gives them
 slices: required       # tasks.md with slices; the slices done and verified before submit
-submit: []
+submit:
+  - root-cause         # root-cause.md has a type and the analysis; begin writes it from its template
