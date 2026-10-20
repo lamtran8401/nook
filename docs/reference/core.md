@@ -42,7 +42,7 @@ A fault stops the command and names the key: `packs.on must be a list of strings
 | `nook doctor` | the desks above, the packs of each, every gap with its fix |
 | `nook packs` | the packs on here, where each keeps its record, and the packs that Nook ships |
 | `nook brief` | what waits for you, what is done since yesterday and what runs, for each desk of the desk list |
-| `nook web [--build]` | the desk in the browser: builds the web app when the Nook code changed, then serves it on `127.0.0.1` until Ctrl-C |
+| `nook web [--build]` | the desk in the browser: builds the web app when the Nook code changed, then serves it on `127.0.0.1` until Ctrl-C. The terminal shows the log of Next.js: its own lines, the banner with the address, `✓ Ready in <n>ms`, then one line for each request, such as `GET /works 200 in 12ms`, with no query string |
 | `nook web pair` | prints a one-time link that pairs one more browser with the web app that runs |
 | `nook web forget` | removes each paired browser; the pages stay free to read |
 | `nook retro` | the facts since the last retro of this desk: items sent back, guesses flipped, slow questions, weak proofs, the root causes of the fixes, guard blocks by reason |

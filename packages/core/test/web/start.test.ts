@@ -88,6 +88,8 @@ describe('startWeb', () => {
       'state {"port":4321}',
     ])
     expect(f.log.filter(l => l.startsWith('say')).join('\n')).not.toContain('tok-secret')
+    // the server prints the banner with the address, so nook web says nothing more after the build
+    expect(f.log.filter(l => l.startsWith('say'))).toEqual(['say nook web: building the web app, about a minute'])
   })
 
   test('--build builds even when the sources did not change', async () => {

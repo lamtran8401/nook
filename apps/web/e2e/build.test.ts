@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
+import { spawn } from 'node:child_process'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -54,6 +56,24 @@ describe('the web app', () => {
     expect(build.err).not.toContain('Error:')
     expect(build.code).toBe(0)
   })
+
+  test('its server prints the banner of Next.js, its ready line, and one line for each request with no query string', async () => {
+    const port = await freePort()
+    const server = spawn('node', ['server.ts'], { cwd: web, env: { ...env, NOOK_DESK: desk, NOOK_WEB_PORT: String(port) }, stdio: ['pipe', 'pipe', 'pipe'] })
+    let out = ''
+    server.stdout.on('data', (chunk: Buffer) => (out += chunk))
+    try {
+      await until(() => out.includes('Ready in'))
+      await fetch(`http://127.0.0.1:${port}/works?t=secret-token`, { redirect: 'manual' })
+      await until(() => out.includes(' /works '))
+      // Next.js prints its own lines first, such as the time to run next.config.ts
+      expect(out).toMatch(/\n {3}▲ Next\.js 16\.\d+\.\d+\n {3}- Local: {3}http:\/\/127\.0\.0\.1:\d+\n {3}- Desks: {3}nook-web-\w+\n\n ✓ Ready in \d+ms\n/)
+      expect(out).toMatch(/\n GET \/works \d{3} in \d+ms\n/)
+      expect(out).not.toContain('secret-token')
+    } finally {
+      server.kill()
+    }
+  }, 60_000)
 
   test('swaps the pair token of the desk for a cookie, once', () => {
     expect(answer().login).toMatchObject({ status: 200, body: expect.stringContaining('<script>location.replace("/")</script>') })
@@ -115,3 +135,22 @@ describe('the web app', () => {
     expect(run.code).toBe(0)
   })
 })
+
+/** A port that no program holds now. */
+function freePort(): Promise<number> {
+  return new Promise(resolve => {
+    const probe = createServer().listen(0, '127.0.0.1', () => {
+      const { port } = probe.address() as { port: number }
+      probe.close(() => resolve(port))
+    })
+  })
+}
+
+/** Waits until `ready` holds, for 30 seconds at most. */
+async function until(ready: () => boolean): Promise<void> {
+  const end = Date.now() + 30_000
+  while (!ready()) {
+    if (Date.now() > end) throw new Error('timed out')
+    await Bun.sleep(100)
+  }
+}

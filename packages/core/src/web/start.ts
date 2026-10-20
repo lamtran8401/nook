@@ -58,7 +58,6 @@ export async function startWeb(desk: string, rebuild: boolean, deps: WebDeps): P
   deps.writeState({ port, pid: server.pid, started: deps.now().toISOString() })
   try {
     await server.listening
-    deps.say(`nook web: http://127.0.0.1:${port} for ${desk}; Ctrl-C stops it`)
     deps.open(`http://127.0.0.1:${port}/?t=${deps.offerPair()}`)
     return await server.exited
   } finally {
@@ -150,7 +149,8 @@ function spawnServer(web: string, { port, desk }: { port: number; desk: string }
   const listening = new Promise<void>((resolve, reject) => {
     child.stdout.on('data', (chunk: Buffer) => {
       process.stdout.write(chunk)
-      if (String(chunk).includes('listening')) resolve()
+      // the server prints the banner of Next.js, then its ready line
+      if (String(chunk).includes('Ready in')) resolve()
     })
     void exited.then(code => reject(new EvError(`the web server stopped before it listened (exit ${code})`)))
   })
