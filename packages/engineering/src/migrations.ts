@@ -65,4 +65,7 @@ export const MIGRATIONS: string[] = [
   `
   ALTER TABLE item ADD COLUMN root_cause TEXT;
   `,
+  `
+  ALTER TABLE item ADD COLUMN parent TEXT;
+  `,
 ]

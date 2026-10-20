@@ -6,6 +6,12 @@ import { nextFor } from './next.ts'
 
 export const BRIEF_LIMIT = 1800
 
+/** The children of an item with their state, as one line; none when it has no child. */
+const childrenLine = (eng: Engineering, id: string): string[] => {
+  const children = eng.stores.items.children(id)
+  return children.length ? [`children: ${children.map(c => `${c.id} (${c.state})`).join(', ')}`] : []
+}
+
 export function itemBrief(eng: Engineering, id: string, limit = BRIEF_LIMIT): string {
   const item = eng.item(id)
   const step = nextFor(eng, item)
@@ -17,6 +23,8 @@ export function itemBrief(eng: Engineering, id: string, limit = BRIEF_LIMIT): st
     `${item.id} — ${cut(item.title, 80)} [${item.kind} ${item.size}${item.quick ? ', quick' : ''}]  state: ${item.state}  mode: ${item.mode}`,
     `next: ${step.skill}${step.detail ? ` (${step.detail})` : ''}`,
     `areas: ${areas.join('; ') || 'none'}`,
+    ...(item.parent ? [`parent: ${item.parent}`] : []),
+    ...childrenLine(eng, id),
   ].join('\n')
   const { criteria, slices, questions, guesses } = eng.stores
   const lists: [string, string[]][] = [

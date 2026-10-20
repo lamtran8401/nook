@@ -22,6 +22,8 @@ export type Item = {
   version: number
   /** The root cause type of a fix, kept at its submit. */
   root_cause: string | null
+  /** The item that this one belongs to, such as the story of a sub-bug. */
+  parent: string | null
   created: string
   updated: string
 }
@@ -35,6 +37,7 @@ export type ItemRow = {
   areas: string[]
   source: string | null
   quick: boolean
+  parent?: string | null
 }
 
 type Row = Omit<Item, 'areas' | 'quick'> & { areas: string; quick: number }
@@ -67,6 +70,11 @@ export class ItemStore {
     return this.list().filter(i => isOpen(i.state))
   }
 
+  /** The items whose parent is `id`, in the order they came. */
+  children(id: string): Item[] {
+    return this.ledger.all<Row>('SELECT * FROM item WHERE parent = ? ORDER BY created', id).map(toItem)
+  }
+
   /** The item in cooking that uses an area, other than `except`. */
   cookingIn(area: string, except?: string): Item | undefined {
     return this.list('cooking').find(other => other.id !== except && other.areas.includes(area))
@@ -75,7 +83,7 @@ export class ItemStore {
   insert(row: ItemRow): void {
     const at = now()
     this.ledger.run(
-      'INSERT INTO item (id, title, kind, size, state, areas, source, quick, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO item (id, title, kind, size, state, areas, source, quick, parent, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       row.id,
       row.title,
       row.kind,
@@ -84,6 +92,7 @@ export class ItemStore {
       JSON.stringify(row.areas),
       row.source,
       row.quick ? 1 : 0,
+      row.parent ?? null,
       at,
       at,
     )

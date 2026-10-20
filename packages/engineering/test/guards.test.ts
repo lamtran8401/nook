@@ -401,7 +401,7 @@ describe('the guard table', () => {
 
   test('submit and accept compare spec.md first', () => {
     expect(names('submit')).toEqual(['FingerprintsUnchanged', 'FindingsFilled', 'RootCauseWritten', 'SlicesDone', 'VerifyPassed'])
-    expect(names('accept')).toEqual(['FingerprintsUnchanged', 'QuestionsAnswered', 'CriteriaMarked', 'VerifyPassed'])
+    expect(names('accept')).toEqual(['FingerprintsUnchanged', 'QuestionsAnswered', 'CriteriaMarked', 'ChildrenDone', 'VerifyPassed'])
   })
 
   test('the moves back, block, unblock, cancel and restore have no guard', () => {

@@ -62,6 +62,8 @@ export type NewItem = {
   backlog?: boolean
   quick?: boolean
   state?: State
+  /** The item that this one belongs to; it must be in the ledger. */
+  parent?: string
 }
 export type MoveResult = { item: Item; warnings: string[]; notes: string[] }
 export type MoveInput = { reason?: string; ifVersion?: string }
@@ -157,6 +159,7 @@ export class Engineering {
     if (!isOneOf(SIZES, input.size ?? 'M')) throw usage('size must be S, M or L')
     if (input.id && items.find(input.id)) throw refused(`item ${input.id} exists`, `nook eng item show ${input.id}`)
     for (const name of input.areas ?? []) this.home.areaNamed(name)
+    if (input.parent) items.get(input.parent)
     const state = input.state ?? 'backlog'
     const id = this.ledger.write(() => {
       const id = input.id ?? items.nextId()
@@ -169,11 +172,24 @@ export class Engineering {
         areas: input.areas ?? [],
         source: input.source ?? null,
       }
-      items.insert({ ...row, quick: input.quick === true })
+      items.insert({ ...row, quick: input.quick === true, parent: input.parent ?? null })
       events.record(id, 'new', { to: state })
       return id
     })
     if (input.backlog) this.writeTicket(id, input.title)
+    return this.item(id)
+  }
+
+  /** `item detach`: takes an item out of its parent, such as a minor sub-bug for a later sprint; the ledger keeps the reason. */
+  detachItem(id: string, reason: string): Item {
+    this.permissions.assert('item detach')
+    if (!reason.trim()) throw usage('detach needs --reason "<why>"')
+    const item = this.item(id)
+    if (!item.parent) throw refused(`${id} has no parent`, `nook eng item show ${id}`)
+    this.ledger.write(() => {
+      this.stores.items.update(id, { parent: null })
+      this.stores.events.record(id, 'detach', { reason: `from ${item.parent}: ${reason.trim()}` })
+    })
     return this.item(id)
   }
 

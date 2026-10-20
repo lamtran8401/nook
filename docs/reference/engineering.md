@@ -140,6 +140,7 @@ accept:
 - Each AC is marked done, and the text of each mark is the text of the spec now.
 - The spec and the ledger have the same count of criteria.
 - Kind `investigate`: each Question has an Answer and an Evidence in `findings.md`.
+- No child of the item is open. A done or cancelled child passes, and so does a child that `item detach` took out.
 - A quick item: a verify passed.
 
 Rules:
@@ -170,7 +171,7 @@ Rules:
 
 | Table | Columns |
 |---|---|
-| item | id, title, kind, size, mode, mode_by, state, blocked_from, reason, areas, source, rank, quick, evidence_from, version, root_cause, created, updated |
+| item | id, title, kind, size, mode, mode_by, state, blocked_from, reason, areas, source, rank, quick, evidence_from, version, root_cause, parent, created, updated |
 | event | id, item, type, from_state, to_state, actor, role, reason, at |
 | approval | item, document, hash, at |
 | criterion | item, n, text, done, evidence, grade, by, at |
@@ -279,7 +280,7 @@ Each read command takes `--json`. `nook eng --help` lists each command with its 
 
 | Group | Commands |
 |---|---|
-| items | `item new`, `item show`, `item list`, `item edit`, `item history`, `item brief`, `item mode`, `item archive` |
+| items | `item new`, `item show`, `item list`, `item edit`, `item detach`, `item history`, `item brief`, `item mode`, `item archive` |
 | moves | `item <move> <id> [--reason r]`; `item check <id>` shows the gaps of the next move |
 | criteria | `item ac list`, `item ac add`, `item ac done --evidence --grade`, `item ac undo` |
 | checks and git | `item verify [--area a] [--last]`, `item branch`, `item commit [--run]` |
@@ -295,7 +296,8 @@ Each read command takes `--json`. `nook eng --help` lists each command with its 
 An owner move from the web app adds `--via viewer`: `item <move>`, `item mode`, `answer`, `guess accept` and `guess flip`. The ledger then records the actor as `owner (viewer)`. The role and the guards stay the same.
 
 What the commands do:
-- `item new [<id>] <title>`: a first word such as `SHOP-12` is the id. With no id, Nook makes the next `IT-NNN`. `--backlog` writes `backlog/<id>/ticket.md`.
+- `item new [<id>] <title>`: a first word such as `SHOP-12` is the id. With no id, Nook makes the next `IT-NNN`. `--backlog` writes `backlog/<id>/ticket.md`. `--parent <id>` names the item that it belongs to, such as the story of a sub-bug; the parent must be in the ledger.
+- `item detach <id> --reason <why>`: takes an item out of its parent, such as a minor sub-bug for a later sprint. The ledger records the event `detach` with the parent and the reason. The brief of an item names its parent and its children.
 - `item brief`: the context of an item for an agent, about 1800 characters at most. It holds the state, the next step, the areas, the ACs, the slices, the open questions and guesses, and the mode.
 - `next [<id>]`: the next step of each item and the skill to type, the owner's steps first.
 - `pickup <id>`: this session leads the item. It prints the brief and the last `handoff.md`.

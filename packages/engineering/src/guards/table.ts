@@ -1,6 +1,7 @@
 import type { MoveName } from '../machine.ts'
 import { AreaFree, BranchNotProtected, EachArea } from './areas.ts'
 import { AutoByOwner } from './yolo.ts'
+import { ChildrenDone } from './children.ts'
 import { CriteriaMarked } from './criteria.ts'
 import { DatesWritten } from './dates.ts'
 import { FindingsFilled, QuestionsAnswered } from './findings.ts'
@@ -33,7 +34,7 @@ export const GUARDS: Record<MoveName, Guard[]> = {
   proceed: [new AutoByOwner(), ...APPROVE],
   begin: [new FingerprintsUnchanged(), new EachArea(new BranchNotProtected(), new AreaFree())],
   submit: [SPEC_ONLY, new FindingsFilled(), new RootCauseWritten(), new SlicesDone(), new VerifyPassed('slices')],
-  accept: [SPEC_ONLY, new QuestionsAnswered(), new CriteriaMarked(), new VerifyPassed('quick')],
+  accept: [SPEC_ONLY, new QuestionsAnswered(), new CriteriaMarked(), new ChildrenDone(), new VerifyPassed('quick')],
   reject: [],
   replan: [],
   reframe: [],

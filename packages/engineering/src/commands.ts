@@ -132,13 +132,14 @@ const itemCommands: Command[] = [
   {
     path: ['item', 'new'],
     summary: 'make an item in the backlog; with no id, Nook makes the next IT-NNN',
-    usage: '[<id>] <title...> [--kind k --size s --area a... --source s --backlog]',
+    usage: '[<id>] <title...> [--kind k --size s --area a... --source s --parent <id> --backlog]',
     flags: {
       kind: { type: 'string', help: 'feature | fix | chore | investigate' },
       size: { type: 'string', help: 'S | M | L' },
       area: { type: 'string', list: true, help: 'an area of nook.yml; repeat it' },
       source: { type: 'string', help: 'where the item comes from' },
       backlog: { type: 'boolean', help: 'also make backlog/<id>/ticket.md' },
+      parent: { type: 'string', help: 'the item that this one belongs to, such as the story of a sub-bug' },
     },
     run(c) {
       const { id, title } = idAndTitle(c.args)
@@ -151,6 +152,7 @@ const itemCommands: Command[] = [
         areas: list(c, 'area'),
         source: text(c, 'source'),
         backlog: c.flags.backlog === true,
+        parent: text(c, 'parent'),
       }
       c.out(eng().newItem(input), itemLine)
     },
@@ -191,6 +193,15 @@ const itemCommands: Command[] = [
       const value = rest(c, 2)
       if (!value) throw usage('give the value')
       c.out(eng().editItem(arg(c, 0, 'item id'), arg(c, 1, 'field'), value, ifVersion(c)), itemLine)
+    },
+  },
+  {
+    path: ['item', 'detach'],
+    summary: 'take an item out of its parent, such as a minor sub-bug for a later sprint; the parent can then be accepted',
+    usage: '<id> --reason <why>',
+    flags: { reason: { type: 'string', help: 'why the item leaves its parent' } },
+    run(c) {
+      c.out(eng().detachItem(arg(c, 0, 'item id'), text(c, 'reason') ?? ''), itemLine)
     },
   },
   {

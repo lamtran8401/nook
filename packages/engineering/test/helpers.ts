@@ -1,6 +1,9 @@
+import { expect } from 'bun:test'
 import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+
+import { EvError } from '@nook/shared/errors.ts'
 
 import { Home } from '../src/home.ts'
 import { Engineering } from '../src/service.ts'
@@ -125,4 +128,20 @@ export function itemAt(t: TestHome, state: 'backlog' | 'framing' | 'planning' | 
   lead.moveItem('begin', id)
   if (state === 'cooking') return
   throw new Error('itemAt: review needs the slices done and a verify; do it in the test')
+}
+
+/** Runs `work`, expects an EvError with `code`, and checks its message and its fix when given; returns the error. */
+export const fails = (work: () => unknown, code: number, text?: string | RegExp, fix?: string | RegExp) => {
+  let caught: unknown
+  try {
+    work()
+  } catch (error) {
+    caught = error
+  }
+  expect(caught).toBeInstanceOf(EvError)
+  const error = caught as EvError
+  expect(error.code as number).toBe(code)
+  if (text) expect(error.message).toMatch(text)
+  if (fix) expect(error.fix).toMatch(fix)
+  return error
 }

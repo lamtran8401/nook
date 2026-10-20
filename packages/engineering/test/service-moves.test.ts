@@ -2,30 +2,15 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { EvError, Exit } from '@nook/shared/errors.ts'
+import { Exit } from '@nook/shared/errors.ts'
 
-import { BUILDER, itemAt, LEAD, makeHome, OWNER, PLAN, READER, SPEC, TASKS, type TestHome, writeDoc } from './helpers.ts'
+import { BUILDER, fails, itemAt, LEAD, makeHome, OWNER, PLAN, READER, SPEC, TASKS, type TestHome, writeDoc } from './helpers.ts'
 
 let t: TestHome
 beforeEach(() => {
   t = makeHome()
 })
 afterEach(() => t.cleanup())
-
-const fails = (work: () => unknown, code: number, text?: string | RegExp, fix?: string | RegExp) => {
-  let caught: unknown
-  try {
-    work()
-  } catch (error) {
-    caught = error
-  }
-  expect(caught).toBeInstanceOf(EvError)
-  const error = caught as EvError
-  expect(error.code as number).toBe(code)
-  if (text) expect(error.message).toMatch(text)
-  if (fix) expect(error.fix).toMatch(fix)
-  return error
-}
 
 /** Finishes the one slice of an item in cooking and passes the checks. */
 const buildAll = (id = 'SHOP-1') => {
