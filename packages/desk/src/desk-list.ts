@@ -4,7 +4,12 @@ import { dirname, join } from 'node:path'
 
 /** The folders that the owner made desks with `nook init`, one path on each line of a file in the home. */
 export class DeskList {
-  constructor(readonly file: string) {}
+  // a plain field, not a parameter property: the web server imports this file under Node, which strips types only
+  readonly file: string
+
+  constructor(file: string) {
+    this.file = file
+  }
 
   static pathFor(env: Record<string, string | undefined> = process.env): string {
     const config = env.XDG_CONFIG_HOME || join(env.HOME || homedir(), '.config')

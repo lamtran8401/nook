@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { createServer } from 'node:http'
-import { basename, join } from 'node:path'
+import { join } from 'node:path'
 
 import { Pairs } from '@nook/core/web/pairs.ts'
 
+import { listDesks } from './lib/desks.ts'
 import { createHandler } from './lib/handler.ts'
 import { banner, readyLine, requestLine } from './lib/log.ts'
 
@@ -31,6 +32,6 @@ createServer((req, res) => {
     res.end('the page failed: see the terminal of `nook web`')
   })
 }).listen(port, '127.0.0.1', () => {
-  console.log(banner({ version: nextVersion, url: `http://127.0.0.1:${port}`, desks: [basename(desk)], color }))
+  console.log(banner({ version: nextVersion, url: `http://127.0.0.1:${port}`, desks: listDesks(desk).map(d => d.name), color }))
   console.log(readyLine(performance.now() - started, color))
 })

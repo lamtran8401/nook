@@ -42,13 +42,13 @@ function Scores({ trends }: { trends: CriterionTrend[] }) {
 }
 
 /** A course: the cards due today, the top patterns of the owner's mistakes, and the bands of each criterion over time. */
-export function CoursePage({ course }: { course: CourseView }) {
+export function CoursePage({ course, base }: { course: CourseView; base: string }) {
   return (
     <div className="mx-auto grid w-full max-w-[920px] gap-5">
       <header className="grid gap-2.5">
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem><BreadcrumbLink href="/learn">Learn</BreadcrumbLink></BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbLink href={`${base}/learn`}>Learn</BreadcrumbLink></BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem><BreadcrumbPage>{course.name}</BreadcrumbPage></BreadcrumbItem>
           </BreadcrumbList>
@@ -77,11 +77,11 @@ export function CoursePage({ course }: { course: CourseView }) {
 }
 
 /** The courses of the desk, each a link to its page. */
-export function Courses({ courses }: { courses: CourseView[] }) {
+export function Courses({ courses, base }: { courses: CourseView[]; base: string }) {
   if (!courses.length) return <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title="No course yet">Type <CopyCommand text="/learn-setup" /> in the agent session to start one.</EmptyState>
   return (
     <Section title="Courses">
-      <RecordList rows={courses.map(c => ({ id: String(c.due.length), main: <a href={`/learn/${c.name}`} className="hover:underline">{c.name}</a>, sub: `${count(c.due.length, 'card')} due · ${count(c.patterns.length, 'pattern')} · ${c.trends.length} scored ${c.trends.length === 1 ? 'criterion' : 'criteria'}` }))} />
+      <RecordList rows={courses.map(c => ({ id: String(c.due.length), main: <a href={`${base}/learn/${c.name}`} className="hover:underline">{c.name}</a>, sub: `${count(c.due.length, 'card')} due · ${count(c.patterns.length, 'pattern')} · ${c.trends.length} scored ${c.trends.length === 1 ? 'criterion' : 'criteria'}` }))} />
     </Section>
   )
 }

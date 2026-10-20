@@ -35,11 +35,11 @@ function hitsIn(text: string, words: string[]): { heading: string; line: number;
 }
 
 /** Each line that holds every word of the query, in the order of the packs and their files, 50 at most. */
-export function search(desk: string, query: string): Hit[] {
+export function search(desk: string, query: string, base = ''): Hit[] {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean)
   if (!words.length) return []
   const secrets = new SecretPolicy(desk)
-  return deskPlaces(desk)
+  return deskPlaces(desk, base)
     .flatMap(place =>
       markdownFiles(place.root)
         .filter(path => !secrets.isSecretPath(path))

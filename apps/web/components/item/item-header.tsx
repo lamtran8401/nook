@@ -10,7 +10,7 @@ import { clock, day } from '@/lib/time.ts'
 const MODE_TITLE = { normal: 'Each stage waits for its skill', yolo: 'The lead runs the stages alone' } as const
 
 /** The head of an item page: the way back to the board, the title, the chips with the mode, which the owner can switch, and the key moments. */
-export function ItemHeader({ view }: { view: ItemView }) {
+export function ItemHeader({ view, base }: { view: ItemView; base: string }) {
   const { item } = view
   const { started, approved, sentBack } = keyMoments(view.moves)
   const keys = [started ? ['Started', day(started)] : null, approved ? ['Approved', `${day(approved)} ${clock(approved)}`] : null, sentBack ? ['Sent back', `${sentBack}×`] : null].filter(k => k !== null)
@@ -18,7 +18,7 @@ export function ItemHeader({ view }: { view: ItemView }) {
     <header className="grid gap-2">
       <Breadcrumb>
         <BreadcrumbList>
-          <BreadcrumbItem><BreadcrumbLink href="/works">Works</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbLink href={`${base}/works`}>Works</BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem><BreadcrumbPage>{item.id}</BreadcrumbPage></BreadcrumbItem>
         </BreadcrumbList>

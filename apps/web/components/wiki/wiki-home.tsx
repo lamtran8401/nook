@@ -28,7 +28,7 @@ function PageLine({ href, page, sub, type }: { href: string; page: string; sub: 
 }
 
 /** A shelf as a group: its name, its count and its use on top, then a line for each page with its summary and type. */
-function Shelf({ shelf }: { shelf: ShelfView }) {
+function Shelf({ shelf, base }: { shelf: ShelfView; base: string }) {
   const head = (
     <>
       <b className="font-semibold">{shelf.name}</b>
@@ -37,9 +37,9 @@ function Shelf({ shelf }: { shelf: ShelfView }) {
     </>
   )
   return (
-    <Group head={head} href={`/wiki/${shelf.name}`}>
+    <Group head={head} href={`${base}/wiki/${shelf.name}`}>
       {shelf.lines.length ? (
-        shelf.lines.map(line => <PageLine key={line.page} href={`/wiki/${shelf.name}/${line.page}`} page={line.page} sub={line.summary} type={line.type || undefined} />)
+        shelf.lines.map(line => <PageLine key={line.page} href={`${base}/wiki/${shelf.name}/${line.page}`} page={line.page} sub={line.summary} type={line.type || undefined} />)
       ) : (
         <GroupLine>
           <p className="text-muted-foreground"><b className="font-semibold text-foreground">No page yet.</b> A page joins the shelf after your yes to its draft.</p>
@@ -50,32 +50,32 @@ function Shelf({ shelf }: { shelf: ShelfView }) {
 }
 
 /** The wiki: the drafts that wait for a yes first, then each shelf with the lines of its index. */
-export function WikiHome({ wiki }: { wiki: WikiView | null }) {
+export function WikiHome({ wiki, base }: { wiki: WikiView | null; base: string }) {
   if (!wiki) return <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title="This desk has no wiki">Add <InlineCode>wiki</InlineCode> to the packs of nook.yml, then run <CopyCommand text="/setup" /> in the agent session.</EmptyState>
   return (
     <div className="grid gap-2.5">
       {wiki.drafts.length ? (
         <Group head={<><b className="font-semibold">Drafts that wait for your yes</b><GroupCount n={wiki.drafts.length} /></>}>
-          {wiki.drafts.map(draft => <PageLine key={draft} href={`/wiki/drafts/${draft}`} page={draft} sub={`drafts/${draft}`} type="draft" />)}
+          {wiki.drafts.map(draft => <PageLine key={draft} href={`${base}/wiki/drafts/${draft}`} page={draft} sub={`drafts/${draft}`} type="draft" />)}
         </Group>
       ) : null}
       {wiki.shelves.map(shelf => (
-        <Shelf key={shelf.name} shelf={shelf} />
+        <Shelf key={shelf.name} shelf={shelf} base={base} />
       ))}
     </div>
   )
 }
 
 /** One shelf alone, as `/wiki/resources` shows it. */
-export function ShelfPage({ shelf }: { shelf: ShelfView }) {
+export function ShelfPage({ shelf, base }: { shelf: ShelfView; base: string }) {
   return (
     <>
       <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <a href="/wiki" className="hover:text-foreground">Wiki</a>
+        <a href={`${base}/wiki`} className="hover:text-foreground">Wiki</a>
         <span aria-hidden="true">/</span>
         <span className="text-foreground" aria-current="page">{shelf.name}</span>
       </nav>
-      <Shelf shelf={shelf} />
+      <Shelf shelf={shelf} base={base} />
     </>
   )
 }

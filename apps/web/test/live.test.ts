@@ -3,7 +3,8 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { GET } from '@/app/live/route.ts'
+import { GET } from '@/app/[desk]/live/route.ts'
+import { listDesks } from '@/lib/desks.ts'
 import { watchDesk } from '@/lib/watch.ts'
 
 let desk: string
@@ -47,10 +48,13 @@ describe('watchDesk', () => {
 
 describe('GET /live', () => {
   test('streams an event when the desk changes, and stops when the page goes away', async () => {
-    const before = process.env.NOOK_DESK
+    const before = { desk: process.env.NOOK_DESK, config: process.env.XDG_CONFIG_HOME }
     process.env.NOOK_DESK = desk
+    // the desk list of the test lives in its own folder, never in the home of the owner
+    process.env.XDG_CONFIG_HOME = desk
     const leave = new AbortController()
-    const response = GET(new Request('http://127.0.0.1/live', { signal: leave.signal }))
+    const slug = listDesks()[0]!.slug
+    const response = await GET(new Request(`http://127.0.0.1/${slug}/live`, { signal: leave.signal }), { params: Promise.resolve({ desk: slug }) })
     expect(response.headers.get('content-type')).toBe('text/event-stream')
     const reader = response.body!.getReader()
     const decode = new TextDecoder()
@@ -60,7 +64,9 @@ describe('GET /live', () => {
     expect(decode.decode(value)).toBe('event: change\ndata: {}\n\n')
     leave.abort()
     expect((await reader.read()).done).toBe(true)
-    if (before === undefined) delete process.env.NOOK_DESK
-    else process.env.NOOK_DESK = before
+    for (const [name, value] of [['NOOK_DESK', before.desk], ['XDG_CONFIG_HOME', before.config]] as const) {
+      if (value === undefined) delete process.env[name]
+      else process.env[name] = value
+    }
   })
 })

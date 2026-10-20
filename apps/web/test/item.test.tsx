@@ -65,7 +65,7 @@ const specOf = (markup: string) => JSON.parse(/data-diagram="([^"]*)"/.exec(mark
 describe('ItemHeader', () => {
   test('shows the way back to the board, the title, the chips and the key moments', () => {
     const sentBack = { ...view, moves: [...view.moves, { move: 'reject' as const, to: 'cooking' as const, at: '2026-10-16T09:00:00Z' }] }
-    const markup = html(<ItemHeader view={sentBack} />)
+    const markup = html(<ItemHeader view={sentBack} base="/personal" />)
     expect(text(markup)).toBe('Works SHOP-42 Pay for an order with a saved card cooking feature size L api web normal yolo Started 14 Oct Approved 15 Oct 09:40 Sent back 1×')
     const mode = (value: string) => new RegExp(`<button[^>]*value="${value}"[^>]*>`).exec(markup)![0]
     expect(mode('normal')).toContain('data-state="on"')
@@ -226,9 +226,9 @@ describe('ItemPage', () => {
   const docs = { spec: '# Spec\n\nThe spec.\n', plan: null, tasks: null, walkthrough: null }
 
   test('marks the open tab, and gives each tab its own address', () => {
-    const markup = html(<ItemPage view={view} docs={docs} tab="spec" now={NOW} />)
-    expect([...markup.matchAll(/<a [^>]*href="(\/works\/SHOP-42[^"]*)"[^>]*>/g)].map(m => `${m[1]} ${m[0].includes('aria-current="page"')}`)).toEqual([
-      '/works/SHOP-42 false', '/works/SHOP-42?tab=spec true', '/works/SHOP-42?tab=plan false', '/works/SHOP-42?tab=tasks false', '/works/SHOP-42?tab=walkthrough false',
+    const markup = html(<ItemPage view={view} docs={docs} tab="spec" now={NOW} base="/personal" />)
+    expect([...markup.matchAll(/<a [^>]*href="(\/personal\/works\/SHOP-42[^"]*)"[^>]*>/g)].map(m => `${m[1]} ${m[0].includes('aria-current="page"')}`)).toEqual([
+      '/personal/works/SHOP-42 false', '/personal/works/SHOP-42?tab=spec true', '/personal/works/SHOP-42?tab=plan false', '/personal/works/SHOP-42?tab=tasks false', '/personal/works/SHOP-42?tab=walkthrough false',
     ])
     expect(text(markup)).toEndWith('works/SHOP-42/spec.md Spec The spec.')
   })
@@ -240,13 +240,13 @@ describe('ItemPage', () => {
 
 describe('ItemDialog', () => {
   test('has a head with the way back to the board and the link to the full page', () => {
-    const markup = html(<ItemDialog view={view} />)
-    expect(markup).toContain('href="/works/SHOP-42" target="_blank" rel="noopener"')
+    const markup = html(<ItemDialog view={view} base="/personal" />)
+    expect(markup).toContain('href="/personal/works/SHOP-42" target="_blank" rel="noopener"')
     expect(text(markup)).toStartWith('Works / SHOP-42 Open in new tab')
   })
 
   test('its main column gives the title, the next step, the criteria, the slices on the board and the activity, newest first', () => {
-    const markup = html(<ItemDialog view={view} />)
+    const markup = html(<ItemDialog view={view} base="/personal" />)
     const main = text(markup)
     expect(main).toContain('Pay for an order with a saved card Next step AI The lead runs /cook SHOP-42 Nothing waits for you.')
     expect(main).toContain('Criteria AC1 A saved card pays in one click. api test passes met AC2 A decline shows the reason. open')
@@ -255,7 +255,7 @@ describe('ItemDialog', () => {
   })
 
   test('its side gives the details: state, kind, size, areas, mode, the key moments and the progress', () => {
-    expect(text(html(<ItemDialog view={view} />))).toContain(
+    expect(text(html(<ItemDialog view={view} base="/personal" />))).toContain(
       'Details State cooking Kind feature Size L Areas api web Mode normal Started 14 Oct Approved 15 Oct 09:40 Criteria met 1/2 Slices done 1/4',
     )
   })
@@ -280,7 +280,7 @@ describe('the lanes of the slices', () => {
   })
 
   test('show above the slices of the Tasks tab', () => {
-    const markup = html(<ItemPage view={view} docs={{ spec: null, plan: null, tasks: '# Slices\n\n## T1: Add the table\n\n- area: api\n', walkthrough: null }} tab="tasks" now={NOW} />)
+    const markup = html(<ItemPage view={view} docs={{ spec: null, plan: null, tasks: '# Slices\n\n## T1: Add the table\n\n- area: api\n', walkthrough: null }} tab="tasks" now={NOW} base="/personal" />)
     expect(markup.indexOf('Lanes</h2>')).toBeLessThan(markup.indexOf('Add the table'))
     expect(markup).toContain('&quot;type&quot;:&quot;graph&quot;')
   })

@@ -43,7 +43,7 @@ function Share({ label, done, total }: { label: string; done: number; total: num
  * An item in a dialog over the board, as Jira opens an issue: a head with the way back and the full page, a main
  * column with the title, the next step, the criteria, the slices and the activity, and the details beside it.
  */
-export function ItemDialog({ view }: { view: ItemView }) {
+export function ItemDialog({ view, base }: { view: ItemView; base: string }) {
   const { item } = view
   const { started, approved, sentBack } = keyMoments(view.moves)
   const slices = view.slices.filter(s => s.state !== 'cancelled')
@@ -51,12 +51,12 @@ export function ItemDialog({ view }: { view: ItemView }) {
     <div className="flex h-full min-h-0 flex-col">
       <header className="flex items-center gap-3 border-b border-hairline py-3 pr-14 pl-6">
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Breadcrumb">
-          <a href="/works" className="hover:text-foreground">Works</a>
+          <a href={`${base}/works`} className="hover:text-foreground">Works</a>
           <span aria-hidden="true">/</span>
           <span className="font-mono text-foreground">{item.id}</span>
         </nav>
         <Button asChild variant="outline" size="sm" className="ml-auto">
-          <a href={`/works/${item.id}`} target="_blank" rel="noopener">
+          <a href={`${base}/works/${item.id}`} target="_blank" rel="noopener">
             <ExternalLink aria-hidden="true" />
             Open in new tab
           </a>

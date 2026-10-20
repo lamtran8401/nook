@@ -11,9 +11,9 @@ import { PANEL } from '@/components/blocks/panel.ts'
 import { parseDoc } from '@/lib/blocks.ts'
 
 /** One page of the wiki, block by block, with each link it makes; a draft says that it waits for the owner's yes. */
-export function WikiPage({ page }: { page: PageView }) {
+export function WikiPage({ page, base }: { page: PageView; base: string }) {
   // the address of each [[name]] that the wiki knows, so the page links it like a Markdown link
-  const links = Object.fromEntries(page.links.flatMap(l => (l.target && l.link.startsWith('[[') ? [[l.link.slice(2, -2), `/wiki/${l.target}`]] : [])))
+  const links = Object.fromEntries(page.links.flatMap(l => (l.target && l.link.startsWith('[[') ? [[l.link.slice(2, -2), `${base}/wiki/${l.target}`]] : [])))
   const doc = parseDoc(page.text, { links })
   const [shelf] = page.path.split('/')
   const draft = shelf === 'drafts'
@@ -21,9 +21,9 @@ export function WikiPage({ page }: { page: PageView }) {
     <article className="mx-auto grid w-full max-w-[920px] gap-3">
       <Breadcrumb>
         <BreadcrumbList>
-          <BreadcrumbItem><BreadcrumbLink href="/wiki">Wiki</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbLink href={`${base}/wiki`}>Wiki</BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem>{draft ? <BreadcrumbPage>drafts</BreadcrumbPage> : <BreadcrumbLink href={`/wiki/${shelf}`}>{shelf}</BreadcrumbLink>}</BreadcrumbItem>
+          <BreadcrumbItem>{draft ? <BreadcrumbPage>drafts</BreadcrumbPage> : <BreadcrumbLink href={`${base}/wiki/${shelf}`}>{shelf}</BreadcrumbLink>}</BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem><BreadcrumbPage>{page.path.split('/').at(-1)}</BreadcrumbPage></BreadcrumbItem>
         </BreadcrumbList>
@@ -43,7 +43,7 @@ export function WikiPage({ page }: { page: PageView }) {
           <RecordList
             rows={page.links.map(link => ({
               id: link.target ? 'page' : 'none',
-              main: link.target ? <a href={`/wiki/${link.target}`} className="hover:underline">{link.link}</a> : link.link,
+              main: link.target ? <a href={`${base}/wiki/${link.target}`} className="hover:underline">{link.link}</a> : link.link,
               end: link.target ? undefined : <Badge tone="danger">no such page</Badge>,
             }))}
           />

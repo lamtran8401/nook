@@ -14,12 +14,12 @@ const label = (tab: ItemTab) => tab.charAt(0).toUpperCase() + tab.slice(1)
 export const tabOf = (value: unknown): ItemTab => (ITEM_TABS as readonly unknown[]).includes(value) ? (value as ItemTab) : 'overview'
 
 /** The full page of an item: its head, the tabs, and the open tab. Each tab is its own address, so a reload keeps it. */
-export function ItemPage({ view, docs, tab, now }: { view: ItemView; docs: ItemDocs; tab: ItemTab; now: Date }) {
+export function ItemPage({ view, docs, tab, now, base }: { view: ItemView; docs: ItemDocs; tab: ItemTab; now: Date; base: string }) {
   const { item } = view
-  const tabs = ITEM_TABS.map(name => ({ href: name === 'overview' ? `/works/${item.id}` : `/works/${item.id}?tab=${name}`, label: label(name), current: name === tab }))
+  const tabs = ITEM_TABS.map(name => ({ href: name === 'overview' ? `${base}/works/${item.id}` : `${base}/works/${item.id}?tab=${name}`, label: label(name), current: name === tab }))
   return (
     <div className="mx-auto grid w-full max-w-[920px] gap-5">
-      <ItemHeader view={view} />
+      <ItemHeader view={view} base={base} />
       <div className="sticky top-[58px] z-30 flex justify-center">
         <LinkTabs label="Item" variant="bar" tabs={tabs} />
       </div>

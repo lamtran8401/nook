@@ -21,7 +21,7 @@ function wordsOf(line: BriefLine): string {
 }
 
 /** The one-click part of a line: a gate runs from its button, an answer opens the item with its questions. */
-function LineAction({ action }: { action?: string | undefined }) {
+function LineAction({ action, base }: { action?: string | undefined; base: string }) {
   const gate = action ? GATE.exec(action) : null
   if (gate)
     return (
@@ -32,7 +32,7 @@ function LineAction({ action }: { action?: string | undefined }) {
   const answer = action ? ANSWER.exec(action) : null
   return answer ? (
     <Button asChild size="sm">
-      <a href={`/works/${answer[1]}`}>Answer</a>
+      <a href={`${base}/works/${answer[1]}`}>Answer</a>
     </Button>
   ) : null
 }
@@ -65,16 +65,16 @@ function groupsOf(lines: BriefLine[]): LineGroup[] {
   return [...groups.values()]
 }
 
-function Waits({ lines }: { lines: BriefLine[] }) {
+function Waits({ lines, base }: { lines: BriefLine[]; base: string }) {
   return (
     <div className="grid gap-2.5">
       {groupsOf(lines).map(group => (
-        <Group key={group.item?.id ?? 'desk'} head={group.item ? <ItemHead item={group.item} /> : 'This desk'} href={group.item ? `/works/${group.item.id}` : undefined} indent>
+        <Group key={group.item?.id ?? 'desk'} head={group.item ? <ItemHead item={group.item} /> : 'This desk'} href={group.item ? `${base}/works/${group.item.id}` : undefined} indent>
           {group.lines.map(line => (
             <GroupLine
               key={`${line.text}${line.action}`}
               mark={<IconTile size="sm" tone={line.urgent ? 'danger' : 'warning'} label={line.urgent ? 'urgent' : 'today'}>!</IconTile>}
-              end={<LineAction action={line.action} />}
+              end={<LineAction action={line.action} base={base} />}
             >
               <p className="text-sm">{wordsOf(line)}</p>
               {line.action ? <CopyCommand text={line.action} /> : null}
@@ -87,13 +87,13 @@ function Waits({ lines }: { lines: BriefLine[] }) {
 }
 
 /** What runs or is done: one row for each line, with the item and the command of the lead. */
-function Rows({ lines }: { lines: BriefLine[] }) {
+function Rows({ lines, base }: { lines: BriefLine[]; base: string }) {
   return (
     <div className="divide-y divide-hairline overflow-hidden rounded-lg bg-card shadow-sm">
       {lines.map(line => (
         <div key={`${line.text}${line.action}`} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2.5 pr-4 pl-4 sm:flex-nowrap">
           {line.item ? (
-            <a href={`/works/${line.item.id}`} className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium hover:underline">
+            <a href={`${base}/works/${line.item.id}`} className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium hover:underline">
               <ItemHead item={line.item} />
             </a>
           ) : (
@@ -123,7 +123,7 @@ function Part({ title, children }: { title: string; children: React.ReactNode })
 }
 
 /** The home page: the counts of the brief on top, then what waits in groups by item, what runs and what is done. */
-export function HomeBrief({ view }: { view: HomeView }) {
+export function HomeBrief({ view, base }: { view: HomeView; base: string }) {
   const waits = view.brief.filter(l => l.part === 'waits').sort((a, b) => Number(b.urgent ?? false) - Number(a.urgent ?? false))
   const runs = view.brief.filter(l => l.part === 'runs')
   const done = view.brief.filter(l => l.part === 'done')
@@ -134,9 +134,9 @@ export function HomeBrief({ view }: { view: HomeView }) {
           <CountTile key={tile.label} count={tile.count(view.brief)} label={tile.label} tone={tile.tone} />
         ))}
       </div>
-      {waits.length ? <Part title="Waits for you"><Waits lines={waits} /></Part> : <p className="text-[17px] font-medium">Nothing waits for you.</p>}
-      {runs.length ? <Part title="Runs"><Rows lines={runs} /></Part> : null}
-      {done.length ? <Part title="Done since yesterday"><Rows lines={done} /></Part> : null}
+      {waits.length ? <Part title="Waits for you"><Waits lines={waits} base={base} /></Part> : <p className="text-[17px] font-medium">Nothing waits for you.</p>}
+      {runs.length ? <Part title="Runs"><Rows lines={runs} base={base} /></Part> : null}
+      {done.length ? <Part title="Done since yesterday"><Rows lines={done} base={base} /></Part> : null}
     </>
   )
 }

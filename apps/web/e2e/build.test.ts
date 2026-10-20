@@ -10,6 +10,8 @@ import { runCommand } from '@nook/shared/run.ts'
 
 const web = join(import.meta.dirname, '..')
 const env = { ...process.env, NEXT_TELEMETRY_DISABLED: '1' }
+// the desk list of the run lives in its desk, never in the home of the owner
+const withDesk = (dir: string) => ({ ...env, NOOK_DESK: dir, XDG_CONFIG_HOME: dir })
 let desk: string
 let build: ReturnType<typeof runCommand>
 
@@ -30,13 +32,13 @@ beforeAll(() => {
   build = runCommand(['node', join(web, 'node_modules', 'next', 'dist', 'bin', 'next'), 'build'], { cwd: web, env: noDesk, timeoutMs: 300_000 })
 })
 type Answer = { status: number; body: string }
-type Answers = Record<'home' | 'page' | 'item' | 'dialog' | 'again' | 'stranger' | 'strangerWrite', Answer> & { login: Answer & { cookie: string } }
+type Answers = Record<'home' | 'page' | 'item' | 'dialog' | 'again' | 'stranger' | 'strangerWrite' | 'ghost', Answer> & { login: Answer & { cookie: string }; base: string; root: { status: number; location: string } }
 let rendered: Answers | null = null
 
 /** The answers of the real request handler under Node, rendered once for the tests that read them. */
 function answer(): Answers {
   if (rendered) return rendered
-  const run = runCommand(['node', join(web, 'e2e', 'render.ts')], { cwd: web, env: { ...env, NOOK_DESK: desk }, timeoutMs: 120_000 })
+  const run = runCommand(['node', join(web, 'e2e', 'render.ts')], { cwd: web, env: withDesk(desk), timeoutMs: 120_000 })
   rendered = JSON.parse(run.out.trim().split('\n').at(-1) ?? '{}') as Answers
   return rendered
 }
@@ -59,7 +61,7 @@ describe('the web app', () => {
 
   test('its server prints the banner of Next.js, its ready line, and one line for each request with no query string', async () => {
     const port = await freePort()
-    const server = spawn('node', ['server.ts'], { cwd: web, env: { ...env, NOOK_DESK: desk, NOOK_WEB_PORT: String(port) }, stdio: ['pipe', 'pipe', 'pipe'] })
+    const server = spawn('node', ['server.ts'], { cwd: web, env: { ...withDesk(desk), NOOK_WEB_PORT: String(port) }, stdio: ['pipe', 'pipe', 'pipe'] })
     let out = ''
     server.stdout.on('data', (chunk: Buffer) => (out += chunk))
     try {
@@ -98,24 +100,29 @@ describe('the web app', () => {
     const home = body('home')
     expect(home).toMatch(/>This desk<\/div>/)
     expect(home).toMatch(/<p class="text-sm">engineering: works\/ is missing<\/p><code data-slot="copy-command"[^>]*>nook init --update<button/)
-    expect(home).toContain('<a href="/works/SHOP-12" class="flex min-w-0 flex-1')
+    expect(home).toContain(`<a href="${answer().base}/works/SHOP-12" class="flex min-w-0 flex-1`)
     expect(home).toMatch(/<code data-slot="copy-command"[^>]*>\/spec SHOP-12<button/)
   })
 
   test('/works gives the board, with a card for each item that links to it', () => {
     const page = body('page')
     expect(page).toContain('&quot;type&quot;:&quot;board&quot;')
-    expect(page).toContain('&quot;title&quot;:&quot;Filter shipments by status&quot;,&quot;href&quot;:&quot;/works/SHOP-12&quot;')
+    expect(page).toContain(`&quot;title&quot;:&quot;Filter shipments by status&quot;,&quot;href&quot;:&quot;${answer().base}/works/SHOP-12&quot;`)
     expect(page).toContain('{&quot;title&quot;:&quot;backlog&quot;,&quot;tone&quot;:&quot;neutral&quot;,&quot;cards&quot;:')
-    expect(/<a [^>]*href="\/works"[^>]*>Works<\/a>/.exec(page)![0]).toContain('aria-current="page"')
+    expect(new RegExp(`<a [^>]*href="${answer().base}/works"[^>]*>`).exec(page)![0]).toContain('aria-current="page"')
   })
 
   test('the full page of an item opens its tab, with no dialog', () => {
     const item = body('item')
     expect(item).toMatch(/<h1 [^>]*>Filter shipments by status<\/h1>/)
-    expect(/<a [^>]*href="\/works\/SHOP-12\?tab=walkthrough"[^>]*>Walkthrough<\/a>/.exec(item)![0]).toContain('aria-current="page"')
+    expect(new RegExp(`<a [^>]*href="${answer().base}/works/SHOP-12\\?tab=walkthrough"[^>]*>Walkthrough</a>`).exec(item)![0]).toContain('aria-current="page"')
     expect(item).toMatch(/type <code data-slot="copy-command"[^>]*>\/view SHOP-12<button/)
     expect(item).not.toContain('Open in new tab')
+  })
+
+  test('the address of the app goes to the desk where nook web started; a path of no desk is a 404', () => {
+    expect(answer().root).toMatchObject({ status: 307, location: answer().base })
+    expect(answer().ghost.status).toBe(404)
   })
 
   test('a click on a card, as the client router asks for it, gets the item in the dialog over the board', () => {

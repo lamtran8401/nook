@@ -1,3 +1,7 @@
+import { notFound } from 'next/navigation'
+
+import { EvError } from '@nook/shared/errors.ts'
+
 import { type HomeView, readHome } from '@nook/core/read.ts'
 import { activePacks } from '@nook/desk/desks.ts'
 import { engineeringModule } from '@nook/engineering/module.ts'
@@ -8,40 +12,54 @@ import { type CourseView, readLearn } from '@nook/learn/read.ts'
 import { wikiModule } from '@nook/wiki/module.ts'
 import { type PageView, readPage, readWiki, type WikiView } from '@nook/wiki/read.ts'
 
-import type { Tab } from '@/components/pack-nav.tsx'
+import { type DeskRef, deskBySlug } from '@/lib/desks.ts'
 import { type Hit, search } from '@/lib/search.ts'
 
-/** The folder of the desk that the web app shows, from `NOOK_DESK`. */
-export function deskDir(): string {
-  const dir = process.env.NOOK_DESK
-  if (!dir) throw new Error('NOOK_DESK is not set: start the web app with `nook web`')
-  return dir
+/** The desk of a page from its `[desk]` segment; a segment of no desk of the list is a 404. */
+export async function openDesk(params: Promise<{ desk: string }>): Promise<DeskRef & { base: string }> {
+  const desk = deskBySlug(decodeURIComponent((await params).desk))
+  if (!desk) notFound()
+  return { ...desk, base: `/${desk.slug}` }
 }
 
-// the packs that have a page in the web app, in the order of the tabs
-const PAGES: Record<string, Tab> = {
-  engineering: { href: '/works', label: 'Works' },
-  wiki: { href: '/wiki', label: 'Wiki' },
-  learn: { href: '/learn', label: 'Learn' },
-}
+/** A page of the sidebar: its address under the desk, and the pack that it needs, when one. */
+export type DeskPage = { key: string; label: string; path: string; pack?: string }
 
-/** Home, then a tab for each pack on in the desk that has a page. */
-export function packTabs(desk: string): Tab[] {
-  const on = new Set(activePacks(desk).map(pack => pack.name))
-  return [{ href: '/', label: 'Home' }, ...Object.entries(PAGES).filter(([name]) => on.has(name)).map(([, tab]) => tab)]
+// the pages of the sidebar in their order; a page with a pack shows only when the pack is on in the desk
+const PAGES: DeskPage[] = [
+  { key: 'home', label: 'Home', path: '' },
+  { key: 'works', label: 'Works', path: '/works', pack: 'engineering' },
+  { key: 'wiki', label: 'Wiki', path: '/wiki', pack: 'wiki' },
+  { key: 'learn', label: 'Learn', path: '/learn', pack: 'learn' },
+]
+
+/** The pages of a desk that its packs turn on. */
+export function deskPages(dir: string): DeskPage[] {
+  const on = new Set(activePacks(dir).map(pack => pack.name))
+  return PAGES.filter(page => !page.pack || on.has(page.pack))
 }
 
 // the packs of the nook binary that read the disk only, so the home page gives what `nook brief` and `nook doctor` give;
 // issue-tracker asks each tracker for its login, so its gaps stay with `nook doctor` and `nook issues sources`
 const MODULES = [engineeringModule, wikiModule, learnModule]
 
-export const home = (): HomeView => readHome(deskDir(), MODULES)
-export const board = (): BoardCard[] => readBoard(deskDir())
-export const metrics = (): Metrics | null => readMetrics(deskDir())
-export const deskAreas = (): string[] => readAreas(deskDir())
-export const itemView = (id: string): ItemView => readItem(deskDir(), id)
-export const item = (id: string): { view: ItemView; docs: ItemDocs } => ({ view: itemView(id), docs: readDocs(deskDir(), id) })
-export const wiki = (): WikiView | null => readWiki(deskDir())
-export const wikiPage = (path: string): PageView => readPage(deskDir(), path)
-export const courses = (): CourseView[] => readLearn(deskDir())
-export const find = (query: string): Hit[] => search(deskDir(), query)
+export const home = (dir: string): HomeView => readHome(dir, MODULES)
+export const board = (dir: string): BoardCard[] => readBoard(dir)
+
+/** The count of open items for the side nav; none when the ledger cannot be read, since the page shows that gap with its fix. */
+export function openCount(dir: string): number | undefined {
+  try {
+    return readBoard(dir).filter(card => card.state !== 'done').length
+  } catch (error) {
+    if (error instanceof EvError) return undefined
+    throw error
+  }
+}
+export const metrics = (dir: string): Metrics | null => readMetrics(dir)
+export const deskAreas = (dir: string): string[] => readAreas(dir)
+export const itemView = (dir: string, id: string): ItemView => readItem(dir, id)
+export const item = (dir: string, id: string): { view: ItemView; docs: ItemDocs } => ({ view: itemView(dir, id), docs: readDocs(dir, id) })
+export const wiki = (dir: string): WikiView | null => readWiki(dir)
+export const wikiPage = (dir: string, path: string): PageView => readPage(dir, path)
+export const courses = (dir: string): CourseView[] => readLearn(dir)
+export const find = (dir: string, query: string, base: string): Hit[] => search(dir, query, base)

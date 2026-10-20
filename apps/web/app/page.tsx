@@ -1,16 +1,10 @@
-import { FlowMetrics } from '@/components/flow-metrics.tsx'
-import { HomeBrief } from '@/components/home-brief.tsx'
-import { orGap } from '@/components/gap.tsx'
-import { home, metrics } from '@/lib/desk.ts'
+import { redirect } from 'next/navigation'
 
-// each request reads the desk of NOOK_DESK, so one build serves every desk
+import { listDesks } from '@/lib/desks.ts'
+
 export const dynamic = 'force-dynamic'
 
-export default function Home() {
-  return orGap(() => (
-    <>
-      <HomeBrief view={home()} />
-      <FlowMetrics metrics={metrics()} />
-    </>
-  ))
+/** The address of the app goes to the desk where `nook web` started. */
+export default function Root() {
+  redirect(`/${listDesks()[0]!.slug}`)
 }
