@@ -51,9 +51,9 @@ Run `nook web` in your own terminal. It prints the log of Next.js, such as `✓ 
 | Part | What you see |
 |---|---|
 | the rail on the left | one tile for each of your desks, such as `personal` and `chorus`; a click opens that desk |
-| the side nav | Home, Works, Wiki, Learn, Metrics, Agents and skills, Events, and Settings at its foot; a page shows only when its pack is on |
+| the side nav | Home, Board, Wiki, Learn, Metrics, Agents and skills, Events, and Settings at its foot; a page shows only when its pack is on |
 | Home | what waits for you, what runs, and three numbers of the last 30 days |
-| Works | a column for each state of the flow; a click on a card opens the item |
+| Board | the items of the desk, a column for each state of the flow; a click on a card opens the item |
 | Metrics | the rework rate, the first pass, the cycle time and the waits at your gates; the root causes and the guard blocks |
 | Events | each block of a guard, each error of a hook and each prompt, newest first |
 

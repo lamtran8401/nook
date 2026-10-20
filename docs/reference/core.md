@@ -81,14 +81,14 @@ The shell guard blocks a call to the port in `.nook/web.json` on any spelling of
 
 One `nook web` serves each desk of the desk list of the owner (`~/.config/nook/desks`) and the desk where it started. Each desk has its own path: its folder name, such as `/personal`. Two desks with one folder name get a number, such as `/shop-2`. `/` sends the browser to the start desk, and a path of no desk is a 404. One pair lets the owner move items in each desk.
 
-The shell of each page: a dark rail with one tile for each desk, the open one with a ring; a side nav with the search, the pages that the packs of the desk turn on, the count of open items next to Works, and Settings at its foot; then the page, with a header of its title and its use. Below 900 px the rail and the nav fold into a menu. Each kind has one color on every page: feature blue, fix red, investigate violet, chore aqua.
+The shell of each page: a dark rail with one tile for each desk, the open one with a ring; a side nav with the search, the pages that the packs of the desk turn on, the count of open items next to Board, and Settings at its foot; then the page, with a header of its title and its use. Below 900 px the rail and the nav fold into a menu. Each kind has one color on every page: feature blue, fix red, investigate violet, chore aqua.
 
 Each page reads the desk when the browser asks for it. A gap of the desk, such as a ledger that needs a migration, shows with its fix in place of the data. The table names each page under the path of its desk.
 
 | Page | It shows |
 |---|---|
 | `/<desk>` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done; then the rework rate, the first pass and the median cycle time of the last 30 days |
-| `/<desk>/works` | the Bench board: a column for each state of the flow, the empty ones too, and `blocked` while an item is blocked; a narrow page scrolls the board sideways; a card shows its flags and whose move is next |
+| `/<desk>/works` | Board, the board of the desk on the Bench board: a column for each state of the flow, the empty ones too, and `blocked` while an item is blocked; a narrow page scrolls the board sideways; a card shows its flags and whose move is next |
 | `/<desk>/works/<id>` over the board | a click on a card opens the item in a dialog of 80% of the screen: the title, the next step, the criteria, the slices and the activity, with the details beside them |
 | `/<desk>/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document; the Tasks tab draws the lanes of the slices first, one for each area |
 | `/<desk>/wiki` | the drafts that wait for a yes, then a card for each shelf with its use, its count of pages and their types |

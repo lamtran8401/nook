@@ -51,7 +51,7 @@ export function ItemDialog({ view, base }: { view: ItemView; base: string }) {
     <div className="flex h-full min-h-0 flex-col">
       <header className="flex items-center gap-3 border-b border-hairline py-3 pr-14 pl-6">
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Breadcrumb">
-          <a href={`${base}/works`} className="hover:text-foreground">Works</a>
+          <a href={`${base}/works`} className="hover:text-foreground">Board</a>
           <span aria-hidden="true">/</span>
           <span className="font-mono text-foreground">{item.id}</span>
         </nav>

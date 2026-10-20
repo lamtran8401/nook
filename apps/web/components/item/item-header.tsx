@@ -18,7 +18,7 @@ export function ItemHeader({ view, base }: { view: ItemView; base: string }) {
     <header className="grid gap-2">
       <Breadcrumb>
         <BreadcrumbList>
-          <BreadcrumbItem><BreadcrumbLink href={`${base}/works`}>Works</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbLink href={`${base}/works`}>Board</BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem><BreadcrumbPage>{item.id}</BreadcrumbPage></BreadcrumbItem>
         </BreadcrumbList>

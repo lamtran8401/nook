@@ -33,7 +33,7 @@ export type DeskPage = { key: string; label: string; path: string; pack?: string
 // the pages of the sidebar in their order; a page with a pack shows only when the pack is on in the desk
 const PAGES: DeskPage[] = [
   { key: 'home', label: 'Home', path: '' },
-  { key: 'works', label: 'Works', path: '/works', pack: 'engineering' },
+  { key: 'works', label: 'Board', path: '/works', pack: 'engineering' },
   { key: 'wiki', label: 'Wiki', path: '/wiki', pack: 'wiki' },
   { key: 'learn', label: 'Learn', path: '/learn', pack: 'learn' },
   { key: 'metrics', label: 'Metrics', path: '/metrics', pack: 'engineering' },

@@ -66,7 +66,7 @@ describe('ItemHeader', () => {
   test('shows the way back to the board, the title, the chips and the key moments', () => {
     const sentBack = { ...view, moves: [...view.moves, { move: 'reject' as const, to: 'cooking' as const, at: '2026-10-16T09:00:00Z' }] }
     const markup = html(<ItemHeader view={sentBack} base="/personal" />)
-    expect(text(markup)).toBe('Works SHOP-42 Pay for an order with a saved card cooking feature size L api web normal yolo Started 14 Oct Approved 15 Oct 09:40 Sent back 1×')
+    expect(text(markup)).toBe('Board SHOP-42 Pay for an order with a saved card cooking feature size L api web normal yolo Started 14 Oct Approved 15 Oct 09:40 Sent back 1×')
     const mode = (value: string) => new RegExp(`<button[^>]*value="${value}"[^>]*>`).exec(markup)![0]
     expect(mode('normal')).toContain('data-state="on"')
     expect(mode('yolo')).toContain('data-state="off"')
@@ -242,7 +242,7 @@ describe('ItemDialog', () => {
   test('has a head with the way back to the board and the link to the full page', () => {
     const markup = html(<ItemDialog view={view} base="/personal" />)
     expect(markup).toContain('href="/personal/works/SHOP-42" target="_blank" rel="noopener"')
-    expect(text(markup)).toStartWith('Works / SHOP-42 Open in new tab')
+    expect(text(markup)).toStartWith('Board / SHOP-42 Open in new tab')
   })
 
   test('its main column gives the title, the next step, the criteria, the slices on the board and the activity, newest first', () => {
