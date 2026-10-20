@@ -68,7 +68,7 @@ The course argument can go when the desk has one course.
 | `/learn-setup <course>` | the owner | the goal, the date, the minutes, the map and the ruler, a placement for each skill from a real task, the roadmap |
 | `/learn-today [course]` | the owner | the cards due, one lesson on the top pattern, one short task of the owner; ends at the minutes of the roadmap |
 | `/learn-practice [course] <task>` | the owner | one timed task like the real test, then a band for each criterion with its quote |
-| `/study <topic>` | the owner | the facts, the owner's explanation and example, a check, a concept page after a yes |
+| `/study <topic>` | the owner | the facts, the owner's explanation and example, a check, a concept page of the wiki after a yes; with no wiki pack, two or three cards of the course |
 | `learn-cards` | `/learn-today` | shows each due card, then marks it good or again |
 | `learn-lesson` | `/learn-today` | the owner's sentence, the fix, the rule in one line, three to five drill items |
 | `coach` | `/learn-setup`, `/learn-practice` | scores one answer on each criterion of the ruler with quotes; never rewrites it |
