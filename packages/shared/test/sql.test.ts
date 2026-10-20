@@ -58,6 +58,28 @@ describe('SqlFile', () => {
     expect(db.all('SELECT text FROM note')).toEqual([])
   })
 
+  test('a read-only open reads a WAL file that has no -wal and no -shm beside it, as a closed ledger can be left', () => {
+    const file = join(dir, 'wal.db')
+    const writer = SqlFile.open(file)
+    writer.exec("PRAGMA journal_mode = WAL; CREATE TABLE t (x TEXT); INSERT INTO t VALUES ('kept')")
+    writer.close()
+    for (const side of [`${file}-wal`, `${file}-shm`]) rmSync(side, { force: true })
+    const reader = SqlFile.open(file, { readOnly: true })
+    expect(reader.all('SELECT x FROM t')).toEqual([{ x: 'kept' }])
+    reader.close()
+    expect(existsSync(`${file}-wal`)).toBe(false)
+  })
+
+  test('a read-only open sees the rows that a writer has in its -wal and has not checkpointed', () => {
+    const file = join(dir, 'live.db')
+    const writer = SqlFile.open(file)
+    writer.exec("PRAGMA journal_mode = WAL; PRAGMA wal_autocheckpoint = 0; CREATE TABLE t (x TEXT); INSERT INTO t VALUES ('fresh')")
+    const reader = SqlFile.open(file, { readOnly: true })
+    expect(reader.all('SELECT x FROM t')).toEqual([{ x: 'fresh' }])
+    reader.close()
+    writer.close()
+  })
+
   test('a read-only open of a missing file throws and creates no file', () => {
     const file = join(dir, 'missing.db')
     expect(() => SqlFile.open(file, { readOnly: true })).toThrow('unable to open')
