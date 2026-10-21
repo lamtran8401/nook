@@ -42,9 +42,6 @@
   --color-aqua-subtle: var(--aqua-subtle);
   --color-tone: var(--t);
   --color-tone-subtle: var(--t-subtle);
-  /* the rail of desks stays dark in both themes, as the frame of the app */
-  --color-rail: oklch(0.24 0.005 260);
-  --color-rail-tile: oklch(0.33 0.006 260);
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);

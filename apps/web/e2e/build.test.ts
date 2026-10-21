@@ -8,6 +8,8 @@ import { join } from 'node:path'
 import { Ledger } from '@nook/engineering/ledger.ts'
 import { runCommand } from '@nook/shared/run.ts'
 
+import { buildOnce } from './built.ts'
+
 const web = join(import.meta.dirname, '..')
 const env = { ...process.env, NEXT_TELEMETRY_DISABLED: '1' }
 // the desk list of the run lives in its desk, never in the home of the owner
@@ -28,8 +30,7 @@ function makeDesk(): string {
 
 beforeAll(() => {
   desk = makeDesk()
-  const noDesk = Object.fromEntries(Object.entries(env).filter(([name]) => name !== 'NOOK_DESK'))
-  build = runCommand(['node', join(web, 'node_modules', 'next', 'dist', 'bin', 'next'), 'build'], { cwd: web, env: noDesk, timeoutMs: 300_000 })
+  build = buildOnce()
 })
 type Answer = { status: number; body: string }
 type Answers = Record<'home' | 'page' | 'item' | 'dialog' | 'again' | 'stranger' | 'strangerWrite' | 'ghost', Answer> & { login: Answer & { cookie: string }; base: string; root: { status: number; location: string } }
