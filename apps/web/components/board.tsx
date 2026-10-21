@@ -5,12 +5,12 @@ import { Badge } from '@nook/ui/components/badge.tsx'
 import { EmptyState } from '@nook/ui/components/empty-state.tsx'
 import { FlowLane } from '@nook/ui/components/flow-lane.tsx'
 import { Frame } from '@nook/ui/components/frame.tsx'
-import { ItemCard } from '@nook/ui/components/item-card.tsx'
 import { ItemGroup, ItemRow } from '@nook/ui/components/item-list.tsx'
 import { LinkTabs } from '@nook/ui/components/link-tabs.tsx'
 import { StepBar } from '@nook/ui/components/step-bar.tsx'
 
 import { KindIcon, StateTag } from '@/components/marks.tsx'
+import { OpenCard } from '@/components/open-card.tsx'
 import {
   BACKLOG,
   backlogOf,
@@ -40,12 +40,12 @@ function YoloChip() {
   )
 }
 
-/** One item as a card: the next move is its flag line, unless a blocking question or a failed slice holds it. */
+/** One item as a card that opens its drawer: the next move is its flag line, unless a blocking question or a failed slice holds it. */
 function Card({ card, base }: { card: BoardCard; base: string }) {
   const step = stepOf(card)
   const { done, total } = card.slices
   return (
-    <ItemCard
+    <OpenCard
       href={`${base}/works/${card.id}`}
       kind={<KindIcon kind={card.kind} />}
       id={card.id}

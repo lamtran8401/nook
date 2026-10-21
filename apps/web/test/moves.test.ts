@@ -10,12 +10,14 @@ describe('moveArgs', () => {
     expect(moveArgs({ kind: 'mode', item: 'SHOP-42', mode: 'yolo' })).toEqual(['eng', 'item', 'mode', '--via', 'viewer', '--', 'SHOP-42', 'yolo'])
     expect(moveArgs({ kind: 'answer', item: 'SHOP-42', question: 'q2', answer: ' -the same card ' })).toEqual(['eng', 'answer', '--via', 'viewer', '--', 'SHOP-42', 'Q2', '-the same card'])
     expect(moveArgs({ kind: 'guess', item: 'SHOP-42', guess: 'G5', decision: 'flip' })).toEqual(['eng', 'guess', 'flip', '--via', 'viewer', '--', 'SHOP-42', 'G5'])
+    expect(moveArgs({ kind: 'back', item: 'SHOP-42', reason: ' -AC2 has no test ' })).toEqual(['eng', 'item', 'reject', '--via', 'viewer', '--reason=-AC2 has no test', '--', 'SHOP-42'])
   })
 
   test('refuses a form that is no owner move, before any command runs', () => {
     expect(moveArgs({ kind: 'gate', item: 'SHOP-42', move: 'cancel' })).toEqual({ refused: 'cancel is no move of the owner' })
     expect(moveArgs({ kind: 'gate', item: '--json', move: 'approve' })).toEqual({ refused: '--json is no item id' })
     expect(moveArgs({ kind: 'answer', item: 'SHOP-42', question: 'Q2', answer: '  ' })).toEqual({ refused: 'type the answer first' })
+    expect(moveArgs({ kind: 'back', item: 'SHOP-42', reason: ' ' })).toEqual({ refused: 'say why it goes back first' })
     expect(moveArgs({ kind: 'task', item: 'SHOP-42' })).toEqual({ refused: 'task is no owner move' })
   })
 })
@@ -68,6 +70,18 @@ describe('runMove', () => {
     const question = t.eng(LEAD).ask('SHOP-1', 'Must a refund go to the same card?', true)
     expect(runMove({ kind: 'answer', item: 'SHOP-1', question: question.id, answer: 'the same card' }, t.root, env()).ok).toBe(true)
     expect(t.eng(OWNER).stores.questions.find('SHOP-1', question.id)).toMatchObject({ status: 'answered', answer: 'the same card', answered_by: 'owner (viewer)' })
+  })
+
+  test('a send back from the page returns the item from review to the build, with the reason of the owner', () => {
+    itemAt(t, 'cooking')
+    const lead = t.eng(LEAD)
+    lead.moveSlice('start', 'SHOP-1', 'T1')
+    lead.moveSlice('done', 'SHOP-1', 'T1', { files: ['a'] })
+    lead.verify('SHOP-1')
+    lead.moveItem('submit', 'SHOP-1')
+    expect(runMove({ kind: 'back', item: 'SHOP-1', reason: 'AC2 has no test' }, t.root, env()).ok).toBe(true)
+    expect(t.eng(OWNER).item('SHOP-1').state).toBe('cooking')
+    expect(t.eng(OWNER).stores.events.last('SHOP-1', 'reject')).toMatchObject({ actor: 'owner (viewer)', reason: 'AC2 has no test' })
   })
 
   test('an answer that starts with a dash is the answer, not a flag', () => {

@@ -1,9 +1,7 @@
 import type { Next } from '@nook/engineering/report/next.ts'
 import { ActionBar } from '@nook/ui/components/action-bar.tsx'
-import { Button } from '@nook/ui/components/button.tsx'
 import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
 
-import { Move } from '@/components/item/move.tsx'
 import { ownerGate } from '@/lib/turn.ts'
 
 /** A step such as `answer Q3: nook eng answer …`: the words before the colon, and the command after it. */
@@ -12,29 +10,21 @@ function splitStep(skill: string): { words: string; command?: string } {
   return at < 0 ? { words: skill } : { words: skill.slice(0, at), command: skill.slice(at + 2) }
 }
 
-const GATE_WORDS: Record<string, string> = { approve: 'Approve the plan, or send it back.', accept: 'Accept the work, or send it back.' }
+const GATE_WORDS: Record<string, string> = { approve: 'Approve the plan, and the build can start.', accept: 'Accept the work, or send it back.' }
 const capital = (words: string) => words.charAt(0).toUpperCase() + words.slice(1)
 const Words = ({ children }: { children: string }) => <p className="text-[14.5px] font-medium">{children}</p>
 const Small = ({ children }: { children: string }) => <small className="text-[12.5px] text-muted-foreground">{children}</small>
 
 /**
- * Who moves the item next, YOU or AI: a gate of the owner gets its button, which runs the move; another move of the
- * owner names its command; a move of the lead names what it runs and says that nothing waits.
+ * Who moves the item next, YOU or AI: a gate of the owner says its move, and the gate bar holds its button; another
+ * move of the owner names its command; a move of the lead names what it runs and says that nothing waits.
  */
 export function NextStep({ next }: { next: Next }) {
   const gate = ownerGate(next)
   const step = splitStep(next.skill)
   if (gate)
     return (
-      <ActionBar
-        label="Next · You"
-        mark="YOU"
-        action={
-          <Move fields={{ kind: 'gate', item: next.id, move: gate }}>
-            <Button type="submit">{capital(gate)}</Button>
-          </Move>
-        }
-      >
+      <ActionBar label="Next · You" mark="YOU">
         <Words>{GATE_WORDS[gate] ?? `${capital(gate)} the item.`}</Words>
       </ActionBar>
     )

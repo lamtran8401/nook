@@ -12,6 +12,14 @@ describe('confirmOf', () => {
     expect(confirmOf({ kind: 'gate', item: 'SHOP-44', move: 'accept' }, {})).toMatchObject({ title: 'Accept SHOP-44?', action: 'Accept' })
   })
 
+  test('a send back quotes the reason and says where the item goes', () => {
+    expect(confirmOf({ kind: 'back', item: 'SHOP-44' }, { reason: ' AC2 has no test ' })).toEqual({
+      title: 'Send SHOP-44 back?',
+      body: 'The item goes back to the build, and the lead gets your reason: "AC2 has no test".',
+      action: 'Send back',
+    })
+  })
+
   test('a mode names the mode that the button picks', () => {
     expect(confirmOf({ kind: 'mode', item: 'SHOP-42' }, { mode: 'yolo' })).toEqual({ title: 'Switch SHOP-42 to yolo?', body: 'The lead runs the stages alone, with no stop at the skill of each stage.', action: 'Switch to yolo' })
     expect(confirmOf({ kind: 'mode', item: 'SHOP-42' }, { mode: 'normal' })).toMatchObject({ title: 'Switch SHOP-42 to normal?', body: 'Each stage waits for its skill again.' })

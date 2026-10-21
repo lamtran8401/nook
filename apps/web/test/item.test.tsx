@@ -4,14 +4,16 @@ import type { ItemView } from '@nook/engineering/read/reader.ts'
 import type { Guess } from '@nook/engineering/stores/guesses.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
 import type { Slice } from '@nook/engineering/stores/slices.ts'
+import { SidePanel } from '@nook/ui/components/side-panel.tsx'
 
 import { Activity } from '@/components/item/activity.tsx'
 import { Branches } from '@/components/item/branches.tsx'
 import { DocTab } from '@/components/item/doc-tab.tsx'
-import { ItemDialog } from '@/components/item/item-dialog.tsx'
+import { GateBar } from '@/components/item/gate-bar.tsx'
 import { ItemAside } from '@/components/item/item-aside.tsx'
 import { ItemHead } from '@/components/item/item-head.tsx'
 import { ItemPage, tabOf } from '@/components/item/item-page.tsx'
+import { ItemPanel } from '@/components/item/item-panel.tsx'
 import { lanesSpec } from '@/components/item/lanes.tsx'
 import { Overview } from '@/components/item/overview.tsx'
 import { NextStep } from '@/components/item/next-step.tsx'
@@ -94,11 +96,10 @@ describe('ItemAside', () => {
 })
 
 describe('NextStep', () => {
-  test('a gate of the owner gets its button, such as Approve', () => {
+  test('a gate of the owner says its move, and leaves the button to the gate bar', () => {
     const markup = html(<NextStep next={{ ...view.next, state: 'planning', owner: true, skill: 'owner: /gate approve SHOP-42' }} />)
-    expect(markup).toContain('<input type="hidden" name="kind" value="gate"/><input type="hidden" name="item" value="SHOP-42"/><input type="hidden" name="move" value="approve"/>')
-    expect(markup).toMatch(/<button data-slot="button"[^>]*type="submit">Approve<\/button>/)
-    expect(text(markup)).toBe('YOU Next · You Approve the plan, or send it back. Approve')
+    expect(markup).not.toContain('data-slot="button"')
+    expect(text(markup)).toBe('YOU Next · You Approve the plan, and the build can start.')
   })
 
   test('a blocking question is a move of the owner with no gate: it names the answer to give', () => {
@@ -119,13 +120,13 @@ describe('the owner moves on a page', () => {
   const approve = { ...view.next, state: 'planning' as const, owner: true, skill: 'owner: /gate approve SHOP-42' }
 
   test('a browser with no pair gets each button off, and the form names the command that pairs it', () => {
-    const markup = html(<NextStep next={approve} />)
+    const markup = html(<GateBar next={approve} />)
     expect(markup).toContain('title="Pair this browser to run your moves: nook web pair"')
     expect(/<fieldset[^>]*>/.exec(markup)![0]).toContain('disabled=""')
   })
 
   test('a paired browser gets the buttons on', () => {
-    const markup = html(<Owner paired><NextStep next={approve} /></Owner>)
+    const markup = html(<Owner paired><GateBar next={approve} /></Owner>)
     expect(/<fieldset[^>]*>/.exec(markup)![0]).not.toContain(' disabled=""')
     expect(markup).not.toContain('title="Pair this browser')
   })
@@ -273,29 +274,39 @@ describe('ItemPage', () => {
   })
 })
 
-describe('ItemDialog', () => {
-  test('has a head with the way back to the board and the link to the full page', () => {
-    const markup = html(<ItemDialog view={view} base="/personal" />)
-    expect(markup).toContain('href="/personal/works/SHOP-42" target="_blank" rel="noopener"')
-    expect(text(markup)).toStartWith('Board / SHOP-42 Open in new tab')
+describe('GateBar', () => {
+  test('at the plan step gives Approve, and says that a change of the plan goes to the lead', () => {
+    const markup = html(<GateBar next={{ ...view.next, state: 'planning', owner: true, skill: 'owner: /gate approve SHOP-42' }} />)
+    expect(text(markup)).toBe('To change the plan, tell the lead in the agent session. Approve')
+    expect(markup).toContain('<input type="hidden" name="kind" value="gate"/><input type="hidden" name="item" value="SHOP-42"/><input type="hidden" name="move" value="approve"/>')
   })
 
-  test('its main column gives the title, the next step, the criteria, the slices on the board and the activity, newest first', () => {
-    const markup = html(<ItemDialog view={view} base="/personal" />)
-    const main = text(markup)
-    expect(main).toContain('Pay for an order with a saved card AI Next · The lead The lead runs /cook SHOP-42. Nothing waits for you.')
-    expect(main).toContain('Criteria AC1 A saved card pays in one click. api test passes met AC2 A decline shows the reason. open')
-    expect(main).toContain('Activity 16 Oct 11:12 The lead asked or answered a question · Q3 15 Oct 16:30 The lead ran the checks · 1/2 checks passed 15 Oct 09:40 You approved the plan')
-    expect(specOf(markup)).toMatchObject({ type: 'board' })
+  test('at review gives a reason to send it back, Send back and Accept, each its own move', () => {
+    const markup = html(<GateBar next={{ ...view.next, state: 'review', owner: true, skill: 'owner: /gate accept SHOP-42' }} />)
+    expect(text(markup)).toBe('Send back Accept')
+    expect(markup).toContain('<input type="hidden" name="kind" value="back"/><input type="hidden" name="item" value="SHOP-42"/>')
+    expect(/<input[^>]*aria-label="Reason to send it back"[^>]*>/.exec(markup)![0]).toContain('required=""')
+    expect(markup).toContain('<input type="hidden" name="move" value="accept"/>')
   })
 
-  test('its side gives the details: state, kind, size, areas, mode, the key moments and the progress', () => {
-    expect(text(html(<ItemDialog view={view} base="/personal" />))).toContain(
-      'Details State cooking Kind feature Size L Areas api web Mode normal Started 14 Oct Approved 15 Oct 09:40 Criteria met 1/2 Slices done 1/4',
-    )
+  test('shows nothing when no gate waits for the owner', () => {
+    expect(html(<GateBar next={view.next} />)).toBe('')
   })
 })
 
+describe('ItemPanel', () => {
+  test('heads the drawer with the facts, the link to the full page, the title and the steps, then the overview', () => {
+    const markup = html(<SidePanel><ItemPanel view={view} docs={[]} now={NOW} base="/personal" /></SidePanel>)
+    expect(markup).toContain('<a href="/personal/works/SHOP-42" data-slot="button"')
+    expect(text(markup)).toStartWith('SHOP-42 · cooking · feature 8 pt normal Open page Pay for an order with a saved card backlog framing planning ready cooking review done AI Next · The lead')
+  })
+
+  test('holds the moves of the owner at its foot when a gate waits', () => {
+    const review = { ...view, next: { ...view.next, state: 'review' as const, owner: true, skill: 'owner: /gate accept SHOP-42' } }
+    expect(html(<SidePanel><ItemPanel view={review} docs={[]} now={NOW} base="/personal" /></SidePanel>)).toContain('data-slot="side-panel-footer"')
+    expect(html(<SidePanel><ItemPanel view={view} docs={[]} now={NOW} base="/personal" /></SidePanel>)).not.toContain('data-slot="side-panel-footer"')
+  })
+})
 describe('the lanes of the slices', () => {
   test('give one lane for each area, a node for each slice with its state in its kicker on a node of its tone, and an edge for each slice it waits for', () => {
     expect(lanesSpec([slice('T1', 'done'), slice('T2', 'running', { area: 'web', depends: ['T1'] }), slice('T3', 'todo', { depends: ['T1', 'T2'] }), slice('T4', 'cancelled')])).toEqual({

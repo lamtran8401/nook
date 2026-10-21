@@ -44,6 +44,18 @@ describe('the board in a real browser', () => {
     expect(await evaluate(`[...document.querySelectorAll('[data-slot=item-group] > summary')].map(s => s.innerText.split('\\n')[0])`)).toEqual(['Waits for you', 'The lead runs', 'Backlog', 'Done'])
   }, 60_000)
 
+  test('a click on a card opens the drawer with the overview, and the card keeps the highlight until it closes', async () => {
+    await open('/shop/works')
+    const card = `document.querySelector('a[data-slot=item-card][href="/shop/works/SHOP-42"]')`
+    await evaluate(`${card}.click()`)
+    await until(`!!document.querySelector('[data-slot=side-panel-content] [data-slot=action-bar]')`)
+    expect(await evaluate('location.pathname')).toBe('/shop/works/SHOP-42')
+    expect(await evaluate(`${card}.dataset.selected`)).toBe('true')
+    await press('Escape', 'Escape')
+    await until(`!document.querySelector('[data-slot=side-panel-content]') && location.pathname === '/shop/works'`)
+    expect(await evaluate(`${card}.dataset.selected`)).toBe('false')
+  }, 60_000)
+
   test('a click on a row of the list opens it in place with the next move and two links', async () => {
     await open('/shop/works?layout=list')
     await evaluate(`document.querySelector('[data-slot=item-row] > summary').click()`)

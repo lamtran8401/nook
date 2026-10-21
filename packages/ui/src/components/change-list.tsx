@@ -1,16 +1,14 @@
 import { GitBranch } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-import { Card } from '@nook/ui/components/card.tsx'
 import { IconTile } from '@nook/ui/components/icon-tile.tsx'
 
 export type Change = { key: string; tone?: string | undefined; head: ReactNode; files: number; add: number; del: number; end?: ReactNode }
 
-/** The changes of each branch: its head, its files, the lines added and removed with a bar of the two, and its checks. */
+/** The changes of each branch, inside a tile: its head, its files, the lines added and removed with a bar of the two, and its checks. */
 export function ChangeList({ changes }: { changes: Change[] }) {
   return (
-    <Card className="gap-0 px-5 py-0">
-      <ul className="divide-y divide-hairline">
+    <ul className="-my-2 divide-y divide-hairline">
         {changes.map(change => {
           const total = change.add + change.del
           return (
@@ -35,7 +33,6 @@ export function ChangeList({ changes }: { changes: Change[] }) {
             </li>
           )
         })}
-      </ul>
-    </Card>
+    </ul>
   )
 }

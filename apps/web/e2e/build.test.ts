@@ -113,12 +113,12 @@ describe('the web app', () => {
     expect(new RegExp(`<a [^>]*href="${answer().base}/works"[^>]*>`).exec(page)![0]).toContain('aria-current="page"')
   })
 
-  test('the full page of an item opens its tab, with no dialog', () => {
+  test('the full page of an item opens its tab, with no drawer', () => {
     const item = body('item')
     expect(item).toMatch(/<h1 [^>]*>Filter shipments by status<\/h1>/)
     expect(new RegExp(`<a [^>]*href="${answer().base}/works/SHOP-12\\?tab=walkthrough"[^>]*>walkthrough</a>`).exec(item)![0]).toContain('aria-current="page"')
     expect(item).toMatch(/type <code data-slot="copy-command"[^>]*>\/view SHOP-12<button/)
-    expect(item).not.toContain('Open in new tab')
+    expect(item).not.toContain('Open page')
   })
 
   test('the address of the app goes to the desk where nook web started; a path of no desk is a 404', () => {
@@ -126,8 +126,8 @@ describe('the web app', () => {
     expect(answer().ghost.status).toBe(404)
   })
 
-  test('a click on a card, as the client router asks for it, gets the item in the dialog over the board', () => {
-    expect(body('dialog')).toContain('Open in new tab')
+  test('a click on a card, as the client router asks for it, gets the item in the drawer over the board', () => {
+    expect(body('dialog')).toContain('Open page')
   })
 
   test('the server refuses to start with no desk, and listens on nothing', () => {

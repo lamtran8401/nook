@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react'
+import type { MouseEventHandler, ReactNode } from 'react'
 
 /**
  * One item on the board, lean: the kind icon, the id, the points, the mode and the areas on one line, the title, the
  * bar of the steps, then one line of what happens next with its end, such as the slices. A card that waits for the
- * owner has a red ring; the card whose drawer is open has the blue one.
+ * owner has a red ring; the card whose drawer is open has the blue one. `onClick` lets the app open the drawer.
  */
-export function ItemCard({ href, kind, id, points, mode, areas, title, steps, flag, end, needs = false, selected = false }: {
+export function ItemCard({ href, kind, id, points, mode, areas, title, steps, flag, end, needs = false, selected = false, onClick }: {
   href: string
   kind: ReactNode
   id: string
@@ -18,11 +18,13 @@ export function ItemCard({ href, kind, id, points, mode, areas, title, steps, fl
   end?: ReactNode
   needs?: boolean
   selected?: boolean
+  onClick?: MouseEventHandler<HTMLAnchorElement>
 }) {
   return (
     <a
       data-slot="item-card"
       href={href}
+      onClick={onClick}
       data-needs={needs}
       data-selected={selected}
       className="flex flex-col gap-[7px] rounded-xl bg-surface px-3 py-2.5 text-left shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[needs=true]:shadow-[0_0_0_1px_color-mix(in_oklch,var(--danger)_35%,transparent),0_4px_14px_-6px_color-mix(in_oklch,var(--danger)_35%,transparent)] data-[selected=true]:bg-primary-subtle data-[selected=true]:shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_30%,transparent),0_4px_14px_-6px_color-mix(in_oklch,var(--primary)_35%,transparent)]"

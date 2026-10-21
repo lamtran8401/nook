@@ -20,6 +20,8 @@ export function confirmOf(fields: Record<string, string>, chosen: Record<string,
       const move = fields.move ?? ''
       return { title: `${capital(move)} ${item}?`, body: `${GATE_BODY[move] ?? ''} It runs the same guards as /gate ${move} ${item}.`.trim(), action: capital(move) }
     }
+    case 'back':
+      return { title: `Send ${item} back?`, body: `The item goes back to the build, and the lead gets your reason: "${(chosen.reason ?? '').trim()}".`, action: 'Send back' }
     case 'mode': {
       const mode = chosen.mode ?? ''
       return { title: `Switch ${item} to ${mode}?`, body: MODE_BODY[mode] ?? '', action: `Switch to ${mode}` }

@@ -1,8 +1,8 @@
 import { runCommand } from '@nook/shared/run.ts'
 
 /**
- * The owner moves of a page: approve or accept at a gate, the mode, the answer to a question, and the decision on a
- * guess. Each one runs the nook CLI with `--via viewer`, so it meets the same guards as a move typed with /gate.
+ * The owner moves of a page: approve or accept at a gate, a send back from review with its reason, the mode, the
+ * answer to a question, and the decision on a guess. Each one runs the nook CLI with `--via viewer`, so it meets the same guards as a move typed with /gate.
  */
 
 export type MoveResult = { ok: boolean; lines: string[] }
@@ -20,6 +20,11 @@ export function moveArgs(form: MoveForm): string[] | { refused: string } {
   if (kind === 'gate') {
     const move = field(form, 'move')
     return move === 'approve' || move === 'accept' ? ['eng', 'item', move, ...tail([])] : { refused: `${move} is no move of the owner` }
+  }
+  if (kind === 'back') {
+    const reason = field(form, 'reason')
+    // the reason rides in one word with its flag, so a reason that starts with a dash stays the reason
+    return reason ? ['eng', 'item', 'reject', '--via', 'viewer', `--reason=${reason}`, '--', item] : { refused: 'say why it goes back first' }
   }
   if (kind === 'mode') {
     const mode = field(form, 'mode')
