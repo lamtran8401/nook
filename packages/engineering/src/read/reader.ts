@@ -23,7 +23,7 @@ import { deskMetrics, type Metrics, METRICS_SPAN_MS } from '../report/metrics.ts
  */
 
 /** One card of the board: the item, its criteria met and slices done, whose move is next, and what holds it up. */
-export type BoardCard = Pick<Item, 'id' | 'title' | 'kind' | 'size' | 'points' | 'state' | 'areas'> & {
+export type BoardCard = Pick<Item, 'id' | 'title' | 'kind' | 'size' | 'points' | 'mode' | 'state' | 'blocked_from' | 'areas'> & {
   criteria: { met: number; total: number }
   slices: { done: number; total: number }
   next: Pick<Next, 'owner' | 'skill'>
@@ -89,13 +89,13 @@ export function readBoard(desk: string): BoardCard[] {
   return withReader(desk, eng => {
     const items = [...eng.stores.items.open(), ...eng.stores.items.list('done').filter(i => !isArchived(eng, i.id))]
     return items.map(item => {
-      const { id, title, kind, size, points, state, areas } = item
+      const { id, title, kind, size, points, mode, state, blocked_from, areas } = item
       const criteria = eng.stores.criteria.list(id)
       const slices = eng.stores.slices.live(id)
       const { owner, skill } = nextFor(eng, item)
       const flags = [...eng.stores.questions.openBlocking(id).map(q => `${q.id} blocks`), ...slices.filter(s => s.state === 'failed').map(s => `${s.id} failed`)]
       return {
-        id, title, kind, size, points, state, areas,
+        id, title, kind, size, points, mode, state, blocked_from, areas,
         criteria: { met: criteria.filter(c => c.done).length, total: criteria.length },
         slices: { done: slices.filter(s => s.state === 'done').length, total: slices.length },
         next: { owner, skill },

@@ -110,6 +110,9 @@ class Demo {
   }
 }
 
+// the story points of each item, as a ticket gives them
+const POINTS = { 'SHOP-41': 3, 'SHOP-42': 8, 'SHOP-43': 5, 'SHOP-44': 3, 'SHOP-45': 5, 'SHOP-46': 2 }
+
 function buildItems(demo: Demo): void {
   const desk = demo.desk
   const lead = () => demo.as(LEAD)
@@ -178,6 +181,8 @@ function buildItems(demo: Demo): void {
   lead().moveItem('start', 'SHOP-45')
   demo.doc('SHOP-45', 'spec.md')
   lead().newItem({ id: 'SHOP-46', title: 'Dark mode for the shop admin', kind: 'feature', size: 'S', areas: ['web'] })
+
+  for (const [id, points] of Object.entries(POINTS)) lead().editItem(id, 'points', String(points))
 }
 
 export function buildDemo(target: string): string {

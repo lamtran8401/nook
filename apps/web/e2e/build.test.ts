@@ -105,11 +105,11 @@ describe('the web app', () => {
     expect(home).toMatch(/<code data-slot="copy-command"[^>]*>\/spec SHOP-12<button/)
   })
 
-  test('/works gives the board, with a card for each item that links to it', () => {
+  test('/works gives the board: the lane of the phases, a card for each item that links to it, and the Display menu', () => {
     const page = body('page')
-    expect(page).toContain('&quot;type&quot;:&quot;board&quot;')
-    expect(page).toContain(`&quot;title&quot;:&quot;Filter shipments by status&quot;,&quot;href&quot;:&quot;${answer().base}/works/SHOP-12&quot;`)
-    expect(page).toContain('{&quot;title&quot;:&quot;backlog&quot;,&quot;tone&quot;:&quot;neutral&quot;,&quot;cards&quot;:')
+    expect(page).toContain('<section data-slot="flow-lane" aria-label="Items by phase"')
+    expect(page).toContain(`<a data-slot="item-card" href="${answer().base}/works/SHOP-12"`)
+    expect(page).toContain('>Display</span>Board · Phase</button>')
     expect(new RegExp(`<a [^>]*href="${answer().base}/works"[^>]*>`).exec(page)![0]).toContain('aria-current="page"')
   })
 

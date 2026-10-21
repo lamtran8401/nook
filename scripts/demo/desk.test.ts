@@ -25,6 +25,10 @@ describe('the demo desk', () => {
     ])
   })
 
+  test('each item has the story points of its ticket', () => {
+    expect(readBoard(desk).map(c => `${c.id} ${c.points}`)).toEqual(['SHOP-44 3', 'SHOP-42 8', 'SHOP-43 5', 'SHOP-45 5', 'SHOP-46 2', 'SHOP-41 3'])
+  })
+
   test('the item in cooking has a slice in every state, a blocking question and a failing check', () => {
     const view = readItem(desk, 'SHOP-42')
     expect(view.slices.map(s => `${s.id} ${s.state}`)).toEqual(['T1 done', 'T2 done', 'T3 running', 'T4 failed', 'T5 waiting', 'T6 todo'])
