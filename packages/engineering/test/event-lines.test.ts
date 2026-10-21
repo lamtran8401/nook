@@ -23,6 +23,7 @@ describe('eventLine', () => {
       title: 'You approved the plan',
       text: null,
       tone: 'primary',
+      step: true,
     })
   })
 
@@ -40,6 +41,11 @@ describe('eventLine', () => {
       title: 'backend-builder-ab12 moved a slice',
       text: 'T1 done',
     })
+  })
+
+  test('a move is a step of the flow, and a record such as a slice moved is none', () => {
+    expect(eventLine(event({ type: 'begin' })).step).toBe(true)
+    expect(eventLine(event({ type: 'task', reason: 'T1 done' })).step).toBe(false)
   })
 
   test('a run where every check passed is a success, and a run with a failure is a danger', () => {

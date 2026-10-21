@@ -3,7 +3,6 @@ import type { ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
 import { ActionBar } from '@nook/ui/components/action-bar.tsx'
-import { ActionList, ActionRow } from '@nook/ui/components/action-list.tsx'
 import { Badge } from '@nook/ui/components/badge.tsx'
 import { Callout } from '@nook/ui/components/callout.tsx'
 import { Checklist } from '@nook/ui/components/checklist.tsx'
@@ -28,9 +27,10 @@ import { RecordList } from '@nook/ui/components/record-list.tsx'
 import { RuleList } from '@nook/ui/components/rule-list.tsx'
 import { PercentRing, RingIcon } from '@nook/ui/components/ring.tsx'
 import { Section } from '@nook/ui/components/section.tsx'
+import { SegmentBar } from '@nook/ui/components/segment-bar.tsx'
 import { StatTile } from '@nook/ui/components/stat-tile.tsx'
 import { StepList } from '@nook/ui/components/step-list.tsx'
-import { Stepper } from '@nook/ui/components/stepper.tsx'
+import { Tally } from '@nook/ui/components/tally.tsx'
 import { TaskCard } from '@nook/ui/components/task-card.tsx'
 
 const html = (node: ReactElement) => renderToStaticMarkup(node)
@@ -70,6 +70,30 @@ describe('the rings', () => {
     expect(ring).toContain('aria-label="25%"')
     expect(text(ring)).toBe('25%')
   })
+
+  test('a percent ring at nought draws no arc, so its round end leaves no dot', () => {
+    expect(html(<PercentRing value={0} />).match(/<circle/g)).toHaveLength(1)
+  })
+
+  test('a percent ring with a label shows the label in its middle', () => {
+    const ring = html(<PercentRing value={20} label="1/5" />)
+    expect(ring).toContain('aria-label="1/5"')
+    expect(text(ring)).toBe('1/5')
+  })
+})
+
+describe('Tally', () => {
+  test('gives each row its dot, its name and its value', () => {
+    expect(text(html(<Tally rows={[{ tone: 'success', label: 'met', value: 1 }, { tone: 'danger', label: 'blocked', value: 2 }]} />))).toBe('met 1 blocked 2')
+  })
+})
+
+describe('SegmentBar', () => {
+  test('gives each part a width by its size and the name under it', () => {
+    const markup = html(<SegmentBar label="Time" parts={[{ key: 'backlog', tone: 'neutral', size: 3, label: 'backlog' }, { key: 'framing', tone: 'violet', size: 1 }]} />)
+    expect([...markup.matchAll(/flex:(\d+)/g)].map(m => m[1])).toEqual(['3', '1'])
+    expect(text(markup)).toBe('backlog')
+  })
 })
 
 describe('CopyCommand', () => {
@@ -103,14 +127,6 @@ describe('RecordList', () => {
   })
 })
 
-describe('ActionList', () => {
-  test('gives each row a mark in its tone, a title, a note and its action', () => {
-    const list = html(<ActionList><ActionRow tone="danger" icon="?" title="Q2: Same card?" note="Blocking" act={<button type="button">Answer</button>} /></ActionList>)
-    expect(list).toContain('data-tone="danger"')
-    expect(text(list)).toBe('? Q2: Same card? Blocking Answer')
-  })
-})
-
 describe('Callout', () => {
   test('gives a label and a body in one tone, as a note', () => {
     const callout = html(<Callout tone="primary" icon="i" label="In short">Pages of 20.</Callout>)
@@ -130,14 +146,6 @@ describe('EmptyState', () => {
 describe('StatTile', () => {
   test('gives a label, a value with its unit, and a part beside them', () => {
     expect(text(html(<StatTile label="Criteria met" value="1" unit=" / 4" aside={<PercentRing value={25} tone="success" />} />))).toBe('Criteria met 1 / 4 25%')
-  })
-})
-
-describe('Stepper', () => {
-  test('marks each step done, current or upcoming; a done step gets a check, the others their number', () => {
-    const steps = html(<Stepper steps={[{ key: 'a', label: 'backlog', state: 'done', desc: '14 Oct' }, { key: 'b', label: 'cooking', state: 'current' }, { key: 'c', label: 'done', state: 'upcoming' }]} />)
-    expect([...steps.matchAll(/data-state="(\w+)"/g)].map(m => m[1])).toEqual(['done', 'current', 'upcoming'])
-    expect(text(steps)).toBe('backlog 14 Oct 2 cooking 3 done')
   })
 })
 
@@ -187,8 +195,8 @@ describe('Section', () => {
 })
 
 describe('ActionBar', () => {
-  test('gives the label, the mark, the words and the action, in that order', () => {
-    expect(text(html(<ActionBar label="Next step" mark={<b>YOU</b>} action={<button type="button">Approve</button>}>Your move: approve</ActionBar>))).toBe('Next step YOU Your move: approve Approve')
+  test('gives the round mark, the label over the words, and the action, in that order', () => {
+    expect(text(html(<ActionBar label="Next · You" mark="YOU" action={<button type="button">Approve</button>}>Approve the plan</ActionBar>))).toBe('YOU Next · You Approve the plan Approve')
   })
 })
 

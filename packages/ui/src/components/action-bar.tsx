@@ -1,15 +1,15 @@
 import type { ReactNode } from 'react'
 
-import { Card } from '@nook/ui/components/card.tsx'
-
-/** A bar that says what comes next: a small label, a mark, the words and the action at its end. */
+/** A card that says what comes next: a round mark, a small label over the words, and the action at its end. */
 export function ActionBar({ label, mark, action, children }: { label: string; mark?: ReactNode; action?: ReactNode; children: ReactNode }) {
   return (
-    <Card className="flex-row flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:flex-nowrap">
-      <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{label}</span>
-      {mark}
-      <div className="grid min-w-0 flex-1 justify-items-start gap-1">{children}</div>
+    <section data-slot="action-bar" className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl bg-card px-4 py-3 shadow-sm sm:flex-nowrap">
+      {mark ? <span className="grid size-9 shrink-0 place-items-center rounded-full bg-muted font-mono text-[11px] font-semibold text-muted-foreground">{mark}</span> : null}
+      <div className="grid min-w-0 flex-1 justify-items-start gap-0.5">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        {children}
+      </div>
       {action}
-    </Card>
+    </section>
   )
 }

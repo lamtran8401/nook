@@ -5,6 +5,7 @@ import type { Guess } from '@nook/engineering/stores/guesses.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
 import type { Slice } from '@nook/engineering/stores/slices.ts'
 
+import { Activity } from '@/components/item/activity.tsx'
 import { Branches } from '@/components/item/branches.tsx'
 import { DocTab } from '@/components/item/doc-tab.tsx'
 import { ItemDialog } from '@/components/item/item-dialog.tsx'
@@ -12,12 +13,10 @@ import { ItemAside } from '@/components/item/item-aside.tsx'
 import { ItemHead } from '@/components/item/item-head.tsx'
 import { ItemPage, tabOf } from '@/components/item/item-page.tsx'
 import { lanesSpec } from '@/components/item/lanes.tsx'
-import { NeedsYou } from '@/components/item/needs-you.tsx'
+import { Overview } from '@/components/item/overview.tsx'
 import { NextStep } from '@/components/item/next-step.tsx'
 import { Owner, ViewerNote } from '@/components/owner.tsx'
 import { SliceBoard } from '@/components/item/slice-board.tsx'
-import { Stats } from '@/components/item/stats.tsx'
-import { Stepper } from '@/components/item/stepper.tsx'
 import { Timeline } from '@/components/item/timeline.tsx'
 import { html, text } from '@/test/markup.ts'
 
@@ -29,7 +28,7 @@ const question = (id: string, textOf: string, blocking: boolean, fields: Partial
 const guess = (id: string, status: Guess['status']): Guess => ({
   id, item: 'SHOP-42', question: 'When does a declined charge try again?', took: 'after 1, 5 and 30 minutes', other: 'once after an hour', impact: 'high', slices: ['T9'], status, answer: null, by: 'lead', at: '2026-10-15T10:00:00Z',
 })
-const slice = (id: string, state: Slice['state'], fields: Partial<Slice> = {}) => ({ item: 'SHOP-42', id, title: `slice ${id}`, area: 'api', depends: [], state, assignee: null, reason: null, ...fields }) as Slice
+const slice = (id: string, state: Slice['state'], fields: Partial<Slice> = {}) => ({ item: 'SHOP-42', id, title: `slice ${id}`, area: 'api', depends: [], acs: [], state, assignee: null, reason: null, ...fields }) as Slice
 
 const view: ItemView = {
   item: { id: 'SHOP-42', title: 'Pay for an order with a saved card', kind: 'feature', size: 'L', points: 8, mode: 'normal', state: 'cooking', areas: ['api', 'web'] } as ItemView['item'],
@@ -50,9 +49,9 @@ const view: ItemView = {
   questions: [question('Q1', 'Which currency?', false, { status: 'answered', answer: 'the shop currency' }), question('Q3', 'Must a refund go to the same card?', true), question('Q4', 'Must the list show the expiry date?', false)],
   guesses: [guess('G2', 'accepted'), guess('G5', 'open')],
   events: [
-    { at: '2026-10-15T09:40:00Z', title: 'You approved the plan', text: null, tone: 'primary' },
-    { at: '2026-10-15T16:30:00Z', title: 'The lead ran the checks', text: '1/2 checks passed', tone: 'danger' },
-    { at: '2026-10-16T11:12:00Z', title: 'The lead asked or answered a question', text: 'Q3', tone: 'neutral' },
+    { at: '2026-10-15T09:40:00Z', title: 'You approved the plan', text: null, tone: 'primary', step: true },
+    { at: '2026-10-15T16:30:00Z', title: 'The lead ran the checks', text: '1/2 checks passed', tone: 'danger', step: false },
+    { at: '2026-10-16T11:12:00Z', title: 'The lead asked or answered a question', text: 'Q3', tone: 'neutral', step: false },
   ],
   checks: [
     { id: 1, item: 'SHOP-42', area: 'api', check: 'test', result: 'pass', output: '', at: '2026-10-16T14:55:00Z' },
@@ -99,21 +98,20 @@ describe('NextStep', () => {
     const markup = html(<NextStep next={{ ...view.next, state: 'planning', owner: true, skill: 'owner: /gate approve SHOP-42' }} />)
     expect(markup).toContain('<input type="hidden" name="kind" value="gate"/><input type="hidden" name="item" value="SHOP-42"/><input type="hidden" name="move" value="approve"/>')
     expect(markup).toMatch(/<button data-slot="button"[^>]*type="submit">Approve<\/button>/)
-    expect(text(markup)).toBe('Next step YOU Your move: approve The button runs the move with the same guards as /gate approve. Approve')
+    expect(text(markup)).toBe('YOU Next · You Approve the plan, or send it back. Approve')
   })
 
   test('a blocking question is a move of the owner with no gate: it names the answer to give', () => {
     const next = { ...view.next, owner: true, skill: 'answer Q3: nook eng answer SHOP-42 Q3 "<answer>"', detail: 'Q3 Must a refund go to the same card?' }
     const markup = html(<NextStep next={next} />)
-    expect(text(markup)).toBe('Next step YOU Your move: answer Q3 Q3 Must a refund go to the same card? nook eng answer SHOP-42 Q3 "<answer>"')
+    expect(text(markup)).toBe('YOU Next · You Answer Q3 Q3 Must a refund go to the same card? nook eng answer SHOP-42 Q3 "<answer>"')
     expect(markup).toMatch(/<code data-slot="copy-command"[^>]*>nook eng answer SHOP-42 Q3 &quot;&lt;answer&gt;&quot;/)
   })
 
   test('a move of the lead names its command to copy and says that nothing waits, with no move button', () => {
     const markup = html(<NextStep next={view.next} />)
     expect(markup).not.toContain('data-slot="button"')
-    expect(markup).toMatch(/data-slot="badge" data-tone="violet" data-variant="solid"[^>]*title="The lead runs \/cook SHOP-42">AI</)
-    expect(text(markup)).toBe('Next step AI The lead runs /cook SHOP-42 Nothing waits for you.')
+    expect(text(markup)).toBe('AI Next · The lead The lead runs /cook SHOP-42. Nothing waits for you. /cook SHOP-42')
   })
 })
 
@@ -138,56 +136,6 @@ describe('the owner moves on a page', () => {
   })
 })
 
-describe('Stepper', () => {
-  test('marks the states before the current one as done, each with the time the item came into it', () => {
-    const markup = html(<Stepper state="cooking" moves={view.moves} />)
-    expect([...markup.matchAll(/data-state="(\w+)"/g)].map(m => m[1])).toEqual(['done', 'done', 'done', 'done', 'current', 'upcoming', 'upcoming'])
-    expect(text(markup)).toBe('backlog 14 Oct 09:10 framing 14 Oct 10:00 planning 14 Oct 16:30 ready 15 Oct 09:40 5 cooking 15 Oct 10:05 6 review 7 done')
-  })
-
-  test('a blocked item keeps the last state of the flow that it reached as its place', () => {
-    const blocked = [...view.moves, { move: 'block' as const, to: 'blocked' as const, at: '2026-10-16T08:00:00Z' }]
-    expect([...html(<Stepper state="blocked" moves={blocked} />).matchAll(/data-state="(\w+)"/g)].map(m => m[1])).toEqual(['done', 'done', 'done', 'done', 'current', 'upcoming', 'upcoming'])
-  })
-})
-
-describe('Stats', () => {
-  test('gives the criteria met, the slices done, the time in the state and the times sent back', () => {
-    const markup = html(<Stats view={view} now={NOW} />)
-    expect(text(markup)).toBe('Criteria met 1 / 2 50% Slices done 1 / 4 25% In cooking 1d 5h Sent back 0 times')
-  })
-})
-
-describe('NeedsYou', () => {
-  test('lists the blocking question first, then the open one, the guess to check and the gate, then the full lists', () => {
-    expect(text(html(<NeedsYou view={view} />))).toBe(
-      'Questions 2 open ? Q3: Must a refund go to the same card? Blocking · asked 16 Oct 11:12 Answer ' +
-        '? Q4: Must the list show the expiry date? Open · blocks nothing · asked 16 Oct 11:12 Answer ' +
-        'Guesses to check 1 ! G5 · high: When does a declined charge try again? Took: after 1, 5 and 30 minutes. The other way: once after an hour. Shapes T9. Accept Flip ' +
-        'Gate → No gate waits for you Next: the lead runs /cook SHOP-42. ' +
-        'All questions · 3 Q1 Which currency? the shop currency answered Q3 Must a refund go to the same card? asked 16 Oct blocking Q4 Must the list show the expiry date? asked 16 Oct open ' +
-        'All guesses · 2 G2 When does a declined charge try again? after 1, 5 and 30 minutes high accepted G5 When does a declined charge try again? after 1, 5 and 30 minutes high open',
-    )
-  })
-
-  test('gives each open question its answer box and each guess to check its Accept and Flip, as owner moves', () => {
-    const markup = html(<NeedsYou view={view} />)
-    expect(markup).toContain('<input type="hidden" name="kind" value="answer"/><input type="hidden" name="item" value="SHOP-42"/><input type="hidden" name="question" value="Q3"/>')
-    const answer = /<input[^>]*aria-label="Answer to Q3"[^>]*>/.exec(markup)![0]
-    expect(answer).toContain('name="answer"')
-    expect(answer).toContain('placeholder="Your answer"')
-    expect(answer).toContain('required=""')
-    const flip = /<button[^>]*value="flip"[^>]*>Flip<\/button>/.exec(markup)![0]
-    expect(flip).toContain('data-variant="ghost"')
-    expect(flip).toContain('name="decision"')
-  })
-
-  test('names the gate of the owner when one waits', () => {
-    const planning = { ...view, needs: { questions: [], guesses: [] }, next: { ...view.next, owner: true, skill: 'owner: /gate approve SHOP-42' } }
-    expect(text(html(<NeedsYou view={planning} />))).toContain('Gate → Your approve waits Use the button of the next step, or type /gate approve SHOP-42 in the agent session.')
-  })
-})
-
 describe('SliceBoard', () => {
   test('draws a Bench board by state: a waiting or failed slice says why, a slice to do names what it waits for', () => {
     expect(specOf(html(<SliceBoard slices={view.slices} />))).toEqual({
@@ -201,6 +149,61 @@ describe('SliceBoard', () => {
         { title: 'Done', tone: 'success', cards: [{ id: 'T1', title: 'slice T1', areas: [{ name: 'api' }], note: 'api-builder', noteIcon: 'user' }] },
       ],
     })
+  })
+})
+
+describe('Overview', () => {
+  const tiles = (markup: string) => [...markup.matchAll(/<section data-slot="tile"[\s\S]*?<\/section>/g)].map(m => text(m[0]))
+  const tile = (markup: string, title: string) => tiles(markup).find(words => words.startsWith(title))!
+  const built = { ...view, slices: [slice('T1', 'done', { acs: [1] }), slice('T7', 'waiting', { acs: [2], reason: 'waits for Q3' }), slice('T9', 'failed', { reason: 'the clock fake skips the 5 min try' }), slice('T10', 'todo')] }
+  const spec = { name: 'spec' as const, text: '> In short: a shopper pays with a saved card.\n' }
+  const plan = { name: 'plan' as const, text: '> In short: the api keeps a token.\n' }
+
+  test('the criteria count by state: met by evidence, blocked by a slice that waits', () => {
+    expect(tile(html(<Overview view={built} docs={[]} now={NOW} />), 'Criteria')).toBe('Criteria 1/2 met 1 blocked 1')
+  })
+
+  test('before the build, each open criterion is planned', () => {
+    const planning = { ...built, item: { ...built.item, state: 'planning' as const } }
+    expect(tile(html(<Overview view={planning} docs={[]} now={NOW} />), 'Criteria')).toBe('Criteria 1/2 met 1 planned 1')
+  })
+
+  test('the slices give a bar by state and a line for each slice that builds, waits or failed', () => {
+    expect(tile(html(<Overview view={built} docs={[]} now={NOW} />), 'Slices')).toBe('Slices 1 of 4 done T1 T7 T9 T10 T7 · slice T7 waits: waits for Q3 T9 · slice T9 failed: the clock fake skips the 5 min try')
+  })
+
+  test('an open question takes its answer in place, and an open guess its decision', () => {
+    const markup = html(<Overview view={view} docs={[]} now={NOW} />)
+    expect(tile(markup, 'Questions and guesses')).toBe(
+      'Questions and guesses Q1 Which currency? the shop currency Q3 Must a refund go to the same card? Open · blocks the build Answer Q4 Must the list show the expiry date? Open · blocks nothing Answer ' +
+        'G2 When does a declined charge try again? Took after 1, 5 and 30 minutes · high impact · accepted G5 When does a declined charge try again? Took after 1, 5 and 30 minutes · high impact · open Accept Flip',
+    )
+    expect(markup).toContain('aria-label="Answer to Q3"')
+  })
+
+  test('gives the In short of the spec, and at the plan step the In short of the plan', () => {
+    expect(tile(html(<Overview view={view} docs={[spec, plan]} now={NOW} />), 'In short')).toBe('In short A shopper pays with a saved card.')
+    const planning = { ...view, item: { ...view.item, state: 'planning' as const } }
+    expect(tile(html(<Overview view={planning} docs={[spec, plan]} now={NOW} />), 'The plan in short')).toBe('The plan in short The api keeps a token.')
+  })
+
+  test('gives the time in each step, the step it is in counted up to now', () => {
+    expect(tile(html(<Overview view={view} docs={[]} now={NOW} />), 'Time in each step')).toBe('Time in each step 2d 6h so far backlog 50m framing 6h 30m planning 17h 10m ready 25m cooking 1d 5h')
+  })
+
+  test('the receipts are the records of the item, newest first, with no step of the flow', () => {
+    const markup = html(<Overview view={view} docs={[]} now={NOW} />)
+    expect(tile(markup, 'Receipts')).toBe('Receipts 2')
+    expect(specOf(markup.slice(markup.indexOf('Receipts'))).items.map((item: { title?: string }) => item.title).filter(Boolean)).toEqual(['The lead asked or answered a question', 'The lead ran the checks'])
+  })
+})
+
+describe('Activity', () => {
+  test('gives the steps of the flow in order, then the receipts', () => {
+    const markup = html(<Activity events={view.events} />)
+    const [steps, receipts] = [...markup.matchAll(/data-diagram="([^"]*)"/g)].map(m => JSON.parse(m[1]!.replaceAll('&quot;', '"').replaceAll('&amp;', '&')).items.map((item: { title?: string }) => item.title).filter(Boolean))
+    expect(steps).toEqual(['You approved the plan'])
+    expect(receipts).toEqual(['The lead asked or answered a question', 'The lead ran the checks'])
   })
 })
 
@@ -280,7 +283,7 @@ describe('ItemDialog', () => {
   test('its main column gives the title, the next step, the criteria, the slices on the board and the activity, newest first', () => {
     const markup = html(<ItemDialog view={view} base="/personal" />)
     const main = text(markup)
-    expect(main).toContain('Pay for an order with a saved card Next step AI The lead runs /cook SHOP-42 Nothing waits for you.')
+    expect(main).toContain('Pay for an order with a saved card AI Next · The lead The lead runs /cook SHOP-42. Nothing waits for you.')
     expect(main).toContain('Criteria AC1 A saved card pays in one click. api test passes met AC2 A decline shows the reason. open')
     expect(main).toContain('Activity 16 Oct 11:12 The lead asked or answered a question · Q3 15 Oct 16:30 The lead ran the checks · 1/2 checks passed 15 Oct 09:40 You approved the plan')
     expect(specOf(markup)).toMatchObject({ type: 'board' })
@@ -294,12 +297,12 @@ describe('ItemDialog', () => {
 })
 
 describe('the lanes of the slices', () => {
-  test('give one lane for each area, a node for each slice with its state, and an edge for each slice it waits for', () => {
+  test('give one lane for each area, a node for each slice with its state in its kicker on a node of its tone, and an edge for each slice it waits for', () => {
     expect(lanesSpec([slice('T1', 'done'), slice('T2', 'running', { area: 'web', depends: ['T1'] }), slice('T3', 'todo', { depends: ['T1', 'T2'] }), slice('T4', 'cancelled')])).toEqual({
       type: 'graph',
       nodes: [
-        { id: 'T1', kicker: 'T1', title: 'slice T1', status: 'done', statusText: 'done' },
-        { id: 'T2', kicker: 'T2', title: 'slice T2', status: 'run', statusText: 'running' },
+        { id: 'T1', kicker: 'T1 · DONE', title: 'slice T1', tone: 'success', fill: 'soft' },
+        { id: 'T2', kicker: 'T2 · RUNNING', title: 'slice T2', tone: 'primary', fill: 'soft', hl: true },
         { id: 'T3', kicker: 'T3', title: 'slice T3' },
       ],
       edges: [{ from: 'T1', to: 'T2' }, { from: 'T1', to: 'T3' }, { from: 'T2', to: 'T3' }],
@@ -313,7 +316,7 @@ describe('the lanes of the slices', () => {
 
   test('show above the slices of the Tasks tab', () => {
     const markup = html(<ItemPage view={view} docs={[{ name: 'tasks', text: '# Slices\n\n## T1: Add the table\n\n- area: api\n' }]} tab="tasks" now={NOW} base="/personal" />)
-    expect(markup.indexOf('Lanes</h2>')).toBeLessThan(markup.indexOf('Add the table'))
+    expect(markup.indexOf('Lanes<span')).toBeLessThan(markup.indexOf('Add the table'))
     expect(markup).toContain('&quot;type&quot;:&quot;graph&quot;')
   })
 })

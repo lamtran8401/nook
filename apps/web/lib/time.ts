@@ -13,10 +13,13 @@ export const clock = (at: string) => {
 /** `Wednesday 15 Oct`, the heading of a day in a timeline. */
 export const dayHeading = (at: string) => new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }).format(new Date(at))
 
-/** The time from `from` to `to` in its two largest units: `1d 5h`, `3h 20m` or `12m`. */
-export function span(from: string, to: Date): string {
-  const minutes = Math.max(0, Math.round((to.getTime() - Date.parse(from)) / 60_000))
+/** A time in its two largest units: `1d 5h`, `3h 20m` or `12m`. */
+export function duration(ms: number): string {
+  const minutes = Math.max(0, Math.round(ms / 60_000))
   if (minutes >= 1440) return `${Math.floor(minutes / 1440)}d ${Math.floor((minutes % 1440) / 60)}h`
   if (minutes >= 60) return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
   return `${minutes}m`
 }
+
+/** The time from `from` to `to`, such as `1d 5h`. */
+export const span = (from: string, to: Date): string => duration(to.getTime() - Date.parse(from))

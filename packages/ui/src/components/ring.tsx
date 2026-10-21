@@ -23,18 +23,18 @@ export function RingIcon({ fill, tone = 'neutral', size = 14 }: { fill: number; 
   )
 }
 
-/** A ring with its share in the middle, such as the criteria met. */
-export function PercentRing({ value, tone = 'primary', size = 48 }: { value: number; tone?: string; size?: number }) {
+/** A ring with its share in the middle, such as the criteria met; `label` puts other words there, such as `1/5`. */
+export function PercentRing({ value, tone = 'primary', size = 48, label }: { value: number; tone?: string; size?: number; label?: string }) {
   const round = Math.round(value)
   const r = 20
   const length = 2 * Math.PI * r
   return (
-    <span data-slot="percent-ring" data-tone={tone} role="img" aria-label={`${round}%`} className="relative inline-grid shrink-0 place-items-center text-tone" style={{ width: size, height: size }}>
+    <span data-slot="percent-ring" data-tone={tone} role="img" aria-label={label ?? `${round}%`} className="relative inline-grid shrink-0 place-items-center text-tone" style={{ width: size, height: size }}>
       <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true" className="absolute inset-0 -rotate-90">
         <circle cx="24" cy="24" r={r} fill="none" stroke="var(--bg-muted)" strokeWidth="5" />
-        <circle cx="24" cy="24" r={r} fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeDasharray={`${((length * round) / 100).toFixed(2)} ${length.toFixed(2)}`} />
+        {round > 0 ? <circle cx="24" cy="24" r={r} fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeDasharray={`${((length * round) / 100).toFixed(2)} ${length.toFixed(2)}`} /> : null}
       </svg>
-      <span className="relative font-mono text-[11px] font-semibold text-foreground">{round}%</span>
+      <span className="relative font-mono font-semibold text-foreground" style={{ fontSize: Math.max(11, size / 4.5) }}>{label ?? `${round}%`}</span>
     </span>
   )
 }

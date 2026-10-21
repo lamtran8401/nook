@@ -1,11 +1,11 @@
 import type { ItemDocs, ItemView } from '@nook/engineering/read/reader.ts'
 import { LinkTabs } from '@nook/ui/components/link-tabs.tsx'
 
+import { Activity } from '@/components/item/activity.tsx'
 import { DocTab } from '@/components/item/doc-tab.tsx'
 import { ItemAside, tabHref } from '@/components/item/item-aside.tsx'
 import { ItemHead } from '@/components/item/item-head.tsx'
 import { Overview } from '@/components/item/overview.tsx'
-import { Timeline } from '@/components/item/timeline.tsx'
 
 /** The tabs of an item: the overview, a tab for each document of its kind, and the activity. */
 export const tabsOf = (docs: ItemDocs): string[] => ['overview', ...docs.map(doc => doc.name), 'activity']
@@ -29,9 +29,9 @@ export function ItemPage({ view, docs, tab, now, base }: { view: ItemView; docs:
           {doc ? (
             <DocTab id={item.id} name={doc.name} text={doc.text} areas={item.areas} criteria={view.criteria} slices={view.slices} />
           ) : tab === 'activity' ? (
-            <Timeline events={view.events} />
+            <Activity events={view.events} />
           ) : (
-            <Overview view={view} now={now} />
+            <Overview view={view} docs={docs} now={now} />
           )}
         </div>
         <ItemAside view={view} docs={docs} tab={tab} now={now} base={base} />

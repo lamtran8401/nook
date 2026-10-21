@@ -3,7 +3,8 @@ import type { Event } from '../stores/events.ts'
 /** One event of the ledger as a sentence for a person: who did what, the reason, and a tone for its mark. */
 
 export type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger'
-export type EventLine = { at: string; title: string; text: string | null; tone: Tone }
+/** `step` marks a move of the flow, such as the approve; a record, such as a slice moved, is no step. */
+export type EventLine = { at: string; title: string; text: string | null; tone: Tone; step: boolean }
 
 const MOVES: Record<string, [string, Tone]> = {
   new: ['added the item', 'neutral'],
@@ -52,9 +53,9 @@ function verifyTone(reason: string | null): Tone {
 export function eventLine(event: Event): EventLine {
   const who = whoOf(event)
   const move = MOVES[event.type]
-  if (move) return { at: event.at, title: `${who} ${move[0]}`, text: event.reason, tone: move[1] }
+  if (move) return { at: event.at, title: `${who} ${move[0]}`, text: event.reason, tone: move[1], step: true }
   const record = RECORDS[event.type] ?? `recorded ${event.type}`
   const text = event.type === 'mode' ? `${event.from_state} → ${event.to_state}` : event.reason
   const tone: Tone = event.type === 'verify' ? verifyTone(event.reason) : 'neutral'
-  return { at: event.at, title: `${who} ${record}`, text, tone }
+  return { at: event.at, title: `${who} ${record}`, text, tone, step: false }
 }
