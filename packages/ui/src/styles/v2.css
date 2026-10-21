@@ -1,0 +1,142 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+/* The v2 look of the web app over the Bench kit. It sets the token names of Bench to v2 values, so each part of the
+   kit and each Tailwind class follows; the page inlines it after the kit, so it wins each tie. The shapes and the
+   layout of the kit stay; its colours, surfaces, shadows, fonts and corners read v2. */
+
+:root {
+  --bg: #f6f6f4;
+  --bg-muted: #eeeeeb;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --border: #e3e3df;
+  --border-strong: oklch(0.84 0.006 260);
+  --fg: oklch(0.22 0.01 260);
+  --fg-muted: oklch(0.45 0.01 260);
+  --placeholder: oklch(0.6 0.01 260);
+  --primary: oklch(0.55 0.19 262);
+  --primary-hover: oklch(0.5 0.19 262);
+  --primary-subtle: oklch(0.95 0.035 262);
+  --primary-fg: oklch(1 0 0);
+  --success: oklch(0.55 0.14 155);
+  --success-subtle: oklch(0.95 0.04 155);
+  --warning: oklch(0.62 0.15 70);
+  --warning-subtle: oklch(0.95 0.05 80);
+  --danger: oklch(0.56 0.2 25);
+  --danger-subtle: oklch(0.95 0.035 25);
+  --violet: oklch(0.55 0.19 295);
+  --violet-subtle: oklch(0.95 0.035 295);
+  --aqua: oklch(0.56 0.11 200);
+  --aqua-subtle: oklch(0.95 0.03 200);
+  --focus-ring: oklch(0.55 0.19 262);
+  /* raised parts: a 1px ring plus a soft shadow, three heights */
+  --hairline: oklch(0.2 0.01 260 / 0.08);
+  --shadow-1: 0 0 0 1px var(--hairline), 0 1px 2px oklch(0.2 0.01 260 / 0.05), 0 4px 12px -4px oklch(0.2 0.01 260 / 0.08);
+  --shadow-2: 0 0 0 1px var(--hairline), 0 2px 6px oklch(0.2 0.01 260 / 0.06), 0 12px 28px -8px oklch(0.2 0.01 260 / 0.14);
+  --shadow-3: 0 0 0 1px var(--hairline), 0 12px 28px -8px oklch(0.2 0.01 260 / 0.16), 0 32px 64px -16px oklch(0.2 0.01 260 / 0.24);
+  /* glass for what floats: near white in the light theme, so a drawer never looks grey */
+  --glass: oklch(0.99 0.002 106 / 0.66);
+  --glass-strong: oklch(0.995 0.001 106 / 0.9);
+  --glass-edge: oklch(1 0 0 / 0.65);
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* the v2 corner scale; the box roles of the kit read it */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --r-shape: var(--radius-md);
+  --r-card: var(--radius-md);
+  --r-board: var(--radius-md);
+  --r-tile: 10px;
+  --r-frame: var(--radius-lg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: oklch(0.17 0.006 260);
+    --bg-muted: oklch(0.25 0.008 260);
+    --surface: oklch(0.215 0.007 260);
+    --surface-raised: oklch(0.235 0.007 260);
+    --border: oklch(0.29 0.008 260);
+    --border-strong: oklch(0.38 0.008 260);
+    --fg: oklch(0.95 0.005 260);
+    --fg-muted: oklch(0.76 0.01 260);
+    --placeholder: oklch(0.6 0.01 260);
+    --primary: oklch(0.7 0.15 262);
+    --primary-hover: oklch(0.75 0.14 262);
+    --primary-subtle: oklch(0.3 0.07 262);
+    --primary-fg: oklch(0.17 0.006 260);
+    --success: oklch(0.74 0.14 155);
+    --success-subtle: oklch(0.3 0.06 155);
+    --warning: oklch(0.78 0.14 75);
+    --warning-subtle: oklch(0.32 0.06 75);
+    --danger: oklch(0.7 0.17 25);
+    --danger-subtle: oklch(0.3 0.07 25);
+    --violet: oklch(0.72 0.15 295);
+    --violet-subtle: oklch(0.3 0.07 295);
+    --aqua: oklch(0.76 0.1 200);
+    --aqua-subtle: oklch(0.3 0.05 200);
+    --focus-ring: oklch(0.7 0.15 262);
+    --hairline: oklch(1 0 0 / 0.07);
+    --shadow-1: 0 0 0 1px var(--hairline), 0 1px 2px oklch(0 0 0 / 0.3), 0 4px 12px -4px oklch(0 0 0 / 0.35);
+    --shadow-2: 0 0 0 1px var(--hairline), 0 2px 6px oklch(0 0 0 / 0.3), 0 12px 28px -8px oklch(0 0 0 / 0.5);
+    --shadow-3: 0 0 0 1px var(--hairline), 0 12px 28px -8px oklch(0 0 0 / 0.5), 0 32px 64px -16px oklch(0 0 0 / 0.6);
+    --glass: oklch(0.25 0.008 260 / 0.55);
+    --glass-strong: oklch(0.23 0.008 260 / 0.82);
+    --glass-edge: oklch(1 0 0 / 0.07);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: oklch(0.17 0.006 260);
+  --bg-muted: oklch(0.25 0.008 260);
+  --surface: oklch(0.215 0.007 260);
+  --surface-raised: oklch(0.235 0.007 260);
+  --border: oklch(0.29 0.008 260);
+  --border-strong: oklch(0.38 0.008 260);
+  --fg: oklch(0.95 0.005 260);
+  --fg-muted: oklch(0.76 0.01 260);
+  --placeholder: oklch(0.6 0.01 260);
+  --primary: oklch(0.7 0.15 262);
+  --primary-hover: oklch(0.75 0.14 262);
+  --primary-subtle: oklch(0.3 0.07 262);
+  --primary-fg: oklch(0.17 0.006 260);
+  --success: oklch(0.74 0.14 155);
+  --success-subtle: oklch(0.3 0.06 155);
+  --warning: oklch(0.78 0.14 75);
+  --warning-subtle: oklch(0.32 0.06 75);
+  --danger: oklch(0.7 0.17 25);
+  --danger-subtle: oklch(0.3 0.07 25);
+  --violet: oklch(0.72 0.15 295);
+  --violet-subtle: oklch(0.3 0.07 295);
+  --aqua: oklch(0.76 0.1 200);
+  --aqua-subtle: oklch(0.3 0.05 200);
+  --focus-ring: oklch(0.7 0.15 262);
+  --hairline: oklch(1 0 0 / 0.07);
+  --shadow-1: 0 0 0 1px var(--hairline), 0 1px 2px oklch(0 0 0 / 0.3), 0 4px 12px -4px oklch(0 0 0 / 0.35);
+  --shadow-2: 0 0 0 1px var(--hairline), 0 2px 6px oklch(0 0 0 / 0.3), 0 12px 28px -8px oklch(0 0 0 / 0.5);
+  --shadow-3: 0 0 0 1px var(--hairline), 0 12px 28px -8px oklch(0 0 0 / 0.5), 0 32px 64px -16px oklch(0 0 0 / 0.6);
+  --glass: oklch(0.25 0.008 260 / 0.55);
+  --glass-strong: oklch(0.23 0.008 260 / 0.82);
+  --glass-edge: oklch(1 0 0 / 0.07);
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass: var(--surface);
+    --glass-strong: var(--surface);
+  }
+}
+
+/* the frames of the kit take the tile corner of v2; a frame of cards stays concentric with its 12px cards */
+.dg { border-radius: var(--radius-lg); }
+.dg .bd-col, .dg .bd-rest { border-radius: var(--radius-lg); }
+.dg .bd-empty { border-radius: var(--radius-md); }
+.dg-dialog { border-radius: 14px; }
+
+/* the owner's corner: a plain round arc on every box of the kit, never the superellipse */
+.dg .dg-node, .dg .bd-col, .dg .bd-rest, .dg .tl-card, .dg .ms-card, .dg .feed, .dg .dg-gauge, .dg .dg-ringset, .dg .bd-card, .dg-ico, .tl-ico, .dg, .dg-dialog { corner-shape: round; }
