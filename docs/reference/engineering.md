@@ -166,6 +166,7 @@ Rules:
 - The root cause of a fix: a type of `engineering.rootCauses` when the desk lists them, else any type. The type of `engineering.unknownRootCause` needs a `reason`. `submit` keeps the type in the ledger. The action that prevents the cause is not asked: a team session decides it.
 - `nook doctor` names a flow file with a problem: an unknown rule, a value that the rule does not take, or a kind with no file. A move refuses while a flow file has a problem.
 - Mode `yolo`: only the owner sets it, with `/gate mode <id> yolo` or `/yolo`. The Stop hook keeps the lead on the next stage; the accept stays the owner's.
+- `/yolo` reads a key as people type it: `/yolo BKM 14478` and `/yolo bkm-14478` name `BKM-14478`. Words such as `add 2 buttons` stay a prompt for a new item.
 
 ## 5. The ledger: `<home>/.nook/engineering.db`
 
@@ -399,7 +400,8 @@ The Stop hook:
 - It holds the lead while a blocking question of its item is open.
 - It holds the lead when a question is answered after a slice began to wait, such as an answer on the page of the item. The reason gives the answer and `nook eng task resume <id> <T>`. A resume, or a new wait, ends the hold.
 - It holds the lead in a yolo run that the owner started, while the next stage is the lead's. The reason names the skill file of the stage.
-- It holds only the session that leads the item, or the one yolo item that no session leads.
+- It holds only the session that leads the item. The session where the owner sets mode `yolo` leads that run.
+- A yolo item that no session leads holds no session. Type `/yolo <id>` in a new session to go on with it.
 - It lets go while a background task runs, unless a blocking question is open.
 - It lets go after 6 holds in a row; a move of the item starts the count again.
 - In review, it lets go after 2 rejects, or when accept has no gap.

@@ -7,6 +7,7 @@ import type { HookInput } from '@nook/shared/hook.ts'
 
 import { MAX_HOLDS, stopDriver } from '../src/hooks/stop-driver.ts'
 import { pickup } from '../src/report/item-brief.ts'
+import { Who } from '../src/who.ts'
 import { itemAt, LEAD, makeHome, OWNER, PLAN, SPEC, TASKS, type TestHome, writeDoc } from './helpers.ts'
 import { reason } from './hook-inputs.ts'
 
@@ -116,11 +117,18 @@ describe('stopDriver', () => {
     expect(reason(stop({ background_tasks: [{ id: 'a-1', type: 'subagent', status: 'running' }] }))).toContain('blocking question Q1 is open')
   })
 
-  test('the single item in a yolo run that no session leads yet holds a session with no item', () => {
+  test('the session where the owner sets mode yolo leads the run and is held on its next stage', () => {
+    const owner = t.eng(new Who('owner', 'owner via /yolo', 'sess-1'))
+    owner.newItem({ id: 'SHOP-1', title: 'the export date is off' })
+    owner.setMode('SHOP-1', 'yolo')
+    expect(reason(stop())).toContain('skills/spec/SKILL.md')
+  })
+
+  test('a yolo item that no session leads holds no session', () => {
     const owner = t.eng(OWNER)
     owner.newItem({ id: 'SHOP-1', title: 'the export date is off' })
     owner.setMode('SHOP-1', 'yolo')
-    expect(reason(stop({ session_id: 'another' }))).toContain('skills/spec/SKILL.md')
+    expect(stop({ session_id: 'another' }).kind).toBe('pass')
   })
 
   test('a session that does not lead the yolo item is not held', () => {
@@ -130,14 +138,11 @@ describe('stopDriver', () => {
     expect(reason(stop())).toContain('skills/cook/SKILL.md')
   })
 
-  test('a session that the hook took on is let go once the lead of the item moves it', () => {
-    const owner = t.eng(OWNER)
+  test('a yolo run set from one session never holds another session on the desk', () => {
+    const owner = t.eng(new Who('owner', 'owner via /yolo', 'sess-1'))
     owner.newItem({ id: 'SHOP-1', title: 'the export date is off' })
     owner.setMode('SHOP-1', 'yolo')
-    expect(stop({ session_id: 'stray' }).kind).toBe('json')
-    t.eng(LEAD).moveItem('start', 'SHOP-1')
     expect(stop({ session_id: 'stray' }).kind).toBe('pass')
-    expect(reason(stop())).toContain('skills/spec/SKILL.md')
   })
 
   test('a background task whose status is not a known running word does not stop the push', () => {

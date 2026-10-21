@@ -152,9 +152,20 @@ export const engineeringModule: PackModule = {
 }
 
 const KEY = /^[A-Z][A-Z0-9]*-\d+$/
+// a key as people type it: `BKM 14478` or `bkm-14478`; a lower-case word and a number, such as `add 2`, stays words
+const LOOSE_KEY = /^(?:([A-Z][A-Z0-9]+)[\s_]+(\d+)|([A-Za-z][A-Za-z0-9]*)-(\d+))(?=\s|$)/
+
+/** The words of a typed /yolo with a loosely typed key first written as the key, such as `BKM 14478 x` as `BKM-14478 x`. */
+function withKey(args: string): string {
+  const m = LOOSE_KEY.exec(args.trim())
+  if (!m) return args.trim()
+  const key = `${(m[1] ?? m[3]!).toUpperCase()}-${m[2] ?? m[4]}`
+  return `${key}${args.trim().slice(m[0].length)}`
+}
 
 /** The item of a typed /yolo: the item that the owner named, a new item from the prompt, or the one open item. */
-function autoTarget(eng: Engineering, args: string): { id: string; lines: string[] } | GateResult {
+function autoTarget(eng: Engineering, typed: string): { id: string; lines: string[] } | GateResult {
+  const args = withKey(typed)
   const first = args.split(/\s+/)[0] ?? ''
   const named = first && eng.stores.items.find(first)
   if (named) return isOpen(named.state) ? { id: named.id, lines: [] } : { ok: false, lines: [`${named.id} is ${named.state}: /yolo runs an open item`] }

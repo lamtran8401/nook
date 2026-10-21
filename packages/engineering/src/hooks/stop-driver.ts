@@ -62,14 +62,12 @@ function countHold(eng: Engineering, session: string, item: string): number {
   })
 }
 
-/** The item that a session leads: its recorded item while it is the lead, else the single yolo item that no session leads. */
+/** The item that a session leads, while it is still the lead of it. A yolo item that no session leads holds nobody. */
 export function sessionItem(eng: Engineering, session?: string): Item | null {
   const { sessions, items } = eng.stores
   const recordedId = session ? sessions.itemOf(session) : null
   const recorded = recordedId ? items.find(recordedId) : null
-  if (recorded) return sessions.leaderOf(recorded.id) === session ? recorded : null
-  const yolo = items.list().filter(i => i.mode === 'yolo' && isOpen(i.state) && !sessions.leaderOf(i.id))
-  return yolo.length === 1 ? yolo[0]! : null
+  return recorded && sessions.leaderOf(recorded.id) === session ? recorded : null
 }
 
 export function holdReasons(eng: Engineering, item: Item): string[] {

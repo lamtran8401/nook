@@ -155,6 +155,19 @@ describe('engineeringModule: a typed /yolo', () => {
     expect(yolo('SHOP-12').lines).toEqual(['SHOP-12 made from the prompt', 'SHOP-12 mode yolo', 'next: /spec SHOP-12'])
   })
 
+  test('a key typed with a space or in lower case names that key, never a new item from the words', () => {
+    t = makeHome()
+    itemAt(t, 'framing', 'BKM-14478')
+    expect(yolo('BKM 14478').lines).toEqual(['BKM-14478 mode yolo', 'next: /spec BKM-14478'])
+    expect(yolo('bkm-14478').lines[0]).toBe('BKM-14478 mode yolo')
+    expect(t.eng(LEAD).stores.items.list().map(i => i.id)).toEqual(['BKM-14478'])
+  })
+
+  test('a lower-case prompt that holds a number stays a prompt', () => {
+    t = makeHome()
+    expect(yolo('add 2 buttons to the export').lines[0]).toBe('IT-001 made from the prompt')
+  })
+
   test('no words take the one open item', () => {
     t = makeHome()
     itemAt(t, 'framing')

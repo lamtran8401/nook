@@ -269,6 +269,8 @@ export class Engineering {
     this.ledger.write(() => {
       this.stores.items.update(id, { mode, mode_by: this.who.role })
       this.stores.events.record(id, 'mode', { from: item.mode, to: mode })
+      // the session where the owner starts a yolo run is the one that runs it; no other session is held on it
+      if (mode === 'yolo') this.stores.sessions.record(id, 'lead')
     })
     return this.item(id)
   }

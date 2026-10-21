@@ -148,6 +148,8 @@ It stops and asks when:
 
 After the run, review its guesses with `/guesses SHOP-12`. Only you set the mode. An agent never starts a yolo run.
 
+The run belongs to the session where you typed `/yolo`. Another session on the desk is never held on it. When that session ends, type `/yolo SHOP-12` in a new session to go on. A key with a space, such as `/yolo SHOP 12`, names `SHOP-12`.
+
 ## Sessions
 
 | You type | It does |
