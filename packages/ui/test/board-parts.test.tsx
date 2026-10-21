@@ -6,7 +6,9 @@ import { FlowLane } from '@nook/ui/components/flow-lane.tsx'
 import { Frame } from '@nook/ui/components/frame.tsx'
 import { ItemCard } from '@nook/ui/components/item-card.tsx'
 import { ItemGroup, ItemRow } from '@nook/ui/components/item-list.tsx'
+import { LinkList } from '@nook/ui/components/link-list.tsx'
 import { StepBar } from '@nook/ui/components/step-bar.tsx'
+import { Tile } from '@nook/ui/components/tile.tsx'
 
 const html = (element: ReactElement) => renderToStaticMarkup(element)
 const text = (markup: string) => markup.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
@@ -50,5 +52,21 @@ describe('the parts of the board', () => {
     expect(markup).toStartWith('<details open="" data-slot="item-group"')
     expect(markup).toContain('<details data-slot="item-row" data-needs="false"')
     expect(text(markup)).toBe('Build 1 8 pt F SHOP-42 Pay with a saved card 8 pt Next: answer Q2')
+  })
+
+  test('a step bar with labels names each step under its part and marks the current one', () => {
+    const markup = html(<StepBar count={3} at={1} labels={['backlog', 'framing', 'planning']} />)
+    expect(text(markup)).toBe('backlog framing planning')
+    expect(/<li aria-current="step"[^>]*>.*?<\/li>/.exec(markup)![0]).toContain('framing')
+  })
+
+  test('a tile shows its title with the note beside it', () => {
+    expect(text(html(<Tile title="Slices" note="2 of 6 done">bars</Tile>))).toBe('Slices 2 of 6 done bars')
+  })
+
+  test('a link list marks the current link', () => {
+    const markup = html(<LinkList label="Documents" links={[{ href: '/a', icon: 'i', title: 'spec.md', description: 'the criteria' }, { href: '/b', icon: 'i', title: 'plan.md', description: 'the approach', current: true }]} />)
+    expect(markup).toContain('<a href="/b" aria-current="page"')
+    expect(text(markup)).toBe('i spec.md the criteria i plan.md the approach')
   })
 })

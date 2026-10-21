@@ -137,6 +137,13 @@ describe('readItem', () => {
     ])
   })
 
+  test('gives no changes to an item before its build, though its area is on the branch of another item', () => {
+    itemAt(t, 'cooking')
+    itemAt(t, 'planning', 'SHOP-2')
+    expect(readItem(t.root, 'SHOP-1').changes.map(change => change.branch)).toEqual(['nook/SHOP-1-work'])
+    expect(readItem(t.root, 'SHOP-2').changes).toEqual([])
+  })
+
   test('gives no changes for an area that is still on its main branch', () => {
     itemAt(t, 'planning')
     expect(readItem(t.root, 'SHOP-1').changes).toEqual([])
@@ -154,10 +161,27 @@ describe('readItem', () => {
 })
 
 describe('readDocs', () => {
+  const textOf = (docs: ReturnType<typeof readDocs>, name: string) => docs.find(doc => doc.name === name)?.text
+
   test('gives the text of each document of the item, and null for one not written yet', () => {
     itemAt(t, 'planning')
     const docs = readDocs(t.root, 'SHOP-1')
-    expect(docs.spec).toContain('# SHOP-1: the export date is off')
-    expect(docs.walkthrough).toBeNull()
+    expect(textOf(docs, 'spec')).toContain('# SHOP-1: the export date is off')
+    expect(textOf(docs, 'walkthrough')).toBeNull()
+  })
+
+  test('a feature has the spec, the plan, the tasks and the walkthrough, in that order', () => {
+    itemAt(t, 'backlog')
+    expect(readDocs(t.root, 'SHOP-1').map(doc => doc.name)).toEqual(['spec', 'plan', 'tasks', 'walkthrough'])
+  })
+
+  test('a fix has its root cause after the spec', () => {
+    t.eng(LEAD).newItem({ id: 'SHOP-2', title: 'the total is wrong', kind: 'fix', size: 'S', areas: ['bff'] })
+    expect(readDocs(t.root, 'SHOP-2').map(doc => doc.name)).toEqual(['spec', 'root-cause', 'plan', 'tasks', 'walkthrough'])
+  })
+
+  test('an investigation has the spec, the plan and the findings, and no tasks', () => {
+    t.eng(LEAD).newItem({ id: 'SHOP-3', title: 'why is the list slow', kind: 'investigate', size: 'S', areas: [] })
+    expect(readDocs(t.root, 'SHOP-3').map(doc => doc.name)).toEqual(['spec', 'plan', 'findings'])
   })
 })

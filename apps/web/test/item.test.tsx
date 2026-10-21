@@ -8,7 +8,8 @@ import type { Slice } from '@nook/engineering/stores/slices.ts'
 import { Branches } from '@/components/item/branches.tsx'
 import { DocTab } from '@/components/item/doc-tab.tsx'
 import { ItemDialog } from '@/components/item/item-dialog.tsx'
-import { ItemHeader } from '@/components/item/item-header.tsx'
+import { ItemAside } from '@/components/item/item-aside.tsx'
+import { ItemHead } from '@/components/item/item-head.tsx'
 import { ItemPage, tabOf } from '@/components/item/item-page.tsx'
 import { lanesSpec } from '@/components/item/lanes.tsx'
 import { NeedsYou } from '@/components/item/needs-you.tsx'
@@ -31,7 +32,7 @@ const guess = (id: string, status: Guess['status']): Guess => ({
 const slice = (id: string, state: Slice['state'], fields: Partial<Slice> = {}) => ({ item: 'SHOP-42', id, title: `slice ${id}`, area: 'api', depends: [], state, assignee: null, reason: null, ...fields }) as Slice
 
 const view: ItemView = {
-  item: { id: 'SHOP-42', title: 'Pay for an order with a saved card', kind: 'feature', size: 'L', mode: 'normal', state: 'cooking', areas: ['api', 'web'] } as ItemView['item'],
+  item: { id: 'SHOP-42', title: 'Pay for an order with a saved card', kind: 'feature', size: 'L', points: 8, mode: 'normal', state: 'cooking', areas: ['api', 'web'] } as ItemView['item'],
   next: { id: 'SHOP-42', state: 'cooking', skill: '/cook SHOP-42', owner: false, gaps: [], detail: '' },
   moves: [
     { move: 'new', to: 'backlog', at: '2026-10-14T09:10:00Z' },
@@ -62,15 +63,34 @@ const view: ItemView = {
 const NOW = new Date('2026-10-16T15:10:00Z')
 const specOf = (markup: string) => JSON.parse(/data-diagram="([^"]*)"/.exec(markup)![1]!.replaceAll('&quot;', '"').replaceAll('&amp;', '&'))
 
-describe('ItemHeader', () => {
-  test('shows the way back to the board, the title, the chips and the key moments', () => {
-    const sentBack = { ...view, moves: [...view.moves, { move: 'reject' as const, to: 'cooking' as const, at: '2026-10-16T09:00:00Z' }] }
-    const markup = html(<ItemHeader view={sentBack} base="/personal" />)
-    expect(text(markup)).toBe('Board SHOP-42 Pay for an order with a saved card cooking feature size L api web normal yolo Started 14 Oct Approved 15 Oct 09:40 Sent back 1×')
+describe('ItemHead', () => {
+  test('shows the id, the step, the kind, the points and the mode, the title, the command of the lead and the steps', () => {
+    const markup = html(<ItemHead view={view} />)
+    expect(text(markup)).toBe('SHOP-42 · cooking · feature 8 pt normal Pay for an order with a saved card /cook SHOP-42 backlog framing planning ready cooking review done')
+    expect(/<li aria-current="step"[^>]*>[\s\S]*?<\/li>/.exec(markup)![0]).toContain('cooking')
+  })
+
+  test('a blocked item keeps its place at the last step of the flow that it reached', () => {
+    const blocked = { ...view, item: { ...view.item, state: 'blocked' as const }, moves: [...view.moves, { move: 'block' as const, to: 'blocked' as const, at: '2026-10-16T08:00:00Z' }] }
+    expect(/<li aria-current="step"[^>]*>[\s\S]*?<\/li>/.exec(html(<ItemHead view={blocked} />))![0]).toContain('cooking')
+  })
+})
+
+describe('ItemAside', () => {
+  const docs = [{ name: 'spec' as const, text: '# Spec' }, { name: 'plan' as const, text: null }]
+
+  test('gives the details of the item: step, kind, size, points, mode, areas, branch, time in the step and creation day', () => {
+    const markup = html(<ItemAside view={view} docs={docs} tab="overview" now={NOW} base="/personal" />)
+    expect(text(markup)).toStartWith('Details Step cooking Kind feature Size L Points 8 pt Mode normal yolo Areas api web Branch nook/SHOP-42-pay-with-a-saved-card In this step 1d 5h Created 14 Oct')
     const mode = (value: string) => new RegExp(`<button[^>]*value="${value}"[^>]*>`).exec(markup)![0]
     expect(mode('normal')).toContain('data-state="on"')
-    expect(mode('yolo')).toContain('data-state="off"')
     expect(mode('yolo')).toContain('type="submit"')
+  })
+
+  test('links each document of the item, and says which one is not written yet', () => {
+    const markup = html(<ItemAside view={view} docs={docs} tab="spec" now={NOW} base="/personal" />)
+    expect(text(markup)).toEndWith('Documents spec.md why, what changes, the criteria plan.md not written yet')
+    expect(markup).toContain('<a href="/personal/works/SHOP-42?tab=spec" aria-current="page"')
   })
 })
 
@@ -216,25 +236,37 @@ describe('DocTab', () => {
     )
   })
 
-  test('renders the document with its path, its dates, its title and its blocks', () => {
+  test('renders the document on its card with its path, its dates and its blocks, and leaves out its title', () => {
     const markup = html(<DocTab id="SHOP-42" name="plan" text={'---\ncreated: 2026-10-14\n---\n# The plan\n\nOne paragraph.\n'} areas={[]} criteria={[]} />)
-    expect(text(markup)).toBe('works/SHOP-42/plan.md · created 2026-10-14 The plan One paragraph.')
+    expect(text(markup)).toBe('works/SHOP-42/plan.md created 2026-10-14 One paragraph.')
   })
 })
 
 describe('ItemPage', () => {
-  const docs = { spec: '# Spec\n\nThe spec.\n', plan: null, tasks: null, walkthrough: null }
+  const docs = [{ name: 'spec' as const, text: '# Spec\n\nThe spec.\n' }, { name: 'plan' as const, text: null }, { name: 'tasks' as const, text: null }, { name: 'walkthrough' as const, text: null }]
+  const tabsIn = (markup: string) => [.../<nav aria-label="Item"[\s\S]*?<\/nav>/.exec(markup)![0].matchAll(/<a [^>]*>([^<]*)<\/a>/g)].map(m => m[1])
 
   test('marks the open tab, and gives each tab its own address', () => {
     const markup = html(<ItemPage view={view} docs={docs} tab="spec" now={NOW} base="/personal" />)
-    expect([...markup.matchAll(/<a [^>]*href="(\/personal\/works\/SHOP-42[^"]*)"[^>]*>/g)].map(m => `${m[1]} ${m[0].includes('aria-current="page"')}`)).toEqual([
-      '/personal/works/SHOP-42 false', '/personal/works/SHOP-42?tab=spec true', '/personal/works/SHOP-42?tab=plan false', '/personal/works/SHOP-42?tab=tasks false', '/personal/works/SHOP-42?tab=walkthrough false',
+    const nav = /<nav aria-label="Item"[\s\S]*?<\/nav>/.exec(markup)![0]
+    expect([...nav.matchAll(/<a [^>]*href="([^"]*)"[^>]*>/g)].map(m => `${m[1]} ${m[0].includes('aria-current="page"')}`)).toEqual([
+      '/personal/works/SHOP-42 false', '/personal/works/SHOP-42?tab=spec true', '/personal/works/SHOP-42?tab=plan false', '/personal/works/SHOP-42?tab=tasks false', '/personal/works/SHOP-42?tab=walkthrough false', '/personal/works/SHOP-42?tab=activity false',
     ])
-    expect(text(markup)).toEndWith('works/SHOP-42/spec.md Spec The spec.')
+    expect(text(markup)).toContain('works/SHOP-42/spec.md The spec.')
   })
 
-  test('takes an unknown tab as the Overview', () => {
-    expect([tabOf('plan'), tabOf('secrets'), tabOf(undefined)]).toEqual(['plan', 'overview', 'overview'])
+  test('a fix has the tab of its root cause after the spec', () => {
+    const fix = [{ name: 'spec' as const, text: null }, { name: 'root-cause' as const, text: null }, { name: 'plan' as const, text: null }, { name: 'tasks' as const, text: null }, { name: 'walkthrough' as const, text: null }]
+    expect(tabsIn(html(<ItemPage view={view} docs={fix} tab="overview" now={NOW} base="/personal" />))).toEqual(['overview', 'spec', 'root cause', 'plan', 'tasks', 'walkthrough', 'activity'])
+  })
+
+  test('an investigation has the tabs of its findings and no tasks', () => {
+    const investigate = [{ name: 'spec' as const, text: null }, { name: 'plan' as const, text: null }, { name: 'findings' as const, text: null }]
+    expect(tabsIn(html(<ItemPage view={view} docs={investigate} tab="overview" now={NOW} base="/personal" />))).toEqual(['overview', 'spec', 'plan', 'findings', 'activity'])
+  })
+
+  test('takes a tab that the kind does not have as the overview', () => {
+    expect([tabOf('plan', docs), tabOf('findings', docs), tabOf('activity', docs), tabOf(undefined, docs)]).toEqual(['plan', 'overview', 'activity', 'overview'])
   })
 })
 
@@ -280,7 +312,7 @@ describe('the lanes of the slices', () => {
   })
 
   test('show above the slices of the Tasks tab', () => {
-    const markup = html(<ItemPage view={view} docs={{ spec: null, plan: null, tasks: '# Slices\n\n## T1: Add the table\n\n- area: api\n', walkthrough: null }} tab="tasks" now={NOW} base="/personal" />)
+    const markup = html(<ItemPage view={view} docs={[{ name: 'tasks', text: '# Slices\n\n## T1: Add the table\n\n- area: api\n' }]} tab="tasks" now={NOW} base="/personal" />)
     expect(markup.indexOf('Lanes</h2>')).toBeLessThan(markup.indexOf('Add the table'))
     expect(markup).toContain('&quot;type&quot;:&quot;graph&quot;')
   })

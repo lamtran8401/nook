@@ -4,6 +4,7 @@ import { Home } from '../home.ts'
 import { Ledger } from '../ledger.ts'
 import { MOVE_NAMES, type MoveName, type State } from '../machine.ts'
 import { isArchived, type Next, nextFor } from '../report/next.ts'
+import { flowOf } from '../flows.ts'
 import { Engineering } from '../service.ts'
 import type { CheckRun } from '../stores/checks.ts'
 import type { Event } from '../stores/events.ts'
@@ -45,7 +46,10 @@ export type ItemView = {
   checks: CheckRun[]
   changes: AreaChange[]
 }
-export type ItemDocs = { spec: string | null; plan: string | null; tasks: string | null; walkthrough: string | null }
+const DOC_FILES = { spec: 'spec.md', 'root-cause': 'root-cause.md', plan: 'plan.md', tasks: 'tasks.md', walkthrough: 'walkthrough.md', findings: 'findings.md' } as const
+export type DocName = keyof typeof DOC_FILES
+/** The documents of an item in the order that its flow writes them, each with its text, or null when not written yet. */
+export type ItemDocs = { name: DocName; text: string | null }[]
 
 const READER = new Who('reader', 'web', null)
 
@@ -134,10 +138,18 @@ function movesOf(history: Event[]): ItemMove[] {
   return history.flatMap(e => (isMove(e.type) && e.to_state ? [{ move: e.type, to: e.to_state as State, at: e.at }] : []))
 }
 
-/** The files that each git area of the item changed on its branch; an area still on its main branch has none. */
+const BUILDING: State[] = ['cooking', 'review']
+
+/**
+ * The files that each git area of the item changed on its branch. An item holds the branch of an area from its begin
+ * to its accept, while no other item cooks in the area; before that, the branch of the area is the work of another item.
+ */
 function changesOf(eng: Engineering, item: Item): AreaChange[] {
   const config = eng.home.config
-  return new Branching(eng.home).gitAreas(item.areas).flatMap(area => {
+  const step = item.state === 'blocked' ? item.blocked_from : item.state
+  if (!step || !BUILDING.includes(step)) return []
+  const held = new Branching(eng.home).gitAreas(item.areas).filter(area => !eng.stores.items.cookingIn(area.name, item.id))
+  return held.flatMap(area => {
     const repo = new GitRepo(eng.home.areaDir(area))
     const branch = repo.branch()
     const base = repo.mainBase(config.protected)
@@ -146,9 +158,22 @@ function changesOf(eng: Engineering, item: Item): AreaChange[] {
   })
 }
 
+/** The documents that the flow of a kind asks for: a fix adds its root cause, and an investigation its findings with no slices. */
+function docNames(kind: Item['kind']): DocName[] {
+  const flow = flowOf(kind)
+  return [
+    'spec',
+    ...(flow.submit.includes('root-cause') ? (['root-cause'] as const) : []),
+    'plan',
+    ...(flow.slices === 'required' ? (['tasks', 'walkthrough'] as const) : []),
+    ...(flow.submit.includes('findings') ? (['findings'] as const) : []),
+  ]
+}
+
 export function readDocs(desk: string, id: string): ItemDocs {
   return withReader(desk, eng => {
-    const folder = eng.folder(eng.item(id).id)
-    return { spec: folder.read('spec.md'), plan: folder.read('plan.md'), tasks: folder.read('tasks.md'), walkthrough: folder.read('walkthrough.md') }
+    const item = eng.item(id)
+    const folder = eng.folder(item.id)
+    return docNames(item.kind).map(name => ({ name, text: folder.read(DOC_FILES[name]) }))
   })
 }

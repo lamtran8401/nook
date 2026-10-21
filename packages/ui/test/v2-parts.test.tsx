@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 
 import { Badge } from '@nook/ui/components/badge.tsx'
 import { Button } from '@nook/ui/components/button.tsx'
+import { DocFrame } from '@nook/ui/components/doc-frame.tsx'
 import { Input } from '@nook/ui/components/input.tsx'
 import { Kbd } from '@nook/ui/components/kbd.tsx'
 import { Menu, MenuTrigger } from '@nook/ui/components/menu.tsx'
@@ -52,5 +53,10 @@ describe('the parts of kit v2', () => {
     expect(toasts.list().map(t => t.text)).toEqual(['Copied /close SHOP-41'])
     toasts.remove(id)
     expect(toasts.list()).toEqual([])
+  })
+
+  test('a document frame heads the document with its path and its facts', () => {
+    const markup = html(<DocFrame path="works/SHOP-42/spec.md" meta="updated 2026-10-19"><p>The spec.</p></DocFrame>)
+    expect(markup.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()).toBe('works/SHOP-42/spec.md updated 2026-10-19 The spec.')
   })
 })

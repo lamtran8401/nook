@@ -16,7 +16,7 @@ export function LinkTabs({ tabs, label, variant = 'pills' }: { tabs: LinkTab[]; 
       <NavigationMenuList className={cn('gap-1 overflow-x-auto [scrollbar-width:none]', variant === 'bar' && 'rounded-full bg-muted/55 p-1 ring-1 ring-hairline backdrop-blur-md backdrop-saturate-[1.8]', variant === 'segment' && 'gap-0.5 rounded-full bg-muted p-0.5')}>
         {tabs.map(tab => (
           <NavigationMenuItem key={tab.href}>
-            <NavigationMenuLink asChild active={tab.current} className={cn(TAB, variant === 'bar' && 'h-9 px-4 text-[15px]', variant === 'segment' && 'h-7 px-3 text-[12.5px] data-[active]:shadow-xs')}>
+            <NavigationMenuLink asChild active={tab.current} className={cn(TAB, variant === 'bar' && 'h-[30px] px-3.5 text-[13.5px]', variant === 'segment' && 'h-7 px-3 text-[12.5px] data-[active]:shadow-xs')}>
               <a href={tab.href}>{tab.label}</a>
             </NavigationMenuLink>
           </NavigationMenuItem>

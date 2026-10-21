@@ -116,7 +116,7 @@ describe('the web app', () => {
   test('the full page of an item opens its tab, with no dialog', () => {
     const item = body('item')
     expect(item).toMatch(/<h1 [^>]*>Filter shipments by status<\/h1>/)
-    expect(new RegExp(`<a [^>]*href="${answer().base}/works/SHOP-12\\?tab=walkthrough"[^>]*>Walkthrough</a>`).exec(item)![0]).toContain('aria-current="page"')
+    expect(new RegExp(`<a [^>]*href="${answer().base}/works/SHOP-12\\?tab=walkthrough"[^>]*>walkthrough</a>`).exec(item)![0]).toContain('aria-current="page"')
     expect(item).toMatch(/type <code data-slot="copy-command"[^>]*>\/view SHOP-12<button/)
     expect(item).not.toContain('Open in new tab')
   })
