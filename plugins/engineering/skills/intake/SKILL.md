@@ -24,6 +24,7 @@ For each key in the arguments:
 5. Create the item: `nook eng item new <KEY> "<title>" --backlog --type <Type> --size <size> --source <the link of the ticket, or none>`. Add `--kind <kind>` only when `nook eng kind list` does not know the type. With the pack, the key and the link come from the pull.
    With no key, leave it out: `nook eng item new "<title>" ...` makes the next `IT-NNN`.
    A row `Parent:` in the Fields, such as the story of a sub-bug: add `--parent <key>`. A parent that is not in the ledger: ask the owner to pull the parent first, or to make the item with no parent.
+   A row `Points:` in the Fields, such as `8`: add `--points 8`. The size S, M or L stays your estimate; the points come from the ticket.
    An item that exists already gets its fields with `nook eng item edit <id> title|kind|size|source <value>`.
    A cancelled item comes back with `nook eng item restore <id>`.
 6. Propose a rank from the sprint and the priority, in one line. The owner ranks.

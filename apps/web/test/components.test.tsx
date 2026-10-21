@@ -11,7 +11,7 @@ import { isCurrentPage } from '@/components/desk-nav.tsx'
 import { html, text } from '@/test/markup.ts'
 
 const card = (fields: Partial<BoardCard> = {}): BoardCard => ({
-  id: 'SHOP-12', title: 'Filter shipments by status', kind: 'feature', size: 'M', state: 'cooking', areas: ['api', 'web'], criteria: { met: 1, total: 3 },
+  id: 'SHOP-12', title: 'Filter shipments by status', kind: 'feature', size: 'M', points: null, state: 'cooking', areas: ['api', 'web'], criteria: { met: 1, total: 3 },
   slices: { done: 2, total: 5 }, next: { owner: false, skill: '/cook SHOP-12' }, flags: [], ...fields,
 })
 

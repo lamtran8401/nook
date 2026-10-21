@@ -96,6 +96,11 @@ describe('readJira', () => {
     expect(readJira(JIRA, 'SHOP-12', twg([], child)).ticket.fields).toContainEqual(['Parent', 'SHOP-1'])
   })
 
+  test('a points field of the map is a Points row of Fields, which intake gives the item', () => {
+    const pointed = JSON.stringify({ data: { ...JSON.parse(SHOP_12).data, customfield_10016: 8 } })
+    expect(readJira({ ...JIRA, fields: { ...JIRA.fields, points: 'customfield_10016' } }, 'SHOP-12', twg([], pointed)).ticket.fields).toContainEqual(['Points', '8'])
+  })
+
   test('a type in skip stops the pull: it has no local work in this desk', () => {
     expect(() => readJira({ ...JIRA, skip: ['Story'] }, 'SHOP-12', twg())).toThrow(expect.objectContaining({ code: 3, message: 'SHOP-12 is a Story: that type has no local work in this desk', fix: 'pull a ticket of another type, or take Story out of skip of the source in nook.yml' }))
   })

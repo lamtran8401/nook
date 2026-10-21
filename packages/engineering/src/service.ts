@@ -67,6 +67,8 @@ export type NewItem = {
   parent?: string
   /** The type of the ticket, such as Sub-Bug: with no kind given, the kind that the desk learned for it. */
   type?: string
+  /** The story points of the ticket, such as 8. */
+  points?: number
 }
 export type MoveResult = { item: Item; warnings: string[]; notes: string[] }
 export type MoveInput = { reason?: string; ifVersion?: string }
@@ -91,7 +93,15 @@ export function idAndTitle(words: string[]): { id: string | undefined; title: st
     ? { id: first, title: more.join(' ') }
     : { id: undefined, title: words.join(' ') }
 }
-export const EDIT_FIELDS = ['title', 'kind', 'size', 'areas', 'source', 'rank'] as const
+/** Story points as typed, such as 8 or 0.5; `none` clears them. */
+function pointsOf(value: string): number | null {
+  if (value === 'none') return null
+  const points = Number(value)
+  if (!/^\d+(\.\d+)?$/.test(value) || !Number.isFinite(points)) throw usage('points must be a number of 0 or more, or none')
+  return points
+}
+
+export const EDIT_FIELDS = ['title', 'kind', 'size', 'areas', 'source', 'rank', 'points'] as const
 type EditField = (typeof EDIT_FIELDS)[number]
 
 const OUTPUT_KEEP = 4000
@@ -165,6 +175,7 @@ export class Engineering {
     if (input.id && items.find(input.id)) throw refused(`item ${input.id} exists`, `nook eng item show ${input.id}`)
     for (const name of input.areas ?? []) this.home.areaNamed(name)
     if (input.parent) items.get(input.parent)
+    if (input.points !== undefined) pointsOf(String(input.points))
     const state = input.state ?? 'backlog'
     const id = this.ledger.write(() => {
       const id = input.id ?? items.nextId()
@@ -177,7 +188,7 @@ export class Engineering {
         areas: input.areas ?? [],
         source: input.source ?? null,
       }
-      items.insert({ ...row, quick: input.quick === true, parent: input.parent ?? null })
+      items.insert({ ...row, quick: input.quick === true, parent: input.parent ?? null, points: input.points ?? null })
       events.record(id, 'new', { to: state })
       return id
     })
@@ -251,6 +262,7 @@ export class Engineering {
         if (!/^-?\d+$/.test(value)) throw usage('rank must be a whole number')
         return Number(value)
       })
+      .with('points', () => pointsOf(value))
       .with('areas', () => {
         const names = value
           .split(',')

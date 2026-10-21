@@ -16,6 +16,7 @@ issue-tracker:
       fields:                                 # each use names a Jira field id
         acceptanceCriteria: customfield_10095
         sprint: customfield_10019
+        points: customfield_10016            # the story points: intake gives them to the item
       projects:                               # a project with other fields overrides the map
         PAY: { fields: { acceptanceCriteria: customfield_10210 } }
       skip: [Release, Test]                   # optional: the types with no local work in this desk

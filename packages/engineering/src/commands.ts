@@ -132,7 +132,7 @@ const itemCommands: Command[] = [
   {
     path: ['item', 'new'],
     summary: 'make an item in the backlog; with no id, Nook makes the next IT-NNN',
-    usage: '[<id>] <title...> [--kind k --type t --size s --area a... --source s --parent <id> --backlog]',
+    usage: '[<id>] <title...> [--kind k --type t --size s --points n --area a... --source s --parent <id> --backlog]',
     flags: {
       kind: { type: 'string', help: 'feature | fix | chore | investigate' },
       size: { type: 'string', help: 'S | M | L' },
@@ -141,6 +141,7 @@ const itemCommands: Command[] = [
       backlog: { type: 'boolean', help: 'also make backlog/<id>/ticket.md' },
       parent: { type: 'string', help: 'the item that this one belongs to, such as the story of a sub-bug' },
       type: { type: 'string', help: 'the type of the ticket, such as Sub-Bug; with no --kind, the kind that the desk learned for it' },
+      points: { type: 'string', help: 'the story points of the ticket, such as 8' },
     },
     run(c) {
       const { id, title } = idAndTitle(c.args)
@@ -155,6 +156,7 @@ const itemCommands: Command[] = [
         backlog: c.flags.backlog === true,
         parent: text(c, 'parent'),
         type: text(c, 'type'),
+        points: text(c, 'points') === undefined ? undefined : Number(text(c, 'points')),
       }
       c.out(eng().newItem(input), itemLine)
     },
@@ -189,7 +191,7 @@ const itemCommands: Command[] = [
   {
     path: ['item', 'edit'],
     summary: 'change a field of an item',
-    usage: '<id> <title|kind|size|areas|source|rank> <value...> [--if-version n]',
+    usage: '<id> <title|kind|size|areas|source|rank|points> <value...> [--if-version n]',
     flags: VERSION_FLAG,
     run(c) {
       const value = rest(c, 2)

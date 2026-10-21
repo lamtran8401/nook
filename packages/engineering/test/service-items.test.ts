@@ -35,6 +35,26 @@ describe('Engineering.newItem', () => {
   })
 })
 
+describe('the points of an item', () => {
+  test('an item keeps the story points it was made with, an edit changes them, and none clears them', () => {
+    const lead = t.eng(LEAD)
+    expect(lead.newItem({ id: 'SHOP-12', title: 'Filter by status', points: 8 }).points).toBe(8)
+    expect(lead.editItem('SHOP-12', 'points', '5').points).toBe(5)
+    expect(lead.editItem('SHOP-12', 'points', 'none').points).toBeNull()
+  })
+
+  test('an item made with no points has none', () => {
+    expect(t.eng(LEAD).newItem({ id: 'SHOP-12', title: 'Filter by status' }).points).toBeNull()
+  })
+
+  test('points take a number of zero or more', () => {
+    const lead = t.eng(LEAD)
+    lead.newItem({ id: 'SHOP-12', title: 'Filter by status' })
+    expect(() => lead.editItem('SHOP-12', 'points', 'many')).toThrow(expect.objectContaining({ message: 'points must be a number of 0 or more, or none' }))
+    expect(() => lead.newItem({ id: 'SHOP-13', title: 'Export the list', points: -1 })).toThrow(expect.objectContaining({ message: 'points must be a number of 0 or more, or none' }))
+  })
+})
+
 describe('Engineering.quick with a title', () => {
   test('a title gets the next IT id', () => {
     const lead = t.eng(LEAD)

@@ -297,7 +297,8 @@ Each read command takes `--json`. `nook eng --help` lists each command with its 
 An owner move from the web app adds `--via viewer`: `item <move>`, `item mode`, `answer`, `guess accept` and `guess flip`. The ledger then records the actor as `owner (viewer)`. The role and the guards stay the same.
 
 What the commands do:
-- `item new [<id>] <title>`: a first word such as `SHOP-12` is the id. With no id, Nook makes the next `IT-NNN`. `--backlog` writes `backlog/<id>/ticket.md`. `--parent <id>` names the item that it belongs to, such as the story of a sub-bug; the parent must be in the ledger.
+- `item new [<id>] <title>`: a first word such as `SHOP-12` is the id. With no id, Nook makes the next `IT-NNN`. `--backlog` writes `backlog/<id>/ticket.md`. `--parent <id>` names the item that it belongs to, such as the story of a sub-bug; the parent must be in the ledger. `--points <n>` keeps the story points of the ticket, such as `8`.
+- `item edit <id> points <n>` changes the points; `item edit <id> points none` clears them. Points are a number of 0 or more. The web app shows them on cards, in column totals and in the details of an item.
 - `kind set <type> <kind>` and `kind list`: the kind of each ticket type that the desk learned, such as `Sub-Bug` → `fix`, kept in the ledger. `item new --type <type>` with no `--kind` takes it. `/spec` asks once to keep the kind of a type that the desk does not know yet. The map holds no vendor: a type is the word of the `Type:` row of any ticket.
 - `item detach <id> --reason <why>`: takes an item out of its parent, such as a minor sub-bug for a later sprint. The ledger records the event `detach` with the parent and the reason. The brief of an item names its parent and its children.
 - `item brief`: the context of an item for an agent, about 1800 characters at most. It holds the state, the next step, the areas, the ACs, the slices, the open questions and guesses, and the mode.

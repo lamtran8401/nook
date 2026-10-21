@@ -11,7 +11,8 @@ let made: ReturnType<typeof runCommand> | null = null
  */
 export function buildOnce(): ReturnType<typeof runCommand> {
   if (made) return made
-  const env = Object.fromEntries(Object.entries({ ...process.env, NEXT_TELEMETRY_DISABLED: '1' }).filter(([name]) => name !== 'NOOK_DESK'))
+  const env: NodeJS.ProcessEnv = { ...process.env, NEXT_TELEMETRY_DISABLED: '1' }
+  delete env.NOOK_DESK
   made = runCommand(['node', join(web, 'node_modules', 'next', 'dist', 'bin', 'next'), 'build'], { cwd: web, env, timeoutMs: 300_000 })
   return made
 }

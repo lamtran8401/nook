@@ -24,6 +24,8 @@ export type Item = {
   root_cause: string | null
   /** The item that this one belongs to, such as the story of a sub-bug. */
   parent: string | null
+  /** The story points of the ticket, when the tracker has them; the size S, M or L stays in the spec. */
+  points: number | null
   created: string
   updated: string
 }
@@ -38,6 +40,7 @@ export type ItemRow = {
   source: string | null
   quick: boolean
   parent?: string | null
+  points?: number | null
 }
 
 type Row = Omit<Item, 'areas' | 'quick'> & { areas: string; quick: number }
@@ -83,7 +86,7 @@ export class ItemStore {
   insert(row: ItemRow): void {
     const at = now()
     this.ledger.run(
-      'INSERT INTO item (id, title, kind, size, state, areas, source, quick, parent, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO item (id, title, kind, size, state, areas, source, quick, parent, points, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       row.id,
       row.title,
       row.kind,
@@ -93,6 +96,7 @@ export class ItemStore {
       row.source,
       row.quick ? 1 : 0,
       row.parent ?? null,
+      row.points ?? null,
       at,
       at,
     )

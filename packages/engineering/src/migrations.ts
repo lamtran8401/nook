@@ -71,4 +71,7 @@ export const MIGRATIONS: string[] = [
   `
   CREATE TABLE type_kind (type TEXT PRIMARY KEY, kind TEXT NOT NULL, by TEXT NOT NULL, at TEXT NOT NULL);
   `,
+  `
+  ALTER TABLE item ADD COLUMN points REAL;
+  `,
 ]

@@ -69,8 +69,13 @@ describe('readBoard', () => {
     t.eng(READER).markCriterion('SHOP-1', 1, 'the date test passes', 'run')
     expect(readBoard(t.root)).toEqual([
       expect.objectContaining({ id: 'SHOP-1', title: 'the export date is off', kind: 'feature', size: 'S', state: 'cooking', areas: ['bff'], criteria: { met: 1, total: 2 } }),
-      { id: 'SHOP-2', title: 'export the list', kind: 'chore', size: 'M', state: 'backlog', areas: ['web'], criteria: { met: 0, total: 0 }, slices: { done: 0, total: 0 }, next: { owner: false, skill: '/spec SHOP-2' }, flags: [] },
+      { id: 'SHOP-2', title: 'export the list', kind: 'chore', size: 'M', points: null, state: 'backlog', areas: ['web'], criteria: { met: 0, total: 0 }, slices: { done: 0, total: 0 }, next: { owner: false, skill: '/spec SHOP-2' }, flags: [] },
     ])
+  })
+
+  test('gives the story points of an item', () => {
+    t.eng(LEAD).newItem({ id: 'SHOP-2', title: 'export the list', points: 3 })
+    expect(readBoard(t.root).map(card => [card.id, card.points])).toEqual([['SHOP-2', 3]])
   })
 
   test('gives whose move is next, the slices done, and a flag for each blocking question and failed slice', () => {
