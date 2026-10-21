@@ -10,10 +10,10 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        soft: "h-5 rounded-full bg-tone-subtle px-2 text-xs font-semibold text-tone",
-        solid: "h-5 min-w-5 justify-center rounded-full bg-tone px-1.5 text-[10px] font-bold tracking-wide text-surface",
-        outline: "h-5 rounded-full px-2 text-xs font-semibold text-muted-foreground ring-1 ring-border ring-inset",
-        label: "rounded-[4px] bg-tone/12 px-1.5 text-[10.5px] leading-4 font-bold tracking-wide text-tone uppercase",
+        soft: "h-[18px] rounded-full bg-tone-subtle px-2 text-[11.5px] font-medium text-tone",
+        solid: "h-[18px] min-w-[18px] justify-center rounded-full bg-tone px-1.5 text-[10px] font-semibold text-surface",
+        outline: "h-[18px] rounded-full bg-muted px-2 text-[11.5px] font-medium text-muted-foreground",
+        label: "h-[18px] rounded-full bg-tone-subtle px-2 text-[11.5px] font-medium text-tone",
       },
     },
     defaultVariants: {
