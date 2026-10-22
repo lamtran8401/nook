@@ -40,6 +40,22 @@ describe('a mermaid flowchart', () => {
     })
   })
 
+  test('takes a mark as (new), (changed) or (error), or after a colon at the end, and leaves it out of the title', () => {
+    const flow = [
+      'flowchart TB',
+      '  form["Cut-off search form: changed"] --> reset["Reset button part: new"]',
+      '  reset --> page["web: checkout page (changed)"]',
+      '  page --> mail["Receipt mail (changes: the date)"]',
+    ].join('\n')
+    const nodes = diagram(fence('mermaid', flow), ['web']).spec.nodes as { title: string; kicker?: string; tone?: string }[]
+    expect(nodes.map(n => [n.title, n.kicker ?? '', n.tone])).toEqual([
+      ['Cut-off search form', 'changes', 'primary'],
+      ['Reset button part', 'new', 'success'],
+      ['checkout page', 'web · changes', 'primary'],
+      ['Receipt mail', 'changes · the date', 'primary'],
+    ])
+  })
+
   test('names in its legend each role that it uses', () => {
     expect(diagram(fence('mermaid', FLOW)).legend).toEqual([['success', 'new'], ['primary', 'changes'], ['danger', 'error'], ['neutral', 'stays as it is']])
   })

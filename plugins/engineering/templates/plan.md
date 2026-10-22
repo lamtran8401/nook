@@ -21,7 +21,7 @@ updated: {{today}}
 
 ## Approach
 
-<!-- One mermaid diagram of the parts after the change. Mark a new part as new and a changed part as changed. -->
+<!-- One mermaid diagram of the parts after the change. End the label of a new part with (new), of a changed part with (changed), of an error path with (error). Put the area first: web: checkout page (changed). -->
 <!-- Then a decisions table. Size M: | Decision | Why |. Size L: | Decision | Why | If it fails |. -->
 <!-- Then at most 3 options not taken: | Option not taken | Why not |. -->
 <!-- Size L, when the item runs in two places or more: add `## System design`, one mermaid flowchart with one `subgraph` for each place. -->

@@ -17,7 +17,17 @@ const ROLES = {
   stays: { tone: 'neutral', legend: ['neutral', 'stays as it is'] },
 } as const
 type Role = keyof typeof ROLES
-const TAG = /\s*\((new|error|changes[^)]*)\)\s*$/
+// a mark ends the label: (new), (changed), (error) as the plan template names them, (changes: why) of older plans,
+// or a colon and the mark, as in "Reset button part: new"
+const PLAN_MARK = /\s*(?:\((new|error|changed|changes)(?::\s*([^)]*))?\)|:\s*(new|changed))\s*$/
+
+/** The role that a label marks, the words of the mark after its colon, and the label with the mark left out. */
+function markOf(label: string): { role: 'new' | 'changes' | 'error' | null; detail: string; words: string } {
+  const found = PLAN_MARK.exec(label)
+  if (!found) return { role: null, detail: '', words: label }
+  const mark = found[1] ?? found[3]!
+  return { role: mark === 'changed' || mark === 'changes' ? 'changes' : (mark as 'new' | 'error'), detail: (found[2] ?? '').trim(), words: label.slice(0, found.index) }
+}
 
 /** The drawing of a fence, null for a fence that does not draw. `places` are words such as the areas of an item. */
 export function fenceDrawing(lang: string | null, text: string, places: string[]): FenceDrawing | null {
@@ -57,14 +67,14 @@ function flowchart(text: string, places: string[]): FenceDrawing {
   }
   const roles: Role[] = []
   const specNodes = [...nodes.values()].map(node => {
-    const tag = TAG.exec(node.label)?.[1] ?? ''
-    const role: Role = tag === 'new' ? 'new' : tag.startsWith('changes') ? 'changes' : tag === 'error' ? 'error' : edges.some(e => e.to === node.id) ? 'stays' : 'start'
+    const mark = markOf(node.label)
+    const role: Role = mark.role ?? (edges.some(e => e.to === node.id) ? 'stays' : 'start')
     roles.push(role)
-    const words = node.label.replace(TAG, '')
+    const { words } = mark
     // "web: the page asks for …": an area before a colon is the kicker
     const colon = words.indexOf(': ')
     const place = colon > 0 && places.includes(words.slice(0, colon)) ? words.slice(0, colon) : ''
-    const kicker = [place, tag ? tag.replace(/^changes:?\s*/, 'changes · ').replace(/ · $/, '').trim() : ''].filter(Boolean).join(' · ')
+    const kicker = [place, mark.role ?? '', mark.detail].filter(Boolean).join(' · ')
     const { legend: _legend, ...look } = ROLES[role]
     return { id: node.id, title: place ? words.slice(colon + 2) : words, ...(kicker ? { kicker } : {}), ...look }
   })

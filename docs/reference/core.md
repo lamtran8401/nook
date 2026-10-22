@@ -318,7 +318,7 @@ The first list under one of these headings follows the heading:
 
 A quote that opens with `In short:` or `Need to know:` is a callout, and a line `None: Cache, Consistency.` gives the chips of no impact.
 
-A `mermaid` flowchart gives Bench the nodes and the edges with no places, and Bench lays the graph out. A node tagged `(new)`, `(changes)` or `(error)` takes the colour of that role, a first node with no tag is the start, and the legend names each role that the drawing uses. An area of the item before a colon, such as `web: the page`, is the kicker of the node. A `subgraph` is a group, one column. A `tree` fence lists files, two spaces for each level, each line as `name  state  note`. A mermaid kind with no drawing shows as a warning.
+A `mermaid` flowchart gives Bench the nodes and the edges with no places, and Bench lays the graph out. A node marked `(new)`, `(changed)` or `(error)` at the end of its label takes the colour of that role, and the mark leaves its title. The reader also takes `: new`, `: changed` and `(changes: why)`. a first node with no tag is the start, and the legend names each role that the drawing uses. An area of the item before a colon, such as `web: the page`, is the kicker of the node. A `subgraph` is a group, one column. A `tree` fence lists files, two spaces for each level, each line as `name  state  note`. A mermaid kind with no drawing shows as a warning.
 
 A component never uses `data-bn-diagram` or `data-bn-icon`: `bundle.js` changes those nodes at load, before React hydrates them. `Diagram` keeps its spec in `data-nook-diagram` and draws after hydration.
 

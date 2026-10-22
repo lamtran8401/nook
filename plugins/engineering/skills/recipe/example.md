@@ -33,10 +33,10 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-  page["frontend: page with the status select (new)"] -->|"the picked status"| client["frontend: client adds ?status= (changes)"]
-  client -->|"GET /shipments?status="| handler["bff: handler checks the status (changes)"]
+  page["frontend: page with the status select (new)"] -->|"the picked status"| client["frontend: client adds ?status= (changed)"]
+  client -->|"GET /shipments?status="| handler["bff: handler checks the status (changed)"]
   handler -->|"unknown"| bad["400: names the valid statuses (new)"]
-  handler -->|"known or empty"| list["listShipments filters, then sorts (changes)"]
+  handler -->|"known or empty"| list["listShipments filters, then sorts (changed)"]
 ```
 
 | Decision | Why |
@@ -156,10 +156,10 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-  cart["frontend: cart shows time left (changes)"] -->|"POST /checkout"| checkout["orders: checkout in one transaction (changes)"]
+  cart["frontend: cart shows time left (changed)"] -->|"POST /checkout"| checkout["orders: checkout in one transaction (changed)"]
   checkout -->|"hold each line"| holds["reservations: a hold for each line, 15 min (new)"]
   checkout -->|"delete the key"| cache["cache: available count, 5 s (new)"]
-  holds -->|"paid: one order"| pay["orders: payment, second transaction (changes)"]
+  holds -->|"paid: one order"| pay["orders: payment, second transaction (changed)"]
   job["release job: each minute (new)"] -->|"release after 15 min"| holds
 ```
 

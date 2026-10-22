@@ -28,16 +28,16 @@ A size M plan stays under 60 lines with text and a size L plan under 100, diagra
 Write each diagram as a mermaid block. The record keeps the text; `nook eng item page` shows it as a diagram.
 ```mermaid
 flowchart TB
-  page["web: page with the status select (new)"] -->|"the picked status"| client["web: client adds ?status= (changes)"]
-  client -->|"GET /shipments?status="| handler["api: handler checks the status (changes)"]
+  page["web: page with the status select (new)"] -->|"the picked status"| client["web: client adds ?status= (changed)"]
+  client -->|"GET /shipments?status="| handler["api: handler checks the status (changed)"]
   handler -->|"unknown"| bad["400: names the valid statuses"]
-  handler -->|"known or empty"| list["listShipments filters, then sorts (changes)"]
+  handler -->|"known or empty"| list["listShipments filters, then sorts (changed)"]
 ```
 - `flowchart TB` for Today and Approach: it reads well on a phone.
 - `sequenceDiagram` for Flow: one participant for each part that takes part in the call.
 - `subgraph place["Label"]` … `end` for System design: one group for each place where code runs, in the order that a request crosses them.
 - `erDiagram` for Data model: each table with its columns, `PK` and `FK` after the name of a column, and `||--o{` for one to many.
-- Mark each part as it is: "(new)", "(changes)", "(error)" for an error path, or nothing for a part that stays. Put the area first: `api: vault client (new)`.
+- Mark each part at the end of its label: `(new)`, `(changed)`, `(error)` for an error path, or nothing for a part that stays. Put the area first: `api: vault client (new)`.
 
 ## Two snippets
 ```markdown
