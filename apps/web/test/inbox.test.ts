@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 
 import type { BriefLine } from '@nook/desk/desks.ts'
 
-import { greeting, inboxRows, summary } from '@/lib/inbox.ts'
+import { greeting, inboxRows, summary, whoOf } from '@/lib/inbox.ts'
 
 const item = (id: string, title: string, state = 'planning') => ({ id, title, state })
 const BRIEF: BriefLine[] = [
@@ -33,5 +33,15 @@ describe('the summary of the inbox', () => {
 describe('the greeting', () => {
   test('follows the time of day', () => {
     expect([9, 14, 20].map(hour => greeting(new Date(2026, 9, 22, hour)))).toEqual(['Good morning', 'Good afternoon', 'Good evening'])
+  })
+})
+
+describe('who did an event', () => {
+  test('is you, the lead, or an agent by the initials of its name', () => {
+    expect(['You approved the plan', 'The lead began the build', 'backend-builder-a1 moved a slice'].map(whoOf)).toEqual([
+      { mark: 'YOU', who: 'You' },
+      { mark: 'LD', who: 'The lead' },
+      { mark: 'BB', who: 'backend-builder-a1' },
+    ])
   })
 })

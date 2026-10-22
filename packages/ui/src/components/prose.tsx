@@ -8,8 +8,8 @@ export function Prose({ className, ...props }: ComponentProps<'div'>) {
     <div
       data-slot="prose"
       className={cn(
-        'grid min-w-0 gap-3.5 text-[15px] leading-6',
-        '[&>h2]:mt-4 [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:tracking-tight [&>h3]:mt-3 [&>h3]:text-base [&>h3]:font-semibold [&>:is(h2,h3)+*]:-mt-1.5',
+        'grid min-w-0 gap-3 text-[14px] leading-[22px]',
+        '[&>h2]:mt-4 [&>h2]:text-[14.5px] [&>h2]:font-semibold [&>h3]:mt-2 [&>h3]:text-[13.5px] [&>h3]:font-semibold [&>:is(h2,h3)+*]:-mt-1',
         '[&_:is(ul,ol):not([data-slot])]:pl-[1.3em] [&_ul:not([data-slot])]:list-disc [&_ol:not([data-slot])]:list-decimal [&_li:not([data-slot])+li]:mt-1.5',
         '[&_a]:text-primary [&_a]:underline-offset-3 [&_a:hover]:underline [&_hr]:border-border',
         className,

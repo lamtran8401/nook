@@ -84,7 +84,7 @@ describe('Blocks of the heading rules', () => {
   test('each criterion of the spec is a card with its tag, its source, the slices that prove it and its state', () => {
     const markup = render(SPEC, { criteria: ROWS, slices: [slice('T1', 'done', [1]), slice('T2', 'waiting', [2]), slice('T3', 'todo', [3])], item: { state: 'cooking', blocked_from: null } })
     expect(text(markup)).toBe(
-      'Acceptance criteria AC1 ADD A person pays in one click. ticket AC1 proved by T1 · pay.test.ts passes met AC2 CHANGE A decline shows the reason. Q2 proved by T2 blocked AC3 ADD A person removes a card. proved by T3 waits',
+      'Acceptance criteria AC 1 add A person pays in one click. ticket AC1 proved by T1 · pay.test.ts passes met AC 2 change A decline shows the reason. Q2 proved by T2 blocked AC 3 add A person removes a card. proved by T3 waits',
     )
   })
 
@@ -94,7 +94,7 @@ describe('Blocks of the heading rules', () => {
   })
 
   test('a spec with no item, such as a page of the wiki, gives no state', () => {
-    expect(text(render(SPEC))).toBe('Acceptance criteria AC1 ADD A person pays in one click. ticket AC1 AC2 CHANGE A decline shows the reason. Q2 AC3 ADD A person removes a card.')
+    expect(text(render(SPEC))).toBe('Acceptance criteria AC 1 add A person pays in one click. ticket AC1 AC 2 change A decline shows the reason. Q2 AC 3 add A person removes a card.')
   })
 
   test('each line of Out of scope has its ×', () => {
@@ -106,10 +106,10 @@ describe('Blocks of the heading rules', () => {
     expect(text(render('## Q1: Where does the time go?\n\n- Answer: the database.\n- Evidence: EXPLAIN on the copy.\n'))).toBe('Q1 Where does the time go? Answer the database. Evidence EXPLAIN on the copy. answered')
   })
 
-  test('renders each rule with its label, its words and its sources; a guess gives the tile the tone of its impact', () => {
+  test('renders each rule with its label, its words and its sources; a guess gives its clock the tone of its impact, a settled rule a check', () => {
     const markup = render('## Details\n\n- **Retries:** after 1, 5 and 30 minutes. (G5, high)\n- **Zone:** UTC. (Q1)\n')
-    expect([...markup.matchAll(/data-slot="icon-tile" data-tone="(\w+)"/g)].map(m => m[1])).toEqual(['danger', 'neutral'])
-    expect(text(markup)).toBe('Details § Retries after 1, 5 and 30 minutes. G5 · high § Zone UTC. Q1')
+    expect([...markup.matchAll(/<span data-tone="(\w+)"[^>]*aria-hidden="true"><svg[^>]*lucide-(clock|check)/g)].map(m => `${m[1]} ${m[2]}`)).toEqual(['danger clock', 'violet check'])
+    expect(text(markup)).toBe('Details Retries after 1, 5 and 30 minutes. G5 · high Zone UTC. Q1')
   })
 
   test('renders a walkthrough with each part in its component, in order', () => {

@@ -10,6 +10,7 @@ import { CodeBlock } from '@nook/ui/components/code-block.tsx'
 import { ChangeList } from '@nook/ui/components/change-list.tsx'
 import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
 import { CountTile } from '@nook/ui/components/count-tile.tsx'
+import { CriterionCards } from '@nook/ui/components/criterion-cards.tsx'
 import { DetailList, Detail } from '@nook/ui/components/detail-list.tsx'
 import { Diagram } from '@nook/ui/components/diagram.tsx'
 import { Disclosure } from '@nook/ui/components/disclosure.tsx'
@@ -24,6 +25,7 @@ import { PieceGrid } from '@nook/ui/components/piece-grid.tsx'
 import { Prose } from '@nook/ui/components/prose.tsx'
 import { Quote } from '@nook/ui/components/quote.tsx'
 import { RecordList } from '@nook/ui/components/record-list.tsx'
+import { ReceiptList } from '@nook/ui/components/receipt-list.tsx'
 import { RuleList } from '@nook/ui/components/rule-list.tsx'
 import { PercentRing, RingIcon } from '@nook/ui/components/ring.tsx'
 import { InboxRow } from '@nook/ui/components/inbox-row.tsx'
@@ -262,10 +264,20 @@ describe('the parts of a document', () => {
     expect(html(<Prose><p>x</p></Prose>)).toStartWith('<div data-slot="prose"')
   })
 
-  test('a rule list gives the § mark in the tone of the rule, its words and its sources', () => {
-    const rules = html(<RuleList rules={[{ label: 'Same card', content: 'A refund goes back.', tone: 'warning', end: 'Q2' }]} />)
-    expect(rules).toContain('data-tone="warning"')
-    expect(text(rules)).toBe('§ Same card A refund goes back. Q2')
+  test('a rule list gives an open rule a clock in its tone and a settled rule a check, then its words and its sources', () => {
+    const rules = html(<RuleList rules={[{ label: 'Same card', content: 'A refund goes back.', tone: 'warning', end: 'Q2' }, { label: 'Token', content: 'Only a token.' }]} />)
+    expect([...rules.matchAll(/data-tone="(\w+)"[^>]*><svg[^>]*lucide-(clock|check)/g)].map(m => `${m[1]} ${m[2]}`)).toEqual(['warning clock', 'violet check'])
+    expect(text(rules)).toBe('Same card A refund goes back. Q2 Token Only a token.')
+  })
+
+  test('the criterion cards give each criterion its state mark, number, tag, words, sources and state', () => {
+    const cards = html(<CriterionCards items={[{ n: 1, tag: { text: 'ADD', tone: 'success' }, content: 'Pays in one click.', meta: 'ticket AC1', state: { text: 'met', tone: 'success', done: true } }, { n: 2, content: 'Shows the reason.' }]} />)
+    expect(text(cards)).toBe('AC 1 add Pays in one click. ticket AC1 met AC 2 Shows the reason.')
+    expect([...cards.matchAll(/lucide-(check|clock)/g)].map(m => m[1])).toEqual(['check', 'clock'])
+  })
+
+  test('the receipt list gives the time, the mark of who did it, the sentence and its proof', () => {
+    expect(text(html(<ReceiptList rows={[{ key: 'a', time: '09:42', mark: 'BB', who: 'backend-builder', tone: 'success', title: 'finished T2', text: 'proof ok' }]} />))).toBe('09:42 BB finished T2 proof ok')
   })
 
   test('a step list numbers its steps', () => {

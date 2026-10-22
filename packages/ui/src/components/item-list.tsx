@@ -7,15 +7,15 @@ import type { ReactNode } from 'react'
  */
 export function ItemGroup({ title, tone, count, points, children }: { title: string; tone: string; count: number; points?: number; children: ReactNode }) {
   return (
-    <details open data-slot="item-group" className="group/list rounded-2xl bg-muted p-1.5">
-      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-xl px-2.5 py-1.5 text-[13.5px] font-semibold [&::-webkit-details-marker]:hidden">
+    <details open data-slot="item-group" className="group/list rounded-lg bg-muted p-1.5">
+      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-md px-2.5 py-1.5 text-[13.5px] font-semibold [&::-webkit-details-marker]:hidden">
         <ChevronRight className="size-3.5 text-muted-foreground transition-transform group-open/list:rotate-90" aria-hidden="true" />
         <i data-tone={tone} className="size-2 rounded-full bg-tone" aria-hidden="true" />
         {title}
         <span className="font-mono font-medium text-muted-foreground">{count}</span>
         {points === undefined ? null : <span className="ml-auto text-xs font-normal text-muted-foreground tabular-nums">{points} pt</span>}
       </summary>
-      <div className="mt-1 flex flex-col gap-px overflow-hidden rounded-xl bg-border shadow-xs">{children}</div>
+      <div className="mt-1 flex flex-col gap-px overflow-hidden rounded-md bg-border shadow-xs">{children}</div>
     </details>
   )
 }

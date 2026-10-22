@@ -27,7 +27,7 @@ export function ItemCard({ href, kind, id, points, mode, areas, title, steps, fl
       onClick={onClick}
       data-needs={needs}
       data-selected={selected}
-      className="flex flex-col gap-[7px] rounded-xl bg-surface px-3 py-2.5 text-left shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[needs=true]:shadow-[0_0_0_1px_color-mix(in_oklch,var(--danger)_35%,transparent),0_4px_14px_-6px_color-mix(in_oklch,var(--danger)_35%,transparent)] data-[selected=true]:bg-primary-subtle data-[selected=true]:shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_30%,transparent),0_4px_14px_-6px_color-mix(in_oklch,var(--primary)_35%,transparent)]"
+      className="flex flex-col gap-[7px] rounded-md bg-surface px-3 py-2.5 text-left shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[needs=true]:shadow-[0_0_0_1px_color-mix(in_oklch,var(--danger)_35%,transparent),0_4px_14px_-6px_color-mix(in_oklch,var(--danger)_35%,transparent)] data-[selected=true]:bg-primary-subtle data-[selected=true]:shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_30%,transparent),0_4px_14px_-6px_color-mix(in_oklch,var(--primary)_35%,transparent)]"
     >
       <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
         {kind}

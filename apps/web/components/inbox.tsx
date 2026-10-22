@@ -5,6 +5,7 @@ import type { Question } from '@nook/engineering/stores/questions.ts'
 import { Button } from '@nook/ui/components/button.tsx'
 import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
 import { Kbd } from '@nook/ui/components/kbd.tsx'
+import { ReceiptList } from '@nook/ui/components/receipt-list.tsx'
 import { SegmentBar } from '@nook/ui/components/segment-bar.tsx'
 import { Tally } from '@nook/ui/components/tally.tsx'
 import { Tile } from '@nook/ui/components/tile.tsx'
@@ -12,12 +13,12 @@ import { TrendTile } from '@nook/ui/components/trend-tile.tsx'
 
 import { AnswerForm } from '@/components/item/answer-forms.tsx'
 import { Move } from '@/components/item/move.tsx'
-import { Timeline } from '@/components/item/timeline.tsx'
 import { InboxList, type InboxListRow } from '@/components/inbox-list.tsx'
 import { STATE_TONE } from '@/components/tones.ts'
 import { FLOW } from '@/lib/board.ts'
-import { type InboxRowData, inboxRows } from '@/lib/inbox.ts'
+import { type InboxRowData, inboxRows, whoOf } from '@/lib/inbox.ts'
 import { median, NO_DATA, percent } from '@/lib/metric-text.ts'
+import { clock } from '@/lib/time.ts'
 
 const RECEIPTS = 10
 const capital = (word: string) => word.charAt(0).toUpperCase() + word.slice(1)
@@ -136,7 +137,7 @@ export function Inbox({ brief, questions, metrics, trend, receipts, cards, base 
       <div className="grid min-w-0 gap-3">
         <Waits brief={brief} questions={questions} base={base} />
         <Tile title="Receipts" note={`today · ${receipts.length}`}>
-          {receipts.length ? <Timeline events={receipts.slice(0, RECEIPTS).map(r => ({ ...r, title: `${r.item} · ${r.title}` }))} /> : <Muted>Nothing happened today yet.</Muted>}
+          {receipts.length ? <ReceiptList rows={receipts.slice(0, RECEIPTS).map((r, i) => ({ key: `${r.at}${i}`, time: clock(r.at), tone: r.tone, ...whoOf(r.title), title: `${r.item} · ${r.title}`, ...(r.text ? { text: r.text } : {}) }))} /> : <Muted>Nothing happened today yet.</Muted>}
         </Tile>
       </div>
       <aside className="grid min-w-0 gap-3">

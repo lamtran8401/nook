@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 /** One document on a raised card: a head line with its path and its facts, such as its dates, then the document. */
 export function DocFrame({ path, meta, children }: { path: string; meta?: ReactNode; children: ReactNode }) {
   return (
-    <article data-slot="doc-frame" className="min-w-0 rounded-2xl bg-card shadow-sm">
+    <article data-slot="doc-frame" className="min-w-0 rounded-lg bg-card shadow-sm">
       <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-hairline px-4 py-2.5 text-xs text-muted-foreground">
         <span className="flex min-w-0 items-center gap-1.5 font-mono">
           <FileText className="size-3.5 shrink-0" aria-hidden="true" />

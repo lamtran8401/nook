@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { cn } from '@nook/ui/lib/utils.ts'
 
 const SIZE = {
-  md: 'size-9 rounded-[12px] bg-tone-subtle text-sm font-bold text-tone',
+  md: 'size-8 rounded-sm bg-tone-subtle text-[13px] font-bold text-tone [&_svg]:size-4',
   sm: 'size-4 rounded-full bg-tone text-[10px] font-extrabold text-surface',
   xs: 'size-4 rounded-[4px] bg-tone text-surface',
 } as const

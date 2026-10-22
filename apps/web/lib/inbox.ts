@@ -46,3 +46,12 @@ export function greeting(now: Date): string {
   const hour = now.getHours()
   return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
 }
+
+/** Who did an event, from the start of its line: you, the lead, or an agent such as backend-builder-a1 by its initials, BB. */
+export function whoOf(title: string): { mark: string; who: string } {
+  if (title.startsWith('You ')) return { mark: 'YOU', who: 'You' }
+  if (title.startsWith('The lead ')) return { mark: 'LD', who: 'The lead' }
+  const who = title.split(' ')[0]!
+  const initials = who.split('-').filter(word => /^[a-z]/i.test(word)).slice(0, 2).map(word => word[0]!.toUpperCase()).join('')
+  return { mark: initials || who.slice(0, 2).toUpperCase(), who }
+}

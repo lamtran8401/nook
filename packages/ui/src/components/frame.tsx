@@ -19,7 +19,7 @@ export function Frame({ title, tone, count, points, about, chips, layout = 'colu
   className?: string
 }) {
   return (
-    <section data-slot="frame" className={cn('flex min-w-0 flex-col gap-2 rounded-2xl bg-muted p-2', className)}>
+    <section data-slot="frame" className={cn('flex min-w-0 flex-col gap-2 rounded-lg bg-muted p-2', className)}>
       <header className="px-1.5 pt-1">
         <div className="flex items-center gap-2 text-[13.5px] font-semibold">
           {tone ? <i data-tone={tone} className="size-2 rounded-full bg-tone" aria-hidden="true" /> : null}
@@ -33,7 +33,7 @@ export function Frame({ title, tone, count, points, about, chips, layout = 'colu
       {children ? (
         <div className={layout === 'grid' ? 'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-2.5' : 'flex flex-col gap-2'}>{children}</div>
       ) : (
-        <p className="grid min-h-16 place-items-center rounded-xl px-2.5 py-3.5 text-center text-[12.5px] text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)]">{empty ?? 'Nothing here'}</p>
+        <p className="grid min-h-16 place-items-center rounded-md px-2.5 py-3.5 text-center text-[12.5px] text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)]">{empty ?? 'Nothing here'}</p>
       )}
     </section>
   )
