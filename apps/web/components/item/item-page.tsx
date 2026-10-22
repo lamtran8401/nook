@@ -33,7 +33,7 @@ export function ItemPage({ view, docs, tab, now, base }: { view: ItemView; docs:
       <div className="grid items-start gap-3 min-[1100px]:grid-cols-[minmax(0,1fr)_280px]">
         <div className="grid min-w-0 gap-3">
           {doc ? (
-            <DocTab id={item.id} name={doc.name} text={doc.text} areas={item.areas} criteria={view.criteria} slices={view.slices} />
+            <DocTab item={item} name={doc.name} text={doc.text} criteria={view.criteria} slices={view.slices} />
           ) : tab === 'activity' ? (
             <Activity events={view.events} />
           ) : (

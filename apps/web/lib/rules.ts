@@ -46,6 +46,17 @@ function withRefs(content: Inline): { words: Inline; refs: string } {
   return { words: rest, refs: found?.[1] ?? '' }
 }
 
+/** `- **api:** words`: a card with the label as its title, such as an area of What changes. */
+function labeledPieces(list: ListBlock): Block {
+  return {
+    kind: 'pieces',
+    items: itemWords(list).map(content => {
+      const { label, words } = labeled(content)
+      return { title: label, content: words }
+    }),
+  }
+}
+
 const RULES: Record<string, (list: ListBlock) => Block> = {
   'Acceptance criteria': list => ({
     kind: 'criteria',
@@ -63,13 +74,8 @@ const RULES: Record<string, (list: ListBlock) => Block> = {
       return { label, content: rule, sources: sourcesOf(refs) }
     }),
   }),
-  'What works now': list => ({
-    kind: 'pieces',
-    items: itemWords(list).map(content => {
-      const { label, words } = labeled(content)
-      return { title: label, content: words }
-    }),
-  }),
+  'What works now': labeledPieces,
+  'What changes': labeledPieces,
   'Try it': list => ({
     kind: 'steps',
     items: itemWords(list).map(content => {
@@ -111,6 +117,23 @@ function taskCard(heading: string, list: ListBlock): Block | null {
   return { kind: 'task', id, title: title!, area: field('area'), depends: field('depends') || 'none', size: field('size'), rows }
 }
 
+const FINDING_ROWS = ['Answer', 'Evidence', 'Open']
+
+/** `## Q1: question` of the findings with its Answer, Evidence and Open lines: one card, answered with an answer and its evidence. */
+function findingCard(heading: string, list: ListBlock): Block | null {
+  const [, id, title] = /^(Q\d+)\b:?\s*(.*)$/.exec(heading) ?? []
+  if (!id) return null
+  const rows: [string, Inline][] = []
+  for (const content of itemWords(list)) {
+    const { found, rest } = takePrefix(content, /^(Answer|Evidence|Open):\s*/i)
+    if (!found) return null
+    const label = found[1]!.toLowerCase()
+    rows.push([label.charAt(0).toUpperCase() + label.slice(1), rest])
+  }
+  const filled = (label: string) => rows.some(([key, value]) => key === label && plainText(value).trim())
+  return { kind: 'finding', id, title: title!, answered: filled('Answer') && filled('Evidence'), rows: FINDING_ROWS.flatMap(label => rows.filter(([key]) => key === label)) }
+}
+
 export function applyRules(blocks: Block[]): Block[] {
   const out: Block[] = []
   let section = ''
@@ -125,7 +148,7 @@ export function applyRules(blocks: Block[]): Block[] {
     const rule = RULES[section]
     if ((block.kind === 'list' || block.kind === 'tasks') && !used) {
       used = true
-      const task = taskCard(section, block)
+      const task = taskCard(section, block) ?? findingCard(section, block)
       if (task) {
         out.splice(out.length - 1, 1, task)
         continue

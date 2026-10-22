@@ -6,6 +6,7 @@ import { Catalog } from '@nook/desk/catalog.ts'
 import { Home } from '@nook/engineering/home.ts'
 import { engineeringModule } from '@nook/engineering/module.ts'
 import { Engineering } from '@nook/engineering/service.ts'
+import type { ItemKind } from '@nook/engineering/vocabulary.ts'
 import { Who } from '@nook/engineering/who.ts'
 import { runCommand } from '@nook/shared/run.ts'
 
@@ -82,21 +83,23 @@ class Demo {
     write(this.home.workDir(id), { [name]: docOf(id, name) })
   }
 
-  /** An item from new to cooking: the spec, the agree, the plan and the slices, the approve, the branch and the begin. */
-  toCooking(id: string, title: string, size: string, areas: string[], before?: { agree?: () => void }): void {
+  /** An item from new to cooking: the spec, the agree, the plan and the slices, the approve, the branch and the begin; an investigation has no slices. */
+  toCooking(id: string, title: string, size: string, areas: string[], before?: { agree?: () => void }, kind: ItemKind = 'feature'): void {
     const lead = this.as(LEAD)
-    this.toPlanning(id, title, size, areas, before)
+    this.toPlanning(id, title, size, areas, before, kind)
     this.doc(id, 'plan.md')
-    this.doc(id, 'tasks.md')
-    lead.importTasks(id)
+    if (kind !== 'investigate') {
+      this.doc(id, 'tasks.md')
+      lead.importTasks(id)
+    }
     this.as(OWNER).moveItem('approve', id)
-    lead.branch(id)
+    if (areas.length) lead.branch(id)
     lead.moveItem('begin', id)
   }
 
-  toPlanning(id: string, title: string, size: string, areas: string[], before?: { agree?: () => void }): void {
+  toPlanning(id: string, title: string, size: string, areas: string[], before?: { agree?: () => void }, kind: ItemKind = 'feature'): void {
     const lead = this.as(LEAD)
-    lead.newItem({ id, title, kind: 'feature', size, areas })
+    lead.newItem({ id, title, kind, size, areas })
     lead.moveItem('start', id)
     this.doc(id, 'spec.md')
     before?.agree?.()
@@ -111,7 +114,7 @@ class Demo {
 }
 
 // the story points of each item, as a ticket gives them
-const POINTS = { 'SHOP-41': 3, 'SHOP-42': 8, 'SHOP-43': 5, 'SHOP-44': 3, 'SHOP-45': 5, 'SHOP-46': 2 }
+const POINTS = { 'SHOP-41': 3, 'SHOP-42': 8, 'SHOP-43': 5, 'SHOP-44': 3, 'SHOP-45': 5, 'SHOP-46': 2, 'SHOP-47': 2, 'SHOP-48': 3 }
 
 function buildItems(demo: Demo): void {
   const desk = demo.desk
@@ -181,6 +184,13 @@ function buildItems(demo: Demo): void {
   lead().moveItem('start', 'SHOP-45')
   demo.doc('SHOP-45', 'spec.md')
   lead().newItem({ id: 'SHOP-46', title: 'Dark mode for the shop admin', kind: 'feature', size: 'S', areas: ['web'] })
+
+  // SHOP-47, a fix in cooking: its root cause written; SHOP-48, an investigation in cooking: one question answered
+  demo.toCooking('SHOP-47', 'Fix the date in the receipt mail', 'S', ['worker'], undefined, 'fix')
+  demo.doc('SHOP-47', 'root-cause.md')
+  demo.as(API_BUILDER).moveSlice('start', 'SHOP-47', 'T1')
+  demo.toCooking('SHOP-48', 'Find why the order list is slow', 'S', [], undefined, 'investigate')
+  demo.doc('SHOP-48', 'findings.md')
 
   for (const [id, points] of Object.entries(POINTS)) lead().editItem(id, 'points', String(points))
 }

@@ -5,7 +5,6 @@ import { refused } from '@nook/shared/errors.ts'
 
 import { Board } from '@/components/board.tsx'
 import type { BoardOptions } from '@/lib/board.ts'
-import { Criteria } from '@/components/criteria.tsx'
 import { Diagram } from '@/components/diagram.tsx'
 import { Gap } from '@/components/gap.tsx'
 import { isCurrentPage } from '@/components/desk-nav.tsx'
@@ -62,24 +61,6 @@ describe('Board', () => {
 
   test('says so when the desk has no item', () => {
     expect(text(html(<Board cards={[]} options={BOARD} base="/personal" />))).toBe('No item yet Type /intake in the agent session to start one.')
-  })
-})
-
-describe('Criteria', () => {
-  test('lists each criterion with its number, its text and whether it is met', () => {
-    const markup = html(
-      <Criteria criteria={[
-        { item: 'SHOP-12', n: 1, text: 'The filter lists the 5 statuses.', done: true, evidence: 'api test passes', grade: 'run', by: 'verifier', at: 'now' },
-        { item: 'SHOP-12', n: 2, text: 'An empty filter shows every shipment.', done: false, evidence: null, grade: null, by: null, at: null },
-      ]} />,
-    )
-    expect(text(markup)).toBe('AC1 The filter lists the 5 statuses. api test passes met AC2 An empty filter shows every shipment. open')
-  })
-
-  test('draws the tag that the ledger keeps before a criterion as a badge', () => {
-    const markup = html(<Criteria criteria={[{ item: 'SHOP-12', n: 1, text: '[ADD] the export has the right date', done: false, evidence: null, grade: null, by: null, at: null }]} />)
-    expect(markup).toMatch(/data-slot="badge" data-tone="success"[^>]*>ADD</)
-    expect(text(markup)).toBe('AC1 ADD the export has the right date open')
   })
 })
 

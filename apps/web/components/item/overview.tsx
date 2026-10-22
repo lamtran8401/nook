@@ -42,10 +42,28 @@ function CriteriaTile({ view }: { view: ItemView }) {
   )
 }
 
+/** The answers of an investigation, from the question cards of findings.md: answered with an answer and its evidence. */
+function AnswersTile({ text }: { text: string | null }) {
+  const cards = text ? parseDoc(text).blocks.filter(block => block.kind === 'finding') : []
+  if (!cards.length) return <Tile title="Answers"><Muted>No answer yet. The work writes them in findings.md.</Muted></Tile>
+  const answered = cards.filter(card => card.kind === 'finding' && card.answered).length
+  const rows = [{ tone: 'success', label: 'answered', value: answered }, { tone: 'warning', label: 'open', value: cards.length - answered }]
+  return (
+    <Tile title="Answers">
+      <div className="flex items-center gap-4">
+        <PercentRing value={(100 * answered) / cards.length} label={`${answered}/${cards.length}`} tone="success" size={64} />
+        <div className="min-w-0 flex-1">
+          <Tally rows={rows} />
+        </div>
+      </div>
+    </Tile>
+  )
+}
+
 const SLICE_TONE: Record<Slice['state'], string> = { todo: 'neutral', running: 'primary', waiting: 'warning', failed: 'danger', done: 'success', cancelled: 'neutral' }
 const SLICE_LINE: Partial<Record<Slice['state'], string>> = { running: 'is building', waiting: 'waits', failed: 'failed' }
 
-function SlicesTile({ slices }: { slices: Slice[] }) {
+export function SlicesTile({ slices }: { slices: Slice[] }) {
   const live = slices.filter(s => s.state !== 'cancelled')
   if (!live.length) return <Tile title="Slices"><Muted>No slice yet. The plan step writes them.</Muted></Tile>
   const notes = live.filter(s => SLICE_LINE[s.state])
@@ -153,14 +171,16 @@ export function Receipts({ events, limit }: { events: EventLine[]; limit?: numbe
   )
 }
 
-/** The first tab of an item: who moves next, the criteria, the slices, the questions, the time in each step, the lanes, the code and the receipts. */
+/** The first tab of an item: who moves next, the criteria or the answers, the slices, the questions, the time in each step, the lanes, the code and the receipts. */
 export function Overview({ view, docs, now }: { view: ItemView; docs: ItemDocs; now: Date }) {
+  // an investigation has findings and no criteria; its slices are optional
+  const findings = docs.find(doc => doc.name === 'findings')
   return (
     <>
       <NextStep next={view.next} />
       <div className="grid gap-3 md:grid-cols-2">
-        <CriteriaTile view={view} />
-        <SlicesTile slices={view.slices} />
+        {findings ? <AnswersTile text={findings.text} /> : <CriteriaTile view={view} />}
+        {findings && !view.slices.length ? null : <SlicesTile slices={view.slices} />}
         <QuestionsTile id={view.item.id} questions={view.questions} guesses={view.guesses} />
         <InShortTile view={view} docs={docs} />
       </div>

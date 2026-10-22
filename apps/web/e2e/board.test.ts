@@ -28,7 +28,7 @@ describe('the board in a real browser', () => {
   test('an item of 8 points shows 8 pt, and its phase counts it', async () => {
     await open('/shop/works')
     expect(await evaluate(`document.querySelector('a[href="/shop/works/SHOP-42"]').innerText.replace(/\\s+/g, ' ')`)).toContain('8 pt')
-    expect(await frameText(1)).toStartWith('Build 1 8 pt')
+    expect(await frameText(1)).toStartWith('Build 3 13 pt')
   }, 60_000)
 
   test('a kind with no item in a phase says so in that phase', async () => {

@@ -1,16 +1,33 @@
 import type { ReactNode } from 'react'
 
-import type { Criterion } from '@nook/engineering/stores/criteria.ts'
-
-import { RecordList } from '@nook/ui/components/record-list.tsx'
 import { Badge } from '@nook/ui/components/badge.tsx'
+import { RecordList } from '@nook/ui/components/record-list.tsx'
 
-import { CRITERION_TONE, criterionTag } from '@/components/tones.ts'
+import { CRITERION_TONE as TAG_TONE } from '@/components/tones.ts'
+import { CRITERION_TONE, type CriterionState } from '@/lib/progress.ts'
 
-/** One criterion as a row: its tag, its words and the cases it rests on; `met` is unknown when the ledger has no row for it. */
-export type CriterionLine = { n: number; tag: string; content: ReactNode; refs?: string[]; met?: boolean; evidence?: string | null }
+/**
+ * One criterion of a spec: its tag, its words, the sources it rests on, such as `ticket AC1`, the slices that prove
+ * it, and its state; a criterion with no state has no row in the ledger and no item to read it for.
+ */
+export type CriterionLine = { n: number; tag: string; content: ReactNode; refs?: string[]; state?: CriterionState; evidence?: string | null; proof?: string[] }
 
-/** The acceptance criteria, each with its number, its tag, its words, whether it is met and its evidence. */
+function Sources({ line }: { line: CriterionLine }) {
+  const refs = line.refs ?? []
+  const proof = line.proof ?? []
+  if (!refs.length && !proof.length && !line.evidence) return null
+  return (
+    <span className="flex flex-wrap items-center gap-1.5 text-[12.5px]">
+      {refs.map(ref => (
+        <Badge key={ref} variant="outline" className="font-mono">{ref}</Badge>
+      ))}
+      {proof.length ? <span>proved by {proof.join(', ')}</span> : null}
+      {line.state === 'met' && line.evidence ? <span>· {line.evidence}</span> : null}
+    </span>
+  )
+}
+
+/** The acceptance criteria, each with its number, its tag, its words, its sources and the slices that prove it, and its state. */
 export function CriteriaList({ lines }: { lines: CriterionLine[] }) {
   return (
     <RecordList
@@ -18,26 +35,13 @@ export function CriteriaList({ lines }: { lines: CriterionLine[] }) {
         id: `AC${line.n}`,
         main: (
           <>
-            {line.tag ? <Badge tone={CRITERION_TONE[line.tag]} className="mr-2 align-[1px]">{line.tag}</Badge> : null}
+            {line.tag ? <Badge tone={TAG_TONE[line.tag]} className="mr-2 align-[1px]">{line.tag}</Badge> : null}
             {line.content}
-            {line.refs?.length ? <span className="text-muted-foreground"> {line.refs.join(', ')}</span> : null}
           </>
         ),
-        sub: line.met && line.evidence ? line.evidence : undefined,
-        end: line.met === undefined ? undefined : <Badge tone={line.met ? 'success' : 'neutral'}>{line.met ? 'met' : 'open'}</Badge>,
+        sub: <Sources line={line} />,
+        end: line.state ? <Badge tone={CRITERION_TONE[line.state]}>{line.state}</Badge> : undefined,
       }))}
-    />
-  )
-}
-
-/** The criteria as the ledger keeps them; the ledger keeps the tag in the words, such as `[ADD] the export has the right date`. */
-export function Criteria({ criteria }: { criteria: Criterion[] }) {
-  return (
-    <CriteriaList
-      lines={criteria.map(c => {
-        const { tag, words } = criterionTag(c.text)
-        return { n: c.n, tag, content: words, met: c.done, evidence: c.evidence }
-      })}
     />
   )
 }

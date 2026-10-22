@@ -1,6 +1,8 @@
 import { match } from 'ts-pattern'
 
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
+import type { Item } from '@nook/engineering/stores/items.ts'
+import type { Slice } from '@nook/engineering/stores/slices.ts'
 import { Badge } from '@nook/ui/components/badge.tsx'
 import { Callout } from '@nook/ui/components/callout.tsx'
 import { Checklist } from '@nook/ui/components/checklist.tsx'
@@ -23,10 +25,12 @@ import { CriteriaList } from '@/components/criteria.tsx'
 import { Diagram } from '@/components/diagram.tsx'
 import type { Block, Source } from '@/lib/blocks.ts'
 import { capitalized } from '@/lib/inline.ts'
+import { type CriterionState, criterionState } from '@/lib/progress.ts'
 
 /** One part of the kit for each kind of block. The context brings what the ledger knows, such as the state of each criterion. */
 
-export type DocContext = { criteria?: Criterion[] }
+/** What the ledger knows beside a document: the criteria, the slices that prove them, and the step of the item. */
+export type DocContext = { criteria?: Criterion[]; slices?: Slice[]; item?: Pick<Item, 'state' | 'blocked_from'> }
 
 const LEVEL_TONE: Record<string, string> = { low: 'neutral', med: 'warning', high: 'danger' }
 
@@ -41,6 +45,13 @@ function ruleTone(sources: Source[]): string | undefined {
 function SourceBadge({ source }: { source: Source }) {
   if (source.level) return <Badge tone={LEVEL_TONE[source.level]}>{`${source.text} · ${source.level}`}</Badge>
   return source.text === 'open' ? <Badge tone="warning">open</Badge> : <Badge variant="outline">{source.text}</Badge>
+}
+
+/** The state of a criterion for its item; a spec with no item, such as a page of the wiki, gives none. */
+function stateOf(n: number, context: DocContext): { state?: CriterionState } {
+  if (!context.item) return {}
+  const row = context.criteria?.find(c => c.n === n) ?? { n, done: false }
+  return { state: criterionState(row, context.slices ?? [], context.item.state, context.item.blocked_from) }
 }
 
 const align = (side: string | null | undefined) => (side ? { textAlign: side as 'left' | 'center' | 'right' } : undefined)
@@ -97,8 +108,9 @@ function BlockView({ block, context }: { block: Block; context: DocContext }) {
     .with({ kind: 'criteria' }, b => (
       <CriteriaList
         lines={b.items.map(item => {
-          const state = context.criteria?.find(c => c.n === item.n)
-          return { n: item.n, tag: item.tag, content: <Inline content={item.content} />, refs: item.refs, ...(state ? { met: state.done, evidence: state.evidence } : {}) }
+          const row = context.criteria?.find(c => c.n === item.n)
+          const proof = (context.slices ?? []).filter(s => s.acs.includes(item.n) && s.state !== 'cancelled').map(s => s.id)
+          return { n: item.n, tag: item.tag, content: <Inline content={item.content} />, refs: item.refs, proof, evidence: row?.evidence ?? null, ...stateOf(item.n, context) }
         })}
       />
     ))
@@ -138,6 +150,14 @@ function BlockView({ block, context }: { block: Block; context: DocContext }) {
         title={b.title}
         rows={b.rows.map(([label, value]) => [label, <Inline content={value} key={label} />])}
         foot={b.depends === 'none' ? <Badge tone="success">starts first</Badge> : <Badge variant="outline">after {b.depends}</Badge>}
+      />
+    ))
+    .with({ kind: 'finding' }, b => (
+      <TaskCard
+        kicker={<span>{b.id}</span>}
+        title={b.title || b.id}
+        rows={b.rows.map(([label, value]) => [label, <Inline content={value} key={label} />])}
+        foot={<Badge tone={b.answered ? 'success' : 'warning'}>{b.answered ? 'answered' : 'open'}</Badge>}
       />
     ))
     .exhaustive()

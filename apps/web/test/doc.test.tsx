@@ -6,9 +6,12 @@ import { parseDoc } from '@/lib/blocks.ts'
 import { text } from '@/test/markup.ts'
 
 import type { Criterion } from '@nook/engineering/stores/criteria.ts'
+import type { Slice } from '@nook/engineering/stores/slices.ts'
+
+import type { DocContext } from '@/components/blocks/blocks.tsx'
 
 const slots = (markup: string) => [...markup.matchAll(/data-slot="([\w-]+)"/g)].map(m => m[1])
-const render = (md: string, criteria?: Criterion[]) => renderToStaticMarkup(<Blocks blocks={parseDoc(md).blocks} context={{ criteria }} />)
+const render = (md: string, context: DocContext = {}) => renderToStaticMarkup(<Blocks blocks={parseDoc(md).blocks} context={context} />)
 
 describe('Blocks', () => {
   test('renders prose as plain HTML: headings, paragraphs, lists and dividers, with code as the inline code of the kit', () => {
@@ -72,12 +75,35 @@ describe('Blocks', () => {
 })
 
 describe('Blocks of the heading rules', () => {
-  const criterion = (n: number, done: boolean): Criterion => ({ item: 'SHOP-42', n, text: '', done, evidence: null, grade: null, by: null, at: null })
 
-  test('renders each criterion as a record with its kind, its sources, and its state from the ledger', () => {
-    const markup = render('## Acceptance criteria\n\n- [ADD] A person pays in one click. (ticket AC1, Q2)\n- [CHANGE] A decline shows the reason.\n', [criterion(1, true), criterion(2, false)])
-    expect([...markup.matchAll(/data-slot="badge" data-tone="(\w+)"/g)].map(m => m[1])).toEqual(['success', 'success', 'primary', 'neutral'])
-    expect(text(markup)).toBe('Acceptance criteria AC1 ADD A person pays in one click. ticket AC1, Q2 met AC2 CHANGE A decline shows the reason. open')
+  const criterion = (n: number, done: boolean, evidence: string | null = null): Criterion => ({ item: 'SHOP-42', n, text: '', done, evidence, grade: null, by: null, at: null })
+  const slice = (id: string, state: Slice['state'], acs: number[]) => ({ id, state, acs }) as Slice
+  const SPEC = '## Acceptance criteria\n\n- [ADD] A person pays in one click. (ticket AC1)\n- [CHANGE] A decline shows the reason. (Q2)\n- [ADD] A person removes a card.\n'
+  const ROWS = [criterion(1, true, 'pay.test.ts passes'), criterion(2, false), criterion(3, false)]
+
+  test('each criterion of the spec is a card with its tag, its source, the slices that prove it and its state', () => {
+    const markup = render(SPEC, { criteria: ROWS, slices: [slice('T1', 'done', [1]), slice('T2', 'waiting', [2]), slice('T3', 'todo', [3])], item: { state: 'cooking', blocked_from: null } })
+    expect(text(markup)).toBe(
+      'Acceptance criteria AC1 ADD A person pays in one click. ticket AC1 proved by T1 · pay.test.ts passes met AC2 CHANGE A decline shows the reason. Q2 proved by T2 blocked AC3 ADD A person removes a card. proved by T3 waits',
+    )
+  })
+
+  test('before the build, each open criterion is planned', () => {
+    const markup = render(SPEC, { criteria: ROWS, item: { state: 'planning', blocked_from: null } })
+    expect([...markup.matchAll(/data-tone="\w+"[^>]*>(met|planned|building|blocked|waits)</g)].map(m => m[1])).toEqual(['met', 'planned', 'planned'])
+  })
+
+  test('a spec with no item, such as a page of the wiki, gives no state', () => {
+    expect(text(render(SPEC))).toBe('Acceptance criteria AC1 ADD A person pays in one click. ticket AC1 AC2 CHANGE A decline shows the reason. Q2 AC3 ADD A person removes a card.')
+  })
+
+  test('each line of Out of scope has its ×', () => {
+    const markup = render('## Out of scope\n\n- Wallets.\n- Guest shoppers.\n')
+    expect([...markup.matchAll(/<li[^>]*>(.*?)<\/li>/g)].map(m => [m[1]!.includes('lucide-x'), text(m[1]!)])).toEqual([[true, 'Wallets.'], [true, 'Guest shoppers.']])
+  })
+
+  test('a question of the findings is a card with its answer, its evidence and its state', () => {
+    expect(text(render('## Q1: Where does the time go?\n\n- Answer: the database.\n- Evidence: EXPLAIN on the copy.\n'))).toBe('Q1 Where does the time go? Answer the database. Evidence EXPLAIN on the copy. answered')
   })
 
   test('renders each rule with its label, its words and its sources; a guess gives the tile the tone of its impact', () => {

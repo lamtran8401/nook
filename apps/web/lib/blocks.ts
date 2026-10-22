@@ -42,6 +42,7 @@ export type Block =
   | { kind: 'callout'; tone: 'short' | 'know'; content: Inline }
   | { kind: 'none'; kinds: string[] }
   | { kind: 'task'; id: string; title: string; area: string; depends: string; size: string; rows: [string, Inline][] }
+  | { kind: 'finding'; id: string; title: string; answered: boolean; rows: [string, Inline][] }
 /** Where a rule or a criterion comes from, such as Q2, or G5 with its impact. */
 export type Source = { text: string; level?: 'low' | 'med' | 'high' }
 export type Doc = { meta: Record<string, string>; title: string; blocks: Block[] }

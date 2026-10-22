@@ -182,6 +182,14 @@ describe('Overview', () => {
     expect(markup).toContain('aria-label="Answer to Q3"')
   })
 
+  test('an investigation counts its answers in place of criteria, and has no slices', () => {
+    const findings = { name: 'findings' as const, text: '## Q1\n\n- Answer: the database.\n- Evidence: EXPLAIN.\n\n## Q2\n\n- Answer: \n- Evidence: \n' }
+    const investigation = { ...view, item: { ...view.item, kind: 'investigate' as const }, criteria: [], slices: [] }
+    const markup = html(<Overview view={investigation} docs={[findings]} now={NOW} />)
+    expect(tile(markup, 'Answers')).toBe('Answers 1/2 answered 1 open 1')
+    expect(tiles(markup).some(words => words.startsWith('Slices') || words.startsWith('Criteria'))).toBe(false)
+  })
+
   test('gives the In short of the spec, and at the plan step the In short of the plan', () => {
     expect(tile(html(<Overview view={view} docs={[spec, plan]} now={NOW} />), 'In short')).toBe('In short A shopper pays with a saved card.')
     const planning = { ...view, item: { ...view.item, state: 'planning' as const } }
@@ -235,14 +243,31 @@ describe('Timeline', () => {
 
 describe('DocTab', () => {
   test('a walkthrough not written yet says to type /view in the agent session', () => {
-    expect(text(html(<DocTab id="SHOP-42" name="walkthrough" text={null} areas={[]} criteria={[]} />))).toBe(
+    expect(text(html(<DocTab item={view.item} name="walkthrough" text={null} criteria={[]} />))).toBe(
       'The walkthrough is not written yet The walkthrough comes after the build. When the item reaches review, type /view SHOP-42 in the agent session.',
     )
   })
 
   test('renders the document on its card with its path, its dates and its blocks, and leaves out its title', () => {
-    const markup = html(<DocTab id="SHOP-42" name="plan" text={'---\ncreated: 2026-10-14\n---\n# The plan\n\nOne paragraph.\n'} areas={[]} criteria={[]} />)
+    const markup = html(<DocTab item={view.item} name="plan" text={'---\ncreated: 2026-10-14\n---\n# The plan\n\nOne paragraph.\n'} criteria={[]} />)
     expect(text(markup)).toBe('works/SHOP-42/plan.md created 2026-10-14 One paragraph.')
+  })
+})
+
+describe('DocTab of each kind', () => {
+  test('a root cause leads with its type and what the type means', () => {
+    const markup = html(<DocTab item={view.item} name="root-cause" text={'---\ntype: missing test\n---\n# SHOP-42: the root cause\n\nNo test opened an empty desk.\n'} criteria={[]} />)
+    expect(text(markup)).toBe('works/SHOP-42/root-cause.md missing test The earliest point where the bug was made. Retro counts each type across the desk. No test opened an empty desk.')
+  })
+
+  test('a root cause with no type yet says to write one', () => {
+    expect(text(html(<DocTab item={view.item} name="root-cause" text={'---\ntype: \n---\n'} criteria={[]} />))).toContain('No type yet Write the type in the front matter of root-cause.md before the submit.')
+  })
+
+  test('the tasks show the slices by state and the lanes before the words of tasks.md', () => {
+    const markup = html(<DocTab item={view.item} name="tasks" text={'## T1: Add the table\n\n- area: api\n'} criteria={[]} slices={view.slices} />)
+    const order = ['Slices<span', 'Slices by state', 'Lanes<span', 'Add the table'].map(words => markup.indexOf(words))
+    expect(order.every((at, i) => at >= 0 && (i === 0 || at > order[i - 1]!))).toBe(true)
   })
 })
 

@@ -31,6 +31,20 @@ describe('the heading rules', () => {
     ])
   })
 
+  test('a line under What changes is a card of its area, with the words after the area', () => {
+    const list = find(blocks('## What changes\n\n- **api:** keeps a token for each card.\n- **web:** shows the saved cards.\n'), 'pieces')
+    expect(list.items.map(i => [i.title, plainText(i.content)])).toEqual([['api', 'keeps a token for each card.'], ['web', 'shows the saved cards.']])
+  })
+
+  test('a question of the findings with its Answer, Evidence and Open lines becomes a card, answered when it has an answer and evidence', () => {
+    const list = blocks('## Q1: Where does the time go?\n\n- Answer: the database.\n- Evidence: EXPLAIN on the copy.\n- Open: the index build time.\n\n## Q2\n\n- Answer: \n- Evidence: \n')
+    const cards = list.filter(b => b.kind === 'finding') as Extract<Block, { kind: 'finding' }>[]
+    expect(cards.map(c => [c.id, c.title, c.answered, c.rows.map(([label, value]) => `${label}: ${plainText(value)}`)])).toEqual([
+      ['Q1', 'Where does the time go?', true, ['Answer: the database.', 'Evidence: EXPLAIN on the copy.', 'Open: the index build time.']],
+      ['Q2', '', false, ['Answer: ', 'Evidence: ']],
+    ])
+  })
+
   test('a step under Try it splits into what to do and what you see', () => {
     const list = find(blocks('## Try it\n\n1. Run `bun test` in api. Every test passes.\n2. Open the page.\n'), 'steps')
     expect(list.items.map(i => [plainText(i.action), plainText(i.seen)])).toEqual([
