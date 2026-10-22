@@ -97,11 +97,11 @@ describe('the web app', () => {
     expect(/<fieldset[^>]*>/.exec(item)![0]).not.toContain(' disabled=""')
   })
 
-  test('the home page gives the brief of the desk: each gap of the doctor with its fix, and each item that runs', () => {
+  test('the home page is the inbox: each gap of the doctor with its fix, and each item that runs with its command', () => {
     const home = body('home')
-    expect(home).toMatch(/>This desk<\/div>/)
-    expect(home).toMatch(/<p class="text-sm">engineering: works\/ is missing<\/p><code data-slot="copy-command"[^>]*>nook init --update<button/)
-    expect(home).toContain(`<a href="${answer().base}/works/SHOP-12" class="flex min-w-0 flex-1`)
+    expect(home).toMatch(/>Engineering: works\/ is missing<\/p>/)
+    expect(home).toMatch(/<code data-slot="copy-command"[^>]*>nook init --update<button/)
+    expect(home).toContain(`<a href="${answer().base}/works/SHOP-12" class="flex min-w-0 gap-2 hover:underline">`)
     expect(home).toMatch(/<code data-slot="copy-command"[^>]*>\/spec SHOP-12<button/)
   })
 

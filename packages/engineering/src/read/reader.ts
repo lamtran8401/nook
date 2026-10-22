@@ -16,7 +16,7 @@ import type { Question } from '../stores/questions.ts'
 import type { Slice } from '../stores/slices.ts'
 import { Who } from '../who.ts'
 import { type EventLine, eventLine } from './event-lines.ts'
-import { deskMetrics, type Metrics, METRICS_SPAN_MS } from '../report/metrics.ts'
+import { deskHistories, deskMetrics, type Metrics, METRICS_SPAN_MS, metricsOf } from '../report/metrics.ts'
 
 /**
  * The read paths of engineering for the web app: plain functions on a desk folder. Each one opens the ledger
@@ -81,6 +81,28 @@ export function readSettings(desk: string): EngineeringSettings | null {
 /** The metrics of the last 30 days; null when the desk has no engineering home. */
 export function readMetrics(desk: string, now = new Date()): Metrics | null {
   return Home.find(desk) ? withReader(desk, eng => deskMetrics(eng, new Date(now.getTime() - METRICS_SPAN_MS), now)) : null
+}
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000
+
+/** The metrics of each of the last `weeks` weeks up to now, the oldest first, for a trend line; null for a desk with no engineering home. */
+export function readTrend(desk: string, now = new Date(), weeks = 6): Metrics[] | null {
+  if (!Home.find(desk)) return null
+  return withReader(desk, eng => {
+    const histories = deskHistories(eng)
+    return Array.from({ length: weeks }, (_, i) => {
+      const until = new Date(now.getTime() - (weeks - 1 - i) * WEEK_MS)
+      return metricsOf(histories, new Date(until.getTime() - WEEK_MS), until)
+    })
+  })
+}
+
+/** One event of an item as a line for a person, with the item it belongs to. */
+export type Receipt = EventLine & { item: string }
+
+/** The events of every item of the desk since a time, the newest first, such as the receipts of today. */
+export function readReceipts(desk: string, since: Date): Receipt[] {
+  return withReader(desk, eng => eng.stores.events.since(since.toISOString()).map(event => ({ ...eventLine(event), item: event.item })))
 }
 
 /** The areas of the engineering home of the desk, in the order of `nook.yml`; none when the desk has no home. */

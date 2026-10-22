@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { readAreas, readBoard, readDocs, readItem, readMetrics, readSettings } from '../src/read/reader.ts'
+import { readAreas, readBoard, readDocs, readItem, readMetrics, readReceipts, readSettings, readTrend } from '../src/read/reader.ts'
 import { itemAt, LEAD, makeHome, PLAN, READER, SPEC, TASKS, type TestHome, writeDoc } from './helpers.ts'
 
 let t: TestHome
@@ -59,6 +59,34 @@ describe('readMetrics', () => {
     } finally {
       rmSync(bare, { recursive: true, force: true })
     }
+  })
+})
+
+describe('readTrend', () => {
+  test('gives the metrics of each of the last six weeks, the oldest first, so the approve of today counts in the last one', () => {
+    itemAt(t, 'ready')
+    const weeks = readTrend(t.root)!
+    expect(weeks.map(w => w.approveWait.count)).toEqual([0, 0, 0, 0, 0, 1])
+    expect(Date.parse(weeks[5]!.until) - Date.parse(weeks[5]!.since)).toBe(7 * 24 * 3_600_000)
+  })
+
+  test('gives null for a folder with no engineering home', () => {
+    const bare = mkdtempSync(join(tmpdir(), 'nook-no-home-'))
+    try {
+      expect(readTrend(bare)).toBeNull()
+    } finally {
+      rmSync(bare, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('readReceipts', () => {
+  test('gives the events of every item since a time, the newest first, each with its item', () => {
+    itemAt(t, 'framing')
+    itemAt(t, 'backlog', 'SHOP-2')
+    const receipts = readReceipts(t.root, new Date(Date.now() - 60_000))
+    expect(receipts.map(r => `${r.item} ${r.title}`)).toEqual(['SHOP-2 The lead added the item', 'SHOP-1 The lead started the spec', 'SHOP-1 The lead added the item'])
+    expect(readReceipts(t.root, new Date(Date.now() + 60_000))).toEqual([])
   })
 })
 

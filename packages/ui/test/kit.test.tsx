@@ -26,12 +26,15 @@ import { Quote } from '@nook/ui/components/quote.tsx'
 import { RecordList } from '@nook/ui/components/record-list.tsx'
 import { RuleList } from '@nook/ui/components/rule-list.tsx'
 import { PercentRing, RingIcon } from '@nook/ui/components/ring.tsx'
+import { InboxRow } from '@nook/ui/components/inbox-row.tsx'
 import { Section } from '@nook/ui/components/section.tsx'
 import { SegmentBar } from '@nook/ui/components/segment-bar.tsx'
+import { Sparkline } from '@nook/ui/components/sparkline.tsx'
 import { StatTile } from '@nook/ui/components/stat-tile.tsx'
 import { StepList } from '@nook/ui/components/step-list.tsx'
 import { Tally } from '@nook/ui/components/tally.tsx'
 import { TaskCard } from '@nook/ui/components/task-card.tsx'
+import { TrendTile } from '@nook/ui/components/trend-tile.tsx'
 
 const html = (node: ReactElement) => renderToStaticMarkup(node)
 const text = (markup: string) => markup.replace(/<[^>]+>/g, ' ').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
@@ -93,6 +96,33 @@ describe('SegmentBar', () => {
     const markup = html(<SegmentBar label="Time" parts={[{ key: 'backlog', tone: 'neutral', size: 3, label: 'backlog' }, { key: 'framing', tone: 'violet', size: 1 }]} />)
     expect([...markup.matchAll(/flex:(\d+)/g)].map(m => m[1])).toEqual(['3', '1'])
     expect(text(markup)).toBe('backlog')
+  })
+})
+
+describe('Sparkline', () => {
+  test('draws the points from left to right, the highest at the top, and breaks the line at a point with no data', () => {
+    const lines = [...html(<Sparkline label="Rework" points={[0, 50, null, 100]} />).matchAll(/points="([^"]*)"/g)].map(m => m[1])
+    expect(lines).toEqual(['0.0,27.0 33.3,15.0', '100.0,3.0'])
+  })
+
+  test('a flat trend sits in the middle', () => {
+    expect(html(<Sparkline label="Cycle" points={[5, 5]} />)).toContain('points="0.0,15.0 100.0,15.0"')
+  })
+})
+
+describe('TrendTile', () => {
+  test('gives the label, the value with its unit, the trend and the line under it', () => {
+    const markup = html(<TrendTile label="Rework rate" value="25" unit="%" points={[1, 2]} tone="danger" note="1 of 4 sent back" />)
+    expect(text(markup)).toBe('Rework rate 25 % 1 of 4 sent back')
+    expect(markup).toContain('aria-label="Rework rate, one point for each week"')
+  })
+})
+
+describe('InboxRow', () => {
+  test('gives the id, the title, the line under it, the actions and the part that acts in place; the picked row is marked', () => {
+    const markup = html(<InboxRow tone="danger" id="SHOP-43" title="Export the list" sub="Waits for your approve" actions={<button type="button">Approve</button>} below={<input aria-label="answer" />} selected />)
+    expect(text(markup)).toBe('SHOP-43 Export the list Waits for your approve Approve')
+    expect(markup).toStartWith('<li data-slot="inbox-row" data-selected="true"')
   })
 })
 

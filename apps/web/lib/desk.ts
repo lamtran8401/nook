@@ -5,7 +5,7 @@ import { EvError } from '@nook/shared/errors.ts'
 import { type HomeView, readHome } from '@nook/core/read.ts'
 import { activePacks } from '@nook/desk/desks.ts'
 import { engineeringModule } from '@nook/engineering/module.ts'
-import { type BoardCard, type ItemDocs, type ItemView, readAreas, readBoard, readDocs, readItem, readMetrics } from '@nook/engineering/read/reader.ts'
+import { type BoardCard, type ItemDocs, type ItemView, readAreas, readBoard, readDocs, readItem, readMetrics, type Receipt, readReceipts, readTrend } from '@nook/engineering/read/reader.ts'
 import type { Metrics } from '@nook/engineering/report/metrics.ts'
 import { learnModule } from '@nook/learn/module.ts'
 import { type CourseView, readLearn } from '@nook/learn/read.ts'
@@ -65,6 +65,8 @@ export function openCount(dir: string): number | undefined {
   }
 }
 export const metrics = (dir: string): Metrics | null => readMetrics(dir)
+export const trend = (dir: string): Metrics[] | null => readTrend(dir)
+export const receipts = (dir: string, since: Date): Receipt[] => readReceipts(dir, since)
 export const deskAreas = (dir: string): string[] => readAreas(dir)
 export const itemView = (dir: string, id: string): ItemView => readItem(dir, id)
 export const item = (dir: string, id: string): { view: ItemView; docs: ItemDocs } => ({ view: itemView(dir, id), docs: readDocs(dir, id) })

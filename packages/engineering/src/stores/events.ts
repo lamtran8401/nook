@@ -39,6 +39,11 @@ export class EventStore {
     return this.ledger.all<Event>('SELECT * FROM event WHERE item = ? ORDER BY id', item)
   }
 
+  /** The events of every item from `at` on, the newest first. */
+  since(at: string): Event[] {
+    return this.ledger.all<Event>('SELECT * FROM event WHERE at >= ? ORDER BY id DESC', at)
+  }
+
   last(item: string, type: string): Event | null {
     return this.ledger.get<Event>(
       'SELECT * FROM event WHERE item = ? AND type = ? ORDER BY id DESC LIMIT 1',
