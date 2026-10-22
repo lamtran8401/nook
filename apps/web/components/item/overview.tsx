@@ -3,6 +3,7 @@ import type { ItemDocs, ItemView } from '@nook/engineering/read/reader.ts'
 import type { Guess } from '@nook/engineering/stores/guesses.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
 import type { Slice } from '@nook/engineering/stores/slices.ts'
+import { duration } from '@nook/engineering/format.ts'
 import { PercentRing } from '@nook/ui/components/ring.tsx'
 import { SegmentBar } from '@nook/ui/components/segment-bar.tsx'
 import { Tally } from '@nook/ui/components/tally.tsx'
@@ -16,8 +17,7 @@ import { NextStep } from '@/components/item/next-step.tsx'
 import { Timeline } from '@/components/item/timeline.tsx'
 import { STATE_TONE } from '@/components/tones.ts'
 import { parseDoc } from '@/lib/blocks.ts'
-import { CRITERION_TONE, type CriterionState, criterionState, timeInSteps } from '@/lib/progress.ts'
-import { duration } from '@/lib/time.ts'
+import { CRITERION_STATE_TONE, type CriterionState, criterionState, timeInSteps } from '@/lib/progress.ts'
 
 const RECEIPTS = 5
 const Muted = ({ children }: { children: string }) => <p className="text-[13px] text-muted-foreground">{children}</p>
@@ -29,7 +29,7 @@ function CriteriaTile({ view }: { view: ItemView }) {
   if (!criteria.length) return <Tile title="Criteria"><Muted>No criteria yet. The spec step writes them.</Muted></Tile>
   const states = criteria.map(c => criterionState(c, slices, item.state, item.blocked_from))
   const met = states.filter(s => s === 'met').length
-  const rows = CRITERION_ORDER.filter(state => state === 'met' || states.includes(state)).map(state => ({ tone: CRITERION_TONE[state], label: state, value: states.filter(s => s === state).length }))
+  const rows = CRITERION_ORDER.filter(state => state === 'met' || states.includes(state)).map(state => ({ tone: CRITERION_STATE_TONE[state], label: state, value: states.filter(s => s === state).length }))
   return (
     <Tile title="Criteria">
       <div className="flex items-center gap-4">

@@ -1,9 +1,15 @@
 import { describe, expect, test } from 'bun:test'
 
-import { runText, testCounts } from '../src/format.ts'
+import { duration, runText, testCounts } from '../src/format.ts'
 
 const BUN = 'test/a.test.ts:\n(pass) one\n\n 19 pass\n 0 fail\n 22 expect() calls\nRan 19 tests across 2 files. [3.00ms]\n'
 const JEST = 'PASS src/a.test.ts\nTests:       1 failed, 2 skipped, 88 passed, 91 total\nTime: 2s\n'
+
+describe('duration', () => {
+  test('reads a span in the largest units that keep it short: seconds, minutes, hours, then days', () => {
+    expect([20_000, 25 * 60_000, 200 * 60_000, 25 * 3_600_000, 48 * 3_600_000, 30 * 86_400_000 + 5 * 3_600_000].map(duration)).toEqual(['20 s', '25 min', '3 h 20 min', '1 d 1 h', '2 d', '30 d 5 h'])
+  })
+})
 
 describe('testCounts', () => {
   test('reads the pass and fail counts of bun test', () => {

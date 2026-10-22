@@ -66,7 +66,7 @@ describe('FlowMetrics', () => {
   }
 
   test('shows the rework rate, the first pass and the median cycle time of the last 30 days', () => {
-    expect(text(html(<FlowMetrics metrics={metrics} />))).toBe('Last 30 days Rework rate 25% 1 of 4 sent back First pass 67% 2 of 3 accepted Cycle time 25 h median of 3')
+    expect(text(html(<FlowMetrics metrics={metrics} />))).toBe('Last 30 days Rework rate 25% 1 of 4 sent back First pass 67% 2 of 3 accepted Cycle time 1 d 1 h median of 3')
   })
 
   test('a metric with no data says so, never 0%', () => {

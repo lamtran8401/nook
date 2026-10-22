@@ -26,7 +26,7 @@ describe('MetricsPage', () => {
     const markup = html(<MetricsPage metrics={METRICS} blocks={[{ hook: 'eng bash', reason: 'may not run `date`.', count: 2, at: '2026-10-19T09:00:00Z' }]} />)
     expect(text(markup)).toBe(
       'Flow Rework rate 25% 1 of 4 sent back First pass 67% 2 of 3 accepted Slice rework 10% 1 of 10 reopened ' +
-        'Cycle time 25 h longest 48 h (SHOP-1) Approve wait 2 h longest 3 h (SHOP-1) Accept wait 6 h longest 18 h (SHOP-1) ' +
+        'Cycle time 1 d 1 h longest 2 d (SHOP-1) Approve wait 2 h longest 3 h (SHOP-1) Accept wait 6 h longest 18 h (SHOP-1) ' +
         'Root causes 2 Integration error 2 Requirement problem 1 Guard blocks 1 eng bash: may not run `date`. 2',
     )
     expect([...markup.matchAll(/width:(\d+)%/g)].map(m => m[1])).toEqual(['100', '50', '100'])

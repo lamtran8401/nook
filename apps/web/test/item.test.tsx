@@ -82,7 +82,7 @@ describe('ItemAside', () => {
 
   test('gives the details of the item: step, kind, size, points, mode, areas, branch, time in the step and creation day', () => {
     const markup = html(<ItemAside view={view} docs={docs} tab="overview" now={NOW} base="/personal" />)
-    expect(text(markup)).toStartWith('Details Step cooking Kind feature Size L Points 8 pt Mode normal yolo Areas api web Branch nook/SHOP-42-pay-with-a-saved-card In this step 1d 5h Created 14 Oct')
+    expect(text(markup)).toStartWith('Details Step cooking Kind feature Size L Points 8 pt Mode normal yolo Areas api web Branch nook/SHOP-42-pay-with-a-saved-card In this step 1 d 5 h Created 14 Oct')
     const mode = (value: string) => new RegExp(`<button[^>]*value="${value}"[^>]*>`).exec(markup)![0]
     expect(mode('normal')).toContain('data-state="on"')
     expect(mode('yolo')).toContain('type="submit"')
@@ -197,7 +197,7 @@ describe('Overview', () => {
   })
 
   test('gives the time in each step, the step it is in counted up to now', () => {
-    expect(tile(html(<Overview view={view} docs={[]} now={NOW} />), 'Time in each step')).toBe('Time in each step 2d 6h so far backlog 50m framing 6h 30m planning 17h 10m ready 25m cooking 1d 5h')
+    expect(tile(html(<Overview view={view} docs={[]} now={NOW} />), 'Time in each step')).toBe('Time in each step 2 d 6 h so far backlog 50 min framing 6 h 30 min planning 17 h 10 min ready 25 min cooking 1 d 5 h')
   })
 
   test('the receipts are the records of the item, newest first, with no step of the flow', () => {

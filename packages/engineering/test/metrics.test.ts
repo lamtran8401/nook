@@ -80,7 +80,7 @@ describe('metricsText', () => {
         'rework rate   25%  1 of 4 reviewed items sent back, 2 rejects',
         'first pass    67%  2 of 3 accepted items with no send-back',
         'slice rework  10%  1 of 10 done slices reopened',
-        'cycle time    median 25 h · longest 48 h (SHOP-1) · 3 items',
+        'cycle time    median 1 d 1 h · longest 2 d (SHOP-1) · 3 items',
         'approve wait  median 2 h · longest 3 h (SHOP-1) · 2 approves',
         'accept wait   median 6 h · longest 18 h (SHOP-1) · 3 accepts',
         'root causes   Integration error 2 · Requirement problem 1',

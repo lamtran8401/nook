@@ -4,7 +4,6 @@ import type { ItemMove } from '@nook/engineering/read/reader.ts'
 import type { Slice } from '@nook/engineering/stores/slices.ts'
 
 import { criterionState, timeInSteps } from '@/lib/progress.ts'
-import { duration } from '@/lib/time.ts'
 
 const slice = (id: string, state: Slice['state'], acs: number[]) => ({ id, state, acs }) as Slice
 
@@ -21,6 +20,10 @@ describe('the state of a criterion', () => {
 
   test('in the build, the slices that prove it give the state: one at work builds, one that waits or fails blocks', () => {
     expect([1, 2, 3, 4, 5].map(n => criterionState({ n, done: false }, slices, 'cooking'))).toEqual(['building', 'building', 'blocked', 'waits', 'waits'])
+  })
+
+  test('a done item counts each criterion as met, as its accept does', () => {
+    expect(criterionState({ n: 4, done: false }, slices, 'done')).toBe('met')
   })
 
   test('a blocked item in its build reads as in the build', () => {
@@ -48,11 +51,5 @@ describe('the time in each step', () => {
   test('a done item stops counting at its accept', () => {
     const done: ItemMove[] = [...moves, { move: 'accept', to: 'done', at: '2026-10-14T15:30:00Z' }]
     expect(timeInSteps(done, new Date('2026-10-20T00:00:00Z')).map(part => part.step)).toEqual(['backlog', 'framing', 'planning'])
-  })
-})
-
-describe('a duration', () => {
-  test('reads in its two largest units', () => {
-    expect([duration(30 * 86_400_000 + 5 * 3_600_000), duration(200 * 60_000), duration(12 * 60_000)]).toEqual(['30d 5h', '3h 20m', '12m'])
   })
 })

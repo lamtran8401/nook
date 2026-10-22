@@ -25,13 +25,14 @@ const orNone = (lines: string[], none: string) => lines.join('\n') || none
 
 export const cut = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1)}…` : text)
 
-/** A span of time in the largest units that keep it short: 40 s, 25 min, 3 h 10 min. */
+/** A span of time in the largest units that keep it short: 40 s, 25 min, 3 h 10 min, 2 d 5 h. */
 export const duration = (ms: number): string => {
   const minutes = Math.round(ms / 60_000)
   if (minutes < 1) return `${Math.round(ms / 1000)} s`
   if (minutes < 60) return `${minutes} min`
-  const rest = minutes % 60
-  return `${Math.floor(minutes / 60)} h${rest ? ` ${rest} min` : ''}`
+  const hours = Math.floor(minutes / 60)
+  if (hours >= 24) return `${Math.floor(hours / 24)} d${hours % 24 ? ` ${hours % 24} h` : ''}`
+  return `${hours} h${minutes % 60 ? ` ${minutes % 60} min` : ''}`
 }
 
 export const itemLine = (i: Item) =>

@@ -6,17 +6,18 @@ import type { Slice } from '@nook/engineering/stores/slices.ts'
 import { FLOW } from '@/lib/board.ts'
 
 export type CriterionState = 'met' | 'planned' | 'building' | 'blocked' | 'waits'
-export const CRITERION_TONE: Record<CriterionState, string> = { met: 'success', planned: 'neutral', building: 'primary', blocked: 'danger', waits: 'neutral' }
+export const CRITERION_STATE_TONE: Record<CriterionState, string> = { met: 'success', planned: 'neutral', building: 'primary', blocked: 'danger', waits: 'neutral' }
 
-const BUILT: Item['state'][] = ['cooking', 'review', 'done']
+const BUILT: Item['state'][] = ['cooking', 'review']
 
 /**
- * The state of a criterion: met with its evidence; before the build, planned; in the build, the slices that prove it
- * tell: one that waits or fails blocks it, one at work or done builds it, and none started yet waits.
+ * The state of a criterion: met with its evidence, or once the item is done, since the accept counts each one met;
+ * before the build, planned; in the build, the slices that prove it tell: one that waits or fails blocks it, one at
+ * work or done builds it, and none started yet waits.
  */
 export function criterionState(criterion: Pick<Criterion, 'n' | 'done'>, slices: Slice[], state: Item['state'], blockedFrom: Item['state'] | null = null): CriterionState {
-  if (criterion.done) return 'met'
   const step = state === 'blocked' ? blockedFrom : state
+  if (criterion.done || step === 'done') return 'met'
   if (!step || !BUILT.includes(step)) return 'planned'
   const proving = slices.filter(slice => slice.acs.includes(criterion.n) && slice.state !== 'cancelled')
   if (proving.some(slice => slice.state === 'failed' || slice.state === 'waiting')) return 'blocked'

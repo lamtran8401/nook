@@ -3,8 +3,8 @@ import type { ReactNode } from 'react'
 import { Badge } from '@nook/ui/components/badge.tsx'
 import { RecordList } from '@nook/ui/components/record-list.tsx'
 
-import { CRITERION_TONE as TAG_TONE } from '@/components/tones.ts'
-import { CRITERION_TONE, type CriterionState } from '@/lib/progress.ts'
+import { CRITERION_TONE } from '@/components/tones.ts'
+import { CRITERION_STATE_TONE, type CriterionState } from '@/lib/progress.ts'
 
 /**
  * One criterion of a spec: its tag, its words, the sources it rests on, such as `ticket AC1`, the slices that prove
@@ -35,12 +35,12 @@ export function CriteriaList({ lines }: { lines: CriterionLine[] }) {
         id: `AC${line.n}`,
         main: (
           <>
-            {line.tag ? <Badge tone={TAG_TONE[line.tag]} className="mr-2 align-[1px]">{line.tag}</Badge> : null}
+            {line.tag ? <Badge tone={CRITERION_TONE[line.tag]} className="mr-2 align-[1px]">{line.tag}</Badge> : null}
             {line.content}
           </>
         ),
         sub: <Sources line={line} />,
-        end: line.state ? <Badge tone={CRITERION_TONE[line.state]}>{line.state}</Badge> : undefined,
+        end: line.state ? <Badge tone={CRITERION_STATE_TONE[line.state]}>{line.state}</Badge> : undefined,
       }))}
     />
   )
