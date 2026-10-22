@@ -31,8 +31,7 @@ export function NextStep({ next }: { next: Next }) {
   if (next.owner)
     return (
       <ActionBar label="Next · You" mark="YOU" action={step.command ? <CopyCommand text={step.command} /> : undefined}>
-        <Words>{capital(step.words)}</Words>
-        {next.detail ? <Small>{next.detail}</Small> : null}
+        <Words>{next.detail ? `${capital(step.words)}: ${next.detail.replace(/^Q\d+ /, '')}` : capital(step.words)}</Words>
       </ActionBar>
     )
   return (

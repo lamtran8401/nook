@@ -1,6 +1,7 @@
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 
 import { KIND_TONE } from '@/components/tones.ts'
+import { ownerGate } from '@/lib/turn.ts'
 
 type Step = BoardCard['state']
 export type Phase = { name: string; tone: string; steps: Step[]; about: string }
@@ -73,4 +74,16 @@ export function boardHref(base: string, options: BoardOptions, change: Partial<B
   if (next.kind !== 'all') query.set('kind', next.kind)
   const text = query.toString()
   return `${base}/works${text ? `?${text}` : ''}`
+}
+
+/** The last line of a card: what holds it up or who moves next, and the tone of its dot; a closed item is only done. */
+export function flagOf(card: BoardCard): { words: string; tone?: string } {
+  const step = stepOf(card)
+  if (card.flags[0]) return { words: card.flags[0], tone: 'danger' }
+  const gate = ownerGate(card.next)
+  if (gate) return { words: `waits for your ${gate}`, tone: 'danger' }
+  if (step === 'done') return card.next.skill.startsWith('/close') ? { words: 'waits for /close', tone: 'warning' } : { words: 'done' }
+  const skill = card.next.skill.replace(` ${card.id}`, '')
+  if (card.next.owner) return { words: skill.split(':')[0]!, tone: 'danger' }
+  return { words: `the lead runs ${skill}`, tone: PHASES.find(phase => phase.steps.includes(step))?.tone ?? 'neutral' }
 }

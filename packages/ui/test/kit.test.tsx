@@ -13,6 +13,7 @@ import { CriterionCards } from '@nook/ui/components/criterion-cards.tsx'
 import { DetailList, Detail } from '@nook/ui/components/detail-list.tsx'
 import { Diagram } from '@nook/ui/components/diagram.tsx'
 import { Disclosure } from '@nook/ui/components/disclosure.tsx'
+import { DotChip } from '@nook/ui/components/dot-chip.tsx'
 import { EmptyState } from '@nook/ui/components/empty-state.tsx'
 import { Group, GroupCount, GroupLine } from '@nook/ui/components/group.tsx'
 import { IconTile } from '@nook/ui/components/icon-tile.tsx'
@@ -122,6 +123,14 @@ describe('InboxRow', () => {
     const markup = html(<InboxRow tone="danger" id="SHOP-43" title="Export the list" sub="Waits for your approve" actions={<button type="button">Approve</button>} below={<input aria-label="answer" />} selected />)
     expect(text(markup)).toBe('SHOP-43 Export the list Waits for your approve Approve')
     expect(markup).toStartWith('<li data-slot="inbox-row" data-selected="true"')
+  })
+})
+
+describe('DotChip', () => {
+  test('gives the dot of its tone before its words', () => {
+    const chip = html(<DotChip tone="violet">framing 2</DotChip>)
+    expect(chip).toContain('data-tone="violet"')
+    expect(text(chip)).toBe('framing 2')
   })
 })
 

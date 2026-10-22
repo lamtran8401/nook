@@ -15,7 +15,7 @@ export function CopyCommand({ text }: { text: string }) {
       () => setCopied('failed'),
     )
   return (
-    <code data-slot="copy-command" className="inline-flex w-fit max-w-full items-center gap-1 rounded-full bg-surface py-[3px] pr-[3px] pl-2.5 font-mono text-[11.5px] leading-[18px] text-foreground shadow-xs [overflow-wrap:anywhere]">
+    <code data-slot="copy-command" className="inline-flex w-fit max-w-full items-center gap-1 rounded-full bg-surface py-[3px] pr-[3px] pl-3 font-sans text-[12.5px] leading-[20px] font-medium text-foreground shadow-xs [overflow-wrap:anywhere]">
       {text}
       <button
         type="button"

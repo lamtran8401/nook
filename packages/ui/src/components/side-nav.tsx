@@ -16,7 +16,7 @@ function NavLink({ item }: { item: NavItem }) {
     >
       {item.icon}
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
-      {item.count === undefined ? null : <span className="font-mono text-[11px] text-muted-foreground">{item.count}</span>}
+      {item.count === undefined ? null : <span className="font-mono text-[11px] text-faint">{item.count}</span>}
     </a>
   )
 }

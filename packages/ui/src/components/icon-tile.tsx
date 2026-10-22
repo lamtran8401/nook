@@ -5,7 +5,7 @@ import { cn } from '@nook/ui/lib/utils.ts'
 const SIZE = {
   md: 'size-8 rounded-sm bg-tone-subtle text-[13px] font-bold text-tone [&_svg]:size-4',
   sm: 'size-4 rounded-full bg-tone text-[10px] font-extrabold text-surface',
-  xs: 'size-4 rounded-[4px] bg-tone text-surface',
+  xs: 'size-4 rounded-[4px] bg-tone-subtle text-tone',
 } as const
 
 /** A mark in a tile of its tone: the icon of a row, a kind, an urgent line. A `label` names it for a reader of the screen. */

@@ -12,7 +12,6 @@ import { Tile } from '@nook/ui/components/tile.tsx'
 import { Inline } from '@/components/blocks/inline.tsx'
 import { Branches } from '@/components/item/branches.tsx'
 import { Lanes } from '@/components/item/lanes.tsx'
-import { AnswerForm, GuessMoves } from '@/components/item/answer-forms.tsx'
 import { NextStep } from '@/components/item/next-step.tsx'
 import { Timeline } from '@/components/item/timeline.tsx'
 import { STATE_TONE } from '@/components/tones.ts'
@@ -33,7 +32,7 @@ function CriteriaTile({ view }: { view: ItemView }) {
   return (
     <Tile title="Criteria">
       <div className="flex items-center gap-4">
-        <PercentRing value={(100 * met) / criteria.length} label={`${met}/${criteria.length}`} tone="success" size={64} />
+        <PercentRing value={(100 * met) / criteria.length} label={`${met}/${criteria.length}`} tone="success" size={76} />
         <div className="min-w-0 flex-1">
           <Tally rows={rows} />
         </div>
@@ -51,7 +50,7 @@ function AnswersTile({ text }: { text: string | null }) {
   return (
     <Tile title="Answers">
       <div className="flex items-center gap-4">
-        <PercentRing value={(100 * answered) / cards.length} label={`${answered}/${cards.length}`} tone="success" size={64} />
+        <PercentRing value={(100 * answered) / cards.length} label={`${answered}/${cards.length}`} tone="success" size={76} />
         <div className="min-w-0 flex-1">
           <Tally rows={rows} />
         </div>
@@ -97,8 +96,8 @@ function questionNote(q: Question): { text: string; tone?: string } {
   return q.blocking ? { text: 'Open · blocks the build', tone: 'danger' } : { text: 'Open · blocks nothing' }
 }
 
-/** The questions of the lead and its guesses: an open question takes its answer here, and an open guess its decision. */
-function QuestionsTile({ id, questions, guesses }: { id: string; questions: Question[]; guesses: Guess[] }) {
+/** The questions of the lead and its guesses, each with its answer or its state; the owner answers in the inbox. */
+function QuestionsTile({ questions, guesses }: { questions: Question[]; guesses: Guess[] }) {
   if (!questions.length && !guesses.length) return <Tile title="Questions and guesses"><Muted>No question and no guess.</Muted></Tile>
   return (
     <Tile title="Questions and guesses">
@@ -111,7 +110,6 @@ function QuestionsTile({ id, questions, guesses }: { id: string; questions: Ques
               <div className="min-w-0 flex-1">
                 <p>{q.text}</p>
                 <p data-tone={note.tone} className="text-muted-foreground data-[tone]:text-tone">{note.text}</p>
-                {q.status === 'open' ? <AnswerForm item={id} question={q} /> : null}
               </div>
             </li>
           )
@@ -122,7 +120,6 @@ function QuestionsTile({ id, questions, guesses }: { id: string; questions: Ques
             <div className="min-w-0 flex-1">
               <p>{g.question}</p>
               <p className="text-muted-foreground">{`Took ${g.took} · ${g.impact} impact · ${g.status}`}</p>
-              {g.status === 'open' ? <div className="mt-1.5"><GuessMoves item={id} guess={g} /></div> : null}
             </div>
           </li>
         ))}
@@ -181,7 +178,7 @@ export function Overview({ view, docs, now }: { view: ItemView; docs: ItemDocs; 
       <div className="grid gap-3 md:grid-cols-2">
         {findings ? <AnswersTile text={findings.text} /> : <CriteriaTile view={view} />}
         {findings && !view.slices.length ? null : <SlicesTile slices={view.slices} />}
-        <QuestionsTile id={view.item.id} questions={view.questions} guesses={view.guesses} />
+        <QuestionsTile questions={view.questions} guesses={view.guesses} />
         <InShortTile view={view} docs={docs} />
       </div>
       <TimeTile view={view} now={now} />

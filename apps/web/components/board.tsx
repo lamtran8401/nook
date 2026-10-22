@@ -2,6 +2,7 @@ import { Inbox } from 'lucide-react'
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 
 import { Badge } from '@nook/ui/components/badge.tsx'
+import { DotChip } from '@nook/ui/components/dot-chip.tsx'
 import { EmptyState } from '@nook/ui/components/empty-state.tsx'
 import { FlowLane } from '@nook/ui/components/flow-lane.tsx'
 import { Frame } from '@nook/ui/components/frame.tsx'
@@ -10,6 +11,7 @@ import { LinkTabs } from '@nook/ui/components/link-tabs.tsx'
 import { StepBar } from '@nook/ui/components/step-bar.tsx'
 
 import { KindIcon, StateTag } from '@/components/marks.tsx'
+import { STATE_TONE } from '@/components/tones.ts'
 import { OpenCard } from '@/components/open-card.tsx'
 import {
   BACKLOG,
@@ -17,6 +19,7 @@ import {
   type BoardOptions,
   boardHref,
   FLOW,
+  flagOf,
   holderGroups,
   KINDS,
   laneOf,
@@ -29,7 +32,6 @@ import {
 } from '@/lib/board.ts'
 import { turnTitle } from '@/lib/turn.ts'
 
-const capital = (word: string) => word.charAt(0).toUpperCase() + word.slice(1)
 const needsOwner = (card: BoardCard) => card.next.owner && stepOf(card) !== 'done'
 
 function YoloChip() {
@@ -40,10 +42,11 @@ function YoloChip() {
   )
 }
 
-/** One item as a card that opens its drawer: the next move is its flag line, unless a blocking question or a failed slice holds it. */
+/** One item as a card that opens its drawer, its last line from the flag rule of the board. */
 function Card({ card, base }: { card: BoardCard; base: string }) {
   const step = stepOf(card)
   const { done, total } = card.slices
+  const flag = flagOf(card)
   return (
     <OpenCard
       href={`${base}/works/${card.id}`}
@@ -54,7 +57,8 @@ function Card({ card, base }: { card: BoardCard; base: string }) {
       areas={card.areas}
       title={card.title}
       steps={<StepBar count={FLOW.length} at={FLOW.indexOf(step)} finished={step === 'done'} />}
-      flag={step === 'done' ? null : (card.flags[0] ?? turnTitle(card.next).replace(` ${card.id}`, ''))}
+      flag={flag.words}
+      {...(flag.tone ? { flagTone: flag.tone } : {})}
       end={total ? `${done}/${total}` : null}
       needs={needsOwner(card)}
     />
@@ -66,9 +70,9 @@ const emptyText = (kind: string, phase: string) => (kind === 'all' ? `No item in
 function stepChips(phase: Phase, cards: BoardCard[]) {
   if (phase.steps.length < 2) return null
   return phase.steps.map(step => (
-    <Badge key={step} variant="outline" className="bg-surface">
+    <DotChip key={step} tone={STATE_TONE[step] ?? 'neutral'}>
       {step} {cards.filter(card => stepOf(card) === step).length}
-    </Badge>
+    </DotChip>
   ))
 }
 
@@ -163,11 +167,14 @@ function ItemList({ cards, group, base }: { cards: BoardCard[]; group: BoardOpti
 export function Board({ cards, options, base }: { cards: BoardCard[]; options: BoardOptions; base: string }) {
   if (!cards.length) return <EmptyState icon={<Inbox className="size-5" aria-hidden="true" />} title="No item yet">Type /intake in the agent session to start one.</EmptyState>
   const shown = visibleCards(cards, options.kind)
-  const kinds = KINDS.map(kind => ({ href: boardHref(base, options, { kind }), label: capital(kind), current: kind === options.kind }))
+  const kinds = KINDS.map(kind => ({ href: boardHref(base, options, { kind }), label: kind, current: kind === options.kind }))
   return (
     <div className="flex flex-col gap-4">
       <FlowLane parts={laneOf(shown)} />
-      <LinkTabs tabs={kinds} label="Kinds of items" variant="segment" />
+      <div className="flex flex-wrap items-center gap-3">
+        <LinkTabs tabs={kinds} label="Kinds of items" variant="segment" />
+        <span className="ml-auto text-xs text-faint">{`${shown.length} of ${cards.length} items`}</span>
+      </div>
       {options.layout === 'list' ? (
         <ItemList cards={shown} group={options.group} base={base} />
       ) : options.group === 'holder' ? (

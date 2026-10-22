@@ -7,9 +7,9 @@ export function Tile({ title, note, children, className }: { title?: string; not
   return (
     <section data-slot="tile" className={cn('flex min-w-0 flex-col gap-3 rounded-lg bg-card p-4 shadow-sm', className)}>
       {title ? (
-        <h2 className="flex items-baseline gap-2 text-[13.5px] font-semibold">
+        <h2 className="flex items-baseline gap-2 text-[13px] font-semibold text-muted-foreground">
           {title}
-          {note === undefined ? null : <span className="font-mono text-xs font-normal text-muted-foreground">{note}</span>}
+          {note === undefined ? null : <span className="font-mono text-xs font-normal text-faint">{note}</span>}
         </h2>
       ) : null}
       {children}

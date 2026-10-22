@@ -11,7 +11,7 @@ export function RecordList({ rows }: { rows: RecordRow[] }) {
       <ol className="divide-y divide-hairline">
         {rows.map(row => (
           <li key={row.id} className="grid grid-cols-[44px_minmax(0,1fr)_auto] items-start gap-3 px-4 py-2.5">
-            <span className="pt-0.5 font-mono text-[11.5px] text-muted-foreground">{row.id}</span>
+            <span className="pt-0.5 font-mono text-[11.5px] text-faint">{row.id}</span>
             <div className="min-w-0">
               <p className="text-[13.5px] leading-[21px]">{row.main}</p>
               {row.sub ? <div className="mt-0.5 text-[12.5px] text-muted-foreground">{row.sub}</div> : null}

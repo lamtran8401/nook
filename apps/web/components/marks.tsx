@@ -1,4 +1,4 @@
-import { Bookmark, Bug, ListChecks, Search } from 'lucide-react'
+import { Minus, Plus, Search, X } from 'lucide-react'
 import type { ComponentType, SVGProps } from 'react'
 
 import { IconTile } from '@nook/ui/components/icon-tile.tsx'
@@ -26,10 +26,10 @@ export function StateTag({ state }: { state: string }) {
   )
 }
 
-const KIND_ICON: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = { feature: Bookmark, fix: Bug, chore: ListChecks, investigate: Search }
+const KIND_ICON: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = { feature: Plus, fix: X, chore: Minus, investigate: Search }
 
 export function KindIcon({ kind }: { kind: string }) {
-  const Glyph = KIND_ICON[kind] ?? ListChecks
+  const Glyph = KIND_ICON[kind] ?? Minus
   return (
     <IconTile tone={KIND_TONE[kind] ?? 'neutral'} size="xs" label={kind}>
       <Glyph className="size-2.5" strokeWidth={3} aria-hidden="true" />

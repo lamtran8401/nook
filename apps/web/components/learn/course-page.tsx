@@ -45,7 +45,7 @@ function Scores({ trends }: { trends: CriterionTrend[] }) {
 export function CoursePage({ course }: { course: CourseView }) {
   return (
     <div className="grid gap-3">
-      <h1 className="text-[26px] leading-[34px] font-bold tracking-tight">{course.name.charAt(0).toUpperCase() + course.name.slice(1)}</h1>
+      <h1 className="text-[22px] leading-7 font-semibold tracking-[-0.01em]">{course.name.charAt(0).toUpperCase() + course.name.slice(1)}</h1>
       <div className="grid items-start gap-3 md:grid-cols-2">
         <Tile title="Cards due" note={course.due.length}>
           {course.due.length ? (

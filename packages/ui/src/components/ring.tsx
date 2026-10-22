@@ -34,7 +34,7 @@ export function PercentRing({ value, tone = 'primary', size = 48, label }: { val
         <circle cx="24" cy="24" r={r} fill="none" stroke="var(--bg-muted)" strokeWidth="5" />
         {round > 0 ? <circle cx="24" cy="24" r={r} fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeDasharray={`${((length * round) / 100).toFixed(2)} ${length.toFixed(2)}`} /> : null}
       </svg>
-      <span className="relative font-mono font-semibold text-foreground" style={{ fontSize: Math.max(11, size / 4.5) }}>{label ?? `${round}%`}</span>
+      <span className="relative font-mono font-medium text-foreground" style={{ fontSize: Math.max(11, size / 4) }}>{label ?? `${round}%`}</span>
     </span>
   )
 }

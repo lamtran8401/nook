@@ -135,6 +135,9 @@
   }
 }
 
+/* the text of v2: 14px with an open line, as the mock sets its body; the kit sets 16px */
+body { font-size: 14px; line-height: 1.45; }
+
 /* the frames of the kit take the tile corner of v2; a frame of cards stays concentric with its 12px cards */
 .dg { border-radius: var(--radius-lg); }
 .dg .bd-col, .dg .bd-rest { border-radius: var(--radius-lg); }

@@ -24,8 +24,8 @@ export function Frame({ title, tone, count, points, about, chips, layout = 'colu
         <div className="flex items-center gap-2 text-[13.5px] font-semibold">
           {tone ? <i data-tone={tone} className="size-2 rounded-full bg-tone" aria-hidden="true" /> : null}
           {title}
-          <span className="font-mono font-medium text-muted-foreground">{count}</span>
-          {points === undefined ? null : <span className="ml-auto text-xs font-normal text-muted-foreground tabular-nums">{points} pt</span>}
+          <span className="font-medium text-faint">{count}</span>
+          {points === undefined ? null : <span className="ml-auto font-mono text-xs font-normal text-faint">{points} pt</span>}
         </div>
         {about ? <p className="mt-0.5 text-xs text-muted-foreground">{about}</p> : null}
         {chips ? <div className="mt-1.5 flex flex-wrap gap-1">{chips}</div> : null}

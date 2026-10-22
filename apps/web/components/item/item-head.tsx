@@ -42,7 +42,7 @@ export function ItemHead({ view }: { view: ItemView }) {
       <div className="flex items-start gap-4">
         <div className="min-w-0 flex-1">
           <ItemLine item={item} />
-          <h1 className="mt-1 text-[26px] leading-[34px] font-bold tracking-tight text-balance">{item.title}</h1>
+          <h1 className="mt-1 text-[22px] leading-7 font-semibold tracking-[-0.01em] text-balance">{item.title}</h1>
         </div>
         {next.owner ? null : <CopyCommand text={next.skill} />}
       </div>

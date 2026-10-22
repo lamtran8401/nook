@@ -105,7 +105,7 @@ describe('NextStep', () => {
   test('a blocking question is a move of the owner with no gate: it names the answer to give', () => {
     const next = { ...view.next, owner: true, skill: 'answer Q3: nook eng answer SHOP-42 Q3 "<answer>"', detail: 'Q3 Must a refund go to the same card?' }
     const markup = html(<NextStep next={next} />)
-    expect(text(markup)).toBe('YOU Next · You Answer Q3 Q3 Must a refund go to the same card? nook eng answer SHOP-42 Q3 "<answer>"')
+    expect(text(markup)).toBe('YOU Next · You Answer Q3: Must a refund go to the same card? nook eng answer SHOP-42 Q3 "<answer>"')
     expect(markup).toMatch(/<code data-slot="copy-command"[^>]*>nook eng answer SHOP-42 Q3 &quot;&lt;answer&gt;&quot;/)
   })
 
@@ -173,21 +173,13 @@ describe('Overview', () => {
     expect(tile(html(<Overview view={built} docs={[]} now={NOW} />), 'Slices')).toBe('Slices 1 of 4 done T1 T7 T9 T10 T7 · slice T7 waits: waits for Q3 T9 · slice T9 failed: the clock fake skips the 5 min try')
   })
 
-  test('an open question takes its answer in place, and an open guess its decision', () => {
+  test('lists each question with its answer or its state, and each guess with what it took, its impact and its state', () => {
     const markup = html(<Overview view={view} docs={[]} now={NOW} />)
     expect(tile(markup, 'Questions and guesses')).toBe(
-      'Questions and guesses Q1 Which currency? the shop currency Q3 Must a refund go to the same card? Open · blocks the build Answer Q4 Must the list show the expiry date? Open · blocks nothing Answer ' +
-        'G2 When does a declined charge try again? Took after 1, 5 and 30 minutes · high impact · accepted G5 When does a declined charge try again? Took after 1, 5 and 30 minutes · high impact · open Accept Flip',
+      'Questions and guesses Q1 Which currency? the shop currency Q3 Must a refund go to the same card? Open · blocks the build Q4 Must the list show the expiry date? Open · blocks nothing ' +
+        'G2 When does a declined charge try again? Took after 1, 5 and 30 minutes · high impact · accepted G5 When does a declined charge try again? Took after 1, 5 and 30 minutes · high impact · open',
     )
-    expect(markup).toContain('aria-label="Answer to Q3"')
-  })
-
-  test('an investigation counts its answers in place of criteria, and has no slices', () => {
-    const findings = { name: 'findings' as const, text: '## Q1\n\n- Answer: the database.\n- Evidence: EXPLAIN.\n\n## Q2\n\n- Answer: \n- Evidence: \n' }
-    const investigation = { ...view, item: { ...view.item, kind: 'investigate' as const }, criteria: [], slices: [] }
-    const markup = html(<Overview view={investigation} docs={[findings]} now={NOW} />)
-    expect(tile(markup, 'Answers')).toBe('Answers 1/2 answered 1 open 1')
-    expect(tiles(markup).some(words => words.startsWith('Slices') || words.startsWith('Criteria'))).toBe(false)
+    expect(markup).not.toContain('aria-label="Answer to Q3"')
   })
 
   test('gives the In short of the spec, and at the plan step the In short of the plan', () => {

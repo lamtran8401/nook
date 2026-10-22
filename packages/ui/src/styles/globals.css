@@ -20,6 +20,8 @@
   --color-secondary-foreground: var(--fg);
   --color-muted: var(--bg-muted);
   --color-muted-foreground: var(--fg-muted);
+  /* the faint words of v2, such as an id or a count: the placeholder grey of the kit */
+  --color-faint: var(--placeholder);
   --color-accent: var(--bg-muted);
   --color-accent-foreground: var(--fg);
   --color-destructive: var(--danger);

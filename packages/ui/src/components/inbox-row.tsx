@@ -22,7 +22,7 @@ export function InboxRow({ tone, id, title, sub, actions, below, selected = fals
       className="grid grid-cols-[10px_68px_minmax(0,1fr)] items-start gap-x-3 rounded-md px-3 py-2.5 data-[selected=true]:bg-primary-subtle data-[selected=true]:shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_30%,transparent)] max-sm:grid-cols-[10px_minmax(0,1fr)]"
     >
       <i data-tone={tone} className="mt-[7px] size-2 rounded-full bg-tone" aria-hidden="true" />
-      <span className="pt-0.5 font-mono text-xs text-muted-foreground max-sm:hidden">{id}</span>
+      <span className="pt-0.5 font-mono text-xs text-faint max-sm:hidden">{id}</span>
       <div className="grid min-w-0 gap-1">
         <div className="flex flex-wrap items-start gap-x-3 gap-y-1.5">
           <div className="min-w-0 flex-1">

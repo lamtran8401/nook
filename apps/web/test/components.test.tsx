@@ -43,7 +43,7 @@ describe('Board', () => {
     const [held, free] = [...markup.matchAll(/<a data-slot="item-card"[\s\S]*?<\/a>/g)].map(found => found[0])
     expect(held).toContain('href="/personal/works/SHOP-12" data-needs="true"')
     expect(text(held!)).toEndWith('Q2 blocks 2/5')
-    expect(text(free!)).toEndWith('The lead runs /cook 2/5')
+    expect(text(free!)).toEndWith('the lead runs /cook 2/5')
   })
 
   test('grouped by who holds it, the list shows one group for each holder', () => {

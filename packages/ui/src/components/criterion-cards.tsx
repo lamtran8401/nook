@@ -16,7 +16,7 @@ export function CriterionCards({ items }: { items: CriterionCard[] }) {
           </span>
           <div className="grid min-w-0 gap-1">
             <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[13.5px] leading-5 font-medium">
-              <span className="font-mono text-[11.5px] font-normal text-muted-foreground">AC {item.n}</span>
+              <span className="font-mono text-[11.5px] font-normal text-faint">AC {item.n}</span>
               {item.tag ? <Badge tone={item.tag.tone}>{item.tag.text.toLowerCase()}</Badge> : null}
               <span className="min-w-0">{item.content}</span>
             </p>
