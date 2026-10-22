@@ -24,7 +24,7 @@ describe('WikiHome', () => {
     expect(markup).toContain('<a data-slot="icon-card" href="/personal/wiki/resources"')
     expect(text(markup)).toBe(
       'Drafts that wait for your yes 1 Payment retries drafts/payment-retries.md draft ' +
-        'Shelves 2 ideas an idea that has not started 0 pages resources how a system works 1 page system',
+        'Shelves 2 ideas 0 pages an idea that has not started resources 1 page system how a system works',
     )
   })
 
@@ -50,8 +50,8 @@ describe('WikiPage', () => {
     expect(markup).toContain('<a href="/personal/wiki/resources/shipments-page.md" class="hover:underline">[[shipments-page]]</a>')
     expect(markup).toContain('<p>Pages of 20, see <a href="/personal/wiki/resources/shipments-page.md">shipments-page</a>.</p>')
     expect(text(markup)).toBe(
-      'Wiki resources shipments-api.md docs/wiki/resources/shipments-api.md · type system Shipments api Pages of 20, see shipments-page . ' +
-        'Links page [[shipments-page]] none old.md no such page',
+      'Shipments api docs/wiki/resources/shipments-api.md · type system Pages of 20, see shipments-page . ' +
+        'Links 2 page [[shipments-page]] none old.md no such page',
     )
   })
 
@@ -72,15 +72,15 @@ const course: CourseView = {
 
 describe('CoursePage', () => {
   test('shows the cards due, the top patterns and the last band of each criterion', () => {
-    expect(text(html(<CoursePage course={course} base="/personal" />))).toBe(
-      'Learn english English Cards due · 1 c3 a decision ___ the plan on box 2 ' +
-        'Top patterns of your mistakes 4× a missing article before a singular noun last on 2026-10-17 ' +
-        'Scores by criterion 6.5 Task Achievement last on 2026-10-17, task 2 · 2 scores 7 Lexical Resource last on 2026-10-17, task 2 · 1 score',
+    expect(text(html(<CoursePage course={course} />))).toBe(
+      'English Cards due 1 c3 a decision ___ the plan on box 2 ' +
+        'Top patterns of your mistakes 1 4× a missing article before a singular noun last on 2026-10-17 ' +
+        'Scores by criterion 2 6.5 Task Achievement last on 2026-10-17, task 2 · 2 scores 7 Lexical Resource last on 2026-10-17, task 2 · 1 score',
     )
   })
 
   test('lists each course with what waits in it', () => {
-    expect(text(html(<Courses courses={[course]} base="/personal" />))).toBe('Courses 1 english 1 card due today · 1 pattern of mistakes 2 scored criteria')
+    expect(text(html(<Courses courses={[course]} base="/personal" />))).toBe('english 2 scored criteria 1 card due today · 1 pattern of mistakes')
   })
 })
 

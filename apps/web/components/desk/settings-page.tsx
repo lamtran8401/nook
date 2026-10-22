@@ -1,58 +1,71 @@
 import { Badge } from '@nook/ui/components/badge.tsx'
-import { InlineCode } from '@nook/ui/components/inline-code.tsx'
-import { SectionHeader } from '@nook/ui/components/section-header.tsx'
+import { SettingRow, SettingRows } from '@nook/ui/components/setting-rows.tsx'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@nook/ui/components/table.tsx'
 
+import { AreaTags } from '@/components/areas.tsx'
+import { KindIcon } from '@/components/marks.tsx'
 import type { DeskSettings } from '@/lib/desk.ts'
 
-const Muted = ({ children }: { children: React.ReactNode }) => <p className="text-sm text-muted-foreground">{children}</p>
+const Muted = ({ children }: { children: React.ReactNode }) => <p className="text-[13px] text-muted-foreground">{children}</p>
 
-/** The setup of the desk: its packs, its areas with their checks, the kinds it learned, its root cause types and its file. */
+/** The setup of the desk in one card: its packs, its areas with their checks, the kinds it learned, its root cause types and its file. */
 export function SettingsPage({ settings }: { settings: DeskSettings }) {
   const eng = settings.engineering
   return (
-    <>
-      <section className="grid gap-3">
-        <SectionHeader title="Packs" count={settings.packs.length} />
+    <SettingRows>
+      <SettingRow title="Packs" about={<>From <code className="font-mono">nook.yml</code>.</>}>
         <div className="flex flex-wrap gap-1.5">
           {settings.packs.map(pack => (
-            <Badge key={pack} variant="outline">{pack}</Badge>
+            <span key={pack} className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1 shadow-xs">
+              <i data-tone="success" className="size-2 rounded-full bg-tone" aria-hidden="true" />
+              {pack}
+              <span className="text-muted-foreground">on</span>
+            </span>
           ))}
         </div>
-      </section>
+      </SettingRow>
       {eng ? (
         <>
-          <section className="grid gap-3">
-            <SectionHeader title="Areas" count={eng.areas.length} />
+          <SettingRow title="Areas" about="Where builders work.">
             <Table>
               <TableHeader>
-                <TableRow><TableHead>Area</TableHead><TableHead>Path</TableHead><TableHead>Kind</TableHead><TableHead>Checks</TableHead></TableRow>
+                <TableRow><TableHead>Area</TableHead><TableHead>Folder</TableHead><TableHead>Kind</TableHead><TableHead>Checks</TableHead></TableRow>
               </TableHeader>
               <TableBody>
                 {eng.areas.map(a => (
-                  <TableRow key={a.name}><TableCell className="font-medium">{a.name}</TableCell><TableCell className="font-mono text-xs">{a.path}</TableCell><TableCell>{a.kind}</TableCell><TableCell className="font-mono text-xs">{a.checks.join(' · ') || 'none'}</TableCell></TableRow>
+                  <TableRow key={a.name}><TableCell><AreaTags names={[a.name]} /></TableCell><TableCell className="font-mono text-xs">{a.path}</TableCell><TableCell>{a.kind}</TableCell><TableCell className="font-mono text-xs">{a.checks.join(' · ') || 'none'}</TableCell></TableRow>
                 ))}
               </TableBody>
             </Table>
-          </section>
-          <section className="grid gap-3">
-            <SectionHeader title="Kinds learned" count={eng.kinds.length} />
-            {eng.kinds.length ? <ul className="grid gap-1 text-sm">{eng.kinds.map(k => <li key={k.type}>{`${k.type} → ${k.kind}`}</li>)}</ul> : <Muted>None yet: /spec asks the first time it meets a ticket type.</Muted>}
-          </section>
-          <section className="grid gap-3">
-            <SectionHeader title="Root causes" count={eng.rootCauses.length} />
+          </SettingRow>
+          <SettingRow title="Learned kinds" about="Learned from your answers, with no setup.">
+            {eng.kinds.length ? (
+              <Table>
+                <TableHeader>
+                  <TableRow><TableHead>Ticket type</TableHead><TableHead>Kind</TableHead></TableRow>
+                </TableHeader>
+                <TableBody>
+                  {eng.kinds.map(k => (
+                    <TableRow key={k.type}><TableCell>{k.type}</TableCell><TableCell><span className="inline-flex items-center gap-1.5"><KindIcon kind={k.kind} />{k.kind}</span></TableCell></TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Muted>None yet: /spec asks the first time it meets a ticket type.</Muted>
+            )}
+          </SettingRow>
+          <SettingRow title="Root cause types" about="A fix names one at submit.">
             {eng.rootCauses.length ? (
               <div className="flex flex-wrap gap-1.5">{eng.rootCauses.map(c => <Badge key={c} tone={c === eng.unknownRootCause ? 'warning' : 'neutral'}>{c}</Badge>)}</div>
             ) : (
-              <Muted>No list: any type passes. Write <InlineCode>engineering.rootCauses</InlineCode> in nook.yml to check them.</Muted>
+              <Muted>No list: any type passes. Write <code className="font-mono">engineering.rootCauses</code> in nook.yml to check them.</Muted>
             )}
-          </section>
+          </SettingRow>
         </>
       ) : null}
-      <section className="grid gap-3">
-        <SectionHeader title="File" />
-        <InlineCode>{settings.file}</InlineCode>
-      </section>
-    </>
+      <SettingRow title="File" about="Edit it to change a pack or an area.">
+        <code className="font-mono text-xs [overflow-wrap:anywhere]">{settings.file}</code>
+      </SettingRow>
+    </SettingRows>
   )
 }

@@ -8,6 +8,7 @@ import { IconCard } from '@nook/ui/components/icon-card.tsx'
 import { InlineCode } from '@nook/ui/components/inline-code.tsx'
 import { Badge } from '@nook/ui/components/badge.tsx'
 import { SectionHeader } from '@nook/ui/components/section-header.tsx'
+import { TreeNav } from '@nook/ui/components/tree-nav.tsx'
 
 import { PAGE_TYPE_TONE } from '@/components/tones.ts'
 
@@ -77,16 +78,27 @@ export function WikiHome({ wiki, base }: { wiki: WikiView | null; base: string }
   )
 }
 
+/** The wiki beside its nav: the shelves and their pages on the left, the open part on the right. */
+export function WikiLayout({ wiki, current, base, children }: { wiki: WikiView | null; current?: string; base: string; children: React.ReactNode }) {
+  if (!wiki?.shelves.length) return <>{children}</>
+  const groups = [
+    ...(wiki.drafts.length ? [{ title: 'drafts', links: wiki.drafts.map(d => ({ href: `${base}/wiki/drafts/${d}`, label: title(d), current: current === `drafts/${d}` })) }] : []),
+    ...wiki.shelves.map(shelf => ({
+      title: shelf.name,
+      href: `${base}/wiki/${shelf.name}`,
+      current: current === shelf.name,
+      links: shelf.lines.map(line => ({ href: `${base}/wiki/${shelf.name}/${line.page}`, label: title(line.page), current: current === `${shelf.name}/${line.page}` })),
+    })),
+  ]
+  return (
+    <div className="grid items-start gap-3 md:grid-cols-[240px_minmax(0,1fr)]">
+      <TreeNav label="Shelves" groups={groups} />
+      <div className="grid min-w-0 gap-3">{children}</div>
+    </div>
+  )
+}
+
 /** One shelf alone, as `/wiki/resources` shows it. */
 export function ShelfPage({ shelf, base }: { shelf: ShelfView; base: string }) {
-  return (
-    <>
-      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <a href={`${base}/wiki`} className="hover:text-foreground">Wiki</a>
-        <span aria-hidden="true">/</span>
-        <span className="text-foreground" aria-current="page">{shelf.name}</span>
-      </nav>
-      <Shelf shelf={shelf} base={base} />
-    </>
-  )
+  return <Shelf shelf={shelf} base={base} />
 }

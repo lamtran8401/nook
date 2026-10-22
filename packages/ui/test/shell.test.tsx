@@ -40,11 +40,11 @@ describe('PageHeader and SectionHeader', () => {
 })
 
 describe('IconCard', () => {
-  test('a card with an address is one link: the tile in its tone, the title, two lines, the tags and the part on the right', () => {
+  test('a card with an address is one link: the tile in its tone, the title with its tags and the part on the right, then its lines', () => {
     const card = html(<IconCard href="/personal/works/SHOP-42" icon={<i />} tone="danger" title="Pay with a saved card" description="The api charges a saved card." tags={['api', 'web', 'M']} meta="SHOP-42" />)
     expect(card).toStartWith('<a data-slot="icon-card" href="/personal/works/SHOP-42"')
     expect(card).toContain('data-slot="icon-tile" data-tone="danger"')
-    expect(text(card)).toBe('Pay with a saved card SHOP-42 The api charges a saved card. api web M')
+    expect(text(card)).toBe('Pay with a saved card api web M SHOP-42 The api charges a saved card.')
   })
 
   test('a card with no address is an article', () => {

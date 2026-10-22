@@ -9,7 +9,6 @@ import { Checklist } from '@nook/ui/components/checklist.tsx'
 import { CodeBlock } from '@nook/ui/components/code-block.tsx'
 import { ChangeList } from '@nook/ui/components/change-list.tsx'
 import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
-import { CountTile } from '@nook/ui/components/count-tile.tsx'
 import { CriterionCards } from '@nook/ui/components/criterion-cards.tsx'
 import { DetailList, Detail } from '@nook/ui/components/detail-list.tsx'
 import { Diagram } from '@nook/ui/components/diagram.tsx'
@@ -29,10 +28,8 @@ import { ReceiptList } from '@nook/ui/components/receipt-list.tsx'
 import { RuleList } from '@nook/ui/components/rule-list.tsx'
 import { PercentRing, RingIcon } from '@nook/ui/components/ring.tsx'
 import { InboxRow } from '@nook/ui/components/inbox-row.tsx'
-import { Section } from '@nook/ui/components/section.tsx'
 import { SegmentBar } from '@nook/ui/components/segment-bar.tsx'
 import { Sparkline } from '@nook/ui/components/sparkline.tsx'
-import { StatTile } from '@nook/ui/components/stat-tile.tsx'
 import { StepList } from '@nook/ui/components/step-list.tsx'
 import { Tally } from '@nook/ui/components/tally.tsx'
 import { TaskCard } from '@nook/ui/components/task-card.tsx'
@@ -175,12 +172,6 @@ describe('EmptyState', () => {
   })
 })
 
-describe('StatTile', () => {
-  test('gives a label, a value with its unit, and a part beside them', () => {
-    expect(text(html(<StatTile label="Criteria met" value="1" unit=" / 4" aside={<PercentRing value={25} tone="success" />} />))).toBe('Criteria met 1 / 4 25%')
-  })
-})
-
 describe('LinkTabs', () => {
   test('marks the current tab for a reader of the screen', () => {
     const tabs = html(<LinkTabs label="Packs" tabs={[{ href: '/', label: 'Home' }, { href: '/works', label: 'Works', current: true }]} />)
@@ -204,25 +195,11 @@ describe('Diagram', () => {
   })
 })
 
-describe('CountTile', () => {
-  test('gives the count over its label, in its tone', () => {
-    const tile = html(<CountTile count={2} label="Urgent" tone="danger" />)
-    expect(tile).toContain('data-tone="danger"')
-    expect(text(tile)).toBe('2 Urgent')
-  })
-})
-
 describe('Disclosure', () => {
   test('keeps its words in the page while it is closed, so a reader of the source and a search find them', () => {
     const part = html(<Disclosure summary="All questions · 3">Q1 Which currency?</Disclosure>)
     expect(part).toContain('aria-expanded="false"')
     expect(text(part)).toBe('All questions · 3 Q1 Which currency?')
-  })
-})
-
-describe('Section', () => {
-  test('gives its title as a heading over what it holds', () => {
-    expect(html(<Section title="Needs you"><p>x</p></Section>)).toContain('<h2 class="text-[19px] font-semibold">Needs you</h2><p>x</p>')
   })
 })
 

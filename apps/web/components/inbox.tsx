@@ -1,6 +1,6 @@
 import type { BriefLine } from '@nook/desk/desks.ts'
 import type { BoardCard, Receipt } from '@nook/engineering/read/reader.ts'
-import type { Metrics, Share, Times } from '@nook/engineering/report/metrics.ts'
+import type { Metrics } from '@nook/engineering/report/metrics.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
 import { Button } from '@nook/ui/components/button.tsx'
 import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
@@ -9,15 +9,14 @@ import { ReceiptList } from '@nook/ui/components/receipt-list.tsx'
 import { SegmentBar } from '@nook/ui/components/segment-bar.tsx'
 import { Tally } from '@nook/ui/components/tally.tsx'
 import { Tile } from '@nook/ui/components/tile.tsx'
-import { TrendTile } from '@nook/ui/components/trend-tile.tsx'
 
+import { FlowTiles } from '@/components/flow-tiles.tsx'
 import { AnswerForm } from '@/components/item/answer-forms.tsx'
 import { Move } from '@/components/item/move.tsx'
 import { InboxList, type InboxListRow } from '@/components/inbox-list.tsx'
 import { STATE_TONE } from '@/components/tones.ts'
 import { FLOW } from '@/lib/board.ts'
 import { type InboxRowData, inboxRows, whoOf } from '@/lib/inbox.ts'
-import { median, NO_DATA, percent } from '@/lib/metric-text.ts'
 import { clock } from '@/lib/time.ts'
 
 const RECEIPTS = 10
@@ -64,23 +63,6 @@ function Waits({ brief, questions, base }: { brief: BriefLine[]; questions: Ques
         <Muted>Nothing waits for you.</Muted>
       )}
     </Tile>
-  )
-}
-
-const shareOf = (s: Share) => (s.whole ? (100 * s.part) / s.whole : null)
-const unitOf = (text: string) => (text === NO_DATA ? { value: text } : { value: text.replace(/\s.*$/, ''), unit: text.slice(text.indexOf(' ')) })
-
-/** The four numbers of the flow over the last 30 days, each with its trend over the last six weeks. */
-function Numbers({ metrics, trend }: { metrics: Metrics; trend: Metrics[] }) {
-  const time = (t: Times) => (t.median === null ? { value: NO_DATA } : unitOf(median(t)))
-  const pct = (s: Share) => (s.whole ? { value: percent(s).replace('%', ''), unit: '%' } : { value: NO_DATA })
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      <TrendTile label="Rework rate" {...pct(metrics.rework)} tone="danger" points={trend.map(w => shareOf(w.rework))} note={`${metrics.rework.part} of ${metrics.rework.whole} sent back`} />
-      <TrendTile label="First pass" {...pct(metrics.firstPass)} tone="success" points={trend.map(w => shareOf(w.firstPass))} note={`${metrics.firstPass.part} of ${metrics.firstPass.whole} accepted`} />
-      <TrendTile label="Cycle time" {...time(metrics.cycle)} tone="primary" points={trend.map(w => w.cycle.median)} note={`median of ${metrics.cycle.count} ${metrics.cycle.count === 1 ? 'item' : 'items'}`} />
-      <TrendTile label="Approve wait" {...time(metrics.approveWait)} tone="violet" points={trend.map(w => w.approveWait.median)} note="your gate, median" />
-    </div>
   )
 }
 
@@ -141,7 +123,7 @@ export function Inbox({ brief, questions, metrics, trend, receipts, cards, base 
         </Tile>
       </div>
       <aside className="grid min-w-0 gap-3">
-        {metrics && trend ? <Numbers metrics={metrics} trend={trend} /> : null}
+        {metrics && trend ? <FlowTiles metrics={metrics} trend={trend} keys={['rework', 'firstPass', 'cycle', 'approveWait']} /> : null}
         {cards.length ? <BoardTile cards={cards} base={base} /> : null}
         <Lines title="The lead runs" lines={brief.filter(l => l.part === 'runs')} empty="The lead runs nothing now." base={base} />
         <Lines title="Done since yesterday" lines={brief.filter(l => l.part === 'done')} empty="Nothing is done since yesterday." base={base} />

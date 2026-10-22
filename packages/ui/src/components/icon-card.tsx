@@ -6,34 +6,30 @@ import { cn } from '@nook/ui/lib/utils.ts'
 type IconCardProps = { href?: string; icon: ReactNode; tone?: string; title: string; description?: string; tags?: ReactNode[]; meta?: ReactNode; className?: string }
 
 /**
- * A card of the app: a pastel tile with a colored glyph, a bold title, two muted lines, and tag pills. With an address
- * the whole card is one link.
+ * A small card of the app: a tinted tile with a glyph, a bold title with its tags beside it, and one or two muted
+ * lines. With an address the whole card is one link.
  */
 export function IconCard({ href, icon, tone = 'neutral', title, description, tags = [], meta, className }: IconCardProps) {
   const body = (
     <>
-      <div className="flex items-center gap-3">
-        <IconTile tone={tone} className="size-10 [&_svg]:size-5">
-          {icon}
-        </IconTile>
-        <h3 className="min-w-0 flex-1 truncate text-[16px] font-semibold">{title}</h3>
-        {meta ? <span className="shrink-0 font-mono text-xs text-muted-foreground">{meta}</span> : null}
-      </div>
-      {description ? <p className="line-clamp-2 text-[14px] leading-[21px] text-muted-foreground">{description}</p> : null}
-      {tags.length ? (
-        <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
+      <IconTile tone={tone}>{icon}</IconTile>
+      <div className="grid min-w-0 gap-0.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+          <h3 className="truncate text-[13.5px] font-semibold">{title}</h3>
           {tags.map((tag, i) => (
-            <span key={i} className="rounded-full bg-muted px-2.5 py-[3px] text-[12.5px] text-muted-foreground">
+            <span key={i} className="rounded-full bg-muted px-2 text-[11px] leading-[18px] font-medium text-muted-foreground">
               {tag}
             </span>
           ))}
+          {meta ? <span className="ml-auto shrink-0 font-mono text-[11.5px] text-muted-foreground">{meta}</span> : null}
         </div>
-      ) : null}
+        {description ? <p className="line-clamp-2 text-[12.5px] leading-[18px] text-muted-foreground">{description}</p> : null}
+      </div>
     </>
   )
-  const style = cn('flex flex-col gap-2.5 rounded-[18px] bg-card p-4 shadow-[var(--shadow-1)]', className)
+  const style = cn('grid grid-cols-[32px_minmax(0,1fr)] items-start gap-3 rounded-md bg-card px-3.5 py-3 shadow-xs', className)
   return href ? (
-    <a data-slot="icon-card" href={href} className={cn(style, 'outline-offset-2 focus-visible:outline-2')}>
+    <a data-slot="icon-card" href={href} className={cn(style, 'outline-offset-2 hover:bg-muted/40 focus-visible:outline-2')}>
       {body}
     </a>
   ) : (

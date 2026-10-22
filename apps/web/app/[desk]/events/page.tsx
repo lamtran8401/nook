@@ -16,7 +16,7 @@ export default async function Events({ params, searchParams }: Props) {
   return (
     <>
       <PageHeader title="Events" description="The log of this desk, newest first: each block of a guard, each error of a hook, each prompt." />
-      <EventsPage events={events(desk.dir, kind ? { kind } : {})} kind={kind} base={desk.base} />
+      <EventsPage events={events(desk.dir, kind ? { kind } : {})} kind={kind} base={desk.base} now={new Date()} />
     </>
   )
 }

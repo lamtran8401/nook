@@ -67,7 +67,7 @@ describe('Inbox', () => {
   test('each number of the flow has its value, its trend of six weeks and its line', () => {
     const markup = inbox()
     expect(tile(markup, 'Rework rate')).toBe('Rework rate 25 % 1 of 4 sent back')
-    expect(tile(markup, 'Cycle time')).toBe('Cycle time 1 d 1 h median of 3 items')
+    expect(tile(markup, 'Cycle time')).toBe('Cycle time 1 d 1 h median, longest 2 d (SHOP-1)')
     expect(markup.match(/data-slot="sparkline"/g)).toHaveLength(4)
   })
 

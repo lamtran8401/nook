@@ -11,6 +11,6 @@ export default async function Course({ params }: { params: Promise<{ desk: strin
   const name = decodeURIComponent((await params).course)
   return orGap(() => {
     const course = courses(desk.dir).find(c => c.name === name)
-    return course ? <CoursePage course={course} base={desk.base} /> : <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title={`No course is named ${name}`}>Open a course from the list on Learn.</EmptyState>
+    return course ? <CoursePage course={course} /> : <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title={`No course is named ${name}`}>Open a course from the list on Learn.</EmptyState>
   })
 }

@@ -2,13 +2,11 @@ import { Check, FileText, GraduationCap } from 'lucide-react'
 
 import type { CourseView, CriterionTrend } from '@nook/learn/read.ts'
 import { Badge } from '@nook/ui/components/badge.tsx'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@nook/ui/components/breadcrumb.tsx'
 import { CopyCommand } from '@nook/ui/components/copy-command.tsx'
 import { EmptyState } from '@nook/ui/components/empty-state.tsx'
 import { IconCard } from '@nook/ui/components/icon-card.tsx'
 import { RecordList } from '@nook/ui/components/record-list.tsx'
-import { Section } from '@nook/ui/components/section.tsx'
-import { SectionHeader } from '@nook/ui/components/section-header.tsx'
+import { Tile } from '@nook/ui/components/tile.tsx'
 
 import { Diagram } from '@/components/diagram.tsx'
 
@@ -43,37 +41,30 @@ function Scores({ trends }: { trends: CriterionTrend[] }) {
   )
 }
 
-/** A course: the cards due today, the top patterns of the owner's mistakes, and the bands of each criterion over time. */
-export function CoursePage({ course, base }: { course: CourseView; base: string }) {
+/** A course on tiles: the cards due today, the top patterns of the owner's mistakes, and the bands of each criterion over time. */
+export function CoursePage({ course }: { course: CourseView }) {
   return (
-    <div className="mx-auto grid w-full max-w-[920px] gap-5">
-      <header className="grid gap-2.5">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem><BreadcrumbLink href={`${base}/learn`}>Learn</BreadcrumbLink></BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem><BreadcrumbPage>{course.name}</BreadcrumbPage></BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <h1 className="text-3xl font-bold tracking-tight">{course.name.charAt(0).toUpperCase() + course.name.slice(1)}</h1>
-      </header>
-      <Section title={`Cards due · ${course.due.length}`}>
-        {course.due.length ? (
-          <RecordList rows={course.due.map(card => ({ id: card.id, main: card.front, sub: card.back, end: <Badge variant="outline">box {card.box}</Badge> }))} />
-        ) : (
-          <EmptyState compact icon={<Check className="size-5" aria-hidden="true" />} title="No card due today">The next cards come back on their day.</EmptyState>
-        )}
-      </Section>
-      <Section title="Top patterns of your mistakes">
-        {course.patterns.length ? (
-          <RecordList rows={course.patterns.map(p => ({ id: `${p.count}×`, main: p.pattern, sub: `last on ${p.last}` }))} />
-        ) : (
-          <EmptyState compact icon={<Check className="size-5" aria-hidden="true" />} title="No mistake logged yet">A study session logs each one in your own words.</EmptyState>
-        )}
-      </Section>
-      <Section title="Scores by criterion">
+    <div className="grid gap-3">
+      <h1 className="text-[26px] leading-[34px] font-bold tracking-tight">{course.name.charAt(0).toUpperCase() + course.name.slice(1)}</h1>
+      <div className="grid items-start gap-3 md:grid-cols-2">
+        <Tile title="Cards due" note={course.due.length}>
+          {course.due.length ? (
+            <RecordList rows={course.due.map(card => ({ id: card.id, main: card.front, sub: card.back, end: <Badge variant="outline">box {card.box}</Badge> }))} />
+          ) : (
+            <EmptyState compact icon={<Check className="size-5" aria-hidden="true" />} title="No card due today">The next cards come back on their day.</EmptyState>
+          )}
+        </Tile>
+        <Tile title="Top patterns of your mistakes" note={course.patterns.length}>
+          {course.patterns.length ? (
+            <RecordList rows={course.patterns.map(p => ({ id: `${p.count}×`, main: p.pattern, sub: `last on ${p.last}` }))} />
+          ) : (
+            <EmptyState compact icon={<Check className="size-5" aria-hidden="true" />} title="No mistake logged yet">A study session logs each one in your own words.</EmptyState>
+          )}
+        </Tile>
+      </div>
+      <Tile title="Scores by criterion" note={course.trends.length}>
         <Scores trends={course.trends} />
-      </Section>
+      </Tile>
     </div>
   )
 }
@@ -82,21 +73,18 @@ export function CoursePage({ course, base }: { course: CourseView; base: string 
 export function Courses({ courses, base }: { courses: CourseView[]; base: string }) {
   if (!courses.length) return <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title="No course yet">Type <CopyCommand text="/learn-setup" /> in the agent session to start one.</EmptyState>
   return (
-    <section className="grid gap-3">
-      <SectionHeader title="Courses" count={courses.length} />
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {courses.map(c => (
-          <IconCard
-            key={c.name}
-            href={`${base}/learn/${c.name}`}
-            icon={<GraduationCap aria-hidden="true" />}
-            tone="violet"
-            title={c.name}
-            description={`${count(c.due.length, 'card')} due today · ${count(c.patterns.length, 'pattern')} of mistakes`}
-            tags={[`${c.trends.length} scored ${c.trends.length === 1 ? 'criterion' : 'criteria'}`]}
-          />
-        ))}
-      </div>
-    </section>
+    <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+      {courses.map(c => (
+        <IconCard
+          key={c.name}
+          href={`${base}/learn/${c.name}`}
+          icon={<GraduationCap aria-hidden="true" />}
+          tone="violet"
+          title={c.name}
+          description={`${count(c.due.length, 'card')} due today · ${count(c.patterns.length, 'pattern')} of mistakes`}
+          tags={[`${c.trends.length} scored ${c.trends.length === 1 ? 'criterion' : 'criteria'}`]}
+        />
+      ))}
+    </div>
   )
 }
