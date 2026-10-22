@@ -1,6 +1,6 @@
 # The build report
 
-> In short: Nook has five packs, 102 commands, 45 skills, 12 agents and 14 hooks. All 1239 tests pass. Engineering is in real use; the wiki and learn are built and wait for more use. The next step is the viewer.
+> In short: Nook has five packs, 102 commands, 45 skills, 12 agents and 14 hooks. All 1240 tests pass. Engineering is in real use; the wiki and learn are built and wait for more use. The web app has its v2 look: an inbox, a board by phase, and an item in a drawer.
 
 This file states the build of today. Update its numbers in the same commit as the change that moves them.
 
@@ -14,7 +14,7 @@ This file states the build of today. Update its numbers in the same commit as th
 | agents | 12: engineering 10, wiki 1, learn 1 | `ls plugins/*/agents` |
 | hooks | 14: core 7, engineering 6, issue-tracker 1 | `plugins/*/hooks/hooks.json` |
 | base rules | 9: writing, safety, questions, approach, comments, engineering, testing, wiki, learn | `ls plugins/*/templates/rules` |
-| tests | 1239 in 131 files, 0 failures | `bun run check` |
+| tests | 1240 in 131 files, 0 failures | `bun run check` |
 | source | about 9,800 lines of TypeScript in 6 packages | `find packages/*/src -name '*.ts' \| xargs cat \| wc -l` |
 | runtime dependencies | 2: `yaml` 2.9.1, `ts-pattern` 5.9.0 | `packages/*/package.json` |
 
@@ -96,6 +96,7 @@ Each step starts with its expectation file in `docs/expect/`, before code.
 | v0.3 | one release: the pack `issue-tracker` pulls a Jira ticket or a GitHub issue into `backlog/<KEY>/`, read only; install the dependencies of an area when they are missing; `nook web`, the desk in the browser, with your gates there; `nook search` across the wiki, the items and the courses | planned, next |
 | kinds | one flow file for each kind; a fix with its repro and root cause; an investigation with results; sub-bugs under their story; the kind of each ticket type learned in the desk (`docs/plan/kinds.md`) | built |
 | web shell | a rail of desks, a side nav, page headers and cards; one `nook web` for every desk; the log of Next.js; Metrics, Agents and skills, Events, Settings (`docs/plan/web-shell.md`) | built |
+| web v2 | the v2 look; a desk menu, a sidebar that docks or floats, ⌘K and keys; an inbox where you act in place; a board by phase with a Display menu; an item in a drawer and on a page with tabs by kind; story points (`docs/plan/web-v2.md`) | built |
 | research | `/research`: analysts in parallel, each finding with a source, a fact-checker | planned |
 | visual | the page of every pack: diagrams, decks, sketches | planned |
 | `/learn-progress` | a level for each skill of a course, and the plan of the next month | planned |

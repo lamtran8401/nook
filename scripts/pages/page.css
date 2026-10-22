@@ -82,6 +82,8 @@ pre.code code { background: none; padding: 0; font: 400 13px/21px var(--font-mon
 
 /* ---------- figures: the Bench diagrams fill the column and scroll inside when wider ---------- */
 .fig { margin: 24px 0 20px; }
+figure.shot { margin: 18px 0; padding: 8px; }
+figure.shot img { display: block; width: 100%; height: auto; border-radius: 10px; }
 figcaption { font-size: 13px; line-height: 18px; color: var(--fg-muted); margin-top: 12px; text-align: center; text-wrap: balance; }
 figcaption .bn-legend { justify-content: center; margin-bottom: 8px; }
 

@@ -81,28 +81,47 @@ The shell guard blocks a call to the port in `.nook/web.json` on any spelling of
 
 One `nook web` serves each desk of the desk list of the owner (`~/.config/nook/desks`) and the desk where it started. Each desk has its own path: its folder name, such as `/personal`. Two desks with one folder name get a number, such as `/shop-2`. `/` sends the browser to the start desk, and a path of no desk is a 404. One pair lets the owner move items in each desk.
 
-The shell of each page: a dark rail with one tile for each desk, the open one with a ring; a side nav with the search, the pages that the packs of the desk turn on, the count of open items next to Board, and Settings at its foot; then the page, with a header of its title and its use. Below 900 px the rail and the nav fold into a menu. Each kind has one color on every page: feature blue, fix red, investigate violet, chore aqua.
+The shell of each page has a sidebar and a top bar:
+
+| Part | It holds |
+|---|---|
+| sidebar | the desk menu (each desk of the list with its count of open items; `nook init` in a folder adds it), the search, the pages that the packs of the desk turn on, the count of open items next to Board, and Settings at its foot |
+| top bar | the path of the page, such as `shop / Board / SHOP-42`; it turns to glass when the page scrolls |
+| page head | the title and one line on its use |
+
+The sidebar docks beside the page or hides. `[` switches it; a hidden sidebar floats over the page when the pointer reaches the left edge. Below 860 px it always floats. Each kind has one color and one glyph on every page: feature blue +, fix red ×, investigate violet, a magnifier, chore aqua −.
+
+| Key | It does |
+|---|---|
+| ⌘K | opens the menu: your moves first, then the items, the pages and the desks |
+| G, then a letter | opens a page, such as G then B for the board |
+| `[` | docks or hides the sidebar |
+| J, K | pick a row of the inbox |
+| A | runs the gate move of the picked row, after its confirm |
+| R | puts the cursor in the answer box of the picked row |
 
 Each page reads the desk when the browser asks for it. A gap of the desk, such as a ledger that needs a migration, shows with its fix in place of the data. The table names each page under the path of its desk.
 
 | Page | It shows |
 |---|---|
-| `/<desk>` | four counts on top; what waits in groups by item, each line with its command; then what runs and what is done; then the rework rate, the first pass and the median cycle time of the last 30 days |
-| `/<desk>/works` | Board, the board of the desk on the Bench board: a column for each state of the flow, the empty ones too, and `blocked` while an item is blocked; a narrow page scrolls the board sideways; a card shows its flags and whose move is next |
-| `/<desk>/works/<id>` over the board | a click on a card opens the item in a dialog of 80% of the screen: the title, the next step, the criteria, the slices and the activity, with the details beside them |
-| `/<desk>/works/<id>` | the item: a head with its chips, then a tab for the Overview and one for each document; the Tasks tab draws the lanes of the slices first, one for each area |
-| `/<desk>/wiki` | the drafts that wait for a yes, then a card for each shelf with its use, its count of pages and their types |
-| `/<desk>/wiki/<shelf>`, `/<desk>/wiki/<page>` | one shelf, or one page with its blocks and its links; a `[[name]]` links to its page |
+| `/<desk>` | the inbox: a row for each move that waits for you, acted on in place; the receipts of today; four numbers of the last 30 days with a trend of six weeks; the board by step; what the lead runs and what is done since yesterday |
+| `/<desk>/works` | Board: one lane that counts the items of each phase, with their points and what waits for you; a filter by kind; then the layout of the Display menu |
+| `/<desk>/works/<id>` over the board | a click on a card opens the item in a drawer: its facts, the steps, the overview, and the moves of a gate at its foot |
+| `/<desk>/works/<id>` | the item: its head and steps, a tab for the overview, one for each document of its kind and one for the activity, and its details beside them |
+| `/<desk>/wiki` | the shelves and their pages in a side nav, with the drafts that wait for a yes and a card for each shelf |
+| `/<desk>/wiki/<shelf>`, `/<desk>/wiki/<page>` | one shelf, or one page with its blocks and its links, beside the nav; a `[[name]]` links to its page |
 | `/<desk>/learn`, `/<desk>/learn/<course>` | a card for each course; a course gives its cards due, the top patterns of the mistakes, and the bands of each criterion |
 | `/<desk>/search?q=<words>` | each line that holds every word, in the item documents, the wiki and the courses, in groups by file, as a link to its page |
-| `/<desk>/metrics` | the six numbers of `nook eng metrics` for the last 30 days, the root causes and the guard blocks as bars |
-| `/<desk>/agents` | a card for each agent and skill of core and of the packs on in the desk, with its job and its pack |
-| `/<desk>/events` | the event log of the desk, newest first, with a filter by kind |
+| `/<desk>/metrics` | the six numbers of `nook eng metrics` for the last 30 days, each with a trend of six weeks; the items done by week; the root causes and the guard blocks as bars |
+| `/<desk>/agents` | a card for each agent and skill of core and of the packs on in the desk, with its job and its pack, under a filter by pack |
+| `/<desk>/events` | the event log of the desk by day, newest first, with a filter by kind |
 | `/<desk>/settings` | the packs, the areas with their checks, the kinds that the desk learned, the root cause types and the path of `nook.yml` |
 
-The Overview of an item gives the states of the flow with their times, the next step and its owner, four numbers, Needs you, the slices on a board, the branch and checks of each area, and the events. Needs you lists the blocking questions first, then the open questions, the guesses to check and the gate. A document tab renders its file block by block; a document not written yet names the command that writes it, such as `/view SHOP-12` for the walkthrough. Each tab has its own address, such as `/works/SHOP-12?tab=plan`.
+The board has a Display menu: the layout, board or list, and the grouping, by phase or by who holds it. Each choice is a link, such as `/works?layout=list&group=holder`, so a view has its own address. By phase, Shape holds framing and planning, Build holds ready and cooking, then Review and Done; the backlog has its own frame under them. A blocked item counts in the step that it left. A card shows its kind, its id, its points, its mode and areas, its title, a bar of the seven steps, and one line with a dot: red when it waits for you, else the tone of its phase. The list folds by group, and a row opens in place with the next move and two links. An empty column says what is empty, such as `No fix items in Done`.
 
-The owner moves on the page of an item: the Approve or Accept button of the next step, the Mode switch of the head, an answer box for each open question, and Accept and Flip for each guess to check. Each one asks first: a confirm step names the move and what it does, and Cancel runs nothing. Then it runs the `nook` that started the web app, with `--via viewer`, so it meets the guards of `/gate`. A refused move shows the gaps and their fixes word for word. A move that goes through renders the page again through `/live`.
+The tabs of an item follow its kind: a fix adds `root cause` after the spec, and an investigation has `findings` and no tasks or walkthrough. The overview gives tiles: the next move, the criteria by state (or the answers of an investigation), the slices by state, the questions and guesses, In short, the time in each step, the lanes, the branches and checks, and the last receipts. A slice in the lanes names its state in its kicker, such as `T1 · DONE`, on a node of its tone. A criterion is planned before the build; in the build, the slices that prove it make it blocked, building or waits; evidence, or the accept, makes it met. A document tab renders its file block by block on a card; a document not written yet names the command that writes it, such as `/view SHOP-12` for the walkthrough. Each tab has its own address, such as `/works/SHOP-12?tab=plan`.
+
+The owner moves in the web app: Approve or Accept in a row of the inbox and in the gate bar of an item, Send back with a reason at review, an answer in the row of a blocking question, and the Mode switch in the details of an item. Each one asks first: a confirm step names the move and what it does, and Cancel runs nothing. Then it runs the `nook` that started the web app, with `--via viewer`, so it meets the guards of `/gate`. Send back runs `nook eng item reject` with the reason. A refused move shows the gaps and their fixes word for word. A move that goes through renders the page again through `/live`.
 
 The chart of a course draws a line for each criterion with a score on every day of the chart; it never fills a missing day. A place with nothing in it yet shows what is missing and the command to type.
 
@@ -110,9 +129,9 @@ The search box reads the Markdown files of each pack again at each search, so a 
 
 An open page renders again by itself when the desk changes, with no reload, within a second. `/live` sends an event when a file of a pack folder or the ledger in `.nook/` changes; a burst of writes gives one event. A change in the code of an area sends none.
 
-`bun run demo <dir>` builds a desk with mock work items in a new folder: one item in each state of the flow, made through the real moves. Open it with `nook web` from a terminal outside Claude Code.
+`bun run demo <dir>` builds a desk with mock work items in a new folder: one item in each state of the flow, a fix and an investigation among them, each with its story points, made through the real moves. Open it with `nook web` from a terminal outside Claude Code.
 
-On the home, a gate line has its button, such as Approve, and an answer line links to its item. A line of no item, such as a gap of `nook doctor`, sits under This desk. Each command shows as code with a copy button.
+In the inbox, a gate row has Review and its move, such as Approve with the key A, and a blocking question takes its answer in its row, with the answer that the lead recommends. A row of no item, such as a gap of `nook doctor`, gives its command with a copy button. At rest no row is picked. A receipt names who did it: YOU, LD for the lead, or the initials of an agent.
 
 `nook doctor` and `nook brief` only read. `readHome(desk, modules)` in `packages/core/src/read.ts` gives the same brief of one desk and the findings of its doctor, for the home page of the web app.
 
@@ -260,34 +279,27 @@ Only the owner starts these skills.
 
 `plugins/core/ui/bench/` holds the Bench design system: `tokens.json`, `bundle.css` and `bundle.js`. The pages that Nook builds, such as `nook eng item page`, put it inline. `SOURCE.md` names the source artifact and the version. Nook never edits these files.
 
-The web app takes the tokens and the diagram library from these files: its layout puts the tokens and `bundle.css` inline and loads `bundle.js` at the end of the page. Each part that it draws comes from `packages/ui`, the UI kit of the web app:
+The web app takes the diagram library and the token names from these files. `packages/ui/src/styles/v2.css` sets those names to the values of v2, and the layout puts it after the kit, so it wins each tie. Each part that the web app draws comes from `packages/ui`, the UI kit of the web app:
 
 | Layer | Holds |
 |---|---|
-| shadcn primitives | button, badge, card, input, alert, table, tabs, toggle group, dialog, collapsible, breadcrumb, separator, navigation menu, tooltip, progress; each with the Bench values, such as capsule buttons and the corner of a card |
-| parts of Nook | tag tones on the badge, icon tile, ring, copy command, group, record list, action list, callout, empty state, stat and count tiles, stepper, link tabs, detail list, change list, rule list, step list, checklist, code block, prose, task card, diagram |
-| theme | `src/styles/globals.css`: Tailwind, each shadcn variable set to a Bench token, and the tones of a part with `data-tone` |
+| shadcn primitives | button, badge, card, input, alert, table, toggle group, collapsible, separator, navigation menu, menu, side panel |
+| parts of Nook | the shell (app shell, side nav, desk menu, command menu, toast), tiles (tile, trend tile, sparkline, tally, segment bar, bar list, ring), the board (flow lane, frame, item card, step bar, item list, dot chip), the item (doc frame, link list, criterion cards, rule list, receipt list, float bar), the inbox (inbox row), and the others (icon card, tree nav, setting rows, detail list, change list, step list, checklist, code block, prose, task card, diagram) |
+| theme | `src/styles/globals.css`: Tailwind, each shadcn color set to a token, the faint grey of v2 (`text-faint`), and the tones of a part with `data-tone` |
+| v2 layer | `src/styles/v2.css`: the v2 colors in OKLCH, the dark theme, the 14 px body, the radius scale and a round corner on each box of the kit |
+
+The look follows the role of each part:
+
+| Role | Parts | Look |
+|---|---|---|
+| ground | the page, the docked sidebar, the frames of the board | flat, no shadow |
+| raised | tiles, cards, the active nav item | white, a 1px ring and a soft shadow |
+| glass | the top bar when the page scrolls; the drawer, ⌘K, the menus, the toast and the floating sidebar | frosted; solid when the system asks for less transparency |
+| highlight | the row or card that a key or a click acts on | a blue tinted ring |
+
+A card has a 12 px corner (`rounded-md`), a tile and a frame 16 px (`rounded-lg`), a panel 14 px. Every corner is a round arc. The main button is ink, and color marks only a state: red blocks, amber waits, green is done. A diagram keeps the shapes and the layout of Bench; only its colors, surfaces, shadows, fonts and corners follow v2.
 
 `apps/web` composes these parts with Tailwind classes and has no CSS file of its own; a test fails on a CSS file or an old `bn-` class there. A document becomes a page in two steps: `apps/web/lib/blocks.ts` turns its Markdown into blocks, and `apps/web/components/blocks/` renders each block with one part of the kit.
-
-`nook`, `nk` and the role variables live in `packages/shared/src/names.ts`. `.nook/` lives in `packages/desk/src/desks.ts`. `NOOK_PROJECT` lives in the shims `plugins/*/bin/nook`.
-
-## 11. The UI kit
-
-`plugins/core/ui/bench/` holds the Bench design system: `tokens.json`, `bundle.css` and `bundle.js`. The pages that Nook builds, such as `nook eng item page`, put it inline. `SOURCE.md` names the source artifact and the version. Nook never edits these files.
-
-The web app uses the same files. Its layout puts the tokens and `bundle.css` inline and loads `bundle.js` at the end of the page. Its components in `apps/web/components/` render the `bn-*` markup with React:
-
-| Component | Shows |
-|---|---|
-| `Board`, `ItemCard` | one column for each state of the flow, in its order; each card links to its item |
-| `ItemHeader` | the title, the chips and the next step, with the button when the step is the owner's |
-| `Criteria` | each criterion with its number, its state and its evidence |
-| `Diagram` | a Bench diagram from its spec |
-| `Gap` | a gap of the desk with its fix, in place of the data |
-| `TabLinks`, `PackNav` | Home, and a tab for each pack on in the desk that has a page |
-
-A document becomes a page in two steps: `apps/web/lib/blocks.ts` turns its Markdown into blocks, and `apps/web/components/blocks/` renders each block with one Bench component.
 
 | Block | Markdown | Component |
 |---|---|---|
@@ -309,16 +321,17 @@ The first list under one of these headings follows the heading:
 
 | Heading | Becomes |
 |---|---|
-| `## Acceptance criteria` | records, each with its kind, its sources and its state from the ledger |
-| `## Details` | rules, each with its sources; a guess shows its impact |
-| `## What works now` | piece cards in plain words |
+| `## Acceptance criteria` | criterion cards, each with its tag, its sources, the slices that prove it and its state |
+| `## Details` | rules, each with its sources: a check for a settled rule, a clock in the tone of an open source or a guess |
+| `## What works now`, `## What changes` | piece cards: a card for each label, such as an area |
 | `## Where to start reading`, `## Try it` | step lists; a step of Try it splits into what to do and what you see |
 | `## Out of scope`, `## Heads up`, `## Requirements met` | an out list, an alert of things to know, a met checklist |
 | `## T1: title` with `- key: value` lines | a task card |
+| `## Q1: question` with `- Answer:`, `- Evidence:` and `- Open:` lines | a findings card, answered with an answer and its evidence |
 
 A quote that opens with `In short:` or `Need to know:` is a callout, and a line `None: Cache, Consistency.` gives the chips of no impact.
 
-A `mermaid` flowchart gives Bench the nodes and the edges with no places, and Bench lays the graph out. A node marked `(new)`, `(changed)` or `(error)` at the end of its label takes the colour of that role, and the mark leaves its title. The reader also takes `: new`, `: changed` and `(changes: why)`. a first node with no tag is the start, and the legend names each role that the drawing uses. An area of the item before a colon, such as `web: the page`, is the kicker of the node. A `subgraph` is a group, one column. A `tree` fence lists files, two spaces for each level, each line as `name  state  note`. A mermaid kind with no drawing shows as a warning.
+A `mermaid` flowchart gives Bench the nodes and the edges with no places, and Bench lays the graph out. A node marked `(new)`, `(changed)` or `(error)` at the end of its label takes the colour of that role, and the mark leaves its title. The reader also takes `: new`, `: changed` and `(changes: why)`. A first node with no tag is the start, and the legend names each role that the drawing uses. An area of the item before a colon, such as `web: the page`, is the kicker of the node. A `subgraph` is a group, one column. A `tree` fence lists files, two spaces for each level, each line as `name  state  note`. A mermaid kind with no drawing shows as a warning.
 
 A component never uses `data-bn-diagram` or `data-bn-icon`: `bundle.js` changes those nodes at load, before React hydrates them. `Diagram` keeps its spec in `data-nook-diagram` and draws after hydration.
 

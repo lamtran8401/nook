@@ -299,6 +299,14 @@ function page(o: Shell): string {
 
 const dateText = (now: Date) => now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
+/** Each image of a chapter, such as `![The inbox](images/inbox.png)`, as a figure that holds the file, so the page stays one file. */
+function inlineImages(html: string, dir: string): string {
+  return html.replace(/<p><img src="([^"]+)" alt="([^"]*)" \/><\/p>/g, (_all, src: string, alt: string) => {
+    const data = readFileSync(join(dir, src)).toString('base64')
+    return `<figure class="shot card"><img src="data:image/png;base64,${data}" alt="${alt}" loading="lazy"><figcaption>${alt}</figcaption></figure>`
+  })
+}
+
 function guidePage(docs: string, report: string, reportUrl: string, now: Date): string {
   const links: LinkMap = (href, text) => {
     const chapter = href.match(/^0(\d)-[\w-]+\.md(#.*)?$/)
@@ -312,7 +320,7 @@ function guidePage(docs: string, report: string, reportUrl: string, now: Date): 
   const sections = GUIDE_FILES.map((file, i) => {
     const source = readFileSync(join(docs, 'guide', file), 'utf8')
     const title = i === 0 ? 'About this book' : (source.match(/^# (.*)$/m)?.[1] ?? file).replace(/^\d+\.\s*/, '')
-    let html = polish(md(source.replace(/^# .*\n/, '')), links)
+    let html = inlineImages(polish(md(source.replace(/^# .*\n/, '')), links), join(docs, 'guide'))
     if (file === '04-work.md') html = insertAfterTable(html, '<h2 id="pick-a-path">', pathsDiagram())
     if (file === '06-learn.md') html = insertAfterTable(html, '<h2 id="each-day">', learnLoopDiagram())
     tabs.push({ id: `ch-${i}`, label: i === 0 ? 'About' : `<span class="tab-n">${i}</span>${title}` })

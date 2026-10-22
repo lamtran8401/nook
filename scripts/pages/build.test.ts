@@ -76,6 +76,14 @@ describe('buildPages', () => {
     expect(report).toContain('As of 17 Oct 2026')
   })
 
+  test('puts an image of a chapter in the page, so the page stays one file', () => {
+    mkdirSync(join(docs, 'guide', 'images'))
+    writeFileSync(join(docs, 'guide', 'images', 'inbox.png'), Buffer.from([0x89, 0x50, 0x4e, 0x47]))
+    writeFileSync(join(docs, 'guide', '03-day.md'), '# 3. Chapter 3\n\n![The inbox](images/inbox.png)\n')
+    const { guide } = buildPages(docs, '', new Date(2026, 9, 17))
+    expect(guide).toContain('<figure class="shot card"><img src="data:image/png;base64,iVBORw==" alt="The inbox" loading="lazy"><figcaption>The inbox</figcaption></figure>')
+  })
+
   test('points a chapter link at its section and the report link at the published report', () => {
     const { guide } = buildPages(docs, 'https://claude.ai/artifact/REPORT', new Date(2026, 9, 17))
     expect(guide).toContain('<a href="#ch-2">chapter 2</a>')

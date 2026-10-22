@@ -50,12 +50,28 @@ Run `nook web` in your own terminal. It prints the log of Next.js, such as `✓ 
 
 | Part | What you see |
 |---|---|
-| the rail on the left | one tile for each of your desks, such as `personal` and `chorus`; a click opens that desk |
-| the side nav | Home, Board, Wiki, Learn, Metrics, Agents and skills, Events, and Settings at its foot; a page shows only when its pack is on |
-| Home | what waits for you, what runs, and three numbers of the last 30 days |
-| Board | the items of the desk, a column for each state of the flow; a click on a card opens the item |
-| Metrics | the rework rate, the first pass, the cycle time and the waits at your gates; the root causes and the guard blocks |
-| Events | each block of a guard, each error of a hook and each prompt, newest first |
+| the desk menu | the top of the sidebar: each of your desks with its open items; a click opens that desk |
+| the sidebar | Home, Board, Wiki, Learn, Metrics, Agents and skills, Events, and Settings at its foot; a page shows only when its pack is on |
+| Home | your inbox: each move that waits for you, acted on in place |
+| Board | the items by phase, with a lane that counts them; a click on a card opens it in a drawer |
+| Metrics | the rework rate, the first pass, the cycle time and the waits at your gates, each with a trend; the root causes and the guard blocks |
+| Events | each block of a guard, each error of a hook and each prompt, by day |
+
+![The inbox: the moves that wait for you, the receipts of today, and the numbers of the flow](images/inbox.png)
+
+In the inbox, you act where you read:
+
+| Row | You do |
+|---|---|
+| a plan or work at your gate | Review opens the item; Approve or Accept runs the move after a confirm |
+| a blocking question | type the answer in the row, then Answer |
+| any other move | copy its command, such as `/close SHOP-41` |
+
+J and K pick a row, A runs its gate move, and R puts the cursor in its answer box. ⌘K opens a menu of your moves, the items, the pages and the desks. G then B opens the board, and `[` hides the sidebar.
+
+![The board: the lane of the phases, the four phases and the backlog](images/board.png)
+
+The Display menu of the board switches between the board and a list, by phase or by who holds the next move. A card says who moves next with a dot: red when it waits for you. A click opens the item in a drawer with its overview; Open page gives its full page, with a tab for each document.
 
 Any browser on your machine can read the pages. Your moves, such as an approve, need a browser that you paired with `nook web pair`.
 

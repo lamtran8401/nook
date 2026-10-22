@@ -203,13 +203,17 @@ The read paths of the web app are in `packages/engineering/src/read/reader.ts`. 
 | Function | Gives |
 |---|---|
 | `readAreas(desk)` | the areas of the home in the order of `nook.yml`; none for a desk with no home |
-| `readBoard(desk)` | each open item, and each done item not yet archived: kind, size, state, areas, criteria met, slices done, next step, flags |
+| `readBoard(desk)` | each open item, and each done item not yet archived: kind, size, points, mode, state, the step of a blocked item, areas, criteria met, slices done, next step, flags |
 | `readItem(desk, id)` | the item, its next step and owner, what waits for the owner, the criteria, slices, questions, guesses, each change of state with its time, the events as sentences, the last verify run and the changed files |
-| `readDocs(desk, id)` | the text of `spec.md`, `plan.md`, `tasks.md` and `walkthrough.md`, or null for one not written yet |
+| `readDocs(desk, id)` | the documents that the flow of the kind asks for, in order, each with its text or null: spec, root cause for a fix, plan, tasks and walkthrough when slices are required, findings for an investigation |
+| `readTrend(desk)` | the metrics of each of the last six weeks, the oldest first, for a trend line; null for a desk with no home |
+| `readReceipts(desk, since)` | the events of every item since a time, the newest first, each as a sentence with its item |
 
 - What waits for the owner: the open questions, the blocking ones first, then the open guesses.
 - A flag of a card names what holds the item up: each blocking question, such as `Q2 blocks`, and each failed slice, such as `T4 failed`.
-- Each line of the brief of the module names its item: the id, the title and the state. The home page groups the lines by item.
+- Each line of the brief of the module names its item: the id, the title and the state. The inbox gives one row for each line that waits.
+- The changed files of an item come only while it holds the branch of its area: from begin to accept, and while no other item cooks in the area.
+- An event sentence says whether it is a step of the flow, such as the approve, or a record, such as a slice moved. The activity tab gives the steps, then the receipts.
 - Each event reads as a sentence, such as "You approved the plan" or "The lead began the build", with a tone for its mark.
 - The changed files of an area come from git: each file that differs from the merge base with the main branch, with its state and its added and removed lines. A folder, a link, a binary file or a file over 1 MB counts no lines. An area still on its main branch has none. Git runs with no optional lock, so a read never refreshes the index.
 - A ledger that needs a migration is a gap: any `nook eng` command migrates it.
@@ -294,7 +298,7 @@ Each read command takes `--json`. `nook eng --help` lists each command with its 
 | pages | `item page <id> [--tab t] [--out f]`, `doc page <file.md> [--out f]` |
 | the contract | `brief`, `doctor`, `init`, `hook <name>` |
 
-An owner move from the web app adds `--via viewer`: `item <move>`, `item mode`, `answer`, `guess accept` and `guess flip`. The ledger then records the actor as `owner (viewer)`. The role and the guards stay the same.
+An owner move from the web app adds `--via viewer`: `item approve`, `item accept`, `item reject` with the reason of a send back, `item mode`, `answer`, `guess accept` and `guess flip`. The ledger then records the actor as `owner (viewer)`. The role and the guards stay the same.
 
 What the commands do:
 - `item new [<id>] <title>`: a first word such as `SHOP-12` is the id. With no id, Nook makes the next `IT-NNN`. `--backlog` writes `backlog/<id>/ticket.md`. `--parent <id>` names the item that it belongs to, such as the story of a sub-bug; the parent must be in the ledger. `--points <n>` keeps the story points of the ticket, such as `8`.
