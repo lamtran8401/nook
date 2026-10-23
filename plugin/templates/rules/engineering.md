@@ -1,15 +1,15 @@
 # Engineering
 
-These rules hold in every folder of this workspace. Hooks enforce the moves of the owner, the frozen documents and the edit scope.
+These rules hold in every folder of this workspace. Hooks enforce the moves of the owner and the safety rules. The door of each move (begin, submit, accept) shows what changed.
 
 ## The flow
 
 - One item moves through `backlog → framing → planning → ready → cooking → review → done`. `nook eng next` names the step and the skill to type.
 - A stage skill with no item id takes the one open item that `nook eng next` sends to that skill. With none or several, ask with AskUserQuestion: the two likeliest items as options, the others named in the question.
 - Only the owner runs `approve`, `accept` and `mode`. An agent never runs them. Tell the owner to type `/gate <move> <id>` in the prompt.
-- Never change `spec.md`, `plan.md` or `tasks.md` after the approve. Run `nook eng item replan <id>` first.
+- After the approve, change `spec.md`, `plan.md` or `tasks.md` only for a small fix. For a change of substance, run `nook eng item replan <id>` first. The accept names each changed document.
 - A guard lists each gap with its fix. Fix the gap; never work around a guard.
-- Record a guess with `nook eng guess`. Ask a blocking question with `nook eng ask --blocking`.
+- Record a guess with `nook eng guess`. Ask a blocking question with `nook eng ask --blocking`, then ask the owner with AskUserQuestion and record the answer.
 
 ## Git
 

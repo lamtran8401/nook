@@ -7,13 +7,14 @@ import { AutoByOwner } from '../src/guards/yolo.ts'
 import { CriteriaMarked } from '../src/guards/criteria.ts'
 import { DatesWritten } from '../src/guards/dates.ts'
 import { FindingsFilled, QuestionsAnswered } from '../src/guards/findings.ts'
+import { EditsOutsideSlices } from '../src/guards/edits.ts'
 import { FingerprintsUnchanged } from '../src/guards/fingerprints.ts'
 import { GuardContext } from '../src/guards/guard.ts'
 import { PlanFilled } from '../src/guards/plan.ts'
 import { NoOpenBlockingQuestion } from '../src/guards/questions.ts'
 import { EveryAcInSlice, NoDependsCycle, SliceAreasOfItem, SlicesDone, SlicesImported } from '../src/guards/slices.ts'
 import { SpecParses } from '../src/guards/spec.ts'
-import { GUARDS } from '../src/guards/table.ts'
+import { GUARDS, NOTES } from '../src/guards/table.ts'
 import { VerifyPassed } from '../src/guards/verify.ts'
 import { itemAt, LEAD, makeHome, OWNER, PLAN, SPEC, TASKS, type TestHome, writeDoc } from './helpers.ts'
 
@@ -245,10 +246,10 @@ describe('AutoByOwner', () => {
 })
 
 describe('FingerprintsUnchanged', () => {
-  test('a document that changed after the approve is a gap whose fix is the replan', () => {
+  test('a document that changed after the approve is a note whose fix is the replan', () => {
     itemAt(t, 'ready')
     writeDoc(t, 'SHOP-1', 'tasks.md', 'changed')
-    expect(new FingerprintsUnchanged().check(ctx())).toEqual([{ text: 'tasks.md changed after the approve', fix: 'nook eng item replan SHOP-1' }])
+    expect(new FingerprintsUnchanged().check(ctx())).toEqual([{ text: 'tasks.md changed since the approve', fix: 'nook eng item replan SHOP-1, or go on as it is' }])
   })
 
   test('a guard on spec.md alone ignores a change of the plan', () => {
@@ -263,6 +264,21 @@ describe('FingerprintsUnchanged', () => {
     lead.stores.approvals.store('SHOP-30', 'spec.md', 'an older hash')
     writeDoc(t, 'SHOP-30', 'spec.md', SPEC())
     expect(new FingerprintsUnchanged().check(ctx('SHOP-30'))).toEqual([])
+  })
+})
+
+describe('EditsOutsideSlices', () => {
+  test('names each file that changed outside a slice, once, in the order of the edits', () => {
+    itemAt(t, 'cooking', 'SHOP-1', SPEC({ areas: ['bff'] }), TASKS([{ id: 'T1' }]))
+    const events = t.eng(LEAD).stores.events
+    events.record('SHOP-1', 'edit', { reason: 'outside a slice: projects/bff/a.ts' })
+    events.record('SHOP-1', 'edit', { reason: 'outside a slice: projects/bff/b.ts' })
+    expect(new EditsOutsideSlices().check(ctx())).toEqual([{ text: '2 files changed outside a slice: projects/bff/a.ts, projects/bff/b.ts', fix: 'read their diff before your accept' }])
+  })
+
+  test('an item with no such edit has no note', () => {
+    itemAt(t, 'cooking', 'SHOP-1', SPEC({ areas: ['bff'] }), TASKS([{ id: 'T1' }]))
+    expect(new EditsOutsideSlices().check(ctx())).toEqual([])
   })
 })
 
@@ -395,13 +411,18 @@ describe('the guard table', () => {
     expect(names('agree')).toEqual(['SpecParses', 'DatesWritten', 'NoOpenBlockingQuestion'])
   })
 
-  test('begin compares the fingerprints before it looks at the areas', () => {
-    expect(names('begin')).toEqual(['FingerprintsUnchanged', 'EachArea'])
+  test('begin holds only on an area that another item cooks', () => {
+    expect(names('begin')).toEqual(['EachArea'])
   })
 
-  test('submit and accept compare spec.md first', () => {
-    expect(names('submit')).toEqual(['FingerprintsUnchanged', 'FindingsFilled', 'RootCauseWritten', 'SlicesDone', 'VerifyPassed'])
-    expect(names('accept')).toEqual(['FingerprintsUnchanged', 'QuestionsAnswered', 'CriteriaMarked', 'ChildrenDone', 'VerifyPassed'])
+  test('submit and accept hold on the work, never on a changed document', () => {
+    expect(names('submit')).toEqual(['FindingsFilled', 'RootCauseWritten', 'SlicesDone', 'VerifyPassed'])
+    expect(names('accept')).toEqual(['QuestionsAnswered', 'CriteriaMarked', 'ChildrenDone', 'VerifyPassed'])
+  })
+
+  test('the notes of the door: a changed document and a protected branch at begin, edits outside a slice at accept', () => {
+    const notes = (move: keyof typeof NOTES) => (NOTES[move] ?? []).map(guard => guard.constructor.name)
+    expect([notes('begin'), notes('submit'), notes('accept')]).toEqual([['FingerprintsUnchanged', 'EachArea'], ['FingerprintsUnchanged'], ['FingerprintsUnchanged', 'EditsOutsideSlices']])
   })
 
   test('the moves back, block, unblock, cancel and restore have no guard', () => {

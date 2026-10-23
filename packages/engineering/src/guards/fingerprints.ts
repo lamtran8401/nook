@@ -3,14 +3,14 @@ import type { Gap, Guard, GuardContext } from './guard.ts'
 
 export const APPROVED_DOCS: WorkDoc[] = ['spec.md', 'plan.md', 'tasks.md']
 
-/** The documents in `docs` have the fingerprint of the approve. A quick item has no approve. */
+/** The documents in `docs` that changed after the approve: a note of the door. A quick item has no approve. */
 export class FingerprintsUnchanged implements Guard {
   constructor(private readonly docs: WorkDoc[] = APPROVED_DOCS) {}
 
   check(ctx: GuardContext): Gap[] {
     return this.changed(ctx).map(doc => ({
-      text: `${doc} changed after the approve`,
-      fix: `nook eng item replan ${ctx.id}`,
+      text: `${doc} changed since the approve`,
+      fix: `nook eng item replan ${ctx.id}, or go on as it is`,
     }))
   }
 

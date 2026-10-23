@@ -20,33 +20,30 @@ afterEach(() => t.cleanup())
 const stop = (extra: Partial<HookInput> = {}) => stopDriver({ cwd: t.root, session_id: 'sess-1', hook_event_name: 'Stop', ...extra })
 
 describe('stopDriver', () => {
-  test('a blocking question holds the lead of the item until it is answered', () => {
+  test('a lead with an open blocking question stops: the rule tells it to ask, no hold keeps it', () => {
     itemAt(t, 'framing')
     const lead = t.eng(LEAD)
-    expect(stop().kind).toBe('pass')
     pickup(lead, 'SHOP-1')
-    expect(stop().kind).toBe('pass')
     lead.ask('SHOP-1', 'which zone?', true)
-    const held = stop()
-    expect(held.kind).toBe('json')
-    expect(reason(held)).toContain('blocking question Q1 is open')
-    expect(reason(held)).toContain('"decision":"block"')
-    lead.answer('SHOP-1', 'Q1', 'UTC')
-    expect(stop({ stop_hook_active: true }).kind).toBe('pass')
+    expect(stop().kind).toBe('pass')
   })
 
-  test('an answer that comes while a slice waits holds the lead once, with the answer and the move that resumes the slice', () => {
-    itemAt(t, 'cooking')
+  test('a yolo run with an open blocking question lets the lead stop until the owner answers', () => {
+    itemAt(t, 'framing')
     const lead = t.eng(LEAD)
     pickup(lead, 'SHOP-1')
-    const question = lead.ask('SHOP-1', 'Must a refund go to the same card?', false)
-    lead.moveSlice('start', 'SHOP-1', 'T1')
-    lead.moveSlice('wait', 'SHOP-1', 'T1', { reason: `waits for ${question.id}` })
+    t.eng(OWNER).setMode('SHOP-1', 'yolo')
+    lead.ask('SHOP-1', 'which zone?', true)
     expect(stop().kind).toBe('pass')
-    t.eng(OWNER).answer('SHOP-1', question.id, 'the same card')
-    expect(reason(stop())).toContain('T1 waits, and since then Q1 answered: the same card: resume it with `nook eng task resume SHOP-1 T1` when this unblocks it, or wait again with a new reason')
-    lead.moveSlice('resume', 'SHOP-1', 'T1')
-    expect(stop().kind).toBe('pass')
+    lead.answer('SHOP-1', 'Q1', 'UTC')
+    expect(stop().kind).toBe('json')
+  })
+
+  test('the stage of a yolo run says that nobody watches: record a guess, never ask', () => {
+    itemAt(t, 'framing')
+    pickup(t.eng(LEAD), 'SHOP-1')
+    t.eng(OWNER).setMode('SHOP-1', 'yolo')
+    expect(reason(stop())).toContain('nobody watches this run: record a guess with `nook eng guess` and never ask')
   })
 
   test('mode yolo: the next stage of the lead, the proceed step, the owner stages let go, 6 holds at most', () => {
@@ -107,14 +104,6 @@ describe('stopDriver', () => {
     expect(stop({ background_tasks: [agent] }).kind).toBe('pass')
     expect(stop({ background_tasks: [{ ...agent, status: 'completed' }] }).kind).toBe('json')
     expect(reason(stop({ stop_hook_active: true }))).toContain(`hold 2 of ${MAX_HOLDS}`)
-  })
-
-  test('a blocking question holds the lead even while a background agent works', () => {
-    itemAt(t, 'framing')
-    const lead = t.eng(LEAD)
-    pickup(lead, 'SHOP-1')
-    lead.ask('SHOP-1', 'which zone?', true)
-    expect(reason(stop({ background_tasks: [{ id: 'a-1', type: 'subagent', status: 'running' }] }))).toContain('blocking question Q1 is open')
   })
 
   test('the session where the owner sets mode yolo leads the run and is held on its next stage', () => {

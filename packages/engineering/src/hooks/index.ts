@@ -1,7 +1,7 @@
 import type { HookInput, HookResult } from '@nook/shared/hook.ts'
 
 import { bashGuard } from './bash-guard.ts'
-import { editGuard } from './edit-guard.ts'
+import { editGuard, editLog } from './edit-guard.ts'
 import { sessionStart } from './session-start.ts'
 import { stopDriver } from './stop-driver.ts'
 import { subagentStop } from './subagent-stop.ts'
@@ -9,7 +9,7 @@ import { teammateIdle } from './teammate-idle.ts'
 
 /** The hooks of `nook eng hook <name>`. A guard blocks when it fails (`closed`); a helper lets it pass. */
 
-export const HOOK_NAMES = ['bash', 'edit', 'stop', 'subagent-stop', 'teammate-idle', 'start'] as const
+export const HOOK_NAMES = ['bash', 'edit', 'edit-log', 'stop', 'subagent-stop', 'teammate-idle', 'start'] as const
 export type HookName = (typeof HOOK_NAMES)[number]
 
 export type Hook = { run: (input: HookInput) => HookResult; closed: boolean }
@@ -17,6 +17,7 @@ export type Hook = { run: (input: HookInput) => HookResult; closed: boolean }
 export const HOOKS: Record<HookName, Hook> = {
   bash: { run: bashGuard, closed: true },
   edit: { run: editGuard, closed: true },
+  'edit-log': { run: editLog, closed: false },
   stop: { run: stopDriver, closed: false },
   'subagent-stop': { run: subagentStop, closed: false },
   'teammate-idle': { run: teammateIdle, closed: false },

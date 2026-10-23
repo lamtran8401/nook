@@ -22,7 +22,7 @@ import { isTestFile, type ProofResult, Prover } from './git/prover.ts'
 import { GitRepo } from './git/repo.ts'
 import { APPROVED_DOCS } from './guards/fingerprints.ts'
 import { type Gap, GuardContext } from './guards/guard.ts'
-import { gapsOf } from './guards/table.ts'
+import { gapsOf, notesOf } from './guards/table.ts'
 import { Home } from './home.ts'
 import { INSTALL_PREFIX, lockHash, needsInstall } from './install.ts'
 import { Ledger, now, type Param } from './ledger.ts'
@@ -81,7 +81,8 @@ export type NewGuessInput = {
   impact: string
   slices: string[]
 }
-export type NextGaps = { id: string; state: State; move: MoveName | undefined; gaps: Gap[] }
+/** What the forward move lacks (`gaps` hold it) and what it should know (`notes` inform, never hold). */
+export type NextGaps = { id: string; state: State; move: MoveName | undefined; gaps: Gap[]; notes: Gap[] }
 export type Proved = { slice: string; proof: Slice['proof']; note: string; tests: string[] }
 
 export const ID_PATTERN = /^[A-Z][A-Z0-9]*-\d+$/
@@ -157,11 +158,15 @@ export class Engineering {
     return gapsOf(new GuardContext(this.home, this.stores, item), move)
   }
 
+  notes(item: Item, move: MoveName): Gap[] {
+    return notesOf(new GuardContext(this.home, this.stores, item), move)
+  }
+
   /** The gaps of the forward move of the item, with no move. */
   nextGaps(id: string): NextGaps {
     const item = this.item(id)
     const move = forwardMove(item.state)
-    return { id: item.id, state: item.state, move, gaps: move ? this.gaps(item, move) : [] }
+    return { id: item.id, state: item.state, move, gaps: move ? this.gaps(item, move) : [], notes: move ? this.notes(item, move) : [] }
   }
 
   newItem(given: NewItem): Item {
@@ -344,7 +349,7 @@ export class Engineering {
       if (move.reason && !reason) throw usage(`${name} needs --reason "<why>"`)
       const found = this.gaps(item, moveName)
       if (found.length) throw refused(gapsHeading(name, id, found), found[0]!.fix)
-      const warnings = this.moveWarnings(moveName, item)
+      const warnings = [...this.notes(item, moveName).map(note => note.text), ...this.moveWarnings(moveName, item)]
       const notes = this.applyMove(moveName, item, reason)
       // a document that cannot be written fails the move, so no item sits in a stage without its document
       // tasks.md comes from its template only when the flow needs slices; a flow that allows them writes its own

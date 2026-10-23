@@ -146,21 +146,28 @@ describe('Engineering.moveItem: start, agree and approve', () => {
 })
 
 describe('Engineering.moveItem: begin and submit', () => {
-  test('begin refuses a plan that changed after the approve, and replan clears the approval', () => {
+  test('begin runs with a plan that changed after the approve, and names the change; replan clears the approval', () => {
     itemAt(t, 'ready')
     const plan = join(t.root, 'works', 'SHOP-1', 'plan.md')
     writeFileSync(plan, `${readFileSync(plan, 'utf8')}\nmore\n`)
     t.git('bff', 'switch', '-q', '-c', 'nook/SHOP-1-work')
-    const error = fails(() => t.eng(LEAD).moveItem('begin', 'SHOP-1'), Exit.refused, 'plan.md changed after the approve', 'nook eng item replan SHOP-1')
-    expect(error.message).not.toContain('spec.md changed')
+    t.git('web', 'switch', '-q', '-c', 'nook/SHOP-1-work')
+    const { warnings } = t.eng(LEAD).moveItem('begin', 'SHOP-1')
+    expect(warnings).toContain('plan.md changed since the approve')
+    expect(t.eng().item('SHOP-1').state).toBe('cooking')
+  })
+
+  test('replan clears the approval and goes back to planning', () => {
+    itemAt(t, 'ready')
     t.eng(LEAD).moveItem('replan', 'SHOP-1', { reason: 'the plan changed' })
     expect(t.eng().stores.approvals.hashes('SHOP-1').size).toBe(0)
     expect(t.eng().item('SHOP-1').state).toBe('planning')
   })
 
-  test('begin needs a non-protected branch in each git area', () => {
+  test('begin on a protected branch runs and names the branch to make', () => {
     itemAt(t, 'ready')
-    fails(() => t.eng(LEAD).moveItem('begin', 'SHOP-1'), Exit.refused, 'area bff is on main, a protected branch', 'nook eng item branch SHOP-1')
+    const { warnings } = t.eng(LEAD).moveItem('begin', 'SHOP-1')
+    expect(warnings).toContain('area bff is on main, a protected branch')
   })
 
   test('begin refuses an area that another item cooks in', () => {

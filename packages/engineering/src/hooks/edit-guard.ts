@@ -1,86 +1,81 @@
 import { relative, resolve, sep } from 'node:path'
 
-import { match, P } from 'ts-pattern'
-
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { Home } from '../home.ts'
 import { Engineering } from '../service.ts'
 import { Caller, whoOf } from './caller.ts'
 
-/** PreToolUse Edit, Write: a reader never writes; a document opens in its stage; an area, in a slice. */
+/**
+ * PreToolUse Edit, Write: a reader never writes; a builder edits only the area of its own running slice and never the
+ * documents of an item. The lead and the owner edit any file: the door of the item (submit, accept) shows what changed.
+ */
 
 export function editGuard(input: HookInput): HookResult {
-  const cwd = input.cwd ?? process.cwd()
-  const home = Home.find(cwd)
-  if (!home) return pass
-  const target = String(input.tool_input?.file_path ?? input.tool_input?.notebook_path ?? '')
+  const target = editTarget(input)
   if (!target) return pass
   const caller = Caller.from(input)
   if (caller.role === 'reader')
     return block(`${caller.actor} is a reader: a reader never writes a file. Report what you found instead.`)
-  const full = resolve(cwd, target)
-  const eng = Engineering.open(home, whoOf(caller, input.session_id))
-  const inWork = relative(home.workRoot, full)
-  if (inWork && !inWork.startsWith('..') && !inWork.startsWith(sep))
-    return documentRule(eng, caller, inWork.split(sep))
-  return areaRule(eng, caller, full)
+  const eng = Engineering.open(target.home, whoOf(caller, input.session_id))
+  const inWork = workPath(target.home, target.file)
+  if (inWork) return documentRule(eng, caller, inWork)
+  return caller.role === 'builder' ? builderAreaRule(eng, caller, target.file) : pass
 }
 
-/** A file of an area changes only while a slice of the area runs in cooking; for a builder, its own slice. */
-function areaRule(eng: Engineering, caller: Caller, file: string): HookResult {
+/**
+ * PostToolUse Edit, Write: an area file that changed with no running slice of its area is logged once on each item
+ * in cooking or review that holds the area, so the accept shows it. A helper: it never blocks.
+ */
+export function editLog(input: HookInput): HookResult {
+  const target = editTarget(input)
+  if (!target || workPath(target.home, target.file)) return pass
+  const area = target.home.areaOf(target.file)
+  if (!area) return pass
+  const eng = Engineering.open(target.home, whoOf(Caller.from(input), input.session_id))
+  const { slices, items, events } = eng.stores
+  if (slices.running().some(s => s.itemState === 'cooking' && s.area === area.name)) return pass
+  const reason = `outside a slice: ${relative(target.home.dir, target.file)}`
+  const holders = items.list().filter(item => (item.state === 'cooking' || item.state === 'review') && item.areas.includes(area.name))
+  eng.ledger.write(() => {
+    for (const item of holders) if (!events.history(item.id).some(e => e.type === 'edit' && e.reason === reason)) events.record(item.id, 'edit', { reason })
+  })
+  return pass
+}
+
+function editTarget(input: HookInput): { home: Home; file: string } | null {
+  const cwd = input.cwd ?? process.cwd()
+  const home = Home.find(cwd)
+  const path = String(input.tool_input?.file_path ?? input.tool_input?.notebook_path ?? '')
+  return home && path ? { home, file: resolve(cwd, path) } : null
+}
+
+/** `<id>/<name>` of a file in the item folder, or null for a file outside it. */
+function workPath(home: Home, file: string): string[] | null {
+  const inWork = relative(home.workRoot, file)
+  return inWork && !inWork.startsWith('..') && !inWork.startsWith(sep) ? inWork.split(sep) : null
+}
+
+/** A builder edits only in the area of its own running slice, so two builders never meet in one area. */
+function builderAreaRule(eng: Engineering, caller: Caller, file: string): HookResult {
   const area = eng.home.areaOf(file)
   if (!area) return pass
   const running = eng.stores.slices.running().filter(s => s.itemState === 'cooking' && s.area === area.name)
-  if (!running.length) {
-    return block(
-      `area ${area.name} has no item in cooking with a running slice: a file of an area changes inside a slice (nook eng task start <id> <T>).`,
-    )
-  }
-  if (caller.role !== 'builder' || running.some(s => s.assignee === caller.actor)) return pass
-  const holders = running.map(s => `${s.item} ${s.id} (${s.assignee})`).join(', ')
-  return block(
-    `${caller.actor}: a builder edits only in the area of its own slice; area ${area.name} runs ${holders}.`,
-  )
+  if (running.some(s => s.assignee === caller.actor)) return pass
+  const holders = running.map(s => `${s.item} ${s.id} (${s.assignee})`).join(', ') || 'no slice'
+  return block(`${caller.actor}: a builder edits only in the area of its own slice; area ${area.name} runs ${holders}.`)
 }
 
-type DocumentKind = 'spec' | 'plan' | 'free' | 'other'
+const ITEM_DOCS = /^(spec|plan|tasks|findings|handoff|root-cause)\.md$|^walkthrough\./
 
-const kindOf = (name: string): DocumentKind =>
-  match(name)
-    .with('spec.md', () => 'spec' as const)
-    .with('plan.md', 'tasks.md', () => 'plan' as const)
-    .with('findings.md', 'handoff.md', 'root-cause.md', P.string.startsWith('walkthrough.'), () => 'free' as const)
-    .otherwise(() => 'other' as const)
-
-/** `<item folder>/<id>/<name>`: spec.md opens in framing, plan.md and tasks.md in planning. */
+/** `<item folder>/<id>/<name>`: the documents of an item open in every stage; a builder never writes them. */
 function documentRule(eng: Engineering, caller: Caller, parts: string[]): HookResult {
   const [id, name] = parts
   if (!id || !name || parts.length !== 2) return pass
-  if (caller.role === 'builder')
-    return block('a builder edits the files of its slice, not the documents of the item.')
-  const item = eng.stores.items.find(id)
-  if (!item) return block(`no item ${id} in the ledger: nook eng item new ${id} "<title>" first.`)
-  return match(kindOf(name))
-    .with('spec', () =>
-      item.state === 'framing'
-        ? pass
-        : block(
-            `${id} is ${item.state}: spec.md opens only in framing (nook eng item reframe ${id} --reason "<why>").`,
-          ),
-    )
-    .with('plan', () =>
-      item.state === 'planning'
-        ? pass
-        : block(
-            `${id} is ${item.state}: ${name} opens only in planning (nook eng item replan ${id} --reason "<why>").`,
-          ),
-    )
-    .with('free', () => pass)
-    .with('other', () =>
-      block(
-        `${name} is not a document of ${id}: ${eng.home.config.dir}/${id}/ holds spec.md, plan.md, tasks.md, findings.md, root-cause.md, walkthrough.md and handoff.md.`,
-      ),
-    )
-    .exhaustive()
+  if (caller.role === 'builder') return block('a builder edits the files of its slice, not the documents of the item.')
+  if (!eng.stores.items.find(id)) return block(`no item ${id} in the ledger: nook eng item new ${id} "<title>" first.`)
+  if (ITEM_DOCS.test(name)) return pass
+  return block(
+    `${name} is not a document of ${id}: ${eng.home.config.dir}/${id}/ holds spec.md, plan.md, tasks.md, findings.md, root-cause.md, walkthrough.md and handoff.md.`,
+  )
 }

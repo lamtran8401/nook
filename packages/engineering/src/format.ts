@@ -57,7 +57,8 @@ export const gapsHeading = (move: string, id: string, found: Gap[]) =>
 
 export function nextGapsText(r: NextGaps): string {
   if (!r.move) return `${r.id} is ${r.state}: no forward move`
-  return r.gaps.length ? gapsHeading(r.move, r.id, r.gaps) : `${r.move} ${r.id}: no gap`
+  const head = r.gaps.length ? gapsHeading(r.move, r.id, r.gaps) : `${r.move} ${r.id}: no gap`
+  return r.notes.length ? `${head}\nnotes (the move can still run):\n${formatGaps(r.notes)}` : head
 }
 
 export const eventList = (events: Event[]) =>
