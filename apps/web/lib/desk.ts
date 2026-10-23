@@ -7,8 +7,6 @@ import { activePacks } from '@nook/desk/desks.ts'
 import { engineeringModule } from '@nook/engineering/module.ts'
 import { type BoardCard, type ItemDocs, type ItemView, readAreas, readBoard, readDocs, readItem, readMetrics, type Receipt, readReceipts, readTrend } from '@nook/engineering/read/reader.ts'
 import type { Metrics } from '@nook/engineering/report/metrics.ts'
-import { learnModule } from '@nook/learn/module.ts'
-import { type CourseView, readLearn } from '@nook/learn/read.ts'
 import { wikiModule } from '@nook/wiki/module.ts'
 import { type PageView, readPage, readWiki, type WikiView } from '@nook/wiki/read.ts'
 import { type EventGroup, groupEvents } from '@nook/core/retro/retro.ts'
@@ -35,7 +33,6 @@ const PAGES: DeskPage[] = [
   { key: 'home', label: 'Home', path: '' },
   { key: 'works', label: 'Board', path: '/works', pack: 'engineering' },
   { key: 'wiki', label: 'Wiki', path: '/wiki', pack: 'wiki' },
-  { key: 'learn', label: 'Learn', path: '/learn', pack: 'learn' },
   { key: 'metrics', label: 'Metrics', path: '/metrics', pack: 'engineering' },
   { key: 'agents', label: 'Agents and skills', path: '/agents' },
   { key: 'events', label: 'Events', path: '/events' },
@@ -50,7 +47,7 @@ export function deskPages(dir: string): DeskPage[] {
 
 // the packs of the nook binary that read the disk only, so the home page gives what `nook brief` and `nook doctor` give;
 // issue-tracker asks each tracker for its login, so its gaps stay with `nook doctor` and `nook issues sources`
-const MODULES = [engineeringModule, wikiModule, learnModule]
+const MODULES = [engineeringModule, wikiModule]
 
 export const home = (dir: string): HomeView => readHome(dir, MODULES)
 export const board = (dir: string): BoardCard[] => readBoard(dir)
@@ -72,7 +69,6 @@ export const itemView = (dir: string, id: string): ItemView => readItem(dir, id)
 export const item = (dir: string, id: string): { view: ItemView; docs: ItemDocs } => ({ view: itemView(dir, id), docs: readDocs(dir, id) })
 export const wiki = (dir: string): WikiView | null => readWiki(dir)
 export const wikiPage = (dir: string, path: string): PageView => readPage(dir, path)
-export const courses = (dir: string): CourseView[] => readLearn(dir)
 export const find = (dir: string, query: string, base: string): Hit[] => search(dir, query, base)
 export const parts = (dir: string): PackPart[] => packParts(dir)
 

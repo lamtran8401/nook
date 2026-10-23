@@ -20,7 +20,6 @@
         "@nook/core": "workspace:*",
         "@nook/engineering": "workspace:*",
         "@nook/issues": "workspace:*",
-        "@nook/learn": "workspace:*",
         "@nook/shared": "workspace:*",
         "@nook/wiki": "workspace:*",
       },
@@ -32,7 +31,6 @@
         "@nook/core": "workspace:*",
         "@nook/desk": "workspace:*",
         "@nook/engineering": "workspace:*",
-        "@nook/learn": "workspace:*",
         "@nook/shared": "workspace:*",
         "@nook/ui": "workspace:*",
         "@nook/wiki": "workspace:*",
@@ -84,14 +82,6 @@
     },
     "packages/issues": {
       "name": "@nook/issues",
-      "version": "0.1.0",
-      "dependencies": {
-        "@nook/desk": "workspace:*",
-        "@nook/shared": "workspace:*",
-      },
-    },
-    "packages/learn": {
-      "name": "@nook/learn",
       "version": "0.1.0",
       "dependencies": {
         "@nook/desk": "workspace:*",
@@ -239,8 +229,6 @@
     "@nook/engineering": ["@nook/engineering@workspace:packages/engineering"],
 
     "@nook/issues": ["@nook/issues@workspace:packages/issues"],
-
-    "@nook/learn": ["@nook/learn@workspace:packages/learn"],
 
     "@nook/shared": ["@nook/shared@workspace:packages/shared"],
 

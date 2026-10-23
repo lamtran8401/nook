@@ -1,4 +1,4 @@
-# 7. When something blocks
+# 6. When something blocks
 
 > In short: a guard that stops a call names the reason and the fix. Do the fix; never work around the guard. When Nook itself fails, every guard blocks, and only you can repair it with a `!` command.
 

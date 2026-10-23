@@ -11,17 +11,16 @@ packages/desk/         desks, nook.yml, the desk list of the owner, the pack man
 packages/core/         init, doctor, packs, where, the writing check, brief, retro, the core hooks
 packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks, the read paths of the web app
 packages/wiki/         the shelves of the wiki, their indexes, the link check
-packages/learn/        the courses: roadmap, cards, mistakes, scores, the study log
 packages/issues/       the pack issue-tracker: the sources of Jira and GitHub, their logins, the map of the fields, the guard of the writes
 packages/ui/           the UI base of the web app: the shadcn/ui parts, cn(), and the Tailwind theme from the Bench tokens
 plugins/<pack>/        one Claude Code plugin each: pack.json, .claude-plugin/, bin/nook (a shim), hooks/, skills/, agents/, templates/. No code.
 docs/guide/            the guide book: how to use Nook, one chapter for each task
-docs/reference/        the contract of each pack: core, engineering, wiki, learn
+docs/reference/        the contract of each pack: core, engineering, issue-tracker, wiki
 docs/report.md         the current build: the parts, the numbers, the limits, the next steps
 docs/expect/           what the current step must do before it is done
 scripts/pages/         builds the two pages of the docs (guide book, build report) from the Markdown
 ```
-The packs are core, engineering, issue-tracker, wiki and learn. `nook eng …` runs the commands of engineering, `nook issues …` those of issue-tracker, `nook wiki …` those of the wiki, `nook learn …` those of learn.
+The packs are core, engineering, issue-tracker and wiki. `nook eng …` runs the commands of engineering, `nook issues …` those of issue-tracker, `nook wiki …` those of the wiki.
 A desk is a folder with `nook.yml`. Desks nest: `company/` is a top desk, and `company/shop/` is a child desk inside it.
 
 ## Checks

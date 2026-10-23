@@ -15,19 +15,17 @@ const write = (rel: string, text: string) => {
 
 beforeEach(() => {
   desk = realpathSync(mkdtempSync(join(tmpdir(), 'nook-search-')))
-  write('nook.yml', 'packs: [engineering, wiki, learn]\nsecrets: [docs/wiki/resources/keys.md]\nwiki:\n  shelves:\n    - { name: resources, use: "how a system works" }\nlearn:\n  dir: learn\n')
+  write('nook.yml', 'packs: [engineering, wiki]\nsecrets: [docs/wiki/resources/keys.md]\nwiki:\n  shelves:\n    - { name: resources, use: "how a system works" }\n')
   write('works/SHOP-42/plan.md', '# SHOP-42: the plan\n\n## Risks\n\nA payment retry that runs twice charges twice.\n')
   write('docs/wiki/resources/payment-vault.md', '# Payment vault\n\n## Retries\n\nThe vault takes a Payment Retry with a new key.\n')
-  write('learn/english/mistakes.md', '# Mistakes\n\n| the payment retry are slow | agreement |\n')
 })
 afterEach(() => rmSync(desk, { recursive: true, force: true }))
 
 describe('search', () => {
-  test('finds each line with every word, in wiki pages, item documents and course files, with its heading and its page', () => {
+  test('finds each line with every word, in wiki pages and item documents, with its heading and its page', () => {
     expect(search(desk, 'payment retry')).toEqual([
       { file: 'works/SHOP-42/plan.md', href: '/works/SHOP-42?tab=plan', heading: 'Risks', line: 5, text: 'A payment retry that runs twice charges twice.' },
       { file: 'docs/wiki/resources/payment-vault.md', href: '/wiki/resources/payment-vault.md', heading: 'Retries', line: 5, text: 'The vault takes a Payment Retry with a new key.' },
-      { file: 'learn/english/mistakes.md', href: '/learn/english', heading: 'Mistakes', line: 3, text: '| the payment retry are slow | agreement |' },
     ])
   })
 
@@ -42,7 +40,7 @@ describe('search', () => {
     write('docs/wiki/resources/keys.md', '# Keys\n\npayment retry key k-1\n')
     write('outside/notes.md', 'payment retry outside\n')
     symlinkSync(join(desk, 'outside', 'notes.md'), join(desk, 'docs', 'wiki', 'resources', 'linked.md'))
-    expect(search(desk, 'payment retry').map(h => h.file)).toEqual(['works/SHOP-42/plan.md', 'docs/wiki/resources/payment-vault.md', 'learn/english/mistakes.md'])
+    expect(search(desk, 'payment retry').map(h => h.file)).toEqual(['works/SHOP-42/plan.md', 'docs/wiki/resources/payment-vault.md'])
   })
 
   test('gives nothing for an empty query', () => {

@@ -35,9 +35,6 @@
       "@nook/wiki/*": [
         "./packages/wiki/src/*"
       ],
-      "@nook/learn/*": [
-        "./packages/learn/src/*"
-      ],
       "@nook/ui/*": [
         "./packages/ui/src/*"
       ],

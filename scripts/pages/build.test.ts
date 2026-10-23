@@ -24,8 +24,7 @@ beforeEach(() => {
     '03-day.md': chapter(3),
     '04-work.md': chapter(4, `## The flow\n\n${drawnText('flowDiagram')}\n\n## Pick a path\n\n${drawnText('pathsDiagram')}\n`),
     '05-wiki.md': chapter(5),
-    '06-learn.md': chapter(6, `## Each day\n\n${drawnText('learnLoopDiagram')}\n`),
-    '07-blocks.md': chapter(7),
+    '06-blocks.md': chapter(6),
   }
   for (const [file, text] of Object.entries(files)) writeFileSync(join(docs, 'guide', file), text)
   writeFileSync(
@@ -33,7 +32,7 @@ beforeEach(() => {
     [
       '# The build report', '', '> In short: a report.', '',
       '## At a glance', '', '| Part | Count | Check it with |', '|---|---|---|',
-      '| packs | 4: core, engineering, wiki, learn | `nook packs` |', '| tests | 560 in 64 files, 0 failures | `bun run check` |', '',
+      '| packs | 3: core, engineering, wiki | `nook packs` |', '| tests | 560 in 64 files, 0 failures | `bun run check` |', '',
       '## Tests', '', '| Package | Tests | Files |', '|---|---|---|',
       '| core | 158 | 14 |', '| wiki | 21 | 2 |', '| total | 179 | 16 |', '',
       '## How it is built', '', drawnText('archDiagram'), '',
@@ -89,7 +88,7 @@ describe('buildPages', () => {
     expect(guide).toContain('<a href="#ch-2">chapter 2</a>')
     expect(guide).toContain('<a href="https://claude.ai/artifact/REPORT" target="_blank" rel="noopener">the report</a>')
     expect(guide).toContain('the reference (<code>docs/reference/core.md</code>)')
-    expect(guide).toContain('4 packs: core, engineering, wiki, learn')
+    expect(guide).toContain('3 packs: core, engineering, wiki')
   })
 })
 
@@ -106,8 +105,8 @@ describe('the drawn diagrams', () => {
   })
 
   test('stop the build when the doc drops the text of a diagram', () => {
-    const learn = join(docs, 'guide', '06-learn.md')
-    writeFileSync(learn, '# 6. Chapter 6\n\n## Each day\n\nNo table now.\n')
-    expect(() => buildPages(docs)).toThrow('the table under "## Each day" of docs/guide/06-learn.md has no table')
+    const work = join(docs, 'guide', '04-work.md')
+    writeFileSync(work, readFileSync(work, 'utf8').replace(/## Pick a path[\s\S]*$/, '## Pick a path\n\nNo table now.\n'))
+    expect(() => buildPages(docs)).toThrow('the table under "## Pick a path" of docs/guide/04-work.md has no table')
   })
 })

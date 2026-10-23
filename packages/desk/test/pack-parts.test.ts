@@ -17,6 +17,5 @@ describe('packParts', () => {
     const parts = packParts(dir)
     expect(parts).toContainEqual({ kind: 'agent', pack: 'engineering', name: 'scout', job: 'Reads code and tickets and reports facts with path and line, guesses marked, in 40 lines or fewer.' })
     expect(parts).toContainEqual(expect.objectContaining({ kind: 'skill', pack: 'core', name: 'setup' }))
-    expect(parts.some(part => part.pack === 'learn')).toBe(false)
   })
 })

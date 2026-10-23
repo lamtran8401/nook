@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart3, BookOpen, Bot, GraduationCap, House, LayoutGrid, ScrollText, Settings } from 'lucide-react'
+import { BarChart3, BookOpen, Bot, House, LayoutGrid, ScrollText, Settings } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 
@@ -17,7 +17,6 @@ const ICONS: Record<string, ReactNode> = {
   home: <House aria-hidden="true" />,
   works: <LayoutGrid aria-hidden="true" />,
   wiki: <BookOpen aria-hidden="true" />,
-  learn: <GraduationCap aria-hidden="true" />,
   metrics: <BarChart3 aria-hidden="true" />,
   agents: <Bot aria-hidden="true" />,
   events: <ScrollText aria-hidden="true" />,

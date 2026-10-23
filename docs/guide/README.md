@@ -11,8 +11,7 @@ Nook is a base layer for Claude Code. You run `nook init` in a folder, and that 
 | [3. A day with Nook](03-day.md) | you start a day, answer a question, or decide at a gate |
 | [4. Work](04-work.md) | you take a ticket to a result that you accept |
 | [5. The wiki](05-wiki.md) | you keep what you learn, or ask what you know |
-| [6. Learn](06-learn.md) | you learn a subject to a level, or one topic |
-| [7. When something blocks](07-blocks.md) | a guard stops a call, or `nook doctor` shows a gap |
+| [6. When something blocks](06-blocks.md) | a guard stops a call, or `nook doctor` shows a gap |
 
 ## Three promises
 

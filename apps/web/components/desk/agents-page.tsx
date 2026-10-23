@@ -5,7 +5,7 @@ import { IconCard } from '@nook/ui/components/icon-card.tsx'
 import { LinkTabs } from '@nook/ui/components/link-tabs.tsx'
 
 // one color for each pack, so a card says its pack at a glance
-const PACK_TONE: Record<string, string> = { core: 'ink', engineering: 'primary', 'issue-tracker': 'warning', wiki: 'aqua', learn: 'violet' }
+const PACK_TONE: Record<string, string> = { core: 'ink', engineering: 'primary', 'issue-tracker': 'warning', wiki: 'aqua' }
 
 function Cards({ title, parts, icon }: { title: string; parts: PackPart[]; icon: React.ReactNode }) {
   if (!parts.length) return null

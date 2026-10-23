@@ -5,19 +5,17 @@ import { engineeringProgram, takeRoleFlags } from '@nook/engineering/commands.ts
 import { engineeringModule } from '@nook/engineering/module.ts'
 import { issuesProgram } from '@nook/issues/commands.ts'
 import { issuesModule } from '@nook/issues/module.ts'
-import { learnProgram } from '@nook/learn/commands.ts'
-import { learnModule } from '@nook/learn/module.ts'
 import { wikiProgram } from '@nook/wiki/commands.ts'
 import { wikiModule } from '@nook/wiki/module.ts'
 
 /** The commands of a pack sit under its word: `nook eng item show SHOP-12`. */
 const under = (word: string, commands: Command[]): Command[] => commands.map(c => ({ ...c, path: [word, ...c.path] }))
 
-const core = coreProgram([engineeringModule, issuesModule, wikiModule, learnModule])
+const core = coreProgram([engineeringModule, issuesModule, wikiModule])
 const program: Program = {
   name: 'nook',
   summary: core.summary,
-  commands: [...core.commands, ...under('eng', engineeringProgram.commands), ...under('issues', issuesProgram.commands), ...under('wiki', wikiProgram.commands), ...under('learn', learnProgram.commands)],
+  commands: [...core.commands, ...under('eng', engineeringProgram.commands), ...under('issues', issuesProgram.commands), ...under('wiki', wikiProgram.commands)],
 }
 
 // `nook engineering …` is the long spelling of `nook eng …`

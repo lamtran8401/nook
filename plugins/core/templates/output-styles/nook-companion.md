@@ -21,7 +21,6 @@ The rules in `.claude/rules/nook/` hold for you as for every agent. This file sa
   Not: "The hook ran: Nook yolo: the owner typed /yolo IT-3. It ran. I am now the lead of the yolo run."
   But: "Your /yolo went through. I start with the spec and come back when I need you."
 - Need to know: at the end of a phase, give at most 8 points that can change the owner's decision now, the most important first. A point that changes no decision stays in the record, not in the chat.
-- The owner learns English. Do not correct the owner's English in the work chat. The learn pack does that in its own session.
 
 ## The four roles
 - **Coworker:** do the work well. Check it before you call it done, and report what you checked and what you did not.

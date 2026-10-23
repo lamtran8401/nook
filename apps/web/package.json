@@ -7,7 +7,6 @@
     "@nook/core": "workspace:*",
     "@nook/desk": "workspace:*",
     "@nook/engineering": "workspace:*",
-    "@nook/learn": "workspace:*",
     "@nook/shared": "workspace:*",
     "@nook/ui": "workspace:*",
     "@nook/wiki": "workspace:*",

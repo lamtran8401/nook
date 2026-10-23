@@ -1,9 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
-import type { CourseView } from '@nook/learn/read.ts'
 import type { WikiView } from '@nook/wiki/read.ts'
 
-import { Courses, CoursePage, trendChart } from '@/components/learn/course-page.tsx'
 import { ShelfPage, WikiHome } from '@/components/wiki/wiki-home.tsx'
 import { WikiPage } from '@/components/wiki/wiki-page.tsx'
 import { html, text } from '@/test/markup.ts'
@@ -60,39 +58,3 @@ describe('WikiPage', () => {
   })
 })
 
-const course: CourseView = {
-  name: 'english',
-  due: [{ id: 'c3', front: 'a decision ___ the plan', back: 'on', box: 2, due: '2026-10-18', last: '2026-10-16' }],
-  patterns: [{ pattern: 'a missing article before a singular noun', count: 4, last: '2026-10-17' }],
-  trends: [
-    { criterion: 'Task Achievement', points: [{ date: '2026-10-10', band: '6', task: 'task 1' }, { date: '2026-10-17', band: '6.5', task: 'task 2' }] },
-    { criterion: 'Lexical Resource', points: [{ date: '2026-10-17', band: '7', task: 'task 2' }] },
-  ],
-}
-
-describe('CoursePage', () => {
-  test('shows the cards due, the top patterns and the last band of each criterion', () => {
-    expect(text(html(<CoursePage course={course} />))).toBe(
-      'English Cards due 1 c3 a decision ___ the plan on box 2 ' +
-        'Top patterns of your mistakes 1 4× a missing article before a singular noun last on 2026-10-17 ' +
-        'Scores by criterion 2 6.5 Task Achievement last on 2026-10-17, task 2 · 2 scores 7 Lexical Resource last on 2026-10-17, task 2 · 1 score',
-    )
-  })
-
-  test('lists each course with what waits in it', () => {
-    expect(text(html(<Courses courses={[course]} base="/personal" />))).toBe('english 2 scored criteria 1 card due today · 1 pattern of mistakes')
-  })
-})
-
-describe('trendChart', () => {
-  test('draws a line for each criterion scored on every day, and leaves out one with a day missing', () => {
-    expect(trendChart(course.trends)).toEqual({
-      type: 'chart', kind: 'line', x: ['2026-10-10', '2026-10-17'], min: 5, max: 8, step: 0.5,
-      series: [{ name: 'Task Achievement', values: [6, 6.5] }],
-    })
-  })
-
-  test('draws no chart with fewer than two days of scores', () => {
-    expect(trendChart([course.trends[1]!])).toBeNull()
-  })
-})

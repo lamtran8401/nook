@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs'
 
 import { Home } from '@nook/engineering/home.ts'
-import { findLearn } from '@nook/learn/learn.ts'
 import { findWiki } from '@nook/wiki/module.ts'
 
 /** A folder that a pack owns, and the page of the web app for one of its files. */
@@ -16,14 +15,12 @@ function itemHref(base: string, rel: string): string {
   return DOC_TABS.includes(tab) ? `${base}/works/${id}?tab=${tab}` : `${base}/works/${id}`
 }
 
-/** The folders of the packs of the desk that exist: the item folders, the wiki and the courses; each address starts with `base`. */
+/** The folders of the packs of the desk that exist: the item folders and the wiki; each address starts with `base`. */
 export function deskPlaces(desk: string, base = ''): Place[] {
   const works = Home.find(desk)?.workRoot
   const wiki = findWiki(desk)?.dir
-  const learn = findLearn(desk)?.dir
   return [
     ...(works ? [{ root: works, href: (rel: string) => itemHref(base, rel) }] : []),
     ...(wiki ? [{ root: wiki, href: (rel: string) => `${base}/wiki/${rel}` }] : []),
-    ...(learn ? [{ root: learn, href: (rel: string) => `${base}/learn/${rel.split('/')[0]}` }] : []),
   ].filter(place => existsSync(place.root))
 }

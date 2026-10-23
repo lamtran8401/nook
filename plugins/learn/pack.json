@@ -1,8 +1,0 @@
-{
-  "name": "learn",
-  "description": "courses against a standard and a ruler, topics into the wiki: the roadmap, the cards in boxes, the mistake log, the scores, and the daily and weekly loops",
-  "rules": [
-    "templates/rules/learn.md"
-  ],
-  "state": []
-}
