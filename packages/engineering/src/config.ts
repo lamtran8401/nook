@@ -53,7 +53,7 @@ export class EngineeringConfig {
   readonly areas: Area[]
   /** True when nook.yml has no `engineering` section. */
   readonly missing: boolean
-  /** True when the section still has `tracker:`, which moved to the pack issue-tracker. */
+  /** True when the section still has `tracker:`, which moved to the issue-tracker feature. */
   readonly oldTracker: boolean
   /** The root cause types of a fix in this workspace; none means any type passes. */
   readonly rootCauses: string[]

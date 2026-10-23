@@ -15,7 +15,7 @@ const yml = (text: string) => writeFileSync(join(root, 'nook.yml'), text)
 const working = () => ({ code: 0, out: '', err: '' })
 
 describe('issuesModule', () => {
-  test('with no section, the pack is not configured and the doctor names the fix', () => {
+  test('with no section, the feature is not configured and the doctor names the fix', () => {
     yml('issue-tracker: {}\n')
     expect(issuesModule.configured(root)).toBe(false)
     expect(issuesDoctor(root, working).map(f => [f.level, f.text, f.fix])).toEqual([['warn', 'nook.yml has no issue-tracker section with the sources', 'write it with /setup']])
@@ -46,7 +46,7 @@ describe('issuesModule', () => {
     expect(issuesDoctor(root, working).map(f => [f.level, f.text, f.fix])).toEqual([['warn', 'issue-tracker has no source', 'add a jira or github source to issue-tracker.sources with /setup']])
   })
 
-  test('a workspace that does not turn the pack on gets nothing', () => {
+  test('a workspace with no section of the feature gets nothing', () => {
     yml('wiki: {}\n')
     expect(issuesDoctor(root, working)).toEqual([])
   })

@@ -14,7 +14,7 @@ afterEach(() => rmSync(dir, { recursive: true, force: true }))
 const write = (kind: string, text: string) => writeFileSync(join(dir, `${kind}.yml`), text)
 const CODE: Omit<Flow, 'kind'> = { spec: { criteria: 'required', questions: 'none', sections: [] }, areas: 'required', slices: 'required', submit: [] }
 
-describe('the flows of the pack', () => {
+describe('the flows of engineering', () => {
   test('each kind has its flow: a feature, a fix and a chore build slices to criteria in areas; an investigation answers questions, with slices and areas or none', () => {
     expect(flowOf('feature')).toEqual({ kind: 'feature', ...CODE })
     expect(flowOf('fix')).toEqual({ kind: 'fix', spec: { criteria: 'required', questions: 'none', sections: ['Reproduce', 'Actual', 'Expected'] }, areas: 'required', slices: 'required', submit: ['root-cause'] })

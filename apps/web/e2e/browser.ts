@@ -1,12 +1,13 @@
 /** A real browser on the built web app, for the tests that need clicks, keys and layout. */
 import { type ChildProcess, spawn } from 'node:child_process'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 import { Pairs } from '@nook/core/web/pairs.ts'
+import { pluginId } from '@nook/workspace/workspaces.ts'
 import { runCommand } from '@nook/shared/run.ts'
 
 import { buildOnce } from './built.ts'
@@ -93,6 +94,14 @@ export async function open(path: string) {
 
 let port = 0
 
+/** A Claude Code user folder with only the nook plugin on, so the doctor of the page never reads the owner's own settings. */
+function userSettings(home: string): string {
+  const dir = join(home, 'claude')
+  mkdirSync(dir, { recursive: true })
+  writeFileSync(join(dir, 'settings.json'), JSON.stringify({ enabledPlugins: { [pluginId() ?? 'nook@nook']: true } }))
+  return dir
+}
+
 /** Builds the app once, makes the demo workspace `shop`, starts the server and Chrome at 1440 px, and pairs as the owner. */
 export async function startBrowser(): Promise<void> {
   const built = buildOnce()
@@ -102,7 +111,8 @@ export async function startBrowser(): Promise<void> {
   runCommand(['bun', 'run', 'demo', workspace], { cwd: repo, env, timeoutMs: 120_000 })
   const token = new Pairs(workspace).offer()
   port = await freePort()
-  server = spawn('node', ['server.ts'], { cwd: web, env: { ...env, NOOK_WORKSPACE: workspace, XDG_CONFIG_HOME: home, NOOK_WEB_PORT: String(port) }, stdio: ['pipe', 'pipe', 'pipe'] })
+  const claude = userSettings(home)
+  server = spawn('node', ['server.ts'], { cwd: web, env: { ...env, NOOK_WORKSPACE: workspace, XDG_CONFIG_HOME: home, CLAUDE_CONFIG_DIR: claude, NOOK_WEB_PORT: String(port) }, stdio: ['pipe', 'pipe', 'pipe'] })
   await seen(server, /Ready in/, 'stdout')
   chrome = spawn(chromePath(), ['--headless=new', '--disable-gpu', '--no-first-run', '--remote-debugging-port=0', `--user-data-dir=${join(home, 'chrome')}`, '--window-size=1440,1000', 'about:blank'], { stdio: ['ignore', 'pipe', 'pipe'] })
   const browser = await seen(chrome, /DevTools listening on (ws:\S+)/, 'stderr')

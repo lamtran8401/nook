@@ -73,6 +73,13 @@ describe('the board of a workspace', () => {
     expect(boardHref('/shop', options, { kind: 'all' })).toBe('/shop/works')
   })
 
+  test('a done item that waits for its /close waits for the owner, as the inbox says, so it is in Needs me and keeps Done open', () => {
+    const closing = card('SHOP-40', 'done', { next: { owner: false, skill: '/close SHOP-40' } })
+    expect(holderGroups([closing]).map(g => g.holder.key)).toEqual(['you'])
+    expect(visibleCards([closing], { kind: 'all', view: 'mine' }).map(c => c.id)).toEqual(['SHOP-40'])
+    expect(folds(PHASES[3]!, [closing])).toBe(false)
+  })
+
   test('Done and the backlog fold to a strip while none of their items waits for the owner; a busy phase never folds', () => {
     const [shape, , , done] = PHASES
     expect(folds(BACKLOG, [card('SHOP-46', 'backlog')])).toBe(true)

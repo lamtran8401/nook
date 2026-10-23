@@ -51,7 +51,7 @@ describe('MetricsPage', () => {
   })
 
   test('a workspace with no engineering says where the metrics come from', () => {
-    expect(text(html(<MetricsPage metrics={null} trend={[]} blocks={[]} />))).toBe('This workspace has no engineering The metrics come from the ledger of the engineering pack.')
+    expect(text(html(<MetricsPage metrics={null} trend={[]} blocks={[]} />))).toBe('This workspace has no engineering The metrics come from the ledger of the engineering feature.')
   })
 })
 

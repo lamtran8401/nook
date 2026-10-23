@@ -1,6 +1,6 @@
 import { parse } from 'yaml'
 
-/** The parts of a Markdown document of the pack: the front matter, the comments, the `## ` sections. */
+/** The parts of a Markdown document of an item: the front matter, the comments, the `## ` sections. */
 
 export const FRONT = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
 export const COMMENT = /<!--[\s\S]*?-->/g

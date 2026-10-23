@@ -151,7 +151,7 @@ export function loadTwgMap(): TwgCommand[] | null {
   return map.length ? map : null
 }
 
-/** PreToolUse Bash: block a write to a tracker, only in a workspace that turns the pack issue-tracker on. */
+/** PreToolUse Bash: block a write to a tracker, only in a workspace where the issue-tracker feature is on. */
 export function trackerHook(input: HookInput, twgMap: () => TwgCommand[] | null = loadTwgMap): HookResult {
   const command = input.tool_input?.command
   if (input.tool_name !== 'Bash' || typeof command !== 'string') return pass

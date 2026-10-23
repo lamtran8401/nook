@@ -14,7 +14,7 @@ afterEach(() => rmSync(root, { recursive: true, force: true }))
 const SECTION = 'wiki:\n  shelves:\n    - { name: ideas, use: "An idea." }\n    - { name: daily, use: "A day.", index: false }\n'
 
 describe('wikiModule', () => {
-  test('with no wiki section, the pack is not configured and the doctor names the fix', () => {
+  test('with no wiki section, the feature is not configured and the doctor names the fix', () => {
     writeFileSync(join(root, 'nook.yml'), 'wiki: {}\n')
     expect(wikiModule.configured(root)).toBe(false)
     expect(wikiModule.doctor(root).map(f => [f.text, f.fix])).toEqual([['nook.yml has no wiki section with the shelves', 'write it with /setup']])

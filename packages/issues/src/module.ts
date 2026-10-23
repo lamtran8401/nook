@@ -30,7 +30,7 @@ function issuesAt(dir: string): Issues | null {
   return issues && issues.home === dir ? issues : null
 }
 
-/** The gaps of the pack in `dir`: the section, then each source with its CLI and its login. */
+/** The gaps of the issue-tracker in `dir`: the section, then each source with its CLI and its login. */
 export function issuesDoctor(dir: string, runner?: Runner): Finding[] {
   let issues: Issues | null
   try {

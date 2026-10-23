@@ -22,10 +22,10 @@ function pulled(report: PullReport): string {
   return lines.join('\n')
 }
 
-/** The commands of the pack issue-tracker. Each one only reads a tracker; the guard blocks the writes of `twg` and `gh`. */
+/** The commands of the issue-tracker feature. Each one only reads a tracker; the guard blocks the writes of `twg` and `gh`. */
 export const issuesProgram: Program = {
   name: 'nook issues',
-  summary: 'the issue-tracker pack of Nook: tickets of Jira and GitHub into the backlog, read only',
+  summary: 'the issue-tracker feature of Nook: tickets of Jira and GitHub into the backlog, read only',
   commands: [
     {
       path: ['pull'],

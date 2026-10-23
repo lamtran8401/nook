@@ -3,10 +3,10 @@ import { Exit, usage } from '@nook/shared/errors.ts'
 
 import { requireWiki } from './module.ts'
 
-/** The commands of the wiki pack: the index and the links. The skills read and write the pages. */
+/** The commands of the wiki feature: the index and the links. The skills read and write the pages. */
 export const wikiProgram: Program = {
   name: 'nook wiki',
-  summary: 'the wiki pack of Nook: the shelves, their indexes and the links',
+  summary: 'the wiki feature of Nook: the shelves, their indexes and the links',
   commands: [
     {
       path: ['index'],

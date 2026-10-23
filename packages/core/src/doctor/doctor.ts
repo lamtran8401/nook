@@ -61,7 +61,7 @@ const budget: Check = workspace =>
 
 const CHECKS: Check[] = [retiredKeys, claudeBlock, baseRules, stateDir, settings, secrets, budget]
 
-/** The plugins of an older Nook, one for each pack; the one plugin `nook` holds all of them now. */
+/** The plugins of an older Nook, one for each feature; the one plugin `nook` holds all of them now. */
 const OLD_PLUGINS = ['nk-eng', 'nk-wiki', 'nk-issues', 'nk-learn']
 
 export type DoctorOptions = {

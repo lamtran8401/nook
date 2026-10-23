@@ -655,7 +655,7 @@ const homeCommands: Command[] = [
   },
   {
     path: ['doctor'],
-    summary: 'the gaps of the pack in this home, each with its fix',
+    summary: 'the gaps of engineering in this home, each with its fix',
     run(c) {
       const found = doctor(eng())
       c.out(found, findingList)
@@ -691,7 +691,7 @@ const homeCommands: Command[] = [
 
 export const engineeringProgram: Program = {
   name: 'nook eng',
-  summary: 'the engineering pack of Nook: items, slices, gates and proofs',
+  summary: 'the engineering feature of Nook: items, slices, gates and proofs',
   commands: [
     ...itemCommands,
     ...criterionCommands,

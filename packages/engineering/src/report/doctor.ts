@@ -11,7 +11,7 @@ import type { Home } from '../home.ts'
 import type { Engineering } from '../service.ts'
 import type { Item } from '../stores/items.ts'
 
-/** `doctor`: the gaps of the pack in this home, each with its fix. */
+/** `doctor`: the gaps of engineering in this home, each with its fix. */
 
 export type { Finding } from '@nook/workspace/workspaces.ts'
 
@@ -55,8 +55,8 @@ function configFindings(at: Home): Finding[] {
     found.push({
       level: 'warn',
       where: home,
-      text: 'engineering.tracker moved to the pack issue-tracker: Nook reads it no more',
-      fix: 'delete tracker: from the engineering section of nook.yml; to pull tickets, run nook init --pack issue-tracker, then /setup',
+      text: 'engineering.tracker moved to the issue-tracker feature: Nook reads it no more',
+      fix: 'delete tracker: from the engineering section of nook.yml; to pull tickets, run nook init --with issue-tracker, then /setup',
     })
   for (const area of config.areas) {
     if (!existsSync(at.areaDir(area)))

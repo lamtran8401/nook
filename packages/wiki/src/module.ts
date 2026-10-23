@@ -19,7 +19,7 @@ export function requireWiki(cwd = process.cwd()): Wiki {
   throw new EvError('not inside a workspace that turns the wiki on', Exit.error, 'add a `wiki:` section to nook.yml with /setup')
 }
 
-/** The wiki of `dir` only when `dir` itself turns the pack on: a child does not set up its parent. */
+/** The wiki of `dir` only when `dir` itself has the wiki section: a child does not set up its parent. */
 const wikiAt = (dir: string): Wiki | null => {
   const wiki = findWiki(dir)
   return wiki && wiki.home === dir ? wiki : null

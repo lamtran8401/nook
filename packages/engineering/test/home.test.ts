@@ -23,7 +23,7 @@ const caught = (work: () => unknown): EvError => {
 }
 
 describe('Home', () => {
-  test('find returns the workspace that turns the pack on, from a folder below it', () => {
+  test('find returns the workspace with the engineering section, from a folder below it', () => {
     const home = Home.find(t.area('bff'))
     expect(home?.dir).toBe(t.root)
     expect(home?.dbFile).toBe(join(t.root, '.nook', 'engineering.db'))

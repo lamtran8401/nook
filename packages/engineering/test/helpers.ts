@@ -9,7 +9,7 @@ import { Home } from '../src/home.ts'
 import { Engineering } from '../src/service.ts'
 import { Who } from '../src/who.ts'
 
-/** A temporary home: nook.yml with the engineering pack and two areas that are small git repos. */
+/** A temporary home: nook.yml with the engineering section and two areas that are small git repos. */
 
 process.env.NOOK_PROJECT = join(import.meta.dir, '..', '..', '..')
 Object.assign(process.env, { GIT_AUTHOR_NAME: 'nook test', GIT_AUTHOR_EMAIL: 'test@example.com', GIT_COMMITTER_NAME: 'nook test', GIT_COMMITTER_EMAIL: 'test@example.com' })

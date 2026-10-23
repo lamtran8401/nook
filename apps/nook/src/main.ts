@@ -8,7 +8,7 @@ import { issuesModule } from '@nook/issues/module.ts'
 import { wikiProgram } from '@nook/wiki/commands.ts'
 import { wikiModule } from '@nook/wiki/module.ts'
 
-/** The commands of a pack sit under its word: `nook eng item show SHOP-12`. */
+/** The commands of a feature sit under its word: `nook eng item show SHOP-12`. */
 const under = (word: string, commands: Command[]): Command[] => commands.map(c => ({ ...c, path: [word, ...c.path] }))
 
 const core = coreProgram([engineeringModule, issuesModule, wikiModule])

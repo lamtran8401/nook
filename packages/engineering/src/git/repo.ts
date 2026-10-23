@@ -3,7 +3,7 @@ import { join } from 'node:path'
 
 import { runCommand } from '@nook/shared/run.ts'
 
-/** One git checkout: the commands that the pack runs in it. */
+/** One git checkout: the commands that engineering runs in it. */
 
 export type GitRun = { ok: boolean; out: string; err: string }
 export type FileState = 'new' | 'changed' | 'deleted' | 'moved'

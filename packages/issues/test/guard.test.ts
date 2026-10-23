@@ -115,13 +115,13 @@ describe('the hook of the write guard', () => {
 
   const bash = (command: string) => ({ tool_name: 'Bash', tool_input: { command }, cwd: root })
 
-  test('in a workspace that turns the pack on, a write is blocked with its reason', () => {
+  test('in a workspace with the feature on, a write is blocked with its reason', () => {
     writeFileSync(join(root, 'nook.yml'), 'issue-tracker: {}\n')
     expect(trackerHook(bash('gh issue close 1'), () => MAP)).toEqual({ kind: 'block', reason: 'gh issue close writes to the tracker: the agents of this workspace only read tickets. Ask the owner to do it.' })
     expect(trackerHook(bash('twg jira workitem get SHOP-1'), () => MAP)).toEqual({ kind: 'pass' })
   })
 
-  test('in a workspace with the pack off, a write passes', () => {
+  test('in a workspace with the feature off, a write passes', () => {
     writeFileSync(join(root, 'nook.yml'), 'secrets: []\n')
     expect(trackerHook(bash('gh issue close 1'), () => MAP)).toEqual({ kind: 'pass' })
   })

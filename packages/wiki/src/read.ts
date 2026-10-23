@@ -30,7 +30,7 @@ export function readWiki(workspace: string): WikiView | null {
  */
 export function readPage(workspace: string, path: string): PageView {
   const wiki = findWiki(workspace)
-  if (!wiki) throw refused('this workspace has no wiki', 'add `wiki` to `packs:` in nook.yml, then run /setup')
+  if (!wiki) throw refused('this workspace has no wiki', 'add `wiki:` to nook.yml, then run /setup')
   const full = resolve(wiki.dir, path)
   const inside = relative(wiki.dir, full)
   if (!isPage(wiki.dir, full, inside, new SecretPolicy(workspace))) throw refused(`${path} is no page of the wiki`, 'open a page from a shelf index')

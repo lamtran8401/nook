@@ -16,7 +16,7 @@ import { next } from './report/next.ts'
 import { Engineering } from './service.ts'
 import { Who } from './who.ts'
 
-/** The home of the pack in `dir`, only when `dir` itself turns the pack on: a child does not set up its parent. */
+/** The engineering home in `dir`, only when `dir` itself has the section: a child does not set up its parent. */
 const homeAt = (dir: string): Home | null => {
   const home = Home.find(dir)
   return home && home.dir === dir ? home : null
@@ -32,7 +32,7 @@ function moveLegacyWork(home: Home): string[] {
 
 const GATES = ['approve', 'accept', 'mode'] as const
 
-/** A read of the pack: the ledger opens read-only and closes after. A missing ledger, or one that needs a migration, gives `onGap`. */
+/** A read of engineering: the ledger opens read-only and closes after. A missing ledger, or one that needs a migration, gives `onGap`. */
 function reading<T>(home: Home, read: (eng: Engineering) => T, onGap: (gap: EvError) => T): T {
   let ledger: Ledger
   try {
@@ -106,7 +106,7 @@ export const engineeringModule: FeatureModule = {
 
   gate(dir, words, session) {
     const home = Home.find(dir)
-    if (!home) return { ok: false, lines: ['the engineering pack is not on here'] }
+    if (!home) return { ok: false, lines: ['engineering is not on here'] }
     const [move, id, value] = words
     if (!id) return { ok: false, lines: [`give the item: /gate ${move} <id>${move === 'mode' ? ' yolo|normal' : ''}`] }
     // the owner typed the move, so it runs as the owner; the actor marks it in the ledger
@@ -139,7 +139,7 @@ export const engineeringModule: FeatureModule = {
 
   command(dir, _name, args, session) {
     const home = Home.find(dir)
-    if (!home) return { ok: false, lines: ['the engineering pack is not on here'] }
+    if (!home) return { ok: false, lines: ['engineering is not on here'] }
     const eng = Engineering.open(home, new Who('owner', 'owner via /yolo', session))
     return refusedAsLines(() => {
       const target = autoTarget(eng, args)

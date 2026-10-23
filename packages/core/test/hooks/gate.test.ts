@@ -18,7 +18,7 @@ beforeEach(() => {
 })
 afterEach(() => removeDir(root))
 
-const pack = (result: GateResult = { ok: true, lines: ['IT-1 is ready', 'next: /cook IT-1'] }): FeatureModule => ({
+const feature = (result: GateResult = { ok: true, lines: ['IT-1 is ready', 'next: /cook IT-1'] }): FeatureModule => ({
   name: 'engineering',
   setup: () => [],
   configured: () => true,
@@ -32,20 +32,20 @@ const pack = (result: GateResult = { ok: true, lines: ['IT-1 is ready', 'next: /
 const typed = (name: string, args: string, extra: Record<string, unknown> = {}, background = false) =>
   gateHook(
     { cwd: root, session_id: 's-1', command_name: name, command_args: args, ...extra },
-    { modules: [pack()], startedByTool: () => false, inBackground: () => background },
+    { modules: [feature()], startedByTool: () => false, inBackground: () => background },
   )
-const run = (args: string, extra: Record<string, unknown> = {}, modules = [pack()], nested = false) =>
+const run = (args: string, extra: Record<string, unknown> = {}, modules = [feature()], nested = false) =>
   gateHook({ cwd: root, session_id: 's-1', command_name: 'nook:gate', command_args: args, ...extra }, { modules, startedByTool: () => nested })
 const contextOf = (r: ReturnType<typeof run>) => (r.kind === 'json' ? (r.value.hookSpecificOutput as { additionalContext: string }).additionalContext : '')
 
 describe('gateHook', () => {
-  test('a typed /gate runs the move of the pack that owns it and gives its lines as context', () => {
+  test('a typed /gate runs the move of the feature that owns it and gives its lines as context', () => {
     expect(contextOf(run('approve IT-1'))).toBe('Nook gate: the owner typed /gate approve IT-1. The move ran.\nIT-1 is ready\nnext: /cook IT-1')
     expect(calls).toEqual([['approve', 'IT-1']])
   })
 
-  test('a refused move says so, with the lines of the pack', () => {
-    const r = run('accept IT-1', {}, [pack({ ok: false, lines: ['accept IT-1: 1 gap'] })])
+  test('a refused move says so, with the lines of the feature', () => {
+    const r = run('accept IT-1', {}, [feature({ ok: false, lines: ['accept IT-1: 1 gap'] })])
     expect(contextOf(r)).toBe('Nook gate: the owner typed /gate accept IT-1. The move was refused.\naccept IT-1: 1 gap')
   })
 
@@ -69,17 +69,17 @@ describe('gateHook', () => {
   })
 
   test('a session that a tool started is blocked and runs nothing', () => {
-    expect(run('approve IT-1', {}, [pack()], true)).toEqual({ kind: 'block', reason: '/gate runs only in a session that the owner started, not in a session that a tool started.' })
+    expect(run('approve IT-1', {}, [feature()], true)).toEqual({ kind: 'block', reason: '/gate runs only in a session that the owner started, not in a session that a tool started.' })
     expect(calls).toEqual([])
   })
 
-  test('a typed command that a pack names runs as the owner and gives its lines as context', () => {
+  test('a typed command that a feature names runs as the owner and gives its lines as context', () => {
     const r = typed('nook:yolo', 'IT-1 keep the old export')
     expect(contextOf(r)).toBe('Nook yolo: the owner typed /yolo IT-1 keep the old export. It ran.\nIT-1 mode yolo')
     expect(calls).toEqual([['yolo', 'IT-1 keep the old export']])
   })
 
-  test('a typed command of a pack inside an agent is blocked and runs nothing', () => {
+  test('a typed command of a feature inside an agent is blocked and runs nothing', () => {
     expect(typed('nook:yolo', 'IT-1', { agent_id: 'a-1', agent_type: 'general-purpose' })).toEqual({ kind: 'block', reason: '/yolo runs only from the prompt of the owner, not inside an agent.' })
     expect(calls).toEqual([])
   })
@@ -91,7 +91,7 @@ describe('gateHook', () => {
   })
 
   test('another command passes untouched', () => {
-    expect(gateHook({ cwd: root, command_name: 'nook:cook', command_args: 'IT-1' }, { modules: [pack()], startedByTool: () => false })).toEqual({ kind: 'pass' })
+    expect(gateHook({ cwd: root, command_name: 'nook:cook', command_args: 'IT-1' }, { modules: [feature()], startedByTool: () => false })).toEqual({ kind: 'pass' })
   })
 })
 

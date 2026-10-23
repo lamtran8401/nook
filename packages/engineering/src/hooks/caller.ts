@@ -9,7 +9,7 @@ export type CallerKind = 'lead' | 'builder' | 'verifier' | 'reviewer' | 'reader'
 /** An in-process teammate can come with an id and no type; only builders run as teammates. */
 const TEAMMATE_TYPE = 'teammate-builder'
 
-/** The read-only agents of the engineering pack (`plugins/engineering/agents/`). */
+/** The read-only agents of the plugin (`plugin/agents/`). */
 const READERS = new Set(['verifier', 'reviewer', 'code-reviewer', 'scout', 'skeptic', 'system-designer', 'contract-designer', 'data-modeler'])
 
 export class Caller {
@@ -23,7 +23,7 @@ export class Caller {
 
   /**
    * No agent type and no agent id is the lead; a type that ends in `builder` is a builder; the read-only agents of
-   * the pack are readers. Any other agent works for the lead, so it gets the rules of the lead.
+   * the plugin are readers. Any other agent works for the lead, so it gets the rules of the lead.
    */
   static from(input: HookInput): Caller {
     if (!input.agent_type && !input.agent_id) return Caller.lead

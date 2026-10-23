@@ -38,9 +38,12 @@ export const stepOf = (card: BoardCard): Step => (card.state === 'blocked' ? (ca
 
 export const pointsOf = (cards: BoardCard[]): number => cards.reduce((sum, card) => sum + (card.points ?? 0), 0)
 
+/** The next move is the owner's: a gate or an answer, or the /close of a done item, as the inbox lists it. */
+const waitsForOwner = (card: BoardCard): boolean => card.next.owner || (stepOf(card) === 'done' && card.next.skill.startsWith('/close'))
+
 /** Who holds the next move: the owner when it is theirs, else the step tells who waits. */
 export function holderOf(card: BoardCard): Holder['key'] {
-  if (card.next.owner) return 'you'
+  if (waitsForOwner(card)) return 'you'
   const step = stepOf(card)
   if (step === 'done' || step === 'backlog' || step === 'ready') return step
   return 'lead'
@@ -57,11 +60,11 @@ export const phaseColumns = (cards: BoardCard[]) => PHASES.map(phase => ({ phase
 export const backlogOf = (cards: BoardCard[]) => cards.filter(card => stepOf(card) === 'backlog')
 
 /** A quiet phase (Done, the backlog) folds to a strip while it holds items and none of them waits for the owner. */
-export const folds = (phase: Phase, cards: BoardCard[]): boolean => Boolean(phase.quiet) && cards.length > 0 && !cards.some(card => card.next.owner)
+export const folds = (phase: Phase, cards: BoardCard[]): boolean => Boolean(phase.quiet) && cards.length > 0 && !cards.some(waitsForOwner)
 
 /** One part of the lane for each phase: its count, its points, and the items that wait for the owner. */
 export const laneOf = (cards: BoardCard[]) =>
-  phaseColumns(cards).map(({ phase, cards: held }) => ({ name: phase.name, tone: phase.tone, count: held.length, points: pointsOf(held), waits: held.filter(card => card.next.owner).length }))
+  phaseColumns(cards).map(({ phase, cards: held }) => ({ name: phase.name, tone: phase.tone, count: held.length, points: pointsOf(held), waits: held.filter(waitsForOwner).length }))
 
 /** The holders that hold an item, in the order of HOLDERS. */
 export const holderGroups = (cards: BoardCard[]) => HOLDERS.map(holder => ({ holder, cards: cards.filter(card => holderOf(card) === holder.key) })).filter(group => group.cards.length)

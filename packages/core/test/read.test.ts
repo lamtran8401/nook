@@ -15,7 +15,7 @@ beforeEach(() => {
 afterEach(() => rmSync(workspace, { recursive: true, force: true }))
 
 const GAP = { level: 'warn' as const, where: 'SHOP-2', text: 'SHOP-2: plan.md changed after the approve', fix: 'nook eng item replan SHOP-2' }
-const pack: FeatureModule = {
+const feature: FeatureModule = {
   name: 'engineering',
   setup: () => [],
   configured: () => true,
@@ -28,7 +28,7 @@ const pack: FeatureModule = {
 
 describe('readHome', () => {
   test('gives the gaps of the doctor, and the brief of the workspace with those gaps first as urgent waits', () => {
-    const home = readHome(workspace, [pack], new Date(2026, 9, 18, 12))
+    const home = readHome(workspace, [feature], new Date(2026, 9, 18, 12))
     expect(home.dir).toBe(workspace)
     expect(home.findings).toContainEqual({ ...GAP, text: 'engineering: SHOP-2: plan.md changed after the approve' })
     expect(home.brief).toContainEqual({ part: 'waits', urgent: true, text: 'engineering: SHOP-2: plan.md changed after the approve', action: 'nook eng item replan SHOP-2' })
@@ -38,8 +38,8 @@ describe('readHome', () => {
     ])
   })
 
-  test('gives no line of a pack that the workspace does not turn on', () => {
+  test('gives no line of a feature that the workspace does not turn on', () => {
     writeFileSync(join(workspace, 'nook.yml'), 'secrets: []\n')
-    expect(readHome(workspace, [pack]).brief.map(l => l.text)).not.toContain('SHOP-1 waits for your approve')
+    expect(readHome(workspace, [feature]).brief.map(l => l.text)).not.toContain('SHOP-1 waits for your approve')
   })
 })

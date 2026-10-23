@@ -183,8 +183,8 @@ describe('EmptyState', () => {
 
 describe('LinkTabs', () => {
   test('marks the current tab for a reader of the screen', () => {
-    const tabs = html(<LinkTabs label="Packs" tabs={[{ href: '/', label: 'Home' }, { href: '/works', label: 'Works', current: true }]} />)
-    expect(tabs).toContain('<nav aria-label="Packs"')
+    const tabs = html(<LinkTabs label="Pages" tabs={[{ href: '/', label: 'Home' }, { href: '/works', label: 'Works', current: true }]} />)
+    expect(tabs).toContain('<nav aria-label="Pages"')
     expect(/<a [^>]*href="\/works"[^>]*>/.exec(tabs)![0]).toContain('aria-current="page"')
     expect(/<a [^>]*href="\/"[^>]*>/.exec(tabs)![0]).not.toContain('aria-current')
   })

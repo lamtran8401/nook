@@ -41,7 +41,7 @@ describe('the board in a real browser', () => {
     await pick('List')
     await pick('Who holds it')
     expect(await evaluate('location.search')).toBe('?layout=list&group=holder')
-    expect(await evaluate(`[...document.querySelectorAll('[data-slot=item-group] > summary')].map(s => s.innerText.split('\\n')[0])`)).toEqual(['Waits for you', 'The lead runs', 'Backlog', 'Done'])
+    expect(await evaluate(`[...document.querySelectorAll('[data-slot=item-group] > summary')].map(s => s.innerText.split('\\n')[0])`)).toEqual(['Waits for you', 'The lead runs', 'Backlog'])
   }, 60_000)
 
   test('a click on a card opens the drawer with the overview, and the card keeps the highlight until it closes', async () => {

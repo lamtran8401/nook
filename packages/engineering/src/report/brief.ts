@@ -2,10 +2,10 @@ import { cut } from '../format.ts'
 import type { Engineering } from '../service.ts'
 import { nextFor } from './next.ts'
 
-/** `brief`: the lines of the pack for `nook brief`, what waits for the owner first. */
+/** `brief`: the lines of engineering for `nook brief`, what waits for the owner first. */
 
 export type BriefLine = {
-  pack: 'engineering'
+  feature: 'engineering'
   text: string
   urgency: 'now' | 'today' | 'info'
   action: string
@@ -17,7 +17,7 @@ const DAY_MS = 24 * 60 * 60 * 1000
 export function brief(eng: Engineering): BriefLine[] {
   const lines: BriefLine[] = []
   const line = (urgency: BriefLine['urgency'], ref: string, text: string, action: string) =>
-    lines.push({ pack: 'engineering', text, urgency, action, ref })
+    lines.push({ feature: 'engineering', text, urgency, action, ref })
   for (const item of eng.stores.items.open()) {
     const id = item.id
     const blocking = eng.stores.questions.openBlocking(id)

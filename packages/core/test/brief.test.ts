@@ -7,7 +7,7 @@ import { type BriefFolder, collectBrief, formatBrief, startOfYesterday } from '.
 const SINCE = new Date('2026-10-15T00:00:00.000Z')
 
 describe('collectBrief', () => {
-  test('a gap of the doctor waits with its fix; the lines of the packs follow; an ok finding is no line', () => {
+  test('a gap of the doctor waits with its fix; the lines of the features follow; an ok finding is no line', () => {
     const gaps: Record<string, Finding[]> = {
       '/a/personal': [
         { level: 'warn', where: 'wiki', text: 'resources/INDEX.md lacks a line', fix: 'nook wiki index --fix' },

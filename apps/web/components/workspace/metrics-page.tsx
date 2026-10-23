@@ -13,7 +13,7 @@ const Muted = ({ children }: { children: string }) => <p className="text-[13px] 
 
 /** The metrics of the last 30 days: the six numbers of the flow with their trends, the items done each week, the root causes and the guard blocks. */
 export function MetricsPage({ metrics, trend, blocks }: { metrics: Metrics | null; trend: Metrics[]; blocks: EventGroup[] }) {
-  if (!metrics) return <EmptyState icon={<BarChart3 className="size-5" aria-hidden="true" />} title="This workspace has no engineering">The metrics come from the ledger of the engineering pack.</EmptyState>
+  if (!metrics) return <EmptyState icon={<BarChart3 className="size-5" aria-hidden="true" />} title="This workspace has no engineering">The metrics come from the ledger of the engineering feature.</EmptyState>
   return (
     <>
       <FlowTiles metrics={metrics} trend={trend} keys={['rework', 'firstPass', 'sliceRework', 'cycle', 'approveWait', 'acceptWait']} className="lg:grid-cols-3" />

@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { workspacePlaces } from '@/lib/places.ts'
 
 /**
- * Watches what a page shows: the folders of the packs, and `.nook/`, where each write of the ledger lands. A burst of
+ * Watches what a page shows: the folders of the features, and `.nook/`, where each write of the ledger lands. A burst of
  * writes, such as a move that writes the ledger and a file, gives one change after `quietMs`. The code of an area is
  * not watched. Returns the stop.
  */

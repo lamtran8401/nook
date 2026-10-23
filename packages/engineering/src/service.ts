@@ -50,7 +50,7 @@ import { sameAsSpec, type Slice } from './stores/slices.ts'
 import { GRADES, IMPACTS, isOneOf, ITEM_KINDS, type ItemKind, MODES, SIZES, TAGS } from './vocabulary.ts'
 import { Permissions, Who } from './who.ts'
 
-/** The pack as one object: each method checks the role, runs the guards and writes in one transaction. */
+/** Engineering as one object: each method checks the role, runs the guards and writes in one transaction. */
 
 export type NewItem = {
   /** Missing: Nook makes the next id of the prefix of its kind, such as `WI-001` or `BUG-001`. */
@@ -141,7 +141,7 @@ export class Engineering {
     return new Engineering(home, Ledger.open(home.dbFile), who)
   }
 
-  /** The pack of the home above `cwd`, for the caller that the env names. */
+  /** Engineering of the home above `cwd`, for the caller that the env names. */
   static here(cwd = process.cwd(), who = Who.fromEnv()): Engineering {
     return Engineering.open(Home.require(cwd), who)
   }

@@ -19,7 +19,7 @@ describe('brief', () => {
     lead.moveSlice('fail', 'SHOP-1', 'T1', { reason: 'cannot' })
     lead.ledger.run("UPDATE item SET updated = '2026-01-01T00:00:00.000Z' WHERE id = 'SHOP-1'")
     const lines = brief(lead)
-    expect(lines.every(l => l.pack === 'engineering' && l.text && l.action && l.ref)).toBe(true)
+    expect(lines.every(l => l.feature === 'engineering' && l.text && l.action && l.ref)).toBe(true)
     expect(lines.map(l => [l.urgency, l.ref])).toEqual([['today', 'SHOP-1'], ['today', 'SHOP-1'], ['now', 'SHOP-2']])
     expect(lines[0]!.text).toContain('T1 failed: cannot')
     expect(lines[2]!.action).toBe('nook eng answer SHOP-2 Q1 "<answer>"')

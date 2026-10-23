@@ -17,7 +17,7 @@ const withWorkspace = (dir: string) => ({ ...env, NOOK_WORKSPACE: dir, XDG_CONFI
 let workspace: string
 let build: ReturnType<typeof runCommand>
 
-/** A workspace with the engineering pack and two items in its ledger. */
+/** A workspace with the engineering feature and two items in its ledger. */
 function makeWorkspace(): string {
   const dir = mkdtempSync(join(tmpdir(), 'nook-web-'))
   writeFileSync(join(dir, 'nook.yml'), 'engineering: {}\n')

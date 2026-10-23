@@ -24,7 +24,7 @@ const check = (rel: string, text: string, modules: FeatureModule[] = []) => {
   return styleCheck({ cwd: root, tool_name: 'Write', tool_input: { file_path: file } }, { modules })
 }
 
-/** A pack whose record lives in works/. */
+/** A feature whose record lives in works/. */
 const itemsPack = { name: 'items', setup: () => [], configured: () => true, doctor: () => [], records: () => [join(root, 'works')] } satisfies FeatureModule
 
 describe('styleCheck', () => {
@@ -38,11 +38,11 @@ describe('styleCheck', () => {
     expect(check('docs/good.md', 'The check passes.\nEach line is short.\n').kind).toBe('pass')
   })
 
-  test('a long document in a folder that a pack names as its record comes back', () => {
+  test('a long document in a folder that a feature names as its record comes back', () => {
     expect(check('works/SHOP-12/spec.md', LONG.repeat(3), [itemsPack]).kind).toBe('block')
   })
 
-  test('the same document is not checked when no pack names its folder', () => {
+  test('the same document is not checked when no feature names its folder', () => {
     expect(check('works/SHOP-12/spec.md', LONG.repeat(3)).kind).toBe('pass')
   })
 

@@ -6,7 +6,7 @@ import { SecretPolicy } from '@nook/workspace/secrets.ts'
 import { workspacePlaces } from '@/lib/places.ts'
 
 /**
- * The search box: a scan of the Markdown files of each pack of the workspace, read again at each search, so a page changed
+ * The search box: a scan of the Markdown files of each feature of the workspace, read again at each search, so a page changed
  * a moment ago gives its new words. No index, and no secret file: an env file, a file that nook.yml names, or a link.
  */
 
@@ -34,7 +34,7 @@ function hitsIn(text: string, words: string[]): { heading: string; line: number;
   return hits
 }
 
-/** Each line that holds every word of the query, in the order of the packs and their files, 50 at most. */
+/** Each line that holds every word of the query, in the order of the features and their files, 50 at most. */
 export function search(workspace: string, query: string, base = ''): Hit[] {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean)
   if (!words.length) return []

@@ -22,13 +22,13 @@ describe('Caller.from', () => {
     expect(Caller.from(REVIEWER)).toMatchObject({ role: 'reader', kind: 'reviewer' })
   })
 
-  test('the other read-only agents of the pack are plain readers', () => {
+  test('the other read-only agents of the plugin are plain readers', () => {
     expect(Caller.from({ agent_type: 'nook:code-reviewer', agent_id: 'a' })).toMatchObject({ role: 'reader', kind: 'reader' })
     expect(Caller.from(SCOUT)).toMatchObject({ role: 'reader', kind: 'reader', actor: 'scout-0001' })
     expect(Caller.from({ agent_type: 'nook:skeptic', agent_id: 'b' })).toMatchObject({ role: 'reader' })
   })
 
-  test('an agent that is not of the pack works for the lead, so it gets the rules of the lead', () => {
+  test('an agent that is not of the plugin works for the lead, so it gets the rules of the lead', () => {
     expect(Caller.from({ agent_type: 'general-purpose', agent_id: 'agent-5378' })).toEqual({ role: 'lead', actor: 'general-purpose-5378', kind: 'lead' })
     expect(Caller.from({ agent_type: 'Explore', agent_id: 'agent-0002' })).toMatchObject({ role: 'lead' })
   })

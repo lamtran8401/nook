@@ -12,12 +12,12 @@ beforeEach(() => {
 afterEach(() => rmSync(workspace, { recursive: true, force: true }))
 
 describe('workspacePages', () => {
-  test('gives Home, then a page for each pack on in the workspace that has one', () => {
+  test('gives Home, then a page for each feature on in the workspace that has one', () => {
     writeFileSync(join(workspace, 'nook.yml'), 'engineering: {}\nwiki: {}\n')
     expect(workspacePages(workspace).map(page => [page.key, page.path])).toEqual([['home', ''], ['works', '/works'], ['wiki', '/wiki'], ['metrics', '/metrics'], ['agents', '/agents'], ['events', '/events'], ['harness', '/harness']])
   })
 
-  test('gives Home and the pages of core in a workspace with no pack', () => {
+  test('gives Home and the pages of core in a workspace with no feature', () => {
     writeFileSync(join(workspace, 'nook.yml'), 'secrets: []\n')
     expect(workspacePages(workspace).map(page => page.key)).toEqual(['home', 'agents', 'events', 'harness'])
   })
