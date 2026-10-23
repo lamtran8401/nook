@@ -22,7 +22,7 @@ export function WikiPage({ page, base }: { page: PageView; base: string }) {
           It waits for your yes. Say yes in the agent session, and the page joins its shelf.
         </Callout>
       ) : null}
-      <article className="grid gap-3 rounded-lg bg-card px-6 py-5 shadow-sm">
+      <article className="grid gap-3">
         {doc.title ? <h1 className="text-[22px] leading-7 font-semibold tracking-tight text-balance">{doc.title}</h1> : null}
         <p className="font-mono text-xs text-muted-foreground">{[`docs/wiki/${page.path}`, ...['type', 'updated'].filter(k => doc.meta[k]).map(k => `${k} ${doc.meta[k]}`)].join(' · ')}</p>
         <Prose>

@@ -4,7 +4,7 @@ export type BarRow = { label: string; value: number; tone: string }
 export function BarList({ rows }: { rows: BarRow[] }) {
   const max = Math.max(1, ...rows.map(row => row.value))
   return (
-    <ul data-slot="bar-list" className="grid gap-2 rounded-md bg-surface px-3.5 py-3 shadow-xs">
+    <ul data-slot="bar-list" className="grid gap-2">
       {rows.map(row => (
         <li key={row.label} className="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_2rem] items-center gap-3 text-[13px]">
           <span className="truncate" title={row.label}>{row.label}</span>

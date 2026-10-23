@@ -10,8 +10,8 @@ function NavLink({ item }: { item: NavItem }) {
       href={item.href}
       {...(item.active ? { 'aria-current': 'page' as const } : {})}
       className={cn(
-        'flex items-center gap-2.5 rounded-full px-3 py-[6px] text-[14px] text-muted-foreground transition-colors hover:text-foreground [&_svg]:size-4 [&_svg]:shrink-0',
-        item.active && 'bg-surface font-medium text-foreground shadow-xs',
+        'flex items-center gap-2.5 rounded-full px-3 py-[6px] text-[14px] text-muted-foreground transition-colors hover:text-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:opacity-80',
+        item.active && 'bg-[color-mix(in_oklab,var(--fg)_6%,transparent)] font-medium text-foreground [&_svg]:opacity-100',
       )}
     >
       {item.icon}
@@ -23,7 +23,7 @@ function NavLink({ item }: { item: NavItem }) {
 
 /**
  * The sidebar of a workspace: its head (the workspace menu), the search, one link for each page with its icon and count, and the
- * footer links at the end. It sits flat on the ground; the current page is a raised pill.
+ * footer links at the end. It sits dim and flat on the ground; the current page is a soft fill, never a raised pill.
  */
 export function SideNav({ head, search, items, footer = [] }: { head: ReactNode; search?: ReactNode; items: NavItem[]; footer?: NavItem[] }) {
   return (

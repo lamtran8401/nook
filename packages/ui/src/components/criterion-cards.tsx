@@ -8,9 +8,9 @@ export type CriterionCard = { n: number; tag?: { text: string; tone: string }; c
 /** The criteria of a spec, one small card each: the mark of its state, its number and tag, its words, its sources, and its state. */
 export function CriterionCards({ items }: { items: CriterionCard[] }) {
   return (
-    <ol data-slot="criterion-cards" className="grid gap-1.5">
+    <ol data-slot="criterion-cards" className="grid">
       {items.map(item => (
-        <li key={item.n} className="grid grid-cols-[24px_minmax(0,1fr)_auto] items-start gap-3 rounded-md bg-surface px-3.5 py-2.5 shadow-xs">
+        <li key={item.n} className="grid grid-cols-[24px_minmax(0,1fr)_auto] items-start gap-3 border-b border-hairline py-2.5 last:border-0">
           <span data-tone={item.state?.tone ?? 'neutral'} className="mt-px grid size-6 place-items-center rounded-full bg-tone-subtle text-tone" aria-hidden="true">
             {item.state?.done ? <Check className="size-3.5" strokeWidth={2.5} /> : <Clock className="size-3.5" />}
           </span>

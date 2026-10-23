@@ -7,7 +7,7 @@ import { pageStyles } from '@/lib/kit.ts'
 
 export const dynamic = 'force-dynamic'
 
-/** The frame of each page: the Bench kit, the v2 layer over it, and the Bench script that draws the diagrams. The workspace layout holds the shell. */
+/** The frame of each page: the Bench kit, the v3 layer over it, and the Bench script that draws the diagrams. The workspace layout holds the shell. */
 export default function RootLayout({ children }: { children: ReactNode }) {
   const kit = uiKit()
   const [kitCss, layer] = pageStyles()

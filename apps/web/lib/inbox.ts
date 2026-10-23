@@ -1,7 +1,7 @@
 import type { BriefItem, BriefLine } from '@nook/workspace/workspaces.ts'
 
 /** One move that waits for the owner, as a row of the inbox: a gate, a blocking question, or a command to type. */
-export type InboxRowData = { key: string; tone: 'danger' | 'warning'; item?: BriefItem; title: string; sub: string; gate?: 'approve' | 'accept'; question?: string; command?: string }
+export type InboxRowData = { key: string; tone: 'warning' | 'danger' | 'neutral'; item?: BriefItem; title: string; sub: string; gate?: 'approve' | 'accept'; question?: string; command?: string }
 
 const GATE = /^\/gate (approve|accept) \S+$/
 const ANSWER = /^nook eng answer \S+ (Q\d+) /
@@ -22,7 +22,9 @@ function rowOf(line: BriefLine): InboxRowData {
   const gate = GATE.exec(line.action ?? '')?.[1] as InboxRowData['gate']
   const question = ANSWER.exec(line.action ?? '')?.[1]
   const move = gate ? { gate } : question ? { question } : line.action ? { command: line.action } : {}
-  return { key: `${line.text}${line.action ?? ''}`, tone: line.urgent ? 'danger' : 'warning', ...(line.item ? { item: line.item } : {}), title: line.item?.title ?? subOf(line), sub: line.item ? subOf(line) : '', ...move }
+  // the call of the owner is the one amber of the page; a failure or a gap stays red, a command to type stays grey
+  const tone = gate || question ? 'warning' : line.urgent ? 'danger' : 'neutral'
+  return { key: `${line.text}${line.action ?? ''}`, tone, ...(line.item ? { item: line.item } : {}), title: line.item?.title ?? subOf(line), sub: line.item ? subOf(line) : '', ...move }
 }
 
 /** The moves that wait for the owner, the urgent ones first. */

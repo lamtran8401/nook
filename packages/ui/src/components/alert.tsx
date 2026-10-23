@@ -9,7 +9,7 @@ const alertVariants = cva(
     variants: {
       variant: {
         soft: "bg-tone-subtle ring-1 ring-tone/20 ring-inset",
-        plain: "bg-card shadow-sm",
+        plain: "bg-muted",
       },
     },
     defaultVariants: {

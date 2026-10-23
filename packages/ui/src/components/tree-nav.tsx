@@ -1,9 +1,9 @@
 export type TreeGroup = { title: string; href?: string; current?: boolean; links: { href: string; label: string; current?: boolean }[] }
 
-/** A side list of groups and their links on a card, such as the shelves of a wiki and their pages; the open link is marked. */
+/** A side list of groups and their links, flat on the sheet, such as the shelves of a wiki and their pages; the open link is marked. */
 export function TreeNav({ label, groups }: { label: string; groups: TreeGroup[] }) {
   return (
-    <nav aria-label={label} className="grid content-start gap-3 rounded-lg bg-card p-2 shadow-sm">
+    <nav aria-label={label} className="grid content-start gap-3">
       {groups.map(group => (
         <section key={group.title} className="grid gap-0.5">
           <h2 className="flex items-center justify-between px-2.5 pt-1 text-[11.5px] font-medium text-muted-foreground">

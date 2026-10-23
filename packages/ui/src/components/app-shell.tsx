@@ -38,9 +38,9 @@ export function SidebarToggle() {
 }
 
 /**
- * The frame of the app: the sidebar and the page. The sidebar docks in its column, or hides with `[` and then floats
- * over the page as thick glass when the pointer reaches the left edge; a page under 860 px always floats it. The top
- * bar of the page turns to glass once the page scrolls under it.
+ * The frame of the app: the sidebar dim on the ground, and the page as one quiet sheet beside it. The sidebar docks in
+ * its column, or hides with `[` and then floats over the page as thick glass when the pointer reaches the left edge; a
+ * page under 860 px always floats it and the sheet fills the screen. The top bar turns to glass once the page scrolls.
  */
 export function AppShell({ sidebar, top, children }: { sidebar: ReactNode; top?: ReactNode; children: ReactNode }) {
   const [hidden, setHidden] = useState(false)
@@ -102,11 +102,12 @@ export function AppShell({ sidebar, top, children }: { sidebar: ReactNode; top?:
       >
         {sidebar}
       </aside>
-      <main className="col-start-2 min-w-0 px-4 pb-16 min-[860px]:px-7">
+      <main className={cn('col-start-2 min-w-0', !floating && 'py-2 pr-2')}>
+        <div data-slot="sheet" className={cn('min-h-dvh bg-card px-4 pb-16 min-[860px]:px-7', !floating && 'min-h-[calc(100dvh-16px)] rounded-[16px] shadow-[0_0_0_1px_var(--hairline)]')}>
         <div
           data-slot="top-bar"
           data-stuck={stuck}
-          className="sticky top-0 z-20 -mx-4 mb-1 flex min-h-[52px] items-center gap-2.5 bg-background px-4 transition-[background-color,box-shadow] min-[860px]:-mx-7 min-[860px]:px-7 data-[stuck=true]:bg-[var(--glass)] data-[stuck=true]:shadow-[0_1px_0_var(--hairline),0_6px_16px_-10px_oklch(0.2_0.01_260/0.2)] data-[stuck=true]:backdrop-blur-md"
+          className={cn('sticky top-0 z-20 -mx-4 mb-1 flex min-h-[52px] items-center gap-2.5 bg-card px-4 transition-[background-color,box-shadow] min-[860px]:-mx-7 min-[860px]:px-7 data-[stuck=true]:bg-[var(--glass)] data-[stuck=true]:shadow-[0_1px_0_var(--hairline),0_6px_16px_-10px_oklch(0.25_0.008_85/0.18)] data-[stuck=true]:backdrop-blur-md', !floating && 'rounded-t-[16px] data-[stuck=true]:rounded-none')}
         >
           {floating ? (
             <button type="button" aria-label="Show the sidebar" title="Show the sidebar  [" onClick={() => setPeek(was => !was)} className="grid size-[30px] place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground">
@@ -116,6 +117,7 @@ export function AppShell({ sidebar, top, children }: { sidebar: ReactNode; top?:
           {top}
         </div>
         {children}
+        </div>
       </main>
     </div>
     </SidebarContext.Provider>
