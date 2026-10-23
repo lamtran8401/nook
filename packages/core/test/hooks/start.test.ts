@@ -27,7 +27,7 @@ describe('sessionStart', () => {
 
   test('names a deep budget when nook.yml asks for one', () => {
     writeFileSync(join(root, 'nook.yml'), 'budget: deep\n')
-    const result = sessionStart({ cwd: root }) as { value: { hookSpecificOutput: { additionalContext: string } } }
+    const result = sessionStart({ cwd: root }) as unknown as { value: { hookSpecificOutput: { additionalContext: string } } }
     expect(result.value.hookSpecificOutput.additionalContext).toContain('Agent budget: deep.')
   })
 })
