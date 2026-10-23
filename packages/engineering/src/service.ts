@@ -47,13 +47,13 @@ import { Stores } from './stores/index.ts'
 import type { Item } from './stores/items.ts'
 import type { Question } from './stores/questions.ts'
 import { sameAsSpec, type Slice } from './stores/slices.ts'
-import { GRADES, IMPACTS, isOneOf, ITEM_KINDS, MODES, SIZES, TAGS } from './vocabulary.ts'
+import { GRADES, IMPACTS, isOneOf, ITEM_KINDS, type ItemKind, MODES, SIZES, TAGS } from './vocabulary.ts'
 import { Permissions, Who } from './who.ts'
 
 /** The pack as one object: each method checks the role, runs the guards and writes in one transaction. */
 
 export type NewItem = {
-  /** Missing: Nook makes the next `IT-NNN`. */
+  /** Missing: Nook makes the next id of the prefix of its kind, such as `WI-001` or `BUG-001`. */
   id?: string
   title: string
   kind?: string
@@ -183,7 +183,7 @@ export class Engineering {
     if (input.points !== undefined) pointsOf(String(input.points))
     const state = input.state ?? 'backlog'
     const id = this.ledger.write(() => {
-      const id = input.id ?? items.nextId()
+      const id = input.id ?? items.nextId(this.home.config.idPrefix((input.kind ?? 'feature') as ItemKind))
       const row = {
         id,
         title: input.title,

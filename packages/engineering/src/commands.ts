@@ -131,7 +131,7 @@ const guessSlices: Command = {
 const itemCommands: Command[] = [
   {
     path: ['item', 'new'],
-    summary: 'make an item in the backlog; with no id, Nook makes the next IT-NNN',
+    summary: 'make an item in the backlog; with no id, Nook makes the next id of its kind: WI, BUG, INV or CHR',
     usage: '[<id>] <title...> [--kind k --type t --size s --points n --area a... --source s --parent <id> --backlog]',
     flags: {
       kind: { type: 'string', help: 'feature | fix | chore | investigate' },

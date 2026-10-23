@@ -326,7 +326,7 @@ describe('Engineering.quick', () => {
     expect(lead.stores.slices.list('SHOP-30')[0]).toMatchObject({ id: 'T1', state: 'running', assignee: 'lead' })
     fails(() => lead.quick('another quick fix', 'bff'), Exit.refused, 'area bff is in use by SHOP-30')
     const second = lead.quick('the web title is wrong', 'web')
-    expect(second.id).toBe('IT-001')
+    expect(second.id).toBe('BUG-001')
     expect(second.title).toBe('the web title is wrong')
     lead.moveSlice('done', 'SHOP-30', 'T1', { files: ['src/date.ts'] })
     lead.verify('SHOP-30')

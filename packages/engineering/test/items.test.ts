@@ -15,23 +15,27 @@ const make = (...ids: string[]) => {
 }
 
 describe('ItemStore.nextId', () => {
-  test('an empty ledger gives IT-001', () => {
-    expect(make().nextId()).toBe('IT-001')
+  test('an empty ledger gives the first id of the prefix', () => {
+    expect(make().nextId('BUG')).toBe('BUG-001')
   })
 
-  test('the next id is one more than the highest IT number, zero padded', () => {
-    expect(make('IT-007', 'IT-012').nextId()).toBe('IT-013')
+  test('the next id is one more than the highest number of its prefix, zero padded', () => {
+    expect(make('WI-007', 'WI-012', 'BUG-020').nextId('WI')).toBe('WI-013')
   })
 
-  test('an old IT-1 counts as 1', () => {
-    expect(make('IT-1').nextId()).toBe('IT-002')
+  test('each prefix counts on its own', () => {
+    expect(make('WI-001', 'WI-002').nextId('INV')).toBe('INV-001')
+  })
+
+  test('an old WI-1 counts as 1', () => {
+    expect(make('WI-1').nextId('WI')).toBe('WI-002')
   })
 
   test('past 999 the number grows to four digits', () => {
-    expect(make('IT-999').nextId()).toBe('IT-1000')
+    expect(make('CHR-999').nextId('CHR')).toBe('CHR-1000')
   })
 
-  test('the ids of a tracker and an IT id with a suffix do not count', () => {
-    expect(make('SHOP-40', 'IT-5b').nextId()).toBe('IT-001')
+  test('the ids of a tracker and an id with a suffix do not count', () => {
+    expect(make('SHOP-40', 'WI-5b').nextId('WI')).toBe('WI-001')
   })
 })

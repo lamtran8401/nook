@@ -6,6 +6,8 @@ import { parse } from 'yaml'
 import { NOOK_FILE } from '@nook/workspace/workspaces.ts'
 import { usage } from '@nook/shared/errors.ts'
 
+import { isOneOf, ITEM_KINDS, type ItemKind } from './vocabulary.ts'
+
 /** The `engineering` section of nook.yml (docs/reference/engineering.md section 2). Each fault names its fix. */
 
 export const AREA_KINDS = ['frontend', 'backend', 'docs', 'data', 'tool'] as const
@@ -24,6 +26,9 @@ export type Area = {
 }
 
 export const DEFAULTS = { dir: 'works', backlog: 'backlog', protected: ['main', 'master', 'develop'] }
+
+/** The prefix of an id that Nook makes for an item with no ticket, by its kind; `ids:` of the section changes one. */
+export const ID_PREFIXES: Record<ItemKind, string> = { feature: 'WI', fix: 'BUG', investigate: 'INV', chore: 'CHR' }
 /** The item folder before Nook named it works/; setup moves it when nook.yml keeps the default. */
 export const LEGACY_DIR = 'work'
 
@@ -38,6 +43,7 @@ type Fields = {
   oldTracker: boolean
   rootCauses: string[]
   unknownRootCause: string | undefined
+  ids: Record<ItemKind, string>
 }
 
 export class EngineeringConfig {
@@ -53,6 +59,7 @@ export class EngineeringConfig {
   readonly rootCauses: string[]
   /** The type that means "not known yet": it passes only with a reason. */
   readonly unknownRootCause: string | undefined
+  private readonly ids: Record<ItemKind, string>
 
   private constructor(fields: Fields) {
     this.dir = fields.dir
@@ -63,6 +70,7 @@ export class EngineeringConfig {
     this.oldTracker = fields.oldTracker
     this.rootCauses = fields.rootCauses
     this.unknownRootCause = fields.unknownRootCause
+    this.ids = fields.ids
   }
 
   static read(dir: string): EngineeringConfig {
@@ -89,11 +97,12 @@ export class EngineeringConfig {
       oldTracker: raw.tracker !== undefined,
       rootCauses: raw.rootCauses === undefined ? [] : words(raw.rootCauses, `${where}.rootCauses`),
       unknownRootCause: raw.unknownRootCause === undefined ? undefined : String(raw.unknownRootCause).trim(),
+      ids: ids(raw.ids, `${where}.ids`),
     })
   }
 
   private static empty(): EngineeringConfig {
-    return new EngineeringConfig({ ...DEFAULTS, areas: [], missing: true, oldTracker: false, rootCauses: [], unknownRootCause: undefined })
+    return new EngineeringConfig({ ...DEFAULTS, areas: [], missing: true, oldTracker: false, rootCauses: [], unknownRootCause: undefined, ids: ID_PREFIXES })
   }
 
   area(name: string): Area | undefined {
@@ -103,6 +112,22 @@ export class EngineeringConfig {
   isProtected(branch: string): boolean {
     return this.protected.includes(branch)
   }
+
+  idPrefix(kind: ItemKind): string {
+    return this.ids[kind]
+  }
+}
+
+/** `ids: { fix: FX }`: a prefix of capital letters and digits for a kind; the other kinds keep their default. */
+function ids(value: unknown, where: string): Record<ItemKind, string> {
+  if (value === undefined || value === null) return ID_PREFIXES
+  if (typeof value !== 'object' || Array.isArray(value)) throw usage(`${where} must be a map of kind to prefix`, 'write it as ids: { fix: FX }')
+  const given = value as Raw
+  for (const [kind, prefix] of Object.entries(given)) {
+    if (!isOneOf(ITEM_KINDS, kind)) throw usage(`${where}: ${kind} is not a kind`, `the kinds are ${ITEM_KINDS.join(', ')}`)
+    if (typeof prefix !== 'string' || !/^[A-Z][A-Z0-9]*$/.test(prefix)) throw usage(`${where}.${kind} must be capital letters and digits, such as FX`, 'write it as ids: { fix: FX }')
+  }
+  return { ...ID_PREFIXES, ...(given as Partial<Record<ItemKind, string>>) }
 }
 
 function word(value: unknown, where: string): string | undefined {

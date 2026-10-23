@@ -24,10 +24,30 @@ describe('idAndTitle', () => {
 })
 
 describe('Engineering.newItem', () => {
-  test('an item with no id gets the next IT id of the ledger', () => {
+  test('an item with no id gets the next id of the prefix of its kind', () => {
     const lead = t.eng(LEAD)
-    lead.newItem({ id: 'IT-004', title: 'an older item' })
-    expect(lead.newItem({ title: 'Filter shipments by status' })).toMatchObject({ id: 'IT-005', title: 'Filter shipments by status', state: 'backlog' })
+    lead.newItem({ id: 'WI-001', title: 'an older item' })
+    lead.newItem({ id: 'WI-002', title: 'another older item' })
+    expect(lead.newItem({ title: 'Filter shipments by status' })).toMatchObject({ id: 'WI-003', title: 'Filter shipments by status', state: 'backlog' })
+    expect(lead.newItem({ title: 'Fix the date', kind: 'fix' }).id).toBe('BUG-001')
+    expect(lead.newItem({ title: 'Why is the export slow?', kind: 'investigate' }).id).toBe('INV-001')
+    expect(lead.newItem({ title: 'Update the deps', kind: 'chore' }).id).toBe('CHR-001')
+  })
+
+  test('the id of an item stays when its kind changes', () => {
+    const lead = t.eng(LEAD)
+    const item = lead.newItem({ title: 'Why is the export slow?', kind: 'investigate' })
+    lead.editItem(item.id, 'kind', 'fix')
+    expect(lead.item('INV-001').kind).toBe('fix')
+  })
+
+  test('a prefix that nook.yml names replaces the default one of its kind', () => {
+    const custom = makeHome({ extra: '  ids: { fix: FX }\n' })
+    try {
+      expect(custom.eng(LEAD).newItem({ title: 'Fix the date', kind: 'fix' }).id).toBe('FX-001')
+    } finally {
+      custom.cleanup()
+    }
   })
 
   test('an item with an id keeps it', () => {
@@ -56,9 +76,9 @@ describe('the points of an item', () => {
 })
 
 describe('Engineering.quick with a title', () => {
-  test('a title gets the next IT id', () => {
+  test('a title gets the next id of the prefix of a fix', () => {
     const lead = t.eng(LEAD)
-    lead.newItem({ id: 'IT-009', title: 'an older item' })
-    expect(lead.quick('the web title is wrong', 'web')).toMatchObject({ id: 'IT-010', title: 'the web title is wrong', state: 'cooking' })
+    lead.newItem({ id: 'BUG-009', title: 'an older item', kind: 'fix' })
+    expect(lead.quick('the web title is wrong', 'web')).toMatchObject({ id: 'BUG-010', title: 'the web title is wrong', state: 'cooking' })
   })
 })

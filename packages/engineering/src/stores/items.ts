@@ -114,11 +114,11 @@ export class ItemStore {
     )
   }
 
-  /** A nook-made id: one more than the highest IT number, three digits at least (IT-001, IT-1000). */
-  nextId(): string {
-    const rows = this.ledger.all<{ id: string }>("SELECT id FROM item WHERE id LIKE 'IT-%'")
-    const numbers = rows.map(r => /^IT-(\d+)$/.exec(r.id)?.[1]).filter(n => n !== undefined)
+  /** A nook-made id: one more than the highest number of its prefix, three digits at least (WI-001, WI-1000). */
+  nextId(prefix: string): string {
+    const rows = this.ledger.all<{ id: string }>('SELECT id FROM item WHERE id LIKE ?', `${prefix}-%`)
+    const numbers = rows.map(r => new RegExp(`^${prefix}-(\\d+)$`).exec(r.id)?.[1]).filter(n => n !== undefined)
     const max = Math.max(0, ...numbers.map(Number))
-    return `IT-${String(max + 1).padStart(3, '0')}`
+    return `${prefix}-${String(max + 1).padStart(3, '0')}`
   }
 }

@@ -145,9 +145,9 @@ describe('engineeringModule: a typed /yolo', () => {
     t = makeHome()
     expect(yolo('add a CSV export to the shipments page')).toEqual({
       ok: true,
-      lines: ['IT-001 made from the prompt', 'IT-001 mode yolo', 'next: /specify IT-001'],
+      lines: ['WI-001 made from the prompt', 'WI-001 mode yolo', 'next: /specify WI-001'],
     })
-    expect(t.eng(LEAD).item('IT-001').title).toBe('add a CSV export to the shipments page')
+    expect(t.eng(LEAD).item('WI-001').title).toBe('add a CSV export to the shipments page')
   })
 
   test('a key that is no item yet makes the item with that key', () => {
@@ -165,7 +165,7 @@ describe('engineeringModule: a typed /yolo', () => {
 
   test('a lower-case prompt that holds a number stays a prompt', () => {
     t = makeHome()
-    expect(yolo('add 2 buttons to the export').lines[0]).toBe('IT-001 made from the prompt')
+    expect(yolo('add 2 buttons to the export').lines[0]).toBe('WI-001 made from the prompt')
   })
 
   test('no words take the one open item', () => {
