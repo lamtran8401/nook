@@ -110,46 +110,46 @@ function workspaceDiagram(): string {
   return figure(
     {
       type: 'graph', cols: 3, colGap: 30, rowGap: 40,
-      groups: [{ at: [1, 1, 2, 2], label: 'company/ · one ledger, one wiki for the tree', icon: 'folder', pad: 14 }],
+      groups: [{ at: [1, 1, 2, 2], label: 'company/ · one wiki for the tree', icon: 'folder', pad: 14 }],
       nodes: [
         { id: 'company', at: [1, 1], span: [1, 2], icon: 'folder', kicker: 'top workspace', title: 'company/', tags: ['engineering', 'wiki'], tone: 'primary' },
-        { id: 'shop', at: [2, 1], w: 200, icon: 'folder', kicker: 'child workspace', title: 'shop/', tags: ['− wiki'], meta: 'packs here: engineering' },
-        { id: 'billing', at: [2, 2], w: 200, icon: 'folder', title: 'billing/', meta: 'no nook.yml · packs here: engineering, wiki', line: 'dashed' },
+        { id: 'shop', at: [2, 1], w: 200, icon: 'folder', kicker: 'child workspace', title: 'shop/', tags: ['engineering'], meta: 'its own ledger · the wiki of company/' },
+        { id: 'billing', at: [2, 2], w: 200, icon: 'folder', title: 'billing/', meta: 'no nook.yml · the features of company/', line: 'dashed' },
         { id: 'personal', at: [1, 3], span: [2, 1], w: 210, align: 'center', icon: 'folder', kicker: 'top workspace', title: 'personal/', tags: ['engineering', 'wiki'], meta: 'its own ledger and wiki', tone: 'success' },
       ],
       edges: [
-        { from: 'company', to: 'shop', label: 'packs flow down', split: true, a: 'b' },
+        { from: 'company', to: 'shop', label: 'features flow down', split: true, a: 'b' },
         { from: 'company', to: 'billing', split: true, a: 'b' },
       ],
     },
-    'Packs flow down. A child workspace adds a pack or turns one off. The folder that holds both top workspaces is not a workspace.',
+    'Features flow down. A child workspace with its own section becomes the home of that feature. The folder that holds both top workspaces is not a workspace.',
   )
 }
 
 function archDiagram(): string {
   const wide = (id: string, row: number, icon: string, title: string, meta: string, more: Spec = {}) =>
-    ({ id, at: [row, 1], span: [1, 4], w: 460, icon, title, meta, ...more })
-  const pack = (id: string, col: number, title: string, meta: string, tone: string) => ({ id, at: [4, col], title, meta, tone })
-  const packs = ['core', 'eng', 'wiki']
+    ({ id, at: [row, 1], span: [1, 4], icon, title, meta, ...more })
+  const feature = (id: string, col: number, title: string, meta: string, tone: string) => ({ id, at: [4, col], title, meta, tone })
+  const features = ['core', 'eng', 'issues', 'wiki']
   return figure(
     {
       type: 'graph', cols: 4, colGap: 16, rowGap: 46,
       nodes: [
         wide('session', 1, 'bot', 'Claude Code session', 'the companion, its agents'),
-        wide('plugins', 2, 'layers', 'plugins/<pack>/', 'skills, agents, hooks, templates — no code'),
+        wide('plugins', 2, 'layers', 'plugin/', 'the one plugin: skills, agents, hooks, templates — no code'),
         wide('app', 3, 'terminal', 'apps/nook', 'the one binary: joins the commands'),
-        pack('core', 1, 'core', 'init, doctor, guards', 'neutral'), pack('eng', 2, 'engineering', 'ledger, machine, git', 'primary'),
-        pack('wiki', 3, 'wiki', 'shelves, indexes', 'success'),
+        feature('core', 1, 'core', 'init, doctor, guards', 'neutral'), feature('eng', 2, 'engineering', 'ledger, machine, git', 'primary'),
+        feature('issues', 3, 'issues', 'Jira, GitHub', 'aqua'), feature('wiki', 4, 'wiki', 'shelves, indexes', 'success'),
         wide('base', 5, 'box', 'shared · workspace', 'CLI router, hook I/O, workspaces, nook.yml'),
         wide('disk', 6, 'folder', 'the workspace on disk', 'nook.yml · .claude/ · .nook/engineering.db · works/ · docs/wiki/', { fill: 'soft' }),
       ],
       edges: [
         { from: 'session', to: 'plugins', label: 'hooks, skills, agents' }, { from: 'plugins', to: 'app', label: 'bin/nook' },
-        ...packs.map(p => ({ from: 'app', to: p, split: true })), ...packs.map(p => ({ from: p, to: 'base', merge: true })),
+        ...features.map(f => ({ from: 'app', to: f, split: true, a: 'b', b: 't' })), ...features.map(f => ({ from: f, to: 'base', merge: true, a: 'b', b: 't' })),
         { from: 'base', to: 'disk', label: 'reads and writes' },
       ],
     },
-    'The layers. A pack package imports only <code>shared</code> and <code>workspace</code>; a plugin holds no code.',
+    'The layers. A feature package imports only <code>shared</code> and <code>workspace</code>; the plugin holds no code.',
   )
 }
 
@@ -205,10 +205,10 @@ type Source = { file: string; heading: string; kind: 'block' | 'table'; fingerpr
 
 /** The doc text that each hand-drawn diagram shows. When that text changes, the build stops until the diagram is redrawn. */
 export const DRAWN: Record<string, Source> = {
-  flowDiagram: { file: 'guide/04-work.md', heading: 'The flow', kind: 'block', fingerprint: 'f1b21a777f92' },
+  flowDiagram: { file: 'guide/04-work.md', heading: 'The flow', kind: 'block', fingerprint: '4dc07046aa4c' },
   pathsDiagram: { file: 'guide/04-work.md', heading: 'Pick a path', kind: 'table', fingerprint: '167c69b0cf6d' },
-  workspaceDiagram: { file: 'guide/02-workspaces.md', heading: 'Nested workspaces', kind: 'block', fingerprint: 'c25ffa697af5' },
-  archDiagram: { file: 'report.md', heading: 'How it is built', kind: 'block', fingerprint: 'd5a44af8ad5e' },
+  workspaceDiagram: { file: 'guide/02-workspaces.md', heading: 'Nested workspaces', kind: 'block', fingerprint: '989a6e9f4293' },
+  archDiagram: { file: 'report.md', heading: 'How it is built', kind: 'block', fingerprint: 'dd7102edc89d' },
 }
 
 /** The first fenced block or table in the `## heading` section of a Markdown file, or null. */
@@ -237,7 +237,7 @@ export function staleDiagrams(docs: string): string[] {
 const firstNumber = (cell: string) => cell.match(/[\d,]+/)?.[0]?.replace(/,/g, '') ?? '?'
 
 function statTiles(report: string): string {
-  const shown: Record<string, string> = { packs: 'packs', commands: 'commands', skills: 'skills', agents: 'agents', hooks: 'hooks', tests: 'tests pass' }
+  const shown: Record<string, string> = { features: 'features', commands: 'commands', skills: 'skills', agents: 'agents', hooks: 'hooks', tests: 'tests pass' }
   const tiles = tableAfter(report, 'At a glance')
     .filter(([part = '']) => part in shown)
     .map(([part = '', count = '', check = '']) =>
@@ -306,13 +306,13 @@ function guidePage(docs: string, report: string, reportUrl: string, now: Date): 
       : `<div class="ch-head"><span class="ch-num">${i}</span><div><p class="eyebrow">Chapter ${i}</p><h2 class="ch-title">${title}</h2></div></div>`
     return `<section class="chapter" id="ch-${i}">${head}${html}</section>`
   })
-  const packs = tableAfter(report, 'At a glance').find(([part]) => part === 'packs')?.[1] ?? ''
+  const features = tableAfter(report, 'At a glance').find(([part]) => part === 'features')?.[1] ?? ''
   return page({
     title: 'Nook Guide Book',
     eyebrow: 'Nook · Guide book',
     heading: 'A careful senior developer in Claude Code, on your own <mark>workspace</mark>',
     lead: 'How to use Nook, one task for each chapter. Read chapter 1 first; read the others when you need them.',
-    meta: [`As of ${dateText(now)}`, `${GUIDE_FILES.length - 1} chapters`, `${esc(packs)} packs`.replace(/^(\d+): (.*) packs$/, '$1 packs: $2')],
+    meta: [`As of ${dateText(now)}`, `${GUIDE_FILES.length - 1} chapters`, `${esc(features)} features`.replace(/^(\d+): (.*) features$/, '$1 features: $2')],
     tabs,
     body: sections.join(''),
   })

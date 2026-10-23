@@ -1,8 +1,8 @@
-# The wiki pack
+# The wiki feature
 
 > In short: the wiki is `docs/wiki/` of a workspace, in shelves, each shelf with one `INDEX.md`. Nook adds and checks the index lines; the skills read and write the pages after the owner's yes.
 
-This file states how the code works now. The code is in `packages/wiki/`; the plugin is `plugins/wiki/`.
+This file states how the code works now. The code is in `packages/wiki/`; its skills and agent are in `plugin/`. The section `wiki:` of `nook.yml` turns it on.
 The home of the wiki is the nearest workspace above a folder that turns `wiki` on.
 
 ## The section of nook.yml
@@ -21,7 +21,7 @@ wiki:
 
 - A shelf with `index: false` gets no index and no index line for its pages.
 - `/setup` writes the section from the folders that exist and the owner's words.
-- The setup of the pack makes the wiki folder, the references folder and a folder for each shelf.
+- The setup of the feature makes the wiki folder, the references folder and a folder for each shelf.
 - With no section, `nook doctor` shows the gap and the fix `/setup`.
 
 ## The indexes
@@ -66,7 +66,7 @@ The gaps of `nook wiki index`:
 - It points each link to an old page at the merged page.
 - It refuses when the merged page or an old page does not exist.
 
-`nook doctor` lists the gaps of the indexes under the wiki pack.
+`nook doctor` lists the gaps of the indexes under the wiki feature.
 
 ## Read paths
 
@@ -92,13 +92,12 @@ The gaps of `nook wiki index`:
 - `/wiki-tidy`: it runs the two checks and looks for two pages on one topic, a page with no source, and an adjective with no example. It fixes the mechanical part after one yes.
 - `/wiki-merge`: it merges related pages, such as the features of one epic, into one page. After the yes, `nook wiki retire` moves the old pages.
 
-Other packs use the wiki:
-- `/spec` of engineering reads the index and names each page that it uses, as `(wiki: resources/shipments-api.md)`.
+Engineering uses the wiki:
+- `/specify` reads the index and names each page that it uses, as `(wiki: resources/shipments-api.md)`.
 - `/close` drafts one change for each `ADD` or `CHANGE` criterion on the page of its topic in `resources/`. It writes the changes that the owner accepts.
-- `/study` of learn writes a concept page into the wiki.
 
 ## The rules and the settings
 
 - `templates/rules/wiki.md` goes to `.claude/rules/nook/wiki.md` with `nook init`.
 - The rules: read the index first, name each page that you use, write a page only after the owner's yes, never write the shelf `areas/`.
-- `templates/settings.json` allows `Bash(nook wiki *)`.
+- The `settings.json` of the plugin allows `Bash(nook wiki *)`.

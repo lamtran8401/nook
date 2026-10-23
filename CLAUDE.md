@@ -7,7 +7,7 @@ This repo builds Nook itself. Read `docs/report.md` for the current build, `docs
 apps/nook/             the one binary `nook`: it joins the commands of each package and runs them. No logic.
 apps/web/              the web app of `nook web`: Next.js on Node; its pages call the read paths of the packages.
 packages/shared/       the CLI router, the exit codes, the hook input and output, the names of the tool, the SQLite file, the command runner, the shell parser of the guards
-packages/workspace/         workspaces, nook.yml, the features and where each is on, the workspace list of the owner, the plugin folder, the UI kit
+packages/workspace/    workspaces, nook.yml, the features and where each is on, the workspace list of the owner, the plugin folder, the UI kit
 packages/core/         init, doctor, features, where, the writing check, brief, retro, the core hooks
 packages/engineering/  the ledger, the item machine, the guards, the permissions, the documents, git, the engineering hooks, the read paths of the web app
 packages/wiki/         the shelves of the wiki, their indexes, the link check
@@ -26,8 +26,8 @@ A workspace is a folder with `nook.yml`. Workspaces nest: `company/` is a top wo
 ## Checks
 - A change to a command, a skill, an agent or a hook changes its doc in the same commit: the reference of its feature, the guide when the use changes, the numbers of `docs/report.md`.
 - After a change to `docs/guide/` or `docs/report.md`, run `bun run pages <out dir> <report url>` and publish both pages again to their links.
-- Five diagrams of the pages are drawn by hand in `scripts/pages/build.ts`. When the doc text of one changes, `bun run pages` and its test stop and name the diagram: redraw it, then set its new fingerprint in `DRAWN`.
-- `bun run check`: `tsc --noEmit` for the repo and for `apps/web`, and `bun test` on `packages` and `scripts`. Commit only when it passes.
+- Four diagrams of the pages are drawn by hand in `scripts/pages/build.ts`. When the doc text of one changes, `bun run pages` and its test stop and name the diagram: redraw it, then set its new fingerprint in `DRAWN`.
+- `bun run check`: `tsc --noEmit` for the repo, `packages/ui` and `apps/web`, and `bun test` on `packages`, `scripts` and `apps/web/test`. Commit only when it passes.
 - `bun run demo <dir>` builds a workspace with mock work items for a look at the web app.
 - `bun run e2e` builds the web app under Node and checks its pages. It also draws each Bench diagram of the catalog and the docs in headless Chrome and checks its layout. It takes about a minute, so it stays out of `bun run check`. Run it after a change to `apps/web` or to a read path.
 - `nook ste <file.md>` on each Markdown file of `plugin/` and `docs/`: above 80%. Run the tool by its name; the guard blocks a path to the binary.

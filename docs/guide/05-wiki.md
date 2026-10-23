@@ -36,7 +36,7 @@ Type `/wiki-add` with a link, a file or the text:
 
 1. The companion writes a reference note in `docs/references/<date>-<slug>.md`: the link, the title, the date and the main points in its own words. It never copies the source.
 2. It drafts a page in `resources/`: the main points, an example for each, the gotchas, the source.
-3. You say yes, later or no. Yes writes the page and its index row. Later keeps the draft in `docs/wiki/drafts/`, and `/brief` shows it until you decide.
+3. You say yes, later or no. Yes writes the page and its index row. Later keeps the draft in `docs/wiki/drafts/`, and `/daily-brief` shows it until you decide.
 
 ## Ask the wiki
 
@@ -60,12 +60,11 @@ nook wiki links          each broken link
 nook wiki shelves        the shelves and the use of each
 ```
 
-## How other packs use the wiki
+## How engineering uses the wiki
 
-| Pack | Skill | Use |
-|---|---|---|
-| engineering | `/spec` | reads the index and names each page that the spec uses |
-| engineering | `/close` | drafts one page change for each `ADD` or `CHANGE` criterion |
-| learn | `/study` | writes a concept page after your yes |
+| Skill | Use |
+|---|---|
+| `/specify` | reads the index and names each page that the spec uses |
+| `/close` | drafts one page change for each `ADD` or `CHANGE` criterion |
 
 The full contract is in [the wiki reference](../reference/wiki.md).

@@ -17,17 +17,13 @@ git clone <the nook repo> nook && cd nook && bun install
 ln -s "$PWD/apps/nook/bin/nook" ~/.local/bin/nook
 claude plugin marketplace add "$PWD"
 claude plugin install nook@nook
-claude plugin install nk-eng@nook
-claude plugin install nk-wiki@nook
-claude plugin install nk-learn@nook
 ```
 
 | Line | Why |
 |---|---|
 | `bun install` | The hooks run the Nook code. Without its packages, every hook fails. |
 | `nook` | The hooks and the agents run this command. The guards watch for this name. |
-| `nook@nook` | The core plugin. Install it always. |
-| `nk-eng`, `nk-wiki`, `nk-learn` | One plugin for each pack. Install only the packs that you use. |
+| `nook@nook` | The one plugin: every skill, agent and hook. A feature works only where `nook.yml` turns it on. |
 
 Check the install: `nook --help` lists the commands.
 
@@ -36,21 +32,21 @@ Check the install: `nook --help` lists the commands.
 Pick a folder, such as `personal/`. Open a terminal in it and run:
 
 ```
-nook init --pack engineering,wiki,learn
+nook init --with engineering,wiki
 ```
 
 The command writes these files. Each other line in the folder stays yours.
 
 | File | What it holds |
 |---|---|
-| `nook.yml` | the packs of this workspace, and later one section for each pack |
+| `nook.yml` | one section for each feature that is on, and later your secrets, budget and command lists |
 | `CLAUDE.md` | a Nook block between `<!-- nook:begin -->` and `<!-- nook:end -->` |
-| `.claude/rules/nook/` | the base rules, one file for each rule of a pack that is on |
+| `.claude/rules/nook/` | the base rules, one file for each rule of a feature that is on |
 | `.claude/output-styles/nook-companion.md` | the persona of the companion |
-| `.claude/settings.json` | the Nook keys: permissions, the output style, agent teams |
+| `.claude/settings.json` | the Nook keys: permissions, the rules of your command lists, the output style, agent teams |
 | `.nook/` | the state, such as the ledger of engineering |
 
-A pack also makes its folders: `works/`, `backlog/` and `docs/adr/` for engineering, `docs/wiki/` and `docs/references/` for the wiki, `learn/` for learn.
+A feature also makes its folders: `works/`, `backlog/` and `docs/adr/` for engineering, `docs/wiki/` and `docs/references/` for the wiki. To turn a feature on later, add its section to `nook.yml` or run `nook init --with <feature>`.
 
 ## Set up the workspace
 
@@ -58,7 +54,7 @@ Start Claude Code in the folder and type `/setup`. The skill does four things:
 
 1. It reads the disk: the git repos, the scripts, the CI files, the folders of notes.
 2. It asks you, in one round, only what the disk cannot answer. Example: "Is `projects/shop/api` an area?"
-3. It writes the section of each pack into `nook.yml`, and a map of the folder into `CLAUDE.md`.
+3. It writes the section of each feature into `nook.yml`, and a map of the folder into `CLAUDE.md`.
 4. It runs `nook doctor` and reports each gap that is left.
 
 An **area** is a repo that changes only through an item. Keep a repo that you edit by hand out of the areas.
@@ -72,7 +68,7 @@ nook doctor
 A good workspace prints one line at the end:
 
 ```
-✓ 1 workspace above, 4 packs on, no gap
+✓ 1 workspace above, 3 features on, no gap
 ```
 
 A gap comes with its fix. Example:

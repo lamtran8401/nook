@@ -1,9 +1,9 @@
-# The issue-tracker pack
+# The issue-tracker feature
 
-> In short: the pack reads tickets from Jira through `twg` and from GitHub through `gh`, and never writes to a tracker. A workspace maps the fields of each team by their use, such as the acceptance criteria.
+> In short: the feature reads tickets from Jira through `twg` and from GitHub through `gh`, and never writes to a tracker. A workspace maps the fields of each team by their use, such as the acceptance criteria.
 
-This file states how the code works now. The code is in `packages/issues/`; the plugin is `plugins/issue-tracker/`, named `nk-issues`.
-`nook init --pack issue-tracker` turns the pack on. The pack belongs to the nearest workspace above a folder that turns it on.
+This file states how the code works now. The code is in `packages/issues/`; its rule and hook are in `plugin/`.
+The section `issue-tracker:` of `nook.yml` turns the feature on; `nook init --with issue-tracker` writes it. The feature belongs to the nearest workspace above a folder with the section.
 
 ## The section of nook.yml
 
@@ -35,7 +35,7 @@ issue-tracker:
 | a Jira source with no site | `site must name the Jira site` |
 | a prefix with small letters or marks | `prefix must be capital letters and digits` |
 
-- The setup of the pack makes the backlog folder.
+- The setup of the feature makes the backlog folder.
 - With no section, `nook doctor` shows the gap and the fix `/setup`. A section with no source is a gap too.
 
 ## The commands
@@ -63,13 +63,13 @@ The pull checks every ref before it writes a file. It reads a GitHub issue with 
 
 - A heading of the map matches at any level and with any case. A heading in the words of the ticket sits two levels lower, so it never reads as a part of the ticket.
 - A second pull writes the new text and names each part that changed. It never touches the ledger, so the item keeps its state.
-- The report names each use of the map that the ticket does not have. A ticket with no acceptance criteria is still pulled; `/spec` asks for them.
+- The report names each use of the map that the ticket does not have. A ticket with no acceptance criteria is still pulled; `/specify` asks for them.
 - A read that fails because the CLI or its login is missing exits 3 with the fix, such as `gh auth login`. A read that fails for another reason gives the first line of the CLI.
 - An image in a GitHub issue stays a link: a download from a private repo needs a token, and Nook keeps none.
 
 A Jira work item:
 - A key such as `SHOP-12` goes to the only Jira source, or to the site whose `projects` name its project. Two sites that both fit stop the pull with the fix.
-- The pull writes the type of the ticket as a row `Type:` of Fields. The pack maps no type onto a kind: engineering learns the kind of each type in the workspace (`nook eng kind set`), so a pasted ticket with a `Type:` line works the same.
+- The pull writes the type of the ticket as a row `Type:` of Fields. The feature maps no type onto a kind: engineering learns the kind of each type in the workspace (`nook eng kind set`), so a pasted ticket with a `Type:` line works the same.
 - A type in `skip` stops the pull with exit 3: it has no local work in this workspace. Every other type is pulled.
 - The parent of a ticket, such as the story of a sub-bug, is a row `Parent:` of Fields. `/intake` makes the item with `--parent` when the parent is in the ledger.
 - The map of the key is the map of the source with the override of its project, use by use.
@@ -82,7 +82,7 @@ A Jira work item:
 - A file that is already in `attachments/` stays as it is, and the pull does not download it again. The owner keeps context files in that folder too.
 - The reader takes the item by the rule of `twg`: the first of `data.items`, the first of `data` as a list, or `data`. It takes a field from the item or from its `fields`.
 - An answer with no work item stops the pull and names its shape by its keys only, such as `twg gave no work item for SHOP-12: data is a list of 0`. An item with another key stops it too. The pull never writes an empty ticket.
-- `/intake <KEY>` runs the pull when the pack is on, then makes the item with the link as its source.
+- `/intake <KEY>` runs the pull when the feature is on, then makes the item with the link as its source.
 
 ## The logins
 
@@ -100,7 +100,7 @@ Nook keeps no token: `twg` and `gh` hold the logins. A check reads only the exit
 
 ## The guard
 
-The hook `nook issues hook bash` blocks each write of `twg` and `gh` in a Bash call of an agent. It runs only in a workspace that turns the pack on. The pack reads with its own calls, so the guard never stops a pull.
+The hook `nook issues hook bash` blocks each write of `twg` and `gh` in a Bash call of an agent. It runs only in a workspace with the section `issue-tracker`. The feature reads with its own calls, so the guard never stops a pull.
 
 | Call | The guard |
 |---|---|

@@ -1,6 +1,6 @@
 # 6. When something blocks
 
-> In short: a guard that stops a call names the reason and the fix. Do the fix; never work around the guard. When Nook itself fails, every guard blocks, and only you can repair it with a `!` command.
+> In short: a guard blocks only for safety and for your moves, and it names the reason and the fix. Do the fix; never work around the guard. When Nook itself fails, every guard blocks, and only you can repair it with a `!` command.
 
 ## First steps
 
@@ -18,19 +18,26 @@
 | a block on an owner move | approve, accept and mode are yours | Type `/gate <move> <id>` in the prompt. |
 | a block on `nk` | the one name of the tool is `nook`; the engineering guard blocks `nk` in each shell call of Claude Code | Run `nook`. |
 | `a reader never writes a file.` | read-only agents report; they do not edit | The lead or a builder makes the change. |
-| a block on `spec.md`, `plan.md` or `tasks.md` | a document opens only in its state, and the approve freezes it | `nook eng item replan <id>` or `reframe <id>` with a reason. |
-| a block on a file of an area | an area changes only while one of its slices runs | Start the slice through `/cook` or `/quick`. |
-| `the plugin … of the pack … is off` (from `nook doctor`) | the plugin of a pack is not installed or not on, so its hooks and skills do not run | Run the fix on the line, such as `claude plugin install nk-eng@nook`, then start a new session. |
+| `a builder edits only in the area of its own slice` | two builders never meet in one area | Give the change to the builder of that area, or make it yourself as the lead. |
+| `a builder edits the files of its slice, not the documents of the item.` | the lead writes `spec.md`, `plan.md` and `tasks.md` | The lead makes the change. |
+| Claude Code refuses a command, or asks each time | the command is in the `deny` list of `nook.yml`, or in no list | Move it to `allow` or `ask` in `guards.commands`, then run `nook init --update`. |
+| `the plugin nook@nook is off` (from `nook doctor`) | its hooks and skills do not run, so each guard is off | Run `claude plugin install nook@nook`, then start a new session. |
+| `the plugin … of an older Nook is still on` (from `nook doctor`) | a plugin of the time of packs, such as `nk-eng@nook`, points at folders that are gone | Run the fix on the line, such as `claude plugin uninstall nk-eng@nook`. |
 | `… % of … sentences pass the writing standard` | a Markdown file under `docs/`, `works/` or `backlog/` scored 80% or less | Rewrite the listed sentences: 25 words or fewer, no should, may or might. |
+
+## A note at the door
+
+A door note is not a block. It shows at a move, and the move still runs. Read it before you decide.
+
+| The note says | Why | What to do |
+|---|---|---|
+| `spec.md changed since the approve` | an edit after your approve | Run `nook eng item replan <id>`, or go on as it is. |
+| a file changed outside a slice | an edit in review, by you or by a prompt | Check the file at your accept. |
+| a protected branch at begin | the area is on `main`, `master` or `develop` | Run `nook eng item branch <id>` first. |
 
 ## The session does not stop
 
-The Stop hook holds the lead in two cases:
-
-- A blocking question of its item is open. Answer it.
-- A yolo run waits for the next stage of the lead. The reason names the skill file.
-
-It lets go after six holds in a row, so a loop cannot run forever.
+The Stop hook holds the lead only in a yolo run, while the next stage waits. The reason names the skill file. It lets the session go while a blocking question is open, and after six holds in a row, so a loop cannot run forever.
 
 ## Nook itself fails
 

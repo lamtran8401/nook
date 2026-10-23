@@ -32,7 +32,7 @@ beforeEach(() => {
     [
       '# The build report', '', '> In short: a report.', '',
       '## At a glance', '', '| Part | Count | Check it with |', '|---|---|---|',
-      '| packs | 3: core, engineering, wiki | `nook packs` |', '| tests | 560 in 64 files, 0 failures | `bun run check` |', '',
+      '| features | 3: core, engineering, wiki | `nook features` |', '| tests | 560 in 64 files, 0 failures | `bun run check` |', '',
       '## Tests', '', '| Package | Tests | Files |', '|---|---|---|',
       '| core | 158 | 14 |', '| wiki | 21 | 2 |', '| total | 179 | 16 |', '',
       '## How it is built', '', drawnText('archDiagram'), '',
@@ -88,7 +88,7 @@ describe('buildPages', () => {
     expect(guide).toContain('<a href="#ch-2">chapter 2</a>')
     expect(guide).toContain('<a href="https://claude.ai/artifact/REPORT" target="_blank" rel="noopener">the report</a>')
     expect(guide).toContain('the reference (<code>docs/reference/core.md</code>)')
-    expect(guide).toContain('3 packs: core, engineering, wiki')
+    expect(guide).toContain('3 features: core, engineering, wiki')
   })
 })
 
