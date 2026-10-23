@@ -30,10 +30,21 @@ describe('NookConfig', () => {
     expect(NookConfig.parse('wiki: {}\n', 'nook.yml').retired()).toEqual([])
   })
 
+  test('reads the commands of guards and the budget; lean when it is not set', () => {
+    const config = NookConfig.parse('budget: deep\nguards:\n  commands:\n    allow: [gh pr create]\n    deny: [rm -rf]\n', 'nook.yml')
+    expect([config.budget, config.commands]).toEqual(['deep', { allow: ['gh pr create'], ask: [], deny: ['rm -rf'] }])
+    expect(NookConfig.parse('secrets: []\n', 'nook.yml').budget).toBe('lean')
+  })
+
+  test('a budget that is neither lean nor deep reads as no budget, so the doctor can name it', () => {
+    expect(NookConfig.parse('budget: wild\n', 'nook.yml').budget).toBeNull()
+  })
+
   test('a fault names the file and the key', () => {
     expect(() => NookConfig.parse('secrets: [a', 'nook.yml')).toThrow('nook.yml is not valid YAML')
     expect(() => NookConfig.parse('- a\n', 'nook.yml')).toThrow('nook.yml must hold a map of keys')
     expect(() => NookConfig.parse('secrets: x\n', 'nook.yml')).toThrow('nook.yml: secrets must be a list of strings')
+    expect(() => NookConfig.parse('guards:\n  commands:\n    allow: gh\n', 'nook.yml')).toThrow('nook.yml: guards.commands.allow must be a list of strings')
   })
 })
 

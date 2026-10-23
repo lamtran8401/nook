@@ -56,6 +56,12 @@ describe('Doctor', () => {
     ])
   })
 
+  test('a budget that is neither lean nor deep is a gap with the two values', () => {
+    initIn(root)
+    writeFileSync(join(root, 'nook.yml'), 'budget: wild\n')
+    expect(report().findings).toEqual([{ level: 'warn', where: root, text: 'nook.yml has budget: wild, which Nook does not know', fix: 'write budget: lean or budget: deep' }])
+  })
+
   test('a secret of nook.yml that is not on disk is a gap', () => {
     initIn(root)
     writeFileSync(join(root, 'nook.yml'), 'secrets: [config/gone.yaml]\n')

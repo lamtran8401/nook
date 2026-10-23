@@ -1,17 +1,18 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { Workspace, FEATURE_NAMES, type FeatureModule, featuresHere, NOOK_FILE, STATE_DIR } from '@nook/workspace/workspaces.ts'
+import { type Commands, FEATURE_NAMES, type FeatureModule, featuresHere, NOOK_FILE, STATE_DIR, Workspace } from '@nook/workspace/workspaces.ts'
 import type { WorkspaceList } from '@nook/workspace/workspace-list.ts'
 import { usage } from '@nook/shared/errors.ts'
 
 import { placeBlock } from './claude-block.ts'
 import { addSections, nookYaml } from './nook-file.ts'
-import { mergeSettings, type Settings } from './settings.ts'
+import { commandRules, dropRules, mergeSettings, type Settings } from './settings.ts'
 
 const RULES_DIR = join('.claude', 'rules', 'nook')
 const STYLE_FILE = join('.claude', 'output-styles', 'nook-companion.md')
 const SETTINGS_FILE = join('.claude', 'settings.json')
+const WRITTEN_RULES = join(STATE_DIR, 'settings.json')
 
 /**
  * `with`: the features to turn on here, by an empty section of nook.yml. `pluginDir`: the folder of the plugin, whose
@@ -102,13 +103,28 @@ export class Initializer {
     this.copy(STYLE_FILE, readFileSync(join(this.options.pluginDir, 'templates', 'output-styles', 'nook-companion.md'), 'utf8'))
   }
 
+  /**
+   * The nook keys of the template and the commands of nook.yml, from each workspace above too, merged into the
+   * settings. `.nook/settings.json` keeps the rules that nook wrote, so a rule that leaves nook.yml leaves the settings.
+   */
   private writeSettings(): void {
     const file = this.path(SETTINGS_FILE)
     const current = existsSync(file) ? (JSON.parse(readFileSync(file, 'utf8')) as Settings) : {}
-    const merged = mergeSettings(current, readJson(join(this.options.pluginDir, 'templates', 'settings.json')))
+    const template = readJson(join(this.options.pluginDir, 'templates', 'settings.json'))
+    const commands = commandRules(joinCommands(Workspace.above(this.options.dir).map(workspace => workspace.config.commands)))
+    const wanted = mergeSettings(template, { permissions: commands })
+    const rules = rulesOf(wanted)
+    const before = this.writtenRules()
+    const merged = mergeSettings(before ? dropRules(current, before, rules) : current, wanted)
+    writeFileSync(this.path(WRITTEN_RULES), `${JSON.stringify(rules, null, 2)}\n`)
     const text = `${JSON.stringify(merged, null, 2)}\n`
     if (existsSync(file) && readFileSync(file, 'utf8') === text) return this.kept(SETTINGS_FILE)
     this.wrote(`${SETTINGS_FILE} (the nook keys)`, () => writeFileSync(file, text))
+  }
+
+  private writtenRules(): Commands | null {
+    const file = this.path(WRITTEN_RULES)
+    return existsSync(file) ? (JSON.parse(readFileSync(file, 'utf8')) as Commands) : null
   }
 
   /** The folders and the state of each feature on here, and the features that still need /setup. */
@@ -141,5 +157,18 @@ export class Initializer {
 }
 
 const readJson = (file: string): Settings => JSON.parse(readFileSync(file, 'utf8')) as Settings
+
+/** The lists of each workspace, the outermost first, with no doubles: a child adds to its parents and drops nothing. */
+const joinCommands = (all: Commands[]): Commands => ({
+  allow: [...new Set(all.flatMap(c => c.allow))],
+  ask: [...new Set(all.flatMap(c => c.ask))],
+  deny: [...new Set(all.flatMap(c => c.deny))],
+})
+
+const rulesOf = (settings: Settings): Commands => ({
+  allow: settings.permissions?.allow ?? [],
+  ask: settings.permissions?.ask ?? [],
+  deny: settings.permissions?.deny ?? [],
+})
 
 export const init = (options: InitOptions): InitReport => new Initializer(options).run()

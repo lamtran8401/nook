@@ -32,3 +32,22 @@ function mergePermissions(owner: NonNullable<Settings['permissions']>, nook: Non
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
+
+type Lists = { allow: string[]; ask: string[]; deny: string[] }
+
+/** A command becomes the Bash rule that matches it and its arguments: `gh pr create` is `Bash(gh pr create*)`. A rule stays as written. */
+export function commandRules(commands: Lists): Lists {
+  const rule = (command: string) => (/^\w+\(.*\)$/.test(command) ? command : `Bash(${command}*)`)
+  return { allow: commands.allow.map(rule), ask: commands.ask.map(rule), deny: commands.deny.map(rule) }
+}
+
+/** The settings without each rule that nook wrote before and does not want now; every other rule and key stays. */
+export function dropRules(settings: Settings, before: Lists, now: Lists): Settings {
+  if (!settings.permissions) return settings
+  const permissions = { ...settings.permissions }
+  for (const list of LISTS) {
+    const gone = new Set(before[list].filter(rule => !now[list].includes(rule)))
+    if (permissions[list]) permissions[list] = permissions[list].filter(rule => !gone.has(rule))
+  }
+  return { ...settings, permissions }
+}

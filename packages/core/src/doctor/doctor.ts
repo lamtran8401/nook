@@ -56,7 +56,10 @@ const secrets: Check = workspace =>
     .filter(secret => !existsSync(join(workspace.dir, secret)))
     .map(secret => warn(workspace, `a secret of nook.yml does not exist: ${secret}`, 'remove it from `secrets`, or check the path'))
 
-const CHECKS: Check[] = [retiredKeys, claudeBlock, baseRules, stateDir, settings, secrets]
+const budget: Check = workspace =>
+  workspace.config.budget === null ? [warn(workspace, `nook.yml has budget: ${String(workspace.config.section('budget'))}, which Nook does not know`, 'write budget: lean or budget: deep')] : []
+
+const CHECKS: Check[] = [retiredKeys, claudeBlock, baseRules, stateDir, settings, secrets, budget]
 
 /** The plugins of an older Nook, one for each pack; the one plugin `nook` holds all of them now. */
 const OLD_PLUGINS = ['nk-eng', 'nk-wiki', 'nk-issues', 'nk-learn']

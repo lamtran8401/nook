@@ -3,7 +3,7 @@ import { Workspace } from './workspace.ts'
 import { NookConfig } from './nook-config.ts'
 
 export { Workspace, NOOK_FILE, STATE_DIR } from './workspace.ts'
-export { NookConfig, strings } from './nook-config.ts'
+export { BUDGETS, type Budget, type Commands, NookConfig, strings } from './nook-config.ts'
 export { type ActiveFeature, activeFeatures, FEATURE_NAMES, FEATURES, type Feature, featureHome, featuresHere, type FeatureName, pluginDir, pluginId } from './features.ts'
 export type { BriefItem, BriefLine, FeatureModule, Finding, GateResult, RetroFact, WaitingGate } from './feature-module.ts'
 export { projectRoot } from './project.ts'

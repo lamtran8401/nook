@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import type { FeatureModule } from '@nook/workspace/workspaces.ts'
@@ -129,5 +129,43 @@ describe('Initializer: the features on here', () => {
     calls.length = 0
     expect(initWith(feature(false), []).unset).toEqual([])
     expect(calls).toEqual([])
+  })
+})
+
+describe('Initializer: the commands of nook.yml', () => {
+  const permissions = () => readJson('.claude/settings.json').permissions
+
+  test('a command that nook.yml allows becomes a rule of the settings', () => {
+    initIn(root)
+    writeFileSync(join(root, 'nook.yml'), 'guards:\n  commands:\n    allow: [gh pr create]\n')
+    initIn(root, [], true)
+    expect(permissions().allow).toContain('Bash(gh pr create*)')
+  })
+
+  test('with no command in nook.yml the deny list still holds the safety rules', () => {
+    writeFileSync(join(root, 'nook.yml'), 'guards:\n  commands:\n    allow: []\n')
+    initIn(root)
+    expect(permissions().deny).toEqual(expect.arrayContaining(['Bash(git push --force*)', 'Bash(git reset --hard*)', 'Bash(git clean *)', 'Read(**/.env)']))
+  })
+
+  test('a rule that left nook.yml leaves the settings; a rule that the owner wrote stays', () => {
+    writeFileSync(join(root, 'nook.yml'), 'guards:\n  commands:\n    allow: [gh pr view]\n')
+    initIn(root)
+    const settings = readJson('.claude/settings.json')
+    settings.permissions.allow.push('Bash(make *)')
+    writeFileSync(join(root, '.claude', 'settings.json'), JSON.stringify(settings, null, 2))
+    writeFileSync(join(root, 'nook.yml'), 'guards:\n  commands:\n    allow: []\n')
+    initIn(root, [], true)
+    expect([permissions().allow.includes('Bash(gh pr view*)'), permissions().allow.includes('Bash(make *)')]).toEqual([false, true])
+  })
+
+  test('a child workspace gets the commands of each workspace above it', () => {
+    const child = join(root, 'shop')
+    mkdirSync(child, { recursive: true })
+    writeFileSync(join(root, 'nook.yml'), 'guards:\n  commands:\n    allow: [bun test]\n')
+    writeFileSync(join(child, 'nook.yml'), 'guards:\n  commands:\n    allow: [gh pr view]\n')
+    init({ dir: child, with: [], update: false, pluginDir: PLUGIN_DIR })
+    const allow = JSON.parse(readFileSync(join(child, '.claude', 'settings.json'), 'utf8')).permissions.allow
+    expect(allow).toEqual(expect.arrayContaining(['Bash(bun test*)', 'Bash(gh pr view*)']))
   })
 })

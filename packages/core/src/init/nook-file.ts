@@ -4,6 +4,7 @@ export function nookYaml(features: string[]): string {
     '# Nook: this folder is a workspace. The folders inside it get its features and its rules.',
     '# A feature is on where nook.yml has its section: engineering:, issue-tracker:, wiki:. /setup writes each one.',
     '# rules.off: base rules that you do not want written. secrets: files that no agent may read.',
+    '# budget: lean or deep, how many agents a skill may start. guards.commands: allow, ask and deny lists, such as allow: [gh pr create].',
     ...features.map(name => `${name}: {}`),
     '',
   ].join('\n')
