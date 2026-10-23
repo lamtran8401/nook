@@ -11,7 +11,7 @@ import { applyRules } from '@/lib/rules.ts'
 export { type Inline, plainText }
 
 /**
- * A document of a desk as a tree of blocks, one template for each kind. The `:::` blocks come from a line scan, so a
+ * A document of a workspace as a tree of blocks, one template for each kind. The `:::` blocks come from a line scan, so a
  * block knows its line; the Markdown between them and inside them comes from remark with GFM.
  */
 

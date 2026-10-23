@@ -1,8 +1,8 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { Desk, FEATURE_NAMES, type FeatureModule, featuresHere, NOOK_FILE, STATE_DIR } from '@nook/desk/desks.ts'
-import type { DeskList } from '@nook/desk/desk-list.ts'
+import { Workspace, FEATURE_NAMES, type FeatureModule, featuresHere, NOOK_FILE, STATE_DIR } from '@nook/workspace/workspaces.ts'
+import type { WorkspaceList } from '@nook/workspace/workspace-list.ts'
 import { usage } from '@nook/shared/errors.ts'
 
 import { placeBlock } from './claude-block.ts'
@@ -15,9 +15,9 @@ const SETTINGS_FILE = join('.claude', 'settings.json')
 
 /**
  * `with`: the features to turn on here, by an empty section of nook.yml. `pluginDir`: the folder of the plugin, whose
- * templates init copies. `list`: the list of desks of the owner, which init adds the folder to; a test leaves it out.
+ * templates init copies. `list`: the list of workspaces of the owner, which init adds the folder to; a test leaves it out.
  */
-export type InitOptions = { dir: string; with: string[]; update: boolean; pluginDir: string; modules?: FeatureModule[]; list?: DeskList }
+export type InitOptions = { dir: string; with: string[]; update: boolean; pluginDir: string; modules?: FeatureModule[]; list?: WorkspaceList }
 /** `unset`: the features on here whose section /setup has not filled in yet. */
 export type InitReport = { wrote: string[]; kept: string[]; features: string[]; unset: string[] }
 
@@ -38,11 +38,11 @@ export class Initializer {
   run(): InitReport {
     this.checkFeatures()
     this.writeNookFile()
-    const desk = Desk.read(this.options.dir)
-    this.report.features = featuresHere(desk).map(feature => feature.name)
+    const workspace = Workspace.read(this.options.dir)
+    this.report.features = featuresHere(workspace).map(feature => feature.name)
     this.writeStateDir()
     this.writeClaudeBlock()
-    this.writeRules(desk)
+    this.writeRules(workspace)
     this.writeStyle()
     this.writeSettings()
     this.setupFeatures()
@@ -60,7 +60,7 @@ export class Initializer {
     const file = this.path(NOOK_FILE)
     if (!existsSync(file)) return this.wrote(NOOK_FILE, () => writeFileSync(file, nookYaml(this.wanted)))
     const source = readFileSync(file, 'utf8')
-    const config = Desk.read(this.options.dir).config
+    const config = Workspace.read(this.options.dir).config
     const missing = this.wanted.filter(name => !config.has(name))
     if (!missing.length) return this.kept(NOOK_FILE)
     this.wrote(NOOK_FILE, () => writeFileSync(file, addSections(source, missing)))
@@ -83,12 +83,12 @@ export class Initializer {
   }
 
   /** One file for each base rule of the features on here; a rule turned off is not written, and goes on update. */
-  private writeRules(desk: Desk): void {
+  private writeRules(workspace: Workspace): void {
     const dir = this.path(RULES_DIR)
     mkdirSync(dir, { recursive: true })
     const rules = new Map<string, string>()
-    for (const name of featuresHere(desk).flatMap(feature => feature.rules)) {
-      if (!desk.config.rules.off.includes(name)) rules.set(`${name}.md`, readFileSync(join(this.options.pluginDir, 'templates', 'rules', `${name}.md`), 'utf8'))
+    for (const name of featuresHere(workspace).flatMap(feature => feature.rules)) {
+      if (!workspace.config.rules.off.includes(name)) rules.set(`${name}.md`, readFileSync(join(this.options.pluginDir, 'templates', 'rules', `${name}.md`), 'utf8'))
     }
     for (const [file, text] of rules) this.copy(join(RULES_DIR, file), text)
     if (!this.update) return

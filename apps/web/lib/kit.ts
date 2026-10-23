@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { projectRoot } from '@nook/desk/project.ts'
-import { uiKit } from '@nook/desk/ui-kit.ts'
+import { projectRoot } from '@nook/workspace/project.ts'
+import { uiKit } from '@nook/workspace/ui-kit.ts'
 
 let layer: string | null = null
 

@@ -7,44 +7,44 @@ import { SearchResults } from '@/components/search-results.tsx'
 import { search } from '@/lib/search.ts'
 import { html, text } from '@/test/markup.ts'
 
-let desk: string
+let workspace: string
 const write = (rel: string, text: string) => {
-  mkdirSync(dirname(join(desk, rel)), { recursive: true })
-  writeFileSync(join(desk, rel), text)
+  mkdirSync(dirname(join(workspace, rel)), { recursive: true })
+  writeFileSync(join(workspace, rel), text)
 }
 
 beforeEach(() => {
-  desk = realpathSync(mkdtempSync(join(tmpdir(), 'nook-search-')))
+  workspace = realpathSync(mkdtempSync(join(tmpdir(), 'nook-search-')))
   write('nook.yml', 'engineering: {}\nsecrets: [docs/wiki/resources/keys.md]\nwiki:\n  shelves:\n    - { name: resources, use: "how a system works" }\n')
   write('works/SHOP-42/plan.md', '# SHOP-42: the plan\n\n## Risks\n\nA payment retry that runs twice charges twice.\n')
   write('docs/wiki/resources/payment-vault.md', '# Payment vault\n\n## Retries\n\nThe vault takes a Payment Retry with a new key.\n')
 })
-afterEach(() => rmSync(desk, { recursive: true, force: true }))
+afterEach(() => rmSync(workspace, { recursive: true, force: true }))
 
 describe('search', () => {
   test('finds each line with every word, in wiki pages and item documents, with its heading and its page', () => {
-    expect(search(desk, 'payment retry')).toEqual([
+    expect(search(workspace, 'payment retry')).toEqual([
       { file: 'works/SHOP-42/plan.md', href: '/works/SHOP-42?tab=plan', heading: 'Risks', line: 5, text: 'A payment retry that runs twice charges twice.' },
       { file: 'docs/wiki/resources/payment-vault.md', href: '/wiki/resources/payment-vault.md', heading: 'Retries', line: 5, text: 'The vault takes a Payment Retry with a new key.' },
     ])
   })
 
   test('reads the files again on each search, so a page changed a moment ago gives its new words', () => {
-    expect(search(desk, 'refund rule')).toEqual([])
+    expect(search(workspace, 'refund rule')).toEqual([])
     write('works/SHOP-42/plan.md', '# SHOP-42: the plan\n\nThe refund rule waits for Q2.\n')
-    expect(search(desk, 'refund rule').map(h => h.text)).toEqual(['The refund rule waits for Q2.'])
+    expect(search(workspace, 'refund rule').map(h => h.text)).toEqual(['The refund rule waits for Q2.'])
   })
 
   test('never reads a secret file: an env file, a file that nook.yml names, or a link to a file outside', () => {
     write('works/SHOP-42/.env', 'payment retry token=abc\n')
     write('docs/wiki/resources/keys.md', '# Keys\n\npayment retry key k-1\n')
     write('outside/notes.md', 'payment retry outside\n')
-    symlinkSync(join(desk, 'outside', 'notes.md'), join(desk, 'docs', 'wiki', 'resources', 'linked.md'))
-    expect(search(desk, 'payment retry').map(h => h.file)).toEqual(['works/SHOP-42/plan.md', 'docs/wiki/resources/payment-vault.md'])
+    symlinkSync(join(workspace, 'outside', 'notes.md'), join(workspace, 'docs', 'wiki', 'resources', 'linked.md'))
+    expect(search(workspace, 'payment retry').map(h => h.file)).toEqual(['works/SHOP-42/plan.md', 'docs/wiki/resources/payment-vault.md'])
   })
 
   test('gives nothing for an empty query', () => {
-    expect(search(desk, '   ')).toEqual([])
+    expect(search(workspace, '   ')).toEqual([])
   })
 })
 

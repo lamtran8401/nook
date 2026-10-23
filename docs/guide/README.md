@@ -2,12 +2,12 @@
 
 > In short: this book shows how to use Nook, one task for each chapter. Read chapter 1 first; read the other chapters when you need them.
 
-Nook is a base layer for Claude Code. You run `nook init` in a folder, and that folder becomes a **desk**. On a desk, Claude Code works with your rules, your record and your knowledge.
+Nook is a base layer for Claude Code. You run `nook init` in a folder, and that folder becomes a **workspace**. On a workspace, Claude Code works with your rules, your record and your knowledge.
 
 | Chapter | Read it when |
 |---|---|
-| [1. Start](01-start.md) | you install Nook and make your first desk |
-| [2. Desks](02-desks.md) | you want two desks, a child desk, or a pack off |
+| [1. Start](01-start.md) | you install Nook and make your first workspace |
+| [2. Workspaces](02-workspaces.md) | you want two workspaces, a child workspace, or a pack off |
 | [3. A day with Nook](03-day.md) | you start a day, answer a question, or decide at a gate |
 | [4. Work](04-work.md) | you take a ticket to a result that you accept |
 | [5. The wiki](05-wiki.md) | you keep what you learn, or ask what you know |
@@ -25,10 +25,10 @@ Nook is a base layer for Claude Code. You run `nook init` in a folder, and that 
 
 | Word | Meaning |
 |---|---|
-| desk | a folder with `nook.yml` |
+| workspace | a folder with `nook.yml` |
 | pack | a set of rules, skills and agents for one kind of work: core, engineering, wiki, learn |
 | owner | you, the person who uses Nook |
-| companion | the main Claude Code session on a desk, with the persona `nook-companion` |
+| companion | the main Claude Code session on a workspace, with the persona `nook-companion` |
 | item | one piece of work with a goal and criteria, such as `SHOP-12` |
 | gate | a step that only you take: approve a plan, accept a result |
 | guard | a hook that stops a call that breaks a rule, and names the fix |

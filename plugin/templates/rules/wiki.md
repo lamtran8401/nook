@@ -1,6 +1,6 @@
 # Wiki
 
-The wiki is `docs/wiki/` of this desk; `nook wiki shelves` names each shelf and its use. It holds what lasts. Work in progress stays with its work.
+The wiki is `docs/wiki/` of this workspace; `nook wiki shelves` names each shelf and its use. It holds what lasts. Work in progress stays with its work.
 
 - Read the index first: `docs/wiki/INDEX.md`, then the `INDEX.md` of a shelf. Open a page only when its line matches the task.
 - Name each page that you use, as `(wiki: resources/shipments-api.md)`. A fact from a page with no link is a guess.

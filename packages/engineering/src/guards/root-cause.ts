@@ -1,7 +1,7 @@
 import { parseRootCause } from '../documents/root-cause.ts'
 import type { Gap, Guard, GuardContext } from './guard.ts'
 
-/** submit, for a flow that asks for a root cause: root-cause.md names a type of the desk and holds the analysis. */
+/** submit, for a flow that asks for a root cause: root-cause.md names a type of the workspace and holds the analysis. */
 export class RootCauseWritten implements Guard {
   check(ctx: GuardContext): Gap[] {
     if (!ctx.flow.submit.includes('root-cause')) return []

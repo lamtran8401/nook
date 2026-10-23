@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 
-import { nearestDesk, type FeatureModule } from '@nook/desk/desks.ts'
+import { nearestWorkspace, type FeatureModule } from '@nook/workspace/workspaces.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { score } from '../ste.ts'
@@ -12,10 +12,10 @@ export type StyleDeps = { modules: FeatureModule[] }
 /** Old work: read it, never rewrite it to the standard. */
 const SKIPPED = join('docs', 'archive')
 
-/** The folders of the record: `docs/` of the desk, and the folders that each feature names as its record. */
-const recordFolders = (deskDir: string, modules: FeatureModule[]): string[] => [
-  join(deskDir, 'docs'),
-  ...modules.flatMap(module => module.records?.(deskDir) ?? []),
+/** The folders of the record: `docs/` of the workspace, and the folders that each feature names as its record. */
+const recordFolders = (workspaceDir: string, modules: FeatureModule[]): string[] => [
+  join(workspaceDir, 'docs'),
+  ...modules.flatMap(module => module.records?.(workspaceDir) ?? []),
 ]
 
 const inside = (folder: string, file: string) => {
@@ -25,12 +25,12 @@ const inside = (folder: string, file: string) => {
 
 function recordPath(input: HookInput, modules: FeatureModule[]): { full: string; rel: string } | null {
   const cwd = input.cwd ?? process.cwd()
-  const desk = nearestDesk(cwd)
+  const workspace = nearestWorkspace(cwd)
   const target = String(input.tool_input?.file_path ?? '')
-  if (!desk || !target.endsWith('.md')) return null
+  if (!workspace || !target.endsWith('.md')) return null
   const full = resolve(cwd, target)
-  const rel = relative(desk.dir, full)
-  if (!recordFolders(desk.dir, modules).some(folder => inside(folder, full)) || rel.startsWith(SKIPPED + sep)) return null
+  const rel = relative(workspace.dir, full)
+  if (!recordFolders(workspace.dir, modules).some(folder => inside(folder, full)) || rel.startsWith(SKIPPED + sep)) return null
   return { full, rel }
 }
 

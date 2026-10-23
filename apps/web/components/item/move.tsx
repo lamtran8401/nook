@@ -25,8 +25,8 @@ export function Move({ fields, children, className, grow = false }: { fields: Re
   const confirmed = useRef(false)
   const form = useRef<HTMLFormElement>(null)
   const paired = usePaired()
-  // the first segment of the address names the desk of the page, such as /personal/works
-  const desk = (usePathname() ?? '').split('/')[1] ?? ''
+  // the first segment of the address names the workspace of the page, such as /personal/works
+  const workspace = (usePathname() ?? '').split('/')[1] ?? ''
 
   const ask = (event: FormEvent<HTMLFormElement>) => {
     if (confirmed.current) {
@@ -46,7 +46,7 @@ export function Move({ fields, children, className, grow = false }: { fields: Re
 
   return (
     <form ref={form} action={act} onSubmit={ask} className={cn('contents', className)} title={paired ? undefined : PAIR_HINT}>
-      {Object.entries({ ...fields, desk }).map(([name, value]) => (
+      {Object.entries({ ...fields, workspace }).map(([name, value]) => (
         <input type="hidden" name={name} value={value} key={name} />
       ))}
       <fieldset className={cn('m-0 flex min-w-0 items-center gap-1.5 border-0 p-0 disabled:opacity-60', grow && 'flex-1')} disabled={pending || !paired}>

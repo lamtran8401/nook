@@ -7,7 +7,7 @@ import { WikiPage } from '@/components/wiki/wiki-page.tsx'
 import { html, text } from '@/test/markup.ts'
 
 const wiki: WikiView = {
-  dir: '/desk/docs/wiki',
+  dir: '/workspace/docs/wiki',
   drafts: ['payment-retries.md'],
   shelves: [
     { name: 'ideas', use: 'an idea that has not started', lines: [] },
@@ -36,8 +36,8 @@ describe('WikiHome', () => {
     expect(markup).toMatch(/data-slot="badge" data-tone="primary" data-variant="label"[^>]*>system</)
   })
 
-  test('says how to turn the wiki on in a desk with none', () => {
-    expect(text(html(<WikiHome wiki={null} base="/personal" />))).toBe('This desk has no wiki Add a wiki: section to nook.yml: run /setup in the agent session.')
+  test('says how to turn the wiki on in a workspace with none', () => {
+    expect(text(html(<WikiHome wiki={null} base="/personal" />))).toBe('This workspace has no wiki Add a wiki: section to nook.yml: run /setup in the agent session.')
   })
 })
 

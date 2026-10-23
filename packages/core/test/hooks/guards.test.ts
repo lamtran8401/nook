@@ -30,7 +30,7 @@ describe('readGuard', () => {
     expect(read(file)).toBe('pass')
   })
 
-  test('does nothing outside a desk', () => {
+  test('does nothing outside a workspace', () => {
     const outside = tempDir('nook-outside-')
     expect(read('.env', outside)).toBe('pass')
     removeDir(outside)
@@ -47,7 +47,7 @@ describe('bashGuard', () => {
     command => expect(bash(command)).toBe('block'),
   )
 
-  test.each(['grep -n process.env src', 'grep -rn Bun.env src', "sed -i '' 's/...env.packs/...desk.packs/' f.ts", 'cat app.env.ts'])(
+  test.each(['grep -n process.env src', 'grep -rn Bun.env src', "sed -i '' 's/...env.packs/...workspace.packs/' f.ts", 'cat app.env.ts'])(
     'lets a word that only contains .env pass: %s',
     command => expect(bash(command)).toBe('pass'),
   )
@@ -77,7 +77,7 @@ describe('bashGuard', () => {
     expect(bash(command)).toBe('block')
   })
 
-  test.each(['nook web', 'cd ~/desk && nook web --build', 'nk web'])('blocks an agent that starts the web app: %s', command => {
+  test.each(['nook web', 'cd ~/workspace && nook web --build', 'nk web'])('blocks an agent that starts the web app: %s', command => {
     expect(bash(command)).toBe('block')
   })
 
@@ -119,7 +119,7 @@ describe('bashGuard', () => {
     expect(bash('claude plugin validate . && cat plugins/core/skills/gate/SKILL.md')).toBe('pass')
   })
 
-  test('does nothing outside a desk', () => {
+  test('does nothing outside a workspace', () => {
     const outside = tempDir('nook-outside-')
     expect(bash('cat .env', outside)).toBe('pass')
     removeDir(outside)

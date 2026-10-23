@@ -8,7 +8,7 @@ import { MIGRATIONS } from './migrations.ts'
 
 export type { Param }
 
-const MIGRATE_FIX = 'run any `nook eng` command in the desk'
+const MIGRATE_FIX = 'run any `nook eng` command in the workspace'
 
 /** The SQLite file of the home. Every write runs in one transaction that takes the lock at its start. */
 export class Ledger {

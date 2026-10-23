@@ -7,7 +7,7 @@
     "./*": "./src/*"
   },
   "dependencies": {
-    "@nook/desk": "workspace:*",
+    "@nook/workspace": "workspace:*",
     "@nook/shared": "workspace:*"
   }
 }

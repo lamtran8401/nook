@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react'
 
-import { uiKit } from '@nook/desk/ui-kit.ts'
+import { uiKit } from '@nook/workspace/ui-kit.ts'
 import '@nook/ui/styles/globals.css'
 
 import { pageStyles } from '@/lib/kit.ts'
 
 export const dynamic = 'force-dynamic'
 
-/** The frame of each page: the Bench kit, the v2 layer over it, and the Bench script that draws the diagrams. The desk layout holds the shell. */
+/** The frame of each page: the Bench kit, the v2 layer over it, and the Bench script that draws the diagrams. The workspace layout holds the shell. */
 export default function RootLayout({ children }: { children: ReactNode }) {
   const kit = uiKit()
   const [kitCss, layer] = pageStyles()

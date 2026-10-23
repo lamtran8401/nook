@@ -6,7 +6,7 @@
 - Never `/tmp`, an area folder or `~/.claude`. The edit hook blocks an area folder with no running slice.
 
 ## No item
-The subject is a prompt: a question about the code, or the open changes of the desk.
+The subject is a prompt: a question about the code, or the open changes of the workspace.
 - `nook eng area status` lists each area with its branch and its dirty files.
 - A question about a mechanism: read the code that answers it, from the entry point to the effect.
 - Open changes: read `git -C <folder> diff HEAD` and the commits of the branch against its base.

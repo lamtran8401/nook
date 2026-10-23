@@ -6,15 +6,15 @@ import { Badge } from '@nook/ui/components/badge.tsx'
 
 import { areaTone } from '@/components/tones.ts'
 
-/** The areas of the desk in the order of `nook.yml`; the layout passes them down, so each tag finds its tone. */
-const DeskAreas = createContext<string[]>([])
+/** The areas of the workspace in the order of `nook.yml`; the layout passes them down, so each tag finds its tone. */
+const WorkspaceAreas = createContext<string[]>([])
 
 export function AreaTones({ names, children }: { names: string[]; children: ReactNode }) {
-  return <DeskAreas.Provider value={names}>{children}</DeskAreas.Provider>
+  return <WorkspaceAreas.Provider value={names}>{children}</WorkspaceAreas.Provider>
 }
 
 export function AreaTags({ names }: { names: string[] }) {
-  const areas = useContext(DeskAreas)
+  const areas = useContext(WorkspaceAreas)
   return (
     <span className="inline-flex flex-wrap gap-1">
       {names.map(name => (

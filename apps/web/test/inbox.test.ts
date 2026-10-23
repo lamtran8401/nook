@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import type { BriefLine } from '@nook/desk/desks.ts'
+import type { BriefLine } from '@nook/workspace/workspaces.ts'
 
 import { greeting, inboxRows, summary, whoOf } from '@/lib/inbox.ts'
 

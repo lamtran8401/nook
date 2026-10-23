@@ -1,6 +1,6 @@
 # Comments
 
-These rules hold for every code file in this desk, in any language and in any pack.
+These rules hold for every code file in this workspace, in any language and in any pack.
 
 - Write code that needs no comment: clear names, small functions, early returns.
 - Comment only hard logic, in one or two lines: what it does and why.

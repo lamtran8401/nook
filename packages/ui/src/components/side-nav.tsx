@@ -22,7 +22,7 @@ function NavLink({ item }: { item: NavItem }) {
 }
 
 /**
- * The sidebar of a desk: its head (the desk menu), the search, one link for each page with its icon and count, and the
+ * The sidebar of a workspace: its head (the workspace menu), the search, one link for each page with its icon and count, and the
  * footer links at the end. It sits flat on the ground; the current page is a raised pill.
  */
 export function SideNav({ head, search, items, footer = [] }: { head: ReactNode; search?: ReactNode; items: NavItem[]; footer?: NavItem[] }) {

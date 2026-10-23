@@ -21,7 +21,7 @@ export const KIND_TONE: Record<string, string> = { feature: 'primary', fix: 'dan
 
 const AREA_TONES = ['primary', 'violet', 'aqua', 'warning', 'success', 'ink']
 
-/** One tone for each area of the desk, by its place in `nook.yml`, so an area looks the same on every page. */
+/** One tone for each area of the workspace, by its place in `nook.yml`, so an area looks the same on every page. */
 export function areaTone(name: string, areas: string[]): string {
   const place = areas.indexOf(name)
   return place < 0 ? 'neutral' : AREA_TONES[place % AREA_TONES.length]!

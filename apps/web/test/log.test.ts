@@ -5,9 +5,9 @@ import { banner, readyLine, requestLine } from '../lib/log.ts'
 const ESC = '\u001b'
 
 describe('the log of the web server, in the format of Next.js', () => {
-  test('the banner names the version of Next.js, the local address and the desks', () => {
-    expect(banner({ version: '16.3.8', url: 'http://127.0.0.1:4321', desks: ['personal', 'chorus'], color: false })).toBe(
-      '   ▲ Next.js 16.3.8\n   - Local:   http://127.0.0.1:4321\n   - Desks:   personal, chorus\n',
+  test('the banner names the version of Next.js, the local address and the workspaces', () => {
+    expect(banner({ version: '16.3.8', url: 'http://127.0.0.1:4321', workspaces: ['personal', 'chorus'], color: false })).toBe(
+      '   ▲ Next.js 16.3.8\n   - Local:   http://127.0.0.1:4321\n   - Workspaces:   personal, chorus\n',
     )
   })
 
@@ -24,7 +24,7 @@ describe('the log of the web server, in the format of Next.js', () => {
     expect(requestLine({ method: 'GET', url: '/x', status: 404, ms: 1, color: true })).toContain(`${ESC}[33m404${ESC}[39m`)
     expect(requestLine({ method: 'POST', url: '/x', status: 500, ms: 1, color: true })).toContain(`${ESC}[31m500${ESC}[39m`)
     expect(readyLine(1, true)).toContain(`${ESC}[32m✓${ESC}[39m`)
-    for (const line of [banner({ version: '1', url: 'u', desks: [], color: false }), readyLine(1, false), requestLine({ method: 'GET', url: '/', status: 500, ms: 1, color: false })])
+    for (const line of [banner({ version: '1', url: 'u', workspaces: [], color: false }), readyLine(1, false), requestLine({ method: 'GET', url: '/', status: 500, ms: 1, color: false })])
       expect(line).not.toContain(ESC)
   })
 })

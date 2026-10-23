@@ -9,8 +9,8 @@ When the code and this file do not agree, fix one of them in the same change.
 
 | Word | Meaning |
 |---|---|
-| desk | a folder with `nook.yml` |
-| home | the nearest desk above a folder that turns `engineering` on; the ledger, `works/` and `backlog/` live there |
+| workspace | a folder with `nook.yml` |
+| home | the nearest workspace above a folder that turns `engineering` on; the ledger, `works/` and `backlog/` live there |
 | item | one piece of work with a goal and acceptance criteria (AC) |
 | area | a folder of the home with a kind and its checks |
 | slice | one task of an item in one area: `T1`, `T2` |
@@ -163,7 +163,7 @@ Rules:
   | `submit` | a list of `findings`, `root-cause` | `findings`: `submit` needs text in `findings.md`, and `accept` an answer with evidence for each question. `root-cause`: `submit` needs `root-cause.md` with a type and the analysis |
 
 - The kinds `feature` and `chore` need criteria and slices. The kind `fix` needs them too, and `## Reproduce`, `## Actual`, `## Expected` and its root cause. The kind `investigate` needs questions and findings with a `## Results` part. Its areas and slices are optional: with a `tasks.md`, its slices run and verify as the slices of a feature.
-- The root cause of a fix: a type of `engineering.rootCauses` when the desk lists them, else any type. The type of `engineering.unknownRootCause` needs a `reason`. `submit` keeps the type in the ledger. The action that prevents the cause is not asked: a team session decides it.
+- The root cause of a fix: a type of `engineering.rootCauses` when the workspace lists them, else any type. The type of `engineering.unknownRootCause` needs a `reason`. `submit` keeps the type in the ledger. The action that prevents the cause is not asked: a team session decides it.
 - `nook doctor` names a flow file with a problem: an unknown rule, a value that the rule does not take, or a kind with no file. A move refuses while a flow file has a problem.
 - Mode `yolo`: only the owner sets it, with `/gate mode <id> yolo` or `/yolo`. The Stop hook keeps the lead on the next stage; the accept stays the owner's.
 - `/yolo` reads a key as people type it: `/yolo BKM 14478` and `/yolo bkm-14478` name `BKM-14478`. Words such as `add 2 buttons` stay a prompt for a new item.
@@ -202,12 +202,12 @@ The read paths of the web app are in `packages/engineering/src/read/reader.ts`. 
 
 | Function | Gives |
 |---|---|
-| `readAreas(desk)` | the areas of the home in the order of `nook.yml`; none for a desk with no home |
-| `readBoard(desk)` | each open item, and each done item not yet archived: kind, size, points, mode, state, the step of a blocked item, areas, criteria met, slices done, next step, flags |
-| `readItem(desk, id)` | the item, its next step and owner, what waits for the owner, the criteria, slices, questions, guesses, each change of state with its time, the events as sentences, the last verify run and the changed files |
-| `readDocs(desk, id)` | the documents that the flow of the kind asks for, in order, each with its text or null: spec, root cause for a fix, plan, tasks and walkthrough when slices are required, findings for an investigation |
-| `readTrend(desk)` | the metrics of each of the last six weeks, the oldest first, for a trend line; null for a desk with no home |
-| `readReceipts(desk, since)` | the events of every item since a time, the newest first, each as a sentence with its item |
+| `readAreas(workspace)` | the areas of the home in the order of `nook.yml`; none for a workspace with no home |
+| `readBoard(workspace)` | each open item, and each done item not yet archived: kind, size, points, mode, state, the step of a blocked item, areas, criteria met, slices done, next step, flags |
+| `readItem(workspace, id)` | the item, its next step and owner, what waits for the owner, the criteria, slices, questions, guesses, each change of state with its time, the events as sentences, the last verify run and the changed files |
+| `readDocs(workspace, id)` | the documents that the flow of the kind asks for, in order, each with its text or null: spec, root cause for a fix, plan, tasks and walkthrough when slices are required, findings for an investigation |
+| `readTrend(workspace)` | the metrics of each of the last six weeks, the oldest first, for a trend line; null for a workspace with no home |
+| `readReceipts(workspace, since)` | the events of every item since a time, the newest first, each as a sentence with its item |
 
 - What waits for the owner: the open questions, the blocking ones first, then the open guesses.
 - A flag of a card names what holds the item up: each blocking question, such as `Q2 blocks`, and each failed slice, such as `T4 failed`.
@@ -303,7 +303,7 @@ An owner move from the web app adds `--via viewer`: `item approve`, `item accept
 What the commands do:
 - `item new [<id>] <title>`: a first word such as `SHOP-12` is the id. With no id, Nook makes the next `IT-NNN`. `--backlog` writes `backlog/<id>/ticket.md`. `--parent <id>` names the item that it belongs to, such as the story of a sub-bug; the parent must be in the ledger. `--points <n>` keeps the story points of the ticket, such as `8`.
 - `item edit <id> points <n>` changes the points; `item edit <id> points none` clears them. Points are a number of 0 or more. The web app shows them on cards, in column totals and in the details of an item.
-- `kind set <type> <kind>` and `kind list`: the kind of each ticket type that the desk learned, such as `Sub-Bug` → `fix`, kept in the ledger. `item new --type <type>` with no `--kind` takes it. `/spec` asks once to keep the kind of a type that the desk does not know yet. The map holds no vendor: a type is the word of the `Type:` row of any ticket.
+- `kind set <type> <kind>` and `kind list`: the kind of each ticket type that the workspace learned, such as `Sub-Bug` → `fix`, kept in the ledger. `item new --type <type>` with no `--kind` takes it. `/spec` asks once to keep the kind of a type that the workspace does not know yet. The map holds no vendor: a type is the word of the `Type:` row of any ticket.
 - `item detach <id> --reason <why>`: takes an item out of its parent, such as a minor sub-bug for a later sprint. The ledger records the event `detach` with the parent and the reason. The brief of an item names its parent and its children.
 - `item brief`: the context of an item for an agent, about 1800 characters at most. It holds the state, the next step, the areas, the ACs, the slices, the open questions and guesses, and the mode.
 - `next [<id>]`: the next step of each item and the skill to type, the owner's steps first.

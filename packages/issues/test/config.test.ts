@@ -34,7 +34,7 @@ describe('IssuesConfig', () => {
     expect(() => IssuesConfig.from({ sources: [{ type: 'jira', site: 'x.atlassian.net', skip: 'Epic' }] })).toThrow(expect.objectContaining({ message: 'nook.yml: issue-tracker.sources[0].skip must be a list of tracker types, such as [Epic, Release]' }))
   })
 
-  test('a desk with no section is missing, with no source', () => {
+  test('a workspace with no section is missing, with no source', () => {
     expect(IssuesConfig.from(undefined)).toMatchObject({ missing: true, sources: [], backlog: 'backlog' })
   })
 

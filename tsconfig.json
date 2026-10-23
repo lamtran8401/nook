@@ -23,8 +23,8 @@
       "@nook/shared/*": [
         "./packages/shared/src/*"
       ],
-      "@nook/desk/*": [
-        "./packages/desk/src/*"
+      "@nook/workspace/*": [
+        "./packages/workspace/src/*"
       ],
       "@nook/core/*": [
         "./packages/core/src/*"

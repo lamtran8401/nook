@@ -2,22 +2,22 @@ import { basename, resolve, sep } from 'node:path'
 
 import { match } from 'ts-pattern'
 
-import { desksAbove, nearestDesk, STATE_DIR } from '@nook/desk/desks.ts'
-import { SecretPolicy } from '@nook/desk/secrets.ts'
+import { workspacesAbove, nearestWorkspace, STATE_DIR } from '@nook/workspace/workspaces.ts'
+import { SecretPolicy } from '@nook/workspace/secrets.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 import { ROLE_VAR } from '@nook/shared/names.ts'
 
 import { readWebState } from '../web/web-state.ts'
 import { plainWords, shellWords } from '@nook/shared/shell.ts'
 
-/** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside a desk they do nothing. */
+/** The guards of the core: no secret reaches the model, no state or settings file changes by hand. Outside a workspace they do nothing. */
 
 const cwdOf = (input: HookInput) => input.cwd ?? process.cwd()
-const inDesk = (input: HookInput) => nearestDesk(cwdOf(input)) !== null
+const inWorkspace = (input: HookInput) => nearestWorkspace(cwdOf(input)) !== null
 
 /** PreToolUse Read, Grep, Glob. */
 export function readGuard(input: HookInput): HookResult {
-  if (!inDesk(input)) return pass
+  if (!inWorkspace(input)) return pass
   const target = String(input.tool_input?.file_path ?? input.tool_input?.path ?? '')
   if (!target || !new SecretPolicy(cwdOf(input)).isSecretPath(target)) return pass
   return block(`${target} is a secret file: Nook does not read secrets. Ask the owner for the value you need, or use .env.example.`)
@@ -32,10 +32,10 @@ const LOCAL = String.raw`(?:127(?:\.\d{1,3}){0,3}|localhost\.?|0\.0\.0\.0|0|\[::
 const NOOK = /(^|\/)(?:nook|nk)$/
 const BROKEN_STATE = '.nook/web.json is broken, so the port of the web app is unknown. Ask the owner to stop nook web and delete .nook/web.json.'
 
-/** The ports of the web apps that run for the desks above the folder, from their `.nook/web.json`; null when one cannot be read. */
+/** The ports of the web apps that run for the workspaces above the folder, from their `.nook/web.json`; null when one cannot be read. */
 function webPorts(cwd: string): number[] | null {
   try {
-    return desksAbove(cwd).flatMap(desk => readWebState(desk.dir)?.port ?? [])
+    return workspacesAbove(cwd).flatMap(workspace => readWebState(workspace.dir)?.port ?? [])
   } catch {
     return null
   }
@@ -45,7 +45,7 @@ function webPorts(cwd: string): number[] | null {
 const callsPort = (plain: string, port: number) => new RegExp(String.raw`(?<![\w.])${LOCAL}(?::|/|\s+)${port}(?!\d)`, 'i').test(plain)
 
 export function bashGuard(input: HookInput): HookResult {
-  if (!inDesk(input)) return pass
+  if (!inWorkspace(input)) return pass
   const policy = new SecretPolicy(cwdOf(input))
   const command = String(input.tool_input?.command ?? '')
   const { plain, words } = plainWords(command)
@@ -59,7 +59,7 @@ export function bashGuard(input: HookInput): HookResult {
   if (shell.some((word, i) => NOOK.test(word) && shell[i + 1] === 'web')) return block('only the owner starts the web app, in a terminal: an agent never runs nook web.')
   const ports = webPorts(cwdOf(input))
   if (ports === null) return block(BROKEN_STATE)
-  if (ports.some(port => callsPort(plain, port))) return block('the web app belongs to the owner: an agent never calls its port. Read the desk with the nook commands.')
+  if (ports.some(port => callsPort(plain, port))) return block('the web app belongs to the owner: an agent never calls its port. Read the workspace with the nook commands.')
   const listed = policy.listedIn(plain)
   if (listed) return block(`the command names ${listed}, a secret of nook.yml.`)
   if (ROLE_SET.test(plain) || /env\s+-u\s+CLAUDECODE/.test(plain)) return block('the role of an agent is set by nook, not by a command.')
@@ -80,7 +80,7 @@ function editTarget(full: string): EditTarget {
 
 /** PreToolUse Edit, Write: no secret file, no state folder, no settings. */
 export function editGuard(input: HookInput): HookResult {
-  if (!inDesk(input)) return pass
+  if (!inWorkspace(input)) return pass
   const target = String(input.tool_input?.file_path ?? '')
   if (!target) return pass
   if (new SecretPolicy(cwdOf(input)).isSecretPath(target)) return block(`${target} is a secret file: Nook never writes one.`)

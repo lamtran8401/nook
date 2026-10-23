@@ -29,11 +29,11 @@
       "version": "0.1.0",
       "dependencies": {
         "@nook/core": "workspace:*",
-        "@nook/desk": "workspace:*",
         "@nook/engineering": "workspace:*",
         "@nook/shared": "workspace:*",
         "@nook/ui": "workspace:*",
         "@nook/wiki": "workspace:*",
+        "@nook/workspace": "workspace:*",
         "lucide-react": "1.52.0",
         "next": "16.3.8",
         "react": "19.3.0",
@@ -56,17 +56,9 @@
       "name": "@nook/core",
       "version": "0.1.0",
       "dependencies": {
-        "@nook/desk": "workspace:*",
         "@nook/shared": "workspace:*",
+        "@nook/workspace": "workspace:*",
         "ts-pattern": "5.9.0",
-        "yaml": "2.9.1",
-      },
-    },
-    "packages/desk": {
-      "name": "@nook/desk",
-      "version": "0.1.0",
-      "dependencies": {
-        "@nook/shared": "workspace:*",
         "yaml": "2.9.1",
       },
     },
@@ -74,8 +66,8 @@
       "name": "@nook/engineering",
       "version": "0.1.0",
       "dependencies": {
-        "@nook/desk": "workspace:*",
         "@nook/shared": "workspace:*",
+        "@nook/workspace": "workspace:*",
         "ts-pattern": "5.9.0",
         "yaml": "2.9.1",
       },
@@ -84,8 +76,8 @@
       "name": "@nook/issues",
       "version": "0.1.0",
       "dependencies": {
-        "@nook/desk": "workspace:*",
         "@nook/shared": "workspace:*",
+        "@nook/workspace": "workspace:*",
       },
     },
     "packages/shared": {
@@ -119,9 +111,17 @@
       "name": "@nook/wiki",
       "version": "0.1.0",
       "dependencies": {
-        "@nook/desk": "workspace:*",
         "@nook/shared": "workspace:*",
+        "@nook/workspace": "workspace:*",
         "ts-pattern": "5.9.0",
+      },
+    },
+    "packages/workspace": {
+      "name": "@nook/workspace",
+      "version": "0.1.0",
+      "dependencies": {
+        "@nook/shared": "workspace:*",
+        "yaml": "2.9.1",
       },
     },
   },
@@ -224,8 +224,6 @@
 
     "@nook/core": ["@nook/core@workspace:packages/core"],
 
-    "@nook/desk": ["@nook/desk@workspace:packages/desk"],
-
     "@nook/engineering": ["@nook/engineering@workspace:packages/engineering"],
 
     "@nook/issues": ["@nook/issues@workspace:packages/issues"],
@@ -237,6 +235,8 @@
     "@nook/web": ["@nook/web@workspace:apps/web"],
 
     "@nook/wiki": ["@nook/wiki@workspace:packages/wiki"],
+
+    "@nook/workspace": ["@nook/workspace@workspace:packages/workspace"],
 
     "@radix-ui/number": ["@radix-ui/number@1.1.3", "", {}, "sha512-Road2bidD0uu/1BGDOWNdPI06g0lIRy6IF9GZcIrDK2KGItfor8IQwQa+yM2ERgHM1MmHxaxpTzk0/Jp42lNfA=="],
 

@@ -73,7 +73,7 @@
   [data-tone='ink'] { --t: var(--fg); --t-subtle: var(--bg-muted); }
   * { border-color: var(--border); }
   body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); }
-  /* a document of the desk keeps the lists that the preflight takes away */
+  /* a document of the workspace keeps the lists that the preflight takes away */
   .nk-doc__body ul { list-style: disc; }
   .nk-doc__body ol { list-style: decimal; }
   .nk-doc__body li + li { margin-top: 6px; }

@@ -2,7 +2,7 @@
 
 Your standards for Claude Code, in any folder.
 
-> In short: run `nook init` in a folder, and that folder becomes a **desk**. Claude Code then works there by your rules: one flow for each piece of work, gates that only you take, guards that keep secrets and trackers safe, a wiki, and courses. Every folder inside the desk gets the same rules.
+> In short: run `nook init` in a folder, and that folder becomes a **workspace**. Claude Code then works there by your rules: one flow for each piece of work, gates that only you take, guards that keep secrets and trackers safe, a wiki, and courses. Every folder inside the workspace gets the same rules.
 
 ## Why Nook
 
@@ -10,10 +10,10 @@ Claude Code is strong, but it starts each session with no memory of your way of 
 
 | Without Nook | With Nook |
 |---|---|
-| You repeat your rules in each session. | The rules of the desk load in each session, in each folder below it. |
+| You repeat your rules in each session. | The rules of the workspace load in each session, in each folder below it. |
 | The agent decides when the work is done. | A work item stops at two gates: you approve the plan, and you accept the result. |
 | The agent can read a `.env` file or write to a ticket. | Hooks block secrets, forced pushes, and every write to Jira or GitHub issues. |
-| What the agent learns is lost with the session. | The lasting facts go into the wiki of the desk, with their sources. |
+| What the agent learns is lost with the session. | The lasting facts go into the wiki of the workspace, with their sources. |
 
 ## A day with Nook
 
@@ -51,9 +51,9 @@ claude plugin install nk-issues@nook
 
 `nook --help` lists the commands when the install works.
 
-## Make a desk
+## Make a workspace
 
-In the folder that you want as a desk:
+In the folder that you want as a workspace:
 
 ```sh
 nook init --pack engineering,wiki,learn
@@ -63,20 +63,20 @@ Then start Claude Code in that folder and type `/setup`. The skill reads the dis
 
 `nook init` writes only the lines that it marks. Each other line of your `CLAUDE.md` and your settings stays yours.
 
-## Desks nest
+## Workspaces nest
 
-A folder with `nook.yml` is a desk. Its packs and rules reach every folder inside it.
+A folder with `nook.yml` is a workspace. Its packs and rules reach every folder inside it.
 
 ```
-company/            a top desk: engineering, issue-tracker
-├── shop/           a child desk: adds the wiki
+company/            a top workspace: engineering, issue-tracker
+├── shop/           a child workspace: adds the wiki
 └── billing/        no nook.yml: gets the packs of company/
-personal/           a second top desk: engineering, wiki, learn
+personal/           a second top workspace: engineering, wiki, learn
 ```
 
 - Claude Code reads `CLAUDE.md` and `.claude/rules/` from each folder above a session, so the rules flow down.
 - The plugins are on for your user. Each hook finds the nearest `nook.yml` above the session before it acts.
-- A child desk adds a pack or turns one off. Two desks side by side share nothing.
+- A child workspace adds a pack or turns one off. Two workspaces side by side share nothing.
 
 ## Packs
 
@@ -105,13 +105,13 @@ The guards are hooks and permission rules. A guard that cannot decide blocks the
 
 ## The web app
 
-`nook web` shows the desk in the browser, on `127.0.0.1` only: the board of the items, each item with its spec, plan, slices and timeline, the wiki, the courses, and a search box over all of them. The page updates live when a file changes.
+`nook web` shows the workspace in the browser, on `127.0.0.1` only: the board of the items, each item with its spec, plan, slices and timeline, the wiki, the courses, and a search box over all of them. The page updates live when a file changes.
 
 Any browser on your machine can read the pages. A move, such as an approve, needs a browser that you paired with `nook web pair`, so an agent can never take your gate through the web app. Only you start the app, from your own terminal.
 
 ## State of the build
 
-Nook is in daily use on real desks. The engineering pack has taken items end to end; the wiki and learn are built and wait for more use.
+Nook is in daily use on real workspaces. The engineering pack has taken items end to end; the wiki and learn are built and wait for more use.
 
 | Step | State |
 |---|---|
@@ -126,7 +126,7 @@ Nook is in daily use on real desks. The engineering pack has taken items end to 
 
 | Read | When |
 |---|---|
-| [The guide book](docs/guide/README.md) | you want to use Nook: start, desks, a day, work, the wiki, learn |
+| [The guide book](docs/guide/README.md) | you want to use Nook: start, workspaces, a day, work, the wiki, learn |
 | [The reference](docs/reference/) | you need the exact contract of a pack: [core](docs/reference/core.md), [engineering](docs/reference/engineering.md), [issue-tracker](docs/reference/issues.md), [wiki](docs/reference/wiki.md), [learn](docs/reference/learn.md) |
 | [The build report](docs/report.md) | you want the parts, the numbers, the limits and the next steps |
 | [CLAUDE.md](CLAUDE.md) | you change Nook itself: the map of the repo, its checks and its rules |
@@ -138,7 +138,7 @@ Nook is a Bun workspace in TypeScript: one binary in `apps/nook`, one package fo
 ```sh
 bun run check      # the type check and every test
 bun run e2e        # builds the web app under Node and checks its pages in headless Chrome
-bun run demo <dir> # makes a desk with sample items, to look at the web app
+bun run demo <dir> # makes a workspace with sample items, to look at the web app
 ```
 
 ## Licence

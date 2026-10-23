@@ -2,7 +2,7 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { uiKit } from '@nook/desk/ui-kit.ts'
+import { uiKit } from '@nook/workspace/ui-kit.ts'
 import { runCommand } from '@nook/shared/run.ts'
 
 export type Diagram = { name: string; spec: object }

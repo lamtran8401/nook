@@ -16,9 +16,9 @@ The plan is `docs/plan/kinds.md`. Each row must pass before the step is done.
 | K3 | a fix whose `spec.md` has no `## Reproduce` | `agree` runs | it refuses and names the missing section |
 | K4 | a fix with `## Reproduce`, `## Actual` and `## Expected` filled | `agree` runs | the sections pass |
 | K5 | a fix in cooking with no `root-cause.md` | `submit` runs | it refuses and names the file and its shape |
-| K6 | a desk with `engineering.rootCauses` and a `root-cause.md` whose type is not on the list | `submit` runs | it refuses and lists the types of the desk |
+| K6 | a workspace with `engineering.rootCauses` and a `root-cause.md` whose type is not on the list | `submit` runs | it refuses and lists the types of the workspace |
 | K7 | a `root-cause.md` with the type of `engineering.unknownRootCause` and no `reason` | `submit` runs | it refuses and asks for the reason |
-| K8 | a desk with no list, and a `root-cause.md` with a type and an analysis | `submit` runs | the check passes; the ledger holds the type |
+| K8 | a workspace with no list, and a `root-cause.md` with a type and an analysis | `submit` runs | the check passes; the ledger holds the type |
 
 ## Part 3: the investigation
 
@@ -41,9 +41,9 @@ The plan is `docs/plan/kinds.md`. Each row must pass before the step is done.
 
 | # | Given | When | Then |
 |---|---|---|---|
-| K16 | the desk keeps `Sub-Bug` → `fix` (`nook eng kind set`) | `nook eng item new SHOP-31 "x" --type Sub-Bug` runs | the item is a fix; a `--kind` given wins over the map |
-| K17 | a source with `skip: [Release]` and a ticket of type Release | the pull runs | it stops: the type has no local work in this desk |
-| K18 | a ticket of a type that the desk does not know | the pull runs, then `/spec` | the pull writes the row `Type:`; triage decides the kind; `/spec` asks once to keep it |
+| K16 | the workspace keeps `Sub-Bug` → `fix` (`nook eng kind set`) | `nook eng item new SHOP-31 "x" --type Sub-Bug` runs | the item is a fix; a `--kind` given wins over the map |
+| K17 | a source with `skip: [Release]` and a ticket of type Release | the pull runs | it stops: the type has no local work in this workspace |
+| K18 | a ticket of a type that the workspace does not know | the pull runs, then `/spec` | the pull writes the row `Type:`; triage decides the kind; `/spec` asks once to keep it |
 | K19 | a ticket with a parent in the tracker | the pull runs | `ticket.md` has a row `Parent: SHOP-12`; `/intake` sets the parent of the item |
 
 ## Part 6: the metrics

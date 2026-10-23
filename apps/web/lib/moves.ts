@@ -61,11 +61,11 @@ function parsed(json: string | undefined): unknown {
   }
 }
 
-/** Runs the move in the desk; a refused move gives the lines of the CLI, its gaps and their fixes, word for word. */
-export function runMove(form: MoveForm, desk: string, env: NodeJS.ProcessEnv = process.env): MoveResult {
+/** Runs the move in the workspace; a refused move gives the lines of the CLI, its gaps and their fixes, word for word. */
+export function runMove(form: MoveForm, workspace: string, env: NodeJS.ProcessEnv = process.env): MoveResult {
   const args = moveArgs(form)
   if (!Array.isArray(args)) return { ok: false, lines: [args.refused] }
-  const run = runCommand([...nookCommand(env), ...args], { cwd: desk, env, timeoutMs: 120_000 })
+  const run = runCommand([...nookCommand(env), ...args], { cwd: workspace, env, timeoutMs: 120_000 })
   const text = (run.code === 0 ? run.out : run.err.trim() || run.out).trim()
   const lines = text.split('\n').filter(line => line.trim())
   // a move that dies with no words, such as a time limit or a program that does not start, still says so

@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 
 import { readBoard } from '@nook/engineering/read/reader.ts'
 
-import { desk, evaluate, open, press, startBrowser, stopBrowser, until } from './browser.ts'
+import { workspace, evaluate, open, press, startBrowser, stopBrowser, until } from './browser.ts'
 
 beforeAll(startBrowser, 400_000)
 afterAll(stopBrowser)
@@ -22,7 +22,7 @@ describe('the inbox in a real browser', () => {
     await until(`[...document.querySelectorAll('[role=alertdialog] h2')].some(h => h.textContent === 'Approve SHOP-43?')`)
     await evaluate(`[...document.querySelectorAll('[role=alertdialog] button')].find(b => b.textContent === 'Cancel').click()`)
     await until(`!document.querySelector('[role=alertdialog]')`)
-    expect(readBoard(desk).find(card => card.id === 'SHOP-43')?.state).toBe('planning')
+    expect(readBoard(workspace).find(card => card.id === 'SHOP-43')?.state).toBe('planning')
   }, 60_000)
 
   test('a click picks a row, and R puts the cursor in its answer box', async () => {

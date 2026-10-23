@@ -7,9 +7,9 @@ const YELLOW = 33
 const RED = 31
 const MAGENTA = 35
 
-export function banner(options: { version: string; url: string; desks: string[]; color: boolean }): string {
-  const { version, url, desks, color } = options
-  return [`   ${paint(MAGENTA, bold(`▲ Next.js ${version}`, color), color)}`, `   - Local:   ${url}`, `   - Desks:   ${desks.join(', ')}`, ''].join('\n')
+export function banner(options: { version: string; url: string; workspaces: string[]; color: boolean }): string {
+  const { version, url, workspaces, color } = options
+  return [`   ${paint(MAGENTA, bold(`▲ Next.js ${version}`, color), color)}`, `   - Local:   ${url}`, `   - Workspaces:   ${workspaces.join(', ')}`, ''].join('\n')
 }
 
 export const readyLine = (ms: number, color: boolean) => ` ${paint(GREEN, '✓', color)} Ready in ${Math.round(ms)}ms`

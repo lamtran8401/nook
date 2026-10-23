@@ -3,7 +3,7 @@ import { join } from 'node:path'
 
 import { parse } from 'yaml'
 
-import { NOOK_FILE } from '@nook/desk/desks.ts'
+import { NOOK_FILE } from '@nook/workspace/workspaces.ts'
 import { usage } from '@nook/shared/errors.ts'
 
 /** The `engineering` section of nook.yml (docs/reference/engineering.md section 2). Each fault names its fix. */
@@ -49,7 +49,7 @@ export class EngineeringConfig {
   readonly missing: boolean
   /** True when the section still has `tracker:`, which moved to the pack issue-tracker. */
   readonly oldTracker: boolean
-  /** The root cause types of a fix in this desk; none means any type passes. */
+  /** The root cause types of a fix in this workspace; none means any type passes. */
   readonly rootCauses: string[]
   /** The type that means "not known yet": it passes only with a reason. */
   readonly unknownRootCause: string | undefined

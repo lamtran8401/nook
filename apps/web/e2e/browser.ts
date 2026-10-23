@@ -18,7 +18,7 @@ const env = { ...process.env, NOOK_TELEMETRY_DISABLED: '1', NEXT_TELEMETRY_DISAB
 type Page = { send: (method: string, params?: object) => Promise<any>; close: () => void }
 
 let home: string
-export let desk: string
+export let workspace: string
 let server: ChildProcess
 let chrome: ChildProcess
 let page: Page
@@ -93,16 +93,16 @@ export async function open(path: string) {
 
 let port = 0
 
-/** Builds the app once, makes the demo desk `shop`, starts the server and Chrome at 1440 px, and pairs as the owner. */
+/** Builds the app once, makes the demo workspace `shop`, starts the server and Chrome at 1440 px, and pairs as the owner. */
 export async function startBrowser(): Promise<void> {
   const built = buildOnce()
   if (built.code !== 0) throw new Error(`the build failed: ${built.err || built.out}`)
   home = mkdtempSync(join(tmpdir(), 'nook-shell-'))
-  desk = join(home, 'shop')
-  runCommand(['bun', 'run', 'demo', desk], { cwd: repo, env, timeoutMs: 120_000 })
-  const token = new Pairs(desk).offer()
+  workspace = join(home, 'shop')
+  runCommand(['bun', 'run', 'demo', workspace], { cwd: repo, env, timeoutMs: 120_000 })
+  const token = new Pairs(workspace).offer()
   port = await freePort()
-  server = spawn('node', ['server.ts'], { cwd: web, env: { ...env, NOOK_DESK: desk, XDG_CONFIG_HOME: home, NOOK_WEB_PORT: String(port) }, stdio: ['pipe', 'pipe', 'pipe'] })
+  server = spawn('node', ['server.ts'], { cwd: web, env: { ...env, NOOK_WORKSPACE: workspace, XDG_CONFIG_HOME: home, NOOK_WEB_PORT: String(port) }, stdio: ['pipe', 'pipe', 'pipe'] })
   await seen(server, /Ready in/, 'stdout')
   chrome = spawn(chromePath(), ['--headless=new', '--disable-gpu', '--no-first-run', '--remote-debugging-port=0', `--user-data-dir=${join(home, 'chrome')}`, '--window-size=1440,1000', 'about:blank'], { stdio: ['ignore', 'pipe', 'pipe'] })
   const browser = await seen(chrome, /DevTools listening on (ws:\S+)/, 'stderr')

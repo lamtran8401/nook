@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { pluginDir } from '@nook/desk/desks.ts'
+import { pluginDir } from '@nook/workspace/workspaces.ts'
 
 import { flowOf } from '../flows.ts'
 import { now } from '../ledger.ts'

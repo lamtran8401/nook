@@ -101,8 +101,8 @@ describe('readJira', () => {
     expect(readJira({ ...JIRA, fields: { ...JIRA.fields, points: 'customfield_10016' } }, 'SHOP-12', twg([], pointed)).ticket.fields).toContainEqual(['Points', '8'])
   })
 
-  test('a type in skip stops the pull: it has no local work in this desk', () => {
-    expect(() => readJira({ ...JIRA, skip: ['Story'] }, 'SHOP-12', twg())).toThrow(expect.objectContaining({ code: 3, message: 'SHOP-12 is a Story: that type has no local work in this desk', fix: 'pull a ticket of another type, or take Story out of skip of the source in nook.yml' }))
+  test('a type in skip stops the pull: it has no local work in this workspace', () => {
+    expect(() => readJira({ ...JIRA, skip: ['Story'] }, 'SHOP-12', twg())).toThrow(expect.objectContaining({ code: 3, message: 'SHOP-12 is a Story: that type has no local work in this workspace', fix: 'pull a ticket of another type, or take Story out of skip of the source in nook.yml' }))
   })
 
   test('takes the files from the attachment query, not from the item', () => {

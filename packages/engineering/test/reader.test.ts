@@ -13,7 +13,7 @@ beforeEach(() => {
 afterEach(() => t.cleanup())
 
 describe('readAreas', () => {
-  test('gives the areas of the desk in the order of nook.yml', () => {
+  test('gives the areas of the workspace in the order of nook.yml', () => {
     expect(readAreas(t.root)).toEqual(['bff', 'web'])
   })
 
@@ -28,7 +28,7 @@ describe('readAreas', () => {
 })
 
 describe('readSettings', () => {
-  test('gives the areas with their checks, the kinds that the desk learned, and the root cause types', () => {
+  test('gives the areas with their checks, the kinds that the workspace learned, and the root cause types', () => {
     t.eng(LEAD).setTypeKind('Sub-Bug', 'fix')
     const settings = readSettings(t.root)!
     expect(settings.areas.map(a => [a.name, a.path, a.kind, a.checks.join(' ')])).toEqual([['bff', 'projects/bff', 'backend', 'sh test.sh'], ['web', 'projects/web', 'frontend', 'sh test.sh']])
@@ -47,7 +47,7 @@ describe('readSettings', () => {
 })
 
 describe('readMetrics', () => {
-  test('gives the metrics of the last 30 days from the ledger of the desk', () => {
+  test('gives the metrics of the last 30 days from the ledger of the workspace', () => {
     itemAt(t, 'ready')
     expect(readMetrics(t.root)).toMatchObject({ rework: { part: 0, whole: 0, rejects: 0 }, approveWait: { count: 1 } })
   })

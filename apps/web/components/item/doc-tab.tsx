@@ -30,7 +30,7 @@ const WRITES: Record<DocName, [before: string, command: string]> = {
   findings: ['The findings come with the work of the investigation. Type', '/cook'],
 }
 
-const ROOT_CAUSE_ABOUT = 'The earliest point where the bug was made. Retro counts each type across the desk.'
+const ROOT_CAUSE_ABOUT = 'The earliest point where the bug was made. Retro counts each type across the workspace.'
 
 /** The type of a root cause from the front matter of root-cause.md, with the reason of a type that is not known yet. */
 function RootCauseType({ meta }: { meta: Record<string, string> }) {

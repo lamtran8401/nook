@@ -7,7 +7,7 @@ import { Board } from '@/components/board.tsx'
 import type { BoardOptions } from '@/lib/board.ts'
 import { Diagram } from '@/components/diagram.tsx'
 import { Gap } from '@/components/gap.tsx'
-import { isCurrentPage } from '@/components/desk-nav.tsx'
+import { isCurrentPage } from '@/components/workspace-nav.tsx'
 import { html, text } from '@/test/markup.ts'
 
 const card = (fields: Partial<BoardCard> = {}): BoardCard => ({
@@ -59,7 +59,7 @@ describe('Board', () => {
     expect(row).toContain('href="/personal/works/SHOP-12?tab=spec"')
   })
 
-  test('says so when the desk has no item', () => {
+  test('says so when the workspace has no item', () => {
     expect(text(html(<Board cards={[]} options={BOARD} base="/personal" />))).toBe('No item yet Type /intake in the agent session to start one.')
   })
 })
@@ -72,7 +72,7 @@ describe('Diagram', () => {
 })
 
 describe('isCurrentPage', () => {
-  test('marks the page of an address and of each address under it; the home of a desk marks only itself', () => {
+  test('marks the page of an address and of each address under it; the home of a workspace marks only itself', () => {
     expect(isCurrentPage('/personal/works/SHOP-12', '/personal/works', '/personal')).toBe(true)
     expect(isCurrentPage('/personal/works', '/personal/works', '/personal')).toBe(true)
     expect(isCurrentPage('/personal/works/SHOP-12', '/personal', '/personal')).toBe(false)
@@ -81,9 +81,9 @@ describe('isCurrentPage', () => {
 })
 
 describe('Gap', () => {
-  test('shows a gap of the desk and its fix in place of the data', () => {
-    const markup = html(<Gap error={refused('the ledger needs 1 migration', 'run any `nook eng` command in the desk')} />)
+  test('shows a gap of the workspace and its fix in place of the data', () => {
+    const markup = html(<Gap error={refused('the ledger needs 1 migration', 'run any `nook eng` command in the workspace')} />)
     expect(markup).toContain('data-slot="alert" data-tone="warning"')
-    expect(text(markup)).toBe('! The ledger needs 1 migration Fix: run any `nook eng` command in the desk')
+    expect(text(markup)).toBe('! The ledger needs 1 migration Fix: run any `nook eng` command in the workspace')
   })
 })

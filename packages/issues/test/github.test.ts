@@ -17,9 +17,9 @@ describe('resolveRef', () => {
     expect(resolveRef('acme/web#9', config)).toMatchObject({ key: 'WEB-9', number: 9, source: { repo: 'acme/web' } })
   })
 
-  test('a ref of no source of the desk stops with the forms that work', () => {
-    expect(() => resolveRef('other/repo#1', config)).toThrow(expect.objectContaining({ message: 'other/repo#1 names no source of this desk', fix: 'use a Jira key such as SHOP-12, a prefix such as GH-482, or a repo of issue-tracker.sources, such as acme/shop#482' }))
-    expect(() => resolveRef('482', config)).toThrow(expect.objectContaining({ message: '482 names no source of this desk' }))
+  test('a ref of no source of the workspace stops with the forms that work', () => {
+    expect(() => resolveRef('other/repo#1', config)).toThrow(expect.objectContaining({ message: 'other/repo#1 names no source of this workspace', fix: 'use a Jira key such as SHOP-12, a prefix such as GH-482, or a repo of issue-tracker.sources, such as acme/shop#482' }))
+    expect(() => resolveRef('482', config)).toThrow(expect.objectContaining({ message: '482 names no source of this workspace' }))
   })
 })
 

@@ -19,7 +19,7 @@ const typing = (target: EventTarget | null) => target instanceof HTMLElement && 
 /**
  * The menu of ⌘K: the commands by group, filtered by the words typed, run with Enter. It also runs the key sequence of
  * a command while it is closed, such as G then B, when no field has the focus. `extra` adds commands for the words,
- * such as a search of the desk.
+ * such as a search of the workspace.
  */
 export function CommandMenu({ commands, extra = () => [] }: { commands: Command[]; extra?: (words: string) => Command[] }) {
   const [open, setOpen] = useState(false)
@@ -93,7 +93,7 @@ export function CommandMenu({ commands, extra = () => [] }: { commands: Command[
                 setWords(event.target.value)
                 setAt(0)
               }}
-              placeholder="Type an item, a page, a desk or a move"
+              placeholder="Type an item, a page, a workspace or a move"
               aria-label="Search or run"
               className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground"
             />
@@ -131,7 +131,7 @@ export function CommandMenu({ commands, extra = () => [] }: { commands: Command[
                 </div>
               ))
             ) : (
-              <p className="px-4 py-5 text-sm text-muted-foreground">Nothing matches. Try an item id, a page or a desk.</p>
+              <p className="px-4 py-5 text-sm text-muted-foreground">Nothing matches. Try an item id, a page or a workspace.</p>
             )}
           </div>
           <div className="flex flex-wrap gap-3.5 border-t border-[var(--hairline)] px-4 py-2.5 text-xs text-muted-foreground">

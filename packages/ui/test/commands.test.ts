@@ -8,12 +8,12 @@ const commands: Command[] = [
   { id: 'item-SHOP-42', group: 'Items', label: 'SHOP-42 Pay for an order with a saved card', sub: 'cooking', run },
   { id: 'page-works', group: 'Go to', label: 'Board', sub: 'page', keys: ['g', 'b'], run },
   { id: 'page-wiki', group: 'Go to', label: 'Wiki', sub: 'page', keys: ['g', 'w'], run },
-  { id: 'desk-company', group: 'Desks', label: 'company', sub: '7 open items', run },
+  { id: 'workspace-company', group: 'Workspaces', label: 'company', sub: '7 open items', run },
 ]
 
 describe('the commands of the menu', () => {
   test('with no words every command shows, in the groups of their first appearance', () => {
-    expect(groupsOf(visibleCommands(commands, '')).map(([group, list]) => `${group}:${list.length}`)).toEqual(['Your moves:1', 'Items:1', 'Go to:2', 'Desks:1'])
+    expect(groupsOf(visibleCommands(commands, '')).map(([group, list]) => `${group}:${list.length}`)).toEqual(['Your moves:1', 'Items:1', 'Go to:2', 'Workspaces:1'])
   })
 
   test('the words keep the commands whose label or note holds them, in any case', () => {

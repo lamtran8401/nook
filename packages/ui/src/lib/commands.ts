@@ -1,4 +1,4 @@
-/** One command of the menu: a move, an item, a page or a desk. `keys` is its key sequence, such as G then B. */
+/** One command of the menu: a move, an item, a page or a workspace. `keys` is its key sequence, such as G then B. */
 export type Command = { id: string; group: string; label: string; sub?: string; tone?: string; keys?: string[]; run: () => void }
 
 /** The commands whose label or note holds the words, in their order; no words keep them all. */

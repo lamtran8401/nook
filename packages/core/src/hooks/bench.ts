@@ -1,4 +1,4 @@
-import { checkSpec } from '@nook/desk/bench-check.ts'
+import { checkSpec } from '@nook/workspace/bench-check.ts'
 
 /** The `bench` blocks of a Markdown file that do not draw, each with its line and its problems. */
 

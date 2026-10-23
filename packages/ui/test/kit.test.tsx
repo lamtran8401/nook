@@ -155,7 +155,7 @@ describe('Group', () => {
   })
 
   test('a head with no link is plain', () => {
-    expect(html(<Group head="This desk"><GroupLine>words</GroupLine></Group>)).not.toContain('<a')
+    expect(html(<Group head="This workspace"><GroupLine>words</GroupLine></Group>)).not.toContain('<a')
   })
 })
 

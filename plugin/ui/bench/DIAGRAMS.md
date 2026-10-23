@@ -377,12 +377,12 @@ The last row of the table gives the total of each option.
 
 ## space
 
-A space map shows what lives inside what: a desk, its folders, and the parts in each folder. Groups nest; a group holds nodes, rows and other groups.
+A space map shows what lives inside what: a workspace, its folders, and the parts in each folder. Groups nest; a group holds nodes, rows and other groups.
 
 | Field | Default | Meaning |
 |---|---|---|
 | `type` | required | `"space"` |
-| `badges` | none | The chips at the top, such as the packs of a desk. |
+| `badges` | none | The chips at the top, such as the packs of a workspace. |
 | `cols` | `2` | The columns of the top groups. |
 | `items` | required | The top groups. |
 

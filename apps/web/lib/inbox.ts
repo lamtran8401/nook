@@ -1,4 +1,4 @@
-import type { BriefItem, BriefLine } from '@nook/desk/desks.ts'
+import type { BriefItem, BriefLine } from '@nook/workspace/workspaces.ts'
 
 /** One move that waits for the owner, as a row of the inbox: a gate, a blocking question, or a command to type. */
 export type InboxRowData = { key: string; tone: 'danger' | 'warning'; item?: BriefItem; title: string; sub: string; gate?: 'approve' | 'accept'; question?: string; command?: string }

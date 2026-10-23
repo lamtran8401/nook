@@ -69,9 +69,9 @@ function commentsOf(item: Item) {
   return (raw as Record<string, unknown>[]).map(c => ({ author: valueText(c.author) ?? 'someone', at: String(c.created ?? '').slice(0, 10), body: valueText(c.body) ?? '' }))
 }
 
-/** A type in `skip` of the source stops the pull: it has no local work in this desk. */
+/** A type in `skip` of the source stops the pull: it has no local work in this workspace. */
 function refuseSkipped(source: JiraSource, key: string, type: string): void {
-  if (source.skip.includes(type)) throw refused(`${key} is a ${type}: that type has no local work in this desk`, `pull a ticket of another type, or take ${type} out of skip of the source in nook.yml`)
+  if (source.skip.includes(type)) throw refused(`${key} is a ${type}: that type has no local work in this workspace`, `pull a ticket of another type, or take ${type} out of skip of the source in nook.yml`)
 }
 
 /** Reads one work item and its files through twg, which holds the login. An Epic stops the read. */

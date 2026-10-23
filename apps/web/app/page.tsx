@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation'
 
-import { listDesks } from '@/lib/desks.ts'
+import { listWorkspaces } from '@/lib/workspaces.ts'
 
 export const dynamic = 'force-dynamic'
 
-/** The address of the app goes to the desk where `nook web` started. */
+/** The address of the app goes to the workspace where `nook web` started. */
 export default function Root() {
-  redirect(`/${listDesks()[0]!.slug}`)
+  redirect(`/${listWorkspaces()[0]!.slug}`)
 }

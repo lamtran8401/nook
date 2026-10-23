@@ -1,6 +1,6 @@
 # Plan: kinds and their flows
 
-> In short: each kind of item gets one flow file that says what the kind needs, and the guards read it. A fix needs its repro and a root cause before review. An investigation leaves results, with code or with none. A sub-bug is an item under its story, and the story waits for it. The desk learns the kind of each ticket type from the answers of the owner, with no vendor and no setup.
+> In short: each kind of item gets one flow file that says what the kind needs, and the guards read it. A fix needs its repro and a root cause before review. An investigation leaves results, with code or with none. A sub-bug is an item under its story, and the story waits for it. The workspace learns the kind of each ticket type from the answers of the owner, with no vendor and no setup.
 
 ## Why
 
@@ -18,7 +18,7 @@
 | fix | the documents of a feature | `spec.md` has `## Reproduce`, `## Actual` and `## Expected`; `submit` needs `root-cause.md` |
 | investigation | questions, `findings.md`, no slices | questions, `findings.md` with a `## Results` part; slices and areas are optional |
 | sub-bug | no place | an item of kind `fix` with a `parent`; the `accept` of the parent waits for each open child |
-| ticket types | not read | the desk learns the kind of each type (`nook eng kind set`); `item new --type` uses it; a source can skip the types with no local work |
+| ticket types | not read | the workspace learns the kind of each type (`nook eng kind set`); `item new --type` uses it; a source can skip the types with no local work |
 | metrics | no root cause | `nook eng metrics` and `nook retro` count the root causes of the fixes |
 
 ## The flow file
@@ -62,7 +62,7 @@ The flows of `feature` and `chore` hold the rules of today. The first slice move
 
 - A fix writes `works/<id>/root-cause.md`: front matter `type`, and the analysis in a few lines under it.
 - `submit` refuses a fix with no file, no `type` or no analysis. The refusal names the file to write.
-- A desk lists its types in `nook.yml` as `engineering.rootCauses`. With a list, `submit` refuses a type that is not on it and names the list. With no list, any type passes.
+- A workspace lists its types in `nook.yml` as `engineering.rootCauses`. With a list, `submit` refuses a type that is not on it and names the list. With no list, any type passes.
 - `engineering.unknownRootCause` names the type that means "not known yet", such as `Unknown`. That type passes only with a `reason` in the front matter.
 - `submit` copies the type into the ledger, so the metrics count it.
 - The action that prevents the cause comes from a team session later. Nook does not ask for it.
@@ -77,9 +77,9 @@ The flows of `feature` and `chore` hold the rules of today. The first slice move
 ## Ticket types
 
 - The pull writes the type of a ticket as a row `Type:` of Fields. A pasted ticket with a `Type:` line works the same.
-- The ledger keeps the kind of each type that the desk learned: `nook eng kind set Sub-Bug fix`. No vendor is in the map.
+- The ledger keeps the kind of each type that the workspace learned: `nook eng kind set Sub-Bug fix`. No vendor is in the map.
 - `item new --type Sub-Bug` with no `--kind` takes the learned kind. Triage takes it as its first answer.
-- A type that the desk does not know: triage decides from the ticket, and `/spec` asks once to keep the kind of that type.
+- A type that the workspace does not know: triage decides from the ticket, and `/spec` asks once to keep the kind of that type.
 - A source can list `skip`, such as `[Release, Test]`: a pull of such a type stops, with no local work. Every other type is pulled.
 
 ## Order
@@ -87,7 +87,7 @@ The flows of `feature` and `chore` hold the rules of today. The first slice move
 | # | Slice | Proof |
 |---|---|---|
 | F1 | the four flow files and their reader; each guard asks the flow; no change of behavior | the tests of today pass; a test per rule of the reader; `nook doctor` names an unknown rule |
-| F2 | the fix: the three sections and `root-cause.md` at submit, the list of the desk | K3 to K8 |
+| F2 | the fix: the three sections and `root-cause.md` at submit, the list of the workspace | K3 to K8 |
 | F3 | the investigation: `## Results`, and slices and areas optional | K9 to K11 |
 | F4 | the parent: migration, `accept` waits, `item detach` | K12 to K15 |
 | F5 | the ticket types: the learned map, `item new --type`, `skip`, the parent row | K16 to K19 |
@@ -96,7 +96,7 @@ The flows of `feature` and `chore` hold the rules of today. The first slice move
 
 ## Out of scope
 
-- A flow file of a desk that replaces the flow of the pack.
+- A flow file of a workspace that replaces the flow of the pack.
 - The bug type and the escape reason: QA sets them in the tracker.
 - Any write to the tracker, and a link of slices to the sub-items of the tracker. Slices stay local.
 - Environments and deploys.
@@ -108,5 +108,5 @@ The flows of `feature` and `chore` hold the rules of today. The first slice move
 |---|---|
 | F1 changes a rule while it moves | F1 changes no test of today; a test that changes shows a moved rule |
 | an open fix of today meets the new submit check | the refusal names `root-cause.md` and its shape; the fix is a few lines |
-| a desk list of root causes reaches the public repo | the list lives only in the `nook.yml` of the desk; the docs use a sample list |
-| the tracker gives the parent in another shape | the reader takes the documented `parent` field; a pull on a desk with a Jira login checks it |
+| a workspace list of root causes reaches the public repo | the list lives only in the `nook.yml` of the workspace; the docs use a sample list |
+| the tracker gives the parent in another shape | the reader takes the documented `parent` field; a pull on a workspace with a Jira login checks it |

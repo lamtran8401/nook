@@ -1,6 +1,6 @@
 # Engineering
 
-These rules hold in every folder of this desk. Hooks enforce the moves of the owner, the frozen documents and the edit scope.
+These rules hold in every folder of this workspace. Hooks enforce the moves of the owner, the frozen documents and the edit scope.
 
 ## The flow
 

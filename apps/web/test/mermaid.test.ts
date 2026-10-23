@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { checkSpec } from '@nook/desk/bench-check.ts'
+import { checkSpec } from '@nook/workspace/bench-check.ts'
 
 import { parseDoc } from '@/lib/blocks.ts'
 

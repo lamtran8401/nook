@@ -1,6 +1,6 @@
 import { basename } from 'node:path'
 
-import { activeFeatures, type BriefLine, type FeatureModule, type Finding } from '@nook/desk/desks.ts'
+import { activeFeatures, type BriefLine, type FeatureModule, type Finding } from '@nook/workspace/workspaces.ts'
 
 import { doctor } from '../doctor/doctor.ts'
 

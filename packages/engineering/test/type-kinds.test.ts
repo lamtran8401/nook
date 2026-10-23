@@ -10,7 +10,7 @@ beforeEach(() => {
 })
 afterEach(() => t.cleanup())
 
-describe('the kind of each ticket type, learned in the desk', () => {
+describe('the kind of each ticket type, learned in the workspace', () => {
   test('kind set keeps the kind of a type, and a second set replaces it', () => {
     const lead = t.eng(LEAD)
     lead.setTypeKind('Sub-Bug', 'fix')

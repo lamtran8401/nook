@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, renameSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
-import type { GateResult, FeatureModule } from '@nook/desk/desks.ts'
+import type { GateResult, FeatureModule } from '@nook/workspace/workspaces.ts'
 import { EvError } from '@nook/shared/errors.ts'
 
 import { DEFAULTS, LEGACY_DIR } from './config.ts'

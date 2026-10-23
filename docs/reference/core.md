@@ -1,6 +1,6 @@
 # The core: the contract
 
-> In short: the core is what every desk has: the `nook` tool, `nook.yml`, the base rules, the persona, the secret guards, the writing check and the owner's gate. The code is in `packages/core/`, `packages/desk/` and `packages/shared/`; the plugin is `plugins/core/`.
+> In short: the core is what every workspace has: the `nook` tool, `nook.yml`, the base rules, the persona, the secret guards, the writing check and the owner's gate. The code is in `packages/core/`, `packages/workspace/` and `packages/shared/`; the plugin is `plugins/core/`.
 
 When the code and this file do not agree, fix one of them in the same change.
 
@@ -8,11 +8,11 @@ When the code and this file do not agree, fix one of them in the same change.
 
 | Word | Meaning |
 |---|---|
-| desk | a folder with `nook.yml` |
-| top desk | a desk with no desk above it, such as `company/` |
-| child desk | a desk inside another desk, such as `company/shop/` |
+| workspace | a folder with `nook.yml` |
+| top workspace | a workspace with no workspace above it, such as `company/` |
+| child workspace | a workspace inside another workspace, such as `company/shop/` |
 | pack | a plugin with rules, settings keys, state, skills, agents and hooks: core, engineering, issue-tracker, wiki, learn |
-| home of a pack | the nearest desk above a folder that turns the pack on; the record of the pack lives there |
+| home of a pack | the nearest workspace above a folder that turns the pack on; the record of the pack lives there |
 | owner | the person; a process that Claude Code did not start, or a move that the owner typed |
 
 ## 2. The file `nook.yml`
@@ -20,7 +20,7 @@ When the code and this file do not agree, fix one of them in the same change.
 ```yaml
 packs: [engineering, wiki]          # or { on: [engineering], off: [wiki] }
 rules: { off: [writing] }           # base rules that init does not write
-secrets: [config/prod.yml]          # more secret files, relative to this desk; paths only
+secrets: [config/prod.yml]          # more secret files, relative to this workspace; paths only
 
 engineering: { ... }                # one section for each pack, read by that pack
 ```
@@ -38,16 +38,16 @@ A fault stops the command and names the key: `packs.on must be a list of strings
 
 | Command | What it does |
 |---|---|
-| `nook init [--pack a,b] [--update]` | makes this folder a desk; `--update` writes again only what Nook owns |
-| `nook doctor` | the desks above, the packs of each, every gap with its fix |
+| `nook init [--pack a,b] [--update]` | makes this folder a workspace; `--update` writes again only what Nook owns |
+| `nook doctor` | the workspaces above, the packs of each, every gap with its fix |
 | `nook packs` | the packs on here, where each keeps its record, and the packs that Nook ships |
-| `nook brief` | what waits for you, what is done since yesterday and what runs, for each desk of the desk list |
-| `nook web [--build]` | the desk in the browser: builds the web app when the Nook code changed, then serves it on `127.0.0.1` until Ctrl-C. The terminal shows the log of Next.js: its own lines, the banner with the address, `✓ Ready in <n>ms`, then one line for each request, such as `GET /works 200 in 12ms`, with no query string |
+| `nook brief` | what waits for you, what is done since yesterday and what runs, for each workspace of the workspace list |
+| `nook web [--build]` | the workspace in the browser: builds the web app when the Nook code changed, then serves it on `127.0.0.1` until Ctrl-C. The terminal shows the log of Next.js: its own lines, the banner with the address, `✓ Ready in <n>ms`, then one line for each request, such as `GET /works 200 in 12ms`, with no query string |
 | `nook web pair` | prints a one-time link that pairs one more browser with the web app that runs |
 | `nook web forget` | removes each paired browser; the pages stay free to read |
-| `nook retro` | the facts since the last retro of this desk: items sent back, guesses flipped, slow questions, weak proofs, the root causes of the fixes, guard blocks by reason |
-| `nook events [--kind block\|error\|prompt] [--since <date>]` | the event log of this desk, oldest first |
-| `nook where` | the desks above this folder and the Nook repo |
+| `nook retro` | the facts since the last retro of this workspace: items sent back, guesses flipped, slow questions, weak proofs, the root causes of the fixes, guard blocks by reason |
+| `nook events [--kind block\|error\|prompt] [--since <date>]` | the event log of this workspace, oldest first |
+| `nook where` | the workspaces above this folder and the Nook repo |
 | `nook ste <file\|folder...> [--min N] [--quiet]` | the writing score of Markdown files; a file passes above `N`, default 80 |
 | `nook hook <name>` | one core hook, with the Claude Code event on stdin |
 
@@ -56,10 +56,10 @@ Each pack adds its commands under its name: `nook eng …`, `nook issues …`, `
 `nook web` runs only in the owner's terminal:
 
 1. It refuses when `CLAUDECODE` is set or a Claude session stands above it, so no agent starts the app or holds a pair token. The shell guard also blocks `nook web` from an agent.
-2. It refuses while the server of an earlier start still runs for the desk.
+2. It refuses while the server of an earlier start still runs for the workspace.
 3. It stops when Node 24 or later is not on the path, and names the install.
 4. It builds `apps/web` when the hash of the sources differs from the stamp of the last build, or with `--build`. The hash covers the web app, the package sources, the `package.json` and `tsconfig` files and `bun.lock`. A failed build names its error lines and starts no server.
-5. It takes the last port of the desk when it is free. When another program holds it, it takes a free port and prints the new address.
+5. It takes the last port of the workspace when it is free. When another program holds it, it takes a free port and prints the new address.
 6. It starts `apps/web/server.ts` under Node and keeps its stdin open. The server stops when `nook web` ends, also when its terminal closes.
 7. It writes the port and the process to `.nook/web.json`. After the stop, the file keeps the port, so a bookmark keeps working.
 8. It pairs the default browser: it opens a link with a new pair token, through a page that only the owner can read.
@@ -79,13 +79,13 @@ The answer to a pair token is a page that sets the cookie and then moves to the 
 
 The shell guard blocks a call to the port in `.nook/web.json` on any spelling of this machine, such as `127.1:<port>`, `localhost <port>` or `/dev/tcp/127.0.0.1/<port>`. A broken `web.json` blocks each shell call until the owner deletes it.
 
-One `nook web` serves each desk of the desk list of the owner (`~/.config/nook/desks`) and the desk where it started. Each desk has its own path: its folder name, such as `/personal`. Two desks with one folder name get a number, such as `/shop-2`. `/` sends the browser to the start desk, and a path of no desk is a 404. One pair lets the owner move items in each desk.
+One `nook web` serves each workspace of the workspace list of the owner (`~/.config/nook/workspaces`) and the workspace where it started. Each workspace has its own path: its folder name, such as `/personal`. Two workspaces with one folder name get a number, such as `/shop-2`. `/` sends the browser to the start workspace, and a path of no workspace is a 404. One pair lets the owner move items in each workspace.
 
 The shell of each page has a sidebar and a top bar:
 
 | Part | It holds |
 |---|---|
-| sidebar | the desk menu (each desk of the list with its count of open items; `nook init` in a folder adds it), the search, the pages that the packs of the desk turn on, the count of open items next to Board, and Settings at its foot |
+| sidebar | the workspace menu (each workspace of the list with its count of open items; `nook init` in a folder adds it), the search, the pages that the packs of the workspace turn on, the count of open items next to Board, and Settings at its foot |
 | top bar | the path of the page, such as `shop / Board / SHOP-42`; it turns to glass when the page scrolls |
 | page head | the title and one line on its use |
 
@@ -93,29 +93,29 @@ The sidebar docks beside the page or hides. `[` switches it; a hidden sidebar fl
 
 | Key | It does |
 |---|---|
-| ⌘K | opens the menu: your moves first, then the items, the pages and the desks |
+| ⌘K | opens the menu: your moves first, then the items, the pages and the workspaces |
 | G, then a letter | opens a page, such as G then B for the board |
 | `[` | docks or hides the sidebar |
 | J, K | pick a row of the inbox |
 | A | runs the gate move of the picked row, after its confirm |
 | R | puts the cursor in the answer box of the picked row |
 
-Each page reads the desk when the browser asks for it. A gap of the desk, such as a ledger that needs a migration, shows with its fix in place of the data. The table names each page under the path of its desk.
+Each page reads the workspace when the browser asks for it. A gap of the workspace, such as a ledger that needs a migration, shows with its fix in place of the data. The table names each page under the path of its workspace.
 
 | Page | It shows |
 |---|---|
-| `/<desk>` | the inbox: a row for each move that waits for you, acted on in place; the receipts of today; four numbers of the last 30 days with a trend of six weeks; the board by step; what the lead runs and what is done since yesterday |
-| `/<desk>/works` | Board: one lane that counts the items of each phase, with their points and what waits for you; a filter by kind; then the layout of the Display menu |
-| `/<desk>/works/<id>` over the board | a click on a card opens the item in a drawer: its facts, the steps, the overview, and the moves of a gate at its foot |
-| `/<desk>/works/<id>` | the item: its head and steps, a tab for the overview, one for each document of its kind and one for the activity, and its details beside them |
-| `/<desk>/wiki` | the shelves and their pages in a side nav, with the drafts that wait for a yes and a card for each shelf |
-| `/<desk>/wiki/<shelf>`, `/<desk>/wiki/<page>` | one shelf, or one page with its blocks and its links, beside the nav; a `[[name]]` links to its page |
-| `/<desk>/learn`, `/<desk>/learn/<course>` | a card for each course; a course gives its cards due, the top patterns of the mistakes, and the bands of each criterion |
-| `/<desk>/search?q=<words>` | each line that holds every word, in the item documents, the wiki and the courses, in groups by file, as a link to its page |
-| `/<desk>/metrics` | the six numbers of `nook eng metrics` for the last 30 days, each with a trend of six weeks; the items done by week; the root causes and the guard blocks as bars |
-| `/<desk>/agents` | a card for each agent and skill of core and of the packs on in the desk, with its job and its pack, under a filter by pack |
-| `/<desk>/events` | the event log of the desk by day, newest first, with a filter by kind |
-| `/<desk>/settings` | the packs, the areas with their checks, the kinds that the desk learned, the root cause types and the path of `nook.yml` |
+| `/<workspace>` | the inbox: a row for each move that waits for you, acted on in place; the receipts of today; four numbers of the last 30 days with a trend of six weeks; the board by step; what the lead runs and what is done since yesterday |
+| `/<workspace>/works` | Board: one lane that counts the items of each phase, with their points and what waits for you; a filter by kind; then the layout of the Display menu |
+| `/<workspace>/works/<id>` over the board | a click on a card opens the item in a drawer: its facts, the steps, the overview, and the moves of a gate at its foot |
+| `/<workspace>/works/<id>` | the item: its head and steps, a tab for the overview, one for each document of its kind and one for the activity, and its details beside them |
+| `/<workspace>/wiki` | the shelves and their pages in a side nav, with the drafts that wait for a yes and a card for each shelf |
+| `/<workspace>/wiki/<shelf>`, `/<workspace>/wiki/<page>` | one shelf, or one page with its blocks and its links, beside the nav; a `[[name]]` links to its page |
+| `/<workspace>/learn`, `/<workspace>/learn/<course>` | a card for each course; a course gives its cards due, the top patterns of the mistakes, and the bands of each criterion |
+| `/<workspace>/search?q=<words>` | each line that holds every word, in the item documents, the wiki and the courses, in groups by file, as a link to its page |
+| `/<workspace>/metrics` | the six numbers of `nook eng metrics` for the last 30 days, each with a trend of six weeks; the items done by week; the root causes and the guard blocks as bars |
+| `/<workspace>/agents` | a card for each agent and skill of core and of the packs on in the workspace, with its job and its pack, under a filter by pack |
+| `/<workspace>/events` | the event log of the workspace by day, newest first, with a filter by kind |
+| `/<workspace>/settings` | the packs, the areas with their checks, the kinds that the workspace learned, the root cause types and the path of `nook.yml` |
 
 The board has a Display menu: the layout, board or list, and the grouping, by phase or by who holds it. Each choice is a link, such as `/works?layout=list&group=holder`, so a view has its own address. By phase, Shape holds framing and planning, Build holds ready and cooking, then Review and Done; the backlog has its own frame under them. A blocked item counts in the step that it left. A card shows its kind, its id, its points, its mode and areas, its title, a bar of the seven steps, and one line with a dot: red when it waits for you, else the tone of its phase. The list folds by group, and a row opens in place with the next move and two links. An empty column says what is empty, such as `No fix items in Done`.
 
@@ -127,13 +127,13 @@ The chart of a course draws a line for each criterion with a score on every day 
 
 The search box reads the Markdown files of each pack again at each search, so a page changed a moment ago gives its new words. It keeps no index. It never reads a secret file and never follows a link.
 
-An open page renders again by itself when the desk changes, with no reload, within a second. `/live` sends an event when a file of a pack folder or the ledger in `.nook/` changes; a burst of writes gives one event. A change in the code of an area sends none.
+An open page renders again by itself when the workspace changes, with no reload, within a second. `/live` sends an event when a file of a pack folder or the ledger in `.nook/` changes; a burst of writes gives one event. A change in the code of an area sends none.
 
-`bun run demo <dir>` builds a desk with mock work items in a new folder: one item in each state of the flow, a fix and an investigation among them, each with its story points, made through the real moves. Open it with `nook web` from a terminal outside Claude Code.
+`bun run demo <dir>` builds a workspace with mock work items in a new folder: one item in each state of the flow, a fix and an investigation among them, each with its story points, made through the real moves. Open it with `nook web` from a terminal outside Claude Code.
 
 In the inbox, a gate row has Review and its move, such as Approve with the key A, and a blocking question takes its answer in its row, with the answer that the lead recommends. A row of no item, such as a gap of `nook doctor`, gives its command with a copy button. At rest no row is picked. A receipt names who did it: YOU, LD for the lead, or the initials of an agent.
 
-`nook doctor` and `nook brief` only read. `readHome(desk, modules)` in `packages/core/src/read.ts` gives the same brief of one desk and the findings of its doctor, for the home page of the web app.
+`nook doctor` and `nook brief` only read. `readHome(workspace, modules)` in `packages/core/src/read.ts` gives the same brief of one workspace and the findings of its doctor, for the home page of the web app.
 
 The exit codes hold for every command except the hooks. A hook exits 0 to let a call go and 2 to block it, as Claude Code reads them.
 
@@ -156,7 +156,7 @@ The exit codes hold for every command except the hooks. A hook exits 0 to let a 
 | the persona | `.claude/output-styles/nook-companion.md` | written again |
 | the settings keys | `.claude/settings.json` | its keys merged; other keys kept |
 | the state | `.nook/` and the folders of each pack | made when missing |
-| the desk list | `~/.config/nook/desks` | the desk added |
+| the workspace list | `~/.config/nook/workspaces` | the workspace added |
 
 Each other line is the owner's. `nook init` never changes it.
 
@@ -175,15 +175,15 @@ Each other line is the owner's. `nook init` never changes it.
 
 ## 6. The hooks of the core
 
-The file is `plugins/core/hooks/hooks.json`. Each hook runs `nook hook <name>` and does nothing outside a desk.
+The file is `plugins/core/hooks/hooks.json`. Each hook runs `nook hook <name>` and does nothing outside a workspace.
 
 | Event | Hook | Job | On a failure of Nook |
 |---|---|---|---|
 | PreToolUse Read, Grep, Glob | `read` | blocks a secret file | blocks |
 | PreToolUse Bash | `bash` | blocks a secret in a command, a state database, a role set by a command, a nested session that types `/gate`, a call to the port of a running web app | blocks |
 | PreToolUse Edit, Write | `edit` | blocks a secret file, the state folder, `.claude/settings*.json` | blocks |
-| PostToolUse Edit, Write | `style` | scores a Markdown file under `docs/` of the desk, or under a folder that a pack names as its record, such as `works/` and `backlog/` of engineering; sends back the failing sentences, and each `bench` block that does not match the schema of `DIAGRAMS.md` | lets go |
-| SessionStart | `start` | the desk, its packs and the hint `nook doctor`, as context | lets go |
+| PostToolUse Edit, Write | `style` | scores a Markdown file under `docs/` of the workspace, or under a folder that a pack names as its record, such as `works/` and `backlog/` of engineering; sends back the failing sentences, and each `bench` block that does not match the schema of `DIAGRAMS.md` | lets go |
+| SessionStart | `start` | the workspace, its packs and the hint `nook doctor`, as context | lets go |
 | UserPromptExpansion `/gate`, `/yolo` | `gate` | runs the owner move that the owner typed | lets go |
 | UserPromptSubmit | `prompt` | keeps the prompt of the owner in the event log | lets go |
 
@@ -194,7 +194,7 @@ The secret files, the same for the read, shell and edit guards:
 - Each path in `secrets` of a `nook.yml` above.
 - In a command, `process.env` and `Bun.env` are code, not files. `$HOME/.env` and `--env-file=.env` name a file and block.
 
-The list lives in `packages/desk/src/secrets.ts`, so the guards and the read paths of every pack use the same one.
+The list lives in `packages/workspace/src/secrets.ts`, so the guards and the read paths of every pack use the same one.
 
 The shell guard blocks a state database in two ways: a word that names a `.db` file under `.nook/`, and a word that is the SQLite shell. The guard reads the words as the shell does: quotes join a word, and the code inside `$(...)`, backticks, `eval` and `sh -c` adds its words. A shell with no `-c` runs its input, so then each quoted word and each heredoc body of the command counts as code. A word that only contains the name, such as the search pattern `"x\|sqlite"`, passes.
 
@@ -210,7 +210,7 @@ The plugin shim `bin/nook` runs the binary of the repo that holds the plugin, th
 
 ### The event log
 
-Each desk keeps `.nook/events/`, one file for each day, such as `2026-10-20.jsonl`, and one JSON line for each event. `/retro` reads it for the friction of a span.
+Each workspace keeps `.nook/events/`, one file for each day, such as `2026-10-20.jsonl`, and one JSON line for each event. `/retro` reads it for the friction of a span.
 
 | Event | When | Fields |
 |---|---|---|
@@ -218,7 +218,7 @@ Each desk keeps `.nook/events/`, one file for each day, such as `2026-10-20.json
 | `error` | a hook of any pack throws | `at`, `session`, `hook`, `agent`, `tool`, `reason` (the message), `command` |
 | `prompt` | the owner sends a prompt | `at`, `session`, `text` |
 
-- The log belongs to the nearest desk above the folder of the session. A folder that is no desk keeps no log.
+- The log belongs to the nearest workspace above the folder of the session. A folder that is no workspace keeps no log.
 - A token, a private key and the value of `password=` or `token:` become `[secret]` before the line is written. The command keeps its first 200 characters.
 - A guard that lets a call pass writes nothing.
 - A log that cannot be written never changes the answer of a hook. The hook names the fault on stderr.
@@ -254,7 +254,7 @@ Only the owner starts these skills.
 
 ## 9. The persona
 
-`nook-companion` is the output style of each desk. The companion talks as a coworker, a coordinator, an advisor and a consultant:
+`nook-companion` is the output style of each workspace. The companion talks as a coworker, a coordinator, an advisor and a consultant:
 
 - Chat first, then the Markdown record, then a page only when it helps.
 - Each report starts with what waits for the owner.
@@ -270,10 +270,10 @@ Only the owner starts these skills.
 | `nk` | not a command of Nook; the engineering guard blocks it in each shell call of Claude Code, so an alias of yours cannot run as an agent |
 | `NOOK_ROLE`, `NOOK_ACTOR`, `NOOK_SESSION` | set by the hooks only; a command that sets one is blocked |
 | `NOOK_PROJECT` | the Nook repo, for a shim that cannot find it |
-| `.nook/` | the state folder of a desk |
-| `.claude/rules/nook/` | the base rules of a desk |
+| `.nook/` | the state folder of a workspace |
+| `.claude/rules/nook/` | the base rules of a workspace |
 
-`nook`, `nk` and the role variables live in `packages/shared/src/names.ts`. `.nook/` lives in `packages/desk/src/desks.ts`. `NOOK_PROJECT` lives in the shims `plugins/*/bin/nook`.
+`nook`, `nk` and the role variables live in `packages/shared/src/names.ts`. `.nook/` lives in `packages/workspace/src/workspaces.ts`. `NOOK_PROJECT` lives in the shims `plugins/*/bin/nook`.
 
 ## 11. The UI kit
 
@@ -284,7 +284,7 @@ The web app takes the diagram library and the token names from these files. `pac
 | Layer | Holds |
 |---|---|
 | shadcn primitives | button, badge, card, input, alert, table, toggle group, collapsible, separator, navigation menu, menu, side panel |
-| parts of Nook | the shell (app shell, side nav, desk menu, command menu, toast), tiles (tile, trend tile, sparkline, tally, segment bar, bar list, ring), the board (flow lane, frame, item card, step bar, item list, dot chip), the item (doc frame, link list, criterion cards, rule list, receipt list, float bar), the inbox (inbox row), and the others (icon card, tree nav, setting rows, detail list, change list, step list, checklist, code block, prose, task card, diagram) |
+| parts of Nook | the shell (app shell, side nav, workspace menu, command menu, toast), tiles (tile, trend tile, sparkline, tally, segment bar, bar list, ring), the board (flow lane, frame, item card, step bar, item list, dot chip), the item (doc frame, link list, criterion cards, rule list, receipt list, float bar), the inbox (inbox row), and the others (icon card, tree nav, setting rows, detail list, change list, step list, checklist, code block, prose, task card, diagram) |
 | theme | `src/styles/globals.css`: Tailwind, each shadcn color set to a token, the faint grey of v2 (`text-faint`), and the tones of a part with `data-tone` |
 | v2 layer | `src/styles/v2.css`: the v2 colors in OKLCH, the dark theme, the 14 px body, the radius scale and a round corner on each box of the kit |
 
@@ -356,7 +356,7 @@ nook/
 ├── apps/web/             the web app of nook web: Next.js on Node, its own tsconfig; bun run e2e builds it
 ├── packages/
 │   ├── shared/           the CLI router, the exit codes, the hook input and output, the names, the SQLite file, the command runner
-│   ├── desk/             desks, nook.yml, the desk list, the pack manifests, the plugin folders, the UI kit
+│   ├── workspace/             workspaces, nook.yml, the workspace list, the pack manifests, the plugin folders, the UI kit
 │   ├── core/             init, doctor, packs, where, ste, brief, retro, the core hooks
 │   ├── engineering/      the ledger, the item machine, the guards, the documents, git, the hooks
 │   ├── wiki/             the shelves, their indexes, the link check
@@ -367,7 +367,7 @@ nook/
 └── .claude-plugin/       the marketplace
 ```
 
-The dependency rule: `apps/nook` and `apps/web` import the packages. A package imports `@nook/shared/*` and `@nook/desk/*` only, never another pack; `packages/ui` imports no `@nook` package. Each package names the `@nook` packages that it imports in its `package.json`, so Node finds them. A plugin holds no code: its hooks call `bin/nook`.
+The dependency rule: `apps/nook` and `apps/web` import the packages. A package imports `@nook/shared/*` and `@nook/workspace/*` only, never another pack; `packages/ui` imports no `@nook` package. Each package names the `@nook` packages that it imports in its `package.json`, so Node finds them. A plugin holds no code: its hooks call `bin/nook`.
 
 Every package runs under Bun and under Node, so the web app can import it. The SQLite file and the command runner of `shared` use `node:sqlite` and `node:child_process`. A test fails when a package source uses a Bun API.
 

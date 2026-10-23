@@ -18,9 +18,9 @@ beforeEach(() => {
   mkdirSync(join(docs, 'guide'))
   const chapter = (n: number, extra = '') => `# ${n}. Chapter ${n}\n\n> In short: chapter ${n}.\n\n${extra}\n`
   const files: Record<string, string> = {
-    'README.md': '# The guide book\n\nRead [chapter 2](02-desks.md), [the report](../report.md) and [the reference](../reference/core.md).\n',
+    'README.md': '# The guide book\n\nRead [chapter 2](02-workspaces.md), [the report](../report.md) and [the reference](../reference/core.md).\n',
     '01-start.md': chapter(1),
-    '02-desks.md': chapter(2, `## Nested desks\n\n${drawnText('deskDiagram')}\n`),
+    '02-workspaces.md': chapter(2, `## Nested workspaces\n\n${drawnText('workspaceDiagram')}\n`),
     '03-day.md': chapter(3),
     '04-work.md': chapter(4, `## The flow\n\n${drawnText('flowDiagram')}\n\n## Pick a path\n\n${drawnText('pathsDiagram')}\n`),
     '05-wiki.md': chapter(5),

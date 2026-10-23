@@ -1,18 +1,18 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { featureHome, type FeatureModule, type Finding } from '@nook/desk/desks.ts'
+import { featureHome, type FeatureModule, type Finding } from '@nook/workspace/workspaces.ts'
 import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { IssuesConfig } from './config.ts'
 import { checkSource, type Runner } from './sources.ts'
 
-/** The issue-tracker of a desk: the folder of the desk and its config. */
+/** The issue-tracker of a workspace: the folder of the workspace and its config. */
 export type Issues = { home: string; config: IssuesConfig }
 
 const FEATURE = 'issue-tracker'
 
-/** The issue-tracker of the nearest desk above `cwd` whose nook.yml has its section. */
+/** The issue-tracker of the nearest workspace above `cwd` whose nook.yml has its section. */
 export function findIssues(cwd = process.cwd()): Issues | null {
   const home = featureHome(FEATURE, cwd)
   return home ? { home: home.dir, config: IssuesConfig.from(home.config.section(FEATURE)) } : null
@@ -21,7 +21,7 @@ export function findIssues(cwd = process.cwd()): Issues | null {
 export function requireIssues(cwd = process.cwd()): Issues {
   const issues = findIssues(cwd)
   if (issues) return issues
-  throw new EvError('not inside a desk that turns the issue-tracker on', Exit.error, 'add an `issue-tracker:` section to nook.yml with /setup')
+  throw new EvError('not inside a workspace that turns the issue-tracker on', Exit.error, 'add an `issue-tracker:` section to nook.yml with /setup')
 }
 
 /** The issue-tracker of `dir` only when `dir` itself turns it on: a child does not check its parent. */

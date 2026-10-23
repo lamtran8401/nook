@@ -70,7 +70,7 @@ function source(value: unknown, i: number): Source {
 
 export class IssuesConfig {
   private constructor(
-    /** The folder of the tickets, relative to the desk. */
+    /** The folder of the tickets, relative to the workspace. */
     readonly backlog: string,
     readonly sources: Source[],
     readonly missing: boolean,

@@ -4,7 +4,7 @@
 
 ## Start the day
 
-Type `/brief` in Claude Code, or run `nook brief` in a terminal. The brief reads each desk of your list and shows three parts:
+Type `/brief` in Claude Code, or run `nook brief` in a terminal. The brief reads each workspace of your list and shows three parts:
 
 ```
 Waits for you
@@ -20,11 +20,11 @@ Runs
 - SHOP-14 cooking: Retry a failed payment; T2 runs in api → /cook SHOP-14
 ```
 
-Each gap of `nook doctor` shows on top of the waits. With two desks or more, each line names its desk. Each line names its action. The brief writes no file and runs no action: each line is your choice.
+Each gap of `nook doctor` shows on top of the waits. With two workspaces or more, each line names its workspace. Each line names its action. The brief writes no file and runs no action: each line is your choice.
 
 ## Work with the companion
 
-The companion is the main session on a desk. It works as a coworker, a coordinator, an advisor and a consultant.
+The companion is the main session on a workspace. It works as a coworker, a coordinator, an advisor and a consultant.
 
 | It does | Example |
 |---|---|
@@ -44,13 +44,13 @@ The chat follows your language. Files, code and commit messages are in English.
 2. **The Markdown record:** always, in full. Agents read it. Examples: `works/SHOP-12/spec.md`, `learn/english/mistakes.md`.
 3. **A page:** only when you ask, when a step calls for it, or when the content has a shape that words hide. `/view SHOP-12` builds `works/SHOP-12/page.html`, a local page in the Bench design system.
 
-## See your desks in the browser
+## See your workspaces in the browser
 
 Run `nook web` in your own terminal. It prints the log of Next.js, such as `✓ Ready in 412ms` and one line for each page that the browser opens, and it opens the browser.
 
 | Part | What you see |
 |---|---|
-| the desk menu | the top of the sidebar: each of your desks with its open items; a click opens that desk |
+| the workspace menu | the top of the sidebar: each of your workspaces with its open items; a click opens that workspace |
 | the sidebar | Home, Board, Wiki, Learn, Metrics, Agents and skills, Events, and Settings at its foot; a page shows only when its pack is on |
 | Home | your inbox: each move that waits for you, acted on in place |
 | Board | the items by phase, with a lane that counts them; a click on a card opens it in a drawer |
@@ -67,7 +67,7 @@ In the inbox, you act where you read:
 | a blocking question | type the answer in the row, then Answer |
 | any other move | copy its command, such as `/close SHOP-41` |
 
-J and K pick a row, A runs its gate move, and R puts the cursor in its answer box. ⌘K opens a menu of your moves, the items, the pages and the desks. G then B opens the board, and `[` hides the sidebar.
+J and K pick a row, A runs its gate move, and R puts the cursor in its answer box. ⌘K opens a menu of your moves, the items, the pages and the workspaces. G then B opens the board, and `[` hides the sidebar.
 
 ![The board: the lane of the phases, the four phases and the backlog](images/board.png)
 
@@ -89,7 +89,7 @@ Some moves belong only to you. You type them in the prompt; a Nook hook runs the
 
 An agent never runs these moves. The guard blocks a gate move by the model, inside an agent, or in a session that a tool started.
 
-## Keep the desk healthy
+## Keep the workspace healthy
 
 | When | Type | It does |
 |---|---|---|
@@ -97,7 +97,7 @@ An agent never runs these moves. The guard blocks a gate move by the model, insi
 | a new repo, or a changed check | `/setup <what changed>` | changes only that part of `nook.yml` |
 | the end of a week | `/retro` | finds the items sent back, the guesses flipped, the slow questions and the weak proofs; you pick the change that stops each cause |
 
-`/retro` writes `docs/retro/<date>.md`. `nook retro` prints the same facts with no file. The first retro of a desk covers the last 7 days.
+`/retro` writes `docs/retro/<date>.md`. `nook retro` prints the same facts with no file. The first retro of a workspace covers the last 7 days.
 
 ## Think a big decision through
 

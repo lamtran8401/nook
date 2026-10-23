@@ -3,7 +3,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { pluginDir } from '@nook/desk/desks.ts'
+import { pluginDir } from '@nook/workspace/workspaces.ts'
 import { runCommand } from '@nook/shared/run.ts'
 
 import { type Block, parseDoc } from '../lib/blocks.ts'
@@ -27,7 +27,7 @@ const inner = (block: Block): Block[] =>
   'blocks' in block ? block.blocks : block.kind === 'list' ? block.items.flat() : block.kind === 'columns' ? block.columns.flat() : block.kind === 'tasks' ? block.items.flatMap(item => item.blocks) : []
 const specsOf = (blocks: Block[]): object[] => blocks.flatMap(block => (block.kind === 'diagram' ? [block.spec] : specsOf(inner(block))))
 
-/** Each drawn fence (mermaid, tree, bench) of the Markdown under docs/, plugin/ and the demo desk, as the web app draws it. */
+/** Each drawn fence (mermaid, tree, bench) of the Markdown under docs/, plugin/ and the demo workspace, as the web app draws it. */
 function fenceDiagrams(): Diagram[] {
   return ['docs', 'plugin', 'scripts/demo'].flatMap(top =>
     readdirSync(join(repo, top), { recursive: true, encoding: 'utf8' })
@@ -90,7 +90,7 @@ describe('the diagrams of Bench', () => {
     expect(layoutFaults(specs)).toEqual([])
   })
 
-  test('each diagram of the docs draws the same way: the drawn fences, the demo desk and the figures of the two doc pages', () => {
+  test('each diagram of the docs draws the same way: the drawn fences, the demo workspace and the figures of the two doc pages', () => {
     const diagrams = [...fenceDiagrams(), ...pageDiagrams()]
     const sources = new Set(diagrams.map(d => d.name.replace(/ \d+(:.*)?$/, '')))
     expect([...sources]).toEqual([

@@ -57,7 +57,7 @@ const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
 /** The wiki: the drafts that wait for a yes first, then a card for each shelf with its use and its count of pages. */
 export function WikiHome({ wiki, base }: { wiki: WikiView | null; base: string }) {
-  if (!wiki) return <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title="This desk has no wiki">Add a <InlineCode>wiki:</InlineCode> section to nook.yml: run <CopyCommand text="/setup" /> in the agent session.</EmptyState>
+  if (!wiki) return <EmptyState icon={<FileText className="size-5" aria-hidden="true" />} title="This workspace has no wiki">Add a <InlineCode>wiki:</InlineCode> section to nook.yml: run <CopyCommand text="/setup" /> in the agent session.</EmptyState>
   return (
     <div className="grid gap-5">
       {wiki.drafts.length ? (

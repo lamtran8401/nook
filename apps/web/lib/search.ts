@@ -1,12 +1,12 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
-import { SecretPolicy } from '@nook/desk/secrets.ts'
+import { SecretPolicy } from '@nook/workspace/secrets.ts'
 
-import { deskPlaces } from '@/lib/places.ts'
+import { workspacePlaces } from '@/lib/places.ts'
 
 /**
- * The search box: a scan of the Markdown files of each pack of the desk, read again at each search, so a page changed
+ * The search box: a scan of the Markdown files of each pack of the workspace, read again at each search, so a page changed
  * a moment ago gives its new words. No index, and no secret file: an env file, a file that nook.yml names, or a link.
  */
 
@@ -35,15 +35,15 @@ function hitsIn(text: string, words: string[]): { heading: string; line: number;
 }
 
 /** Each line that holds every word of the query, in the order of the packs and their files, 50 at most. */
-export function search(desk: string, query: string, base = ''): Hit[] {
+export function search(workspace: string, query: string, base = ''): Hit[] {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean)
   if (!words.length) return []
-  const secrets = new SecretPolicy(desk)
-  return deskPlaces(desk, base)
+  const secrets = new SecretPolicy(workspace)
+  return workspacePlaces(workspace, base)
     .flatMap(place =>
       markdownFiles(place.root)
         .filter(path => !secrets.isSecretPath(path))
-        .flatMap(path => hitsIn(readFileSync(path, 'utf8'), words).map(hit => ({ file: relative(desk, path), href: place.href(relative(place.root, path)), ...hit }))),
+        .flatMap(path => hitsIn(readFileSync(path, 'utf8'), words).map(hit => ({ file: relative(workspace, path), href: place.href(relative(place.root, path)), ...hit }))),
     )
     .slice(0, LIMIT)
 }

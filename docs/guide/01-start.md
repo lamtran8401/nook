@@ -1,6 +1,6 @@
 # 1. Start
 
-> In short: install Nook once, then make a desk in each folder that you want. It takes about ten minutes.
+> In short: install Nook once, then make a workspace in each folder that you want. It takes about ten minutes.
 
 ## What you need
 
@@ -31,7 +31,7 @@ claude plugin install nk-learn@nook
 
 Check the install: `nook --help` lists the commands.
 
-## Make your first desk
+## Make your first workspace
 
 Pick a folder, such as `personal/`. Open a terminal in it and run:
 
@@ -43,7 +43,7 @@ The command writes these files. Each other line in the folder stays yours.
 
 | File | What it holds |
 |---|---|
-| `nook.yml` | the packs of this desk, and later one section for each pack |
+| `nook.yml` | the packs of this workspace, and later one section for each pack |
 | `CLAUDE.md` | a Nook block between `<!-- nook:begin -->` and `<!-- nook:end -->` |
 | `.claude/rules/nook/` | the base rules, one file for each rule of a pack that is on |
 | `.claude/output-styles/nook-companion.md` | the persona of the companion |
@@ -52,7 +52,7 @@ The command writes these files. Each other line in the folder stays yours.
 
 A pack also makes its folders: `works/`, `backlog/` and `docs/adr/` for engineering, `docs/wiki/` and `docs/references/` for the wiki, `learn/` for learn.
 
-## Set up the desk
+## Set up the workspace
 
 Start Claude Code in the folder and type `/setup`. The skill does four things:
 
@@ -63,16 +63,16 @@ Start Claude Code in the folder and type `/setup`. The skill does four things:
 
 An **area** is a repo that changes only through an item. Keep a repo that you edit by hand out of the areas.
 
-## Check the desk
+## Check the workspace
 
 ```
 nook doctor
 ```
 
-A good desk prints one line at the end:
+A good workspace prints one line at the end:
 
 ```
-✓ 1 desk above, 4 packs on, no gap
+✓ 1 workspace above, 4 packs on, no gap
 ```
 
 A gap comes with its fix. Example:

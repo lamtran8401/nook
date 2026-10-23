@@ -18,7 +18,7 @@ export class WikiConfig {
   private constructor(
     readonly dir: string,
     readonly references: string,
-    /** Where a page goes when a combined page replaces it, relative to the desk. */
+    /** Where a page goes when a combined page replaces it, relative to the workspace. */
     readonly archive: string,
     readonly shelves: Shelf[],
     readonly missing: boolean,

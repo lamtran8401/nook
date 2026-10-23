@@ -1,0 +1,13 @@
+{
+  "name": "@nook/workspace",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "@nook/shared": "workspace:*",
+    "yaml": "2.9.1"
+  }
+}

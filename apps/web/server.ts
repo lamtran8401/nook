@@ -4,11 +4,11 @@ import { join } from 'node:path'
 
 import { Pairs } from '@nook/core/web/pairs.ts'
 
-import { listDesks } from './lib/desks.ts'
+import { listWorkspaces } from './lib/workspaces.ts'
 import { createHandler } from './lib/handler.ts'
 import { banner, readyLine, requestLine } from './lib/log.ts'
 
-/** The server that `nook web` starts under Node: it answers on 127.0.0.1 only, through the gate and the pairs of the desk. */
+/** The server that `nook web` starts under Node: it answers on 127.0.0.1 only, through the gate and the pairs of the workspace. */
 
 const started = performance.now()
 const color = process.stdout.isTTY === true
@@ -17,12 +17,12 @@ const nextVersion = (JSON.parse(readFileSync(join(import.meta.dirname, 'node_mod
 // the packages find the Nook repo by this variable: in the bundle of Next.js a file has no folder of its own
 process.env.NOOK_PROJECT ??= join(import.meta.dirname, '..', '..')
 const port = Number(process.env.NOOK_WEB_PORT)
-const desk = process.env.NOOK_DESK
-if (!desk || !port) throw new Error('start the web app with `nook web`')
+const workspace = process.env.NOOK_WORKSPACE
+if (!workspace || !port) throw new Error('start the web app with `nook web`')
 // nook web keeps stdin open, so its end means that nook web is gone
 process.stdin.on('end', () => process.exit(0))
 process.stdin.resume()
-const handler = await createHandler({ dir: import.meta.dirname, port, pairs: new Pairs(desk) })
+const handler = await createHandler({ dir: import.meta.dirname, port, pairs: new Pairs(workspace) })
 createServer((req, res) => {
   const begun = performance.now()
   res.once('finish', () => console.log(requestLine({ method: req.method ?? 'GET', url: req.url ?? '/', status: res.statusCode, ms: performance.now() - begun, color })))
@@ -32,6 +32,6 @@ createServer((req, res) => {
     res.end('the page failed: see the terminal of `nook web`')
   })
 }).listen(port, '127.0.0.1', () => {
-  console.log(banner({ version: nextVersion, url: `http://127.0.0.1:${port}`, desks: listDesks(desk).map(d => d.name), color }))
+  console.log(banner({ version: nextVersion, url: `http://127.0.0.1:${port}`, workspaces: listWorkspaces(workspace).map(d => d.name), color }))
   console.log(readyLine(performance.now() - started, color))
 })

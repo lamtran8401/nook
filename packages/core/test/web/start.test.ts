@@ -20,8 +20,8 @@ function fakes(overrides: Partial<WebDeps> = {}) {
     freePort: async preferred => (log.push(`port ${preferred}`), preferred ?? 5000),
     offerPair: () => (log.push('pair offered'), 'tok-secret'),
     forgetPairs: () => 2,
-    spawnServer: ({ port, desk }) => {
-      log.push(`spawn ${port} ${desk}`)
+    spawnServer: ({ port, workspace }) => {
+      log.push(`spawn ${port} ${workspace}`)
       return { pid: 77, listening: Promise.resolve(), exited: new Promise<number>(resolve => (stop = resolve)) }
     },
     open: url => log.push(`open ${url}`),
@@ -35,9 +35,9 @@ function fakes(overrides: Partial<WebDeps> = {}) {
 }
 
 describe('serverEnv', () => {
-  test('gives the server its desk, its port and the command of this nook, and keeps the rest of the environment', () => {
-    expect(serverEnv('/desk', 4321, { HOME: '/home/me' }, ['/bin/bun', '/nook/apps/nook/src/main.ts'])).toEqual({
-      HOME: '/home/me', NOOK_DESK: '/desk', NOOK_WEB_PORT: '4321', NOOK_CLI: '["/bin/bun","/nook/apps/nook/src/main.ts"]',
+  test('gives the server its workspace, its port and the command of this nook, and keeps the rest of the environment', () => {
+    expect(serverEnv('/workspace', 4321, { HOME: '/home/me' }, ['/bin/bun', '/nook/apps/nook/src/main.ts'])).toEqual({
+      HOME: '/home/me', NOOK_WORKSPACE: '/workspace', NOOK_WEB_PORT: '4321', NOOK_CLI: '["/bin/bun","/nook/apps/nook/src/main.ts"]',
     })
   })
 })
@@ -45,34 +45,34 @@ describe('serverEnv', () => {
 describe('startWeb', () => {
   test('refuses inside Claude Code, and builds and starts nothing', async () => {
     const f = fakes({ insideClaude: () => true })
-    await expect(startWeb('/desk', false, f.deps)).rejects.toMatchObject({ message: 'nook web starts only in your own terminal, not in Claude Code', fix: 'open a terminal in the desk and run `nook web`' })
+    await expect(startWeb('/workspace', false, f.deps)).rejects.toMatchObject({ message: 'nook web starts only in your own terminal, not in Claude Code', fix: 'open a terminal in the workspace and run `nook web`' })
     expect(f.log).toEqual([])
   })
 
   test('refuses a Node older than 24 before any build', async () => {
     const f = fakes({ nodeGap: () => ({ text: 'nook web needs Node 24 or later; this is v22.1.0', fix: 'install Node 24' }) })
-    await expect(startWeb('/desk', false, f.deps)).rejects.toMatchObject({ message: 'nook web needs Node 24 or later; this is v22.1.0', fix: 'install Node 24' })
+    await expect(startWeb('/workspace', false, f.deps)).rejects.toMatchObject({ message: 'nook web needs Node 24 or later; this is v22.1.0', fix: 'install Node 24' })
     expect(f.log).toEqual([])
   })
 
   test('a failed build names its error lines, writes no stamp, and starts no server', async () => {
     const f = fakes({ build: () => ({ code: 1, out: 'Creating an optimized build\nError: Module not found: x', err: '' }) })
-    await expect(startWeb('/desk', false, f.deps)).rejects.toMatchObject({ message: 'the build of the web app failed:\nError: Module not found: x' })
+    await expect(startWeb('/workspace', false, f.deps)).rejects.toMatchObject({ message: 'the build of the web app failed:\nError: Module not found: x' })
     expect(f.log.filter(l => !l.startsWith('say'))).toEqual([])
   })
 
   test('a second start with no change of the sources builds nothing', async () => {
     const f = fakes({ sources: () => ({ hash: 'h1', built: true }) })
-    const run = startWeb('/desk', false, f.deps)
+    const run = startWeb('/workspace', false, f.deps)
     await Bun.sleep(0)
     f.done()
     await run
     expect(f.log).not.toContain('build')
   })
 
-  test('starts the server on the last port of the desk, opens the address with a new pair token, never says the token, and keeps the port after the stop', async () => {
+  test('starts the server on the last port of the workspace, opens the address with a new pair token, never says the token, and keeps the port after the stop', async () => {
     const f = fakes()
-    const run = startWeb('/desk', false, f.deps)
+    const run = startWeb('/workspace', false, f.deps)
     await Bun.sleep(0)
     expect(f.state()).toEqual({ port: 4321, pid: 77, started: '2026-10-18T10:00:00.000Z' })
     f.done(0)
@@ -81,7 +81,7 @@ describe('startWeb', () => {
       'build',
       'stamp h1',
       'port 4321',
-      'spawn 4321 /desk',
+      'spawn 4321 /workspace',
       'state {"port":4321,"pid":77,"started":"2026-10-18T10:00:00.000Z"}',
       'pair offered',
       'open http://127.0.0.1:4321/?t=tok-secret',
@@ -94,7 +94,7 @@ describe('startWeb', () => {
 
   test('--build builds even when the sources did not change', async () => {
     const f = fakes({ sources: () => ({ hash: 'h1', built: true }) })
-    const run = startWeb('/desk', true, f.deps)
+    const run = startWeb('/workspace', true, f.deps)
     await Bun.sleep(0)
     f.done()
     await run
@@ -103,7 +103,7 @@ describe('startWeb', () => {
 
   test('says so when another program holds the last port, and takes a free one', async () => {
     const f = fakes({ sources: () => ({ hash: 'h1', built: true }), freePort: async () => 5000 })
-    const run = startWeb('/desk', false, f.deps)
+    const run = startWeb('/workspace', false, f.deps)
     await Bun.sleep(0)
     f.done()
     await run
@@ -111,9 +111,9 @@ describe('startWeb', () => {
     expect(f.state()).toEqual({ port: 5000 })
   })
 
-  test('refuses while the server of an earlier start still runs for the desk', async () => {
+  test('refuses while the server of an earlier start still runs for the workspace', async () => {
     const f = fakes({ alive: pid => pid === 1 })
-    await expect(startWeb('/desk', false, f.deps)).rejects.toMatchObject({ message: 'nook web already runs for this desk on port 4321', fix: 'use its tab, or stop it with Ctrl-C in its terminal' })
+    await expect(startWeb('/workspace', false, f.deps)).rejects.toMatchObject({ message: 'nook web already runs for this workspace on port 4321', fix: 'use its tab, or stop it with Ctrl-C in its terminal' })
     expect(f.log).toEqual([])
   })
 })
@@ -131,9 +131,9 @@ describe('pairWeb', () => {
     expect(f.log).toEqual([])
   })
 
-  test('refuses when nook web does not run for the desk', () => {
+  test('refuses when nook web does not run for the workspace', () => {
     const f = fakes()
-    expect(() => pairWeb(f.deps)).toThrow(expect.objectContaining({ message: 'nook web does not run for this desk', fix: 'run `nook web` first, then `nook web pair` in another terminal' }))
+    expect(() => pairWeb(f.deps)).toThrow(expect.objectContaining({ message: 'nook web does not run for this workspace', fix: 'run `nook web` first, then `nook web pair` in another terminal' }))
     expect(f.log).toEqual([])
   })
 })

@@ -1,13 +1,13 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join, normalize, relative } from 'node:path'
 
-import type { Finding } from '@nook/desk/desks.ts'
+import type { Finding } from '@nook/workspace/workspaces.ts'
 import { usage } from '@nook/shared/errors.ts'
 
 import type { Shelf, WikiConfig } from './config.ts'
 import { addRows, type IndexLine, indexRow, parseIndex, removeRows } from './index-file.ts'
 
-/** The wiki of one desk: its shelves, their pages and their indexes. Nook adds lines; it never removes one. */
+/** The wiki of one workspace: its shelves, their pages and their indexes. Nook adds lines; it never removes one. */
 
 const INDEX = 'INDEX.md'
 const TABLE = '| Page | Type | Summary |\n|---|---|---|'

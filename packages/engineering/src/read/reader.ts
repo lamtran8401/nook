@@ -16,10 +16,10 @@ import type { Question } from '../stores/questions.ts'
 import type { Slice } from '../stores/slices.ts'
 import { Who } from '../who.ts'
 import { type EventLine, eventLine } from './event-lines.ts'
-import { deskHistories, deskMetrics, type Metrics, METRICS_SPAN_MS, metricsOf } from '../report/metrics.ts'
+import { workspaceHistories, workspaceMetrics, type Metrics, METRICS_SPAN_MS, metricsOf } from '../report/metrics.ts'
 
 /**
- * The read paths of engineering for the web app: plain functions on a desk folder. Each one opens the ledger
+ * The read paths of engineering for the web app: plain functions on a workspace folder. Each one opens the ledger
  * read-only as a reader, so it never migrates, never writes a row, and runs under Bun or Node.
  */
 
@@ -53,8 +53,8 @@ export type ItemDocs = { name: DocName; text: string | null }[]
 
 const READER = new Who('reader', 'web', null)
 
-function withReader<T>(desk: string, read: (eng: Engineering) => T): T {
-  const home = Home.require(desk)
+function withReader<T>(workspace: string, read: (eng: Engineering) => T): T {
+  const home = Home.require(workspace)
   const eng = new Engineering(home, Ledger.openReadOnly(home.dbFile), READER)
   try {
     return read(eng)
@@ -63,14 +63,14 @@ function withReader<T>(desk: string, read: (eng: Engineering) => T): T {
   }
 }
 
-/** What the settings page shows of the engineering home: the areas, the kinds that the desk learned, the root cause types. */
+/** What the settings page shows of the engineering home: the areas, the kinds that the workspace learned, the root cause types. */
 export type EngineeringSettings = { areas: { name: string; path: string; kind: string; checks: string[] }[]; kinds: TypeKind[]; rootCauses: string[]; unknownRootCause: string | null }
 
-export function readSettings(desk: string): EngineeringSettings | null {
-  const home = Home.find(desk)
+export function readSettings(workspace: string): EngineeringSettings | null {
+  const home = Home.find(workspace)
   if (!home) return null
   const { config } = home
-  return withReader(desk, eng => ({
+  return withReader(workspace, eng => ({
     areas: config.areas.map(area => ({ name: area.name, path: area.path, kind: area.kind, checks: area.checks ?? [] })),
     kinds: eng.stores.typeKinds.list(),
     rootCauses: config.rootCauses,
@@ -78,18 +78,18 @@ export function readSettings(desk: string): EngineeringSettings | null {
   }))
 }
 
-/** The metrics of the last 30 days; null when the desk has no engineering home. */
-export function readMetrics(desk: string, now = new Date()): Metrics | null {
-  return Home.find(desk) ? withReader(desk, eng => deskMetrics(eng, new Date(now.getTime() - METRICS_SPAN_MS), now)) : null
+/** The metrics of the last 30 days; null when the workspace has no engineering home. */
+export function readMetrics(workspace: string, now = new Date()): Metrics | null {
+  return Home.find(workspace) ? withReader(workspace, eng => workspaceMetrics(eng, new Date(now.getTime() - METRICS_SPAN_MS), now)) : null
 }
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 
-/** The metrics of each of the last `weeks` weeks up to now, the oldest first, for a trend line; null for a desk with no engineering home. */
-export function readTrend(desk: string, now = new Date(), weeks = 6): Metrics[] | null {
-  if (!Home.find(desk)) return null
-  return withReader(desk, eng => {
-    const histories = deskHistories(eng)
+/** The metrics of each of the last `weeks` weeks up to now, the oldest first, for a trend line; null for a workspace with no engineering home. */
+export function readTrend(workspace: string, now = new Date(), weeks = 6): Metrics[] | null {
+  if (!Home.find(workspace)) return null
+  return withReader(workspace, eng => {
+    const histories = workspaceHistories(eng)
     return Array.from({ length: weeks }, (_, i) => {
       const until = new Date(now.getTime() - (weeks - 1 - i) * WEEK_MS)
       return metricsOf(histories, new Date(until.getTime() - WEEK_MS), until)
@@ -100,19 +100,19 @@ export function readTrend(desk: string, now = new Date(), weeks = 6): Metrics[] 
 /** One event of an item as a line for a person, with the item it belongs to. */
 export type Receipt = EventLine & { item: string }
 
-/** The events of every item of the desk since a time, the newest first, such as the receipts of today. */
-export function readReceipts(desk: string, since: Date): Receipt[] {
-  return withReader(desk, eng => eng.stores.events.since(since.toISOString()).map(event => ({ ...eventLine(event), item: event.item })))
+/** The events of every item of the workspace since a time, the newest first, such as the receipts of today. */
+export function readReceipts(workspace: string, since: Date): Receipt[] {
+  return withReader(workspace, eng => eng.stores.events.since(since.toISOString()).map(event => ({ ...eventLine(event), item: event.item })))
 }
 
-/** The areas of the engineering home of the desk, in the order of `nook.yml`; none when the desk has no home. */
-export function readAreas(desk: string): string[] {
-  return Home.find(desk)?.config.areas.map(area => area.name) ?? []
+/** The areas of the engineering home of the workspace, in the order of `nook.yml`; none when the workspace has no home. */
+export function readAreas(workspace: string): string[] {
+  return Home.find(workspace)?.config.areas.map(area => area.name) ?? []
 }
 
 /** The open items and the done ones not yet archived, as `nook eng next` lists them. */
-export function readBoard(desk: string): BoardCard[] {
-  return withReader(desk, eng => {
+export function readBoard(workspace: string): BoardCard[] {
+  return withReader(workspace, eng => {
     const items = [...eng.stores.items.open(), ...eng.stores.items.list('done').filter(i => !isArchived(eng, i.id))]
     return items.map(item => {
       const { id, title, kind, size, points, mode, state, blocked_from, areas } = item
@@ -131,8 +131,8 @@ export function readBoard(desk: string): BoardCard[] {
   })
 }
 
-export function readItem(desk: string, id: string): ItemView {
-  return withReader(desk, eng => {
+export function readItem(workspace: string, id: string): ItemView {
+  return withReader(workspace, eng => {
     const item = eng.item(id)
     const questions = eng.stores.questions.list(id)
     const guesses = eng.stores.guesses.list(id)
@@ -192,8 +192,8 @@ function docNames(kind: Item['kind']): DocName[] {
   ]
 }
 
-export function readDocs(desk: string, id: string): ItemDocs {
-  return withReader(desk, eng => {
+export function readDocs(workspace: string, id: string): ItemDocs {
+  return withReader(workspace, eng => {
     const item = eng.item(id)
     const folder = eng.folder(item.id)
     return docNames(item.kind).map(name => ({ name, text: folder.read(DOC_FILES[name]) }))

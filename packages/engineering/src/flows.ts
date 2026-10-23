@@ -3,8 +3,8 @@ import { join } from 'node:path'
 
 import { parse } from 'yaml'
 
-import type { Finding } from '@nook/desk/desks.ts'
-import { pluginDir } from '@nook/desk/desks.ts'
+import type { Finding } from '@nook/workspace/workspaces.ts'
+import { pluginDir } from '@nook/workspace/workspaces.ts'
 import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { ITEM_KINDS, type ItemKind } from './vocabulary.ts'

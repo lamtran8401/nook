@@ -1,7 +1,7 @@
 import { type Ledger, now } from '../ledger.ts'
 import type { ItemKind } from '../vocabulary.ts'
 
-/** The kind of each ticket type that the desk learned, such as Sub-Bug → fix, whatever tracker wrote the ticket. */
+/** The kind of each ticket type that the workspace learned, such as Sub-Bug → fix, whatever tracker wrote the ticket. */
 export type TypeKind = { type: string; kind: ItemKind }
 
 export class TypeKindStore {

@@ -138,7 +138,7 @@ describe('stopDriver', () => {
     expect(reason(stop())).toContain('skills/cook/SKILL.md')
   })
 
-  test('a yolo run set from one session never holds another session on the desk', () => {
+  test('a yolo run set from one session never holds another session on the workspace', () => {
     const owner = t.eng(new Who('owner', 'owner via /yolo', 'sess-1'))
     owner.newItem({ id: 'SHOP-1', title: 'the export date is off' })
     owner.setMode('SHOP-1', 'yolo')

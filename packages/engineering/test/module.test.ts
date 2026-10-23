@@ -220,7 +220,7 @@ describe('engineeringModule: the daily brief', () => {
 })
 
 describe('engineeringModule: the reads of doctor, brief, retro and waiting', () => {
-  const MIGRATE = 'run any `nook eng` command in the desk'
+  const MIGRATE = 'run any `nook eng` command in the workspace'
   const dropLastMigration = () => {
     const lead = t.eng(LEAD)
     lead.ledger.run('DELETE FROM migration WHERE n = (SELECT MAX(n) FROM migration)')

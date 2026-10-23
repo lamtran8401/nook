@@ -15,7 +15,7 @@ Goal: the next span loses less time, from changes that the owner picked, each wi
 5. For each cause, propose one change that stops it, and where it goes: a rule of the owner, a Nook skill or hook, or a habit. Name the file. A change with no fact behind it is not a change.
 6. Ask the owner once with AskUserQuestion, more than one answer allowed: which changes to make. Give the two changes of most value as options. List the others, numbered, in the question, so the owner can type their numbers.
 7. Write `docs/retro/<date>.md` (the shape is below). The file of today exists already: add a section "Later the same day" to it. Never edit the file of another day.
-8. Make each picked change that belongs to this desk, such as a rule of the owner. A change to Nook goes to the Nook repo on a branch, as its `CLAUDE.md` says; name it in the report.
+8. Make each picked change that belongs to this workspace, such as a rule of the owner. A change to Nook goes to the Nook repo on a branch, as its `CLAUDE.md` says; name it in the report.
 9. Report in chat: the in-short line, the picked changes and where each one went.
 
 ## The file

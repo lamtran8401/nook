@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { FeatureModule } from '@nook/desk/desks.ts'
+import type { FeatureModule } from '@nook/workspace/workspaces.ts'
 
 import { styleCheck } from '../../src/hooks/style.ts'
 import { initIn, removeDir, tempDir } from '../helpers.ts'

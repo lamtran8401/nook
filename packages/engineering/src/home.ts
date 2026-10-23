@@ -1,12 +1,12 @@
 import { existsSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve } from 'node:path'
 
-import { featureHome, STATE_DIR } from '@nook/desk/desks.ts'
+import { featureHome, STATE_DIR } from '@nook/workspace/workspaces.ts'
 import { EvError, Exit, refused } from '@nook/shared/errors.ts'
 
 import { type Area, EngineeringConfig } from './config.ts'
 
-/** The nearest desk above a folder that turns `engineering` on, with its config and its paths. */
+/** The nearest workspace above a folder that turns `engineering` on, with its config and its paths. */
 export class Home {
   constructor(
     readonly dir: string,
@@ -22,7 +22,7 @@ export class Home {
     const home = Home.find(cwd)
     if (home) return home
     throw new EvError(
-      'not inside a desk that turns engineering on',
+      'not inside a workspace that turns engineering on',
       Exit.error,
       'run `nook init --with engineering` in the folder of the project, or add an `engineering:` section to its nook.yml',
     )

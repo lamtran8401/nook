@@ -14,7 +14,7 @@
     "test": "bun test packages scripts apps/web/test --timeout 30000",
     "e2e": "bun test apps/web/e2e --timeout 600000",
     "pages": "bun scripts/pages/build.ts",
-    "demo": "bun scripts/demo/desk.ts"
+    "demo": "bun scripts/demo/workspace.ts"
   },
   "devDependencies": {
     "@types/bun": "1.4.2",

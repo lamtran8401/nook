@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { GateResult, FeatureModule } from '@nook/desk/desks.ts'
+import type { GateResult, FeatureModule } from '@nook/workspace/workspaces.ts'
 
 import { gateHook } from '../../src/hooks/gate.ts'
 import { inBackground, startedByTool, underClaude } from '../../src/hooks/session.ts'

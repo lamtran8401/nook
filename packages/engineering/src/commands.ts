@@ -4,7 +4,7 @@ import { dirname, relative, resolve } from 'node:path'
 import { arg, type Command, type Context, list, type Program, text } from '@nook/shared/cli.ts'
 import { Exit, usage } from '@nook/shared/errors.ts'
 import { readInput, runHook } from '@nook/shared/hook.ts'
-import { hookRecorder } from '@nook/desk/events.ts'
+import { hookRecorder } from '@nook/workspace/events.ts'
 
 import {
   adrList,
@@ -38,7 +38,7 @@ import { brief } from './report/brief.ts'
 import { doctor } from './report/doctor.ts'
 import { itemBrief, pickup } from './report/item-brief.ts'
 import { docPage, itemPage } from './report/item-page.ts'
-import { deskMetrics, METRICS_SPAN_MS, metricsText } from './report/metrics.ts'
+import { workspaceMetrics, METRICS_SPAN_MS, metricsText } from './report/metrics.ts'
 import { next } from './report/next.ts'
 import { taskBrief } from './report/task-brief.ts'
 import { Engineering, idAndTitle } from './service.ts'
@@ -140,7 +140,7 @@ const itemCommands: Command[] = [
       source: { type: 'string', help: 'where the item comes from' },
       backlog: { type: 'boolean', help: 'also make backlog/<id>/ticket.md' },
       parent: { type: 'string', help: 'the item that this one belongs to, such as the story of a sub-bug' },
-      type: { type: 'string', help: 'the type of the ticket, such as Sub-Bug; with no --kind, the kind that the desk learned for it' },
+      type: { type: 'string', help: 'the type of the ticket, such as Sub-Bug; with no --kind, the kind that the workspace learned for it' },
       points: { type: 'string', help: 'the story points of the ticket, such as 8' },
     },
     run(c) {
@@ -201,7 +201,7 @@ const itemCommands: Command[] = [
   },
   {
     path: ['kind', 'set'],
-    summary: 'keep the kind of a ticket type in this desk, such as Sub-Bug fix; item new --type uses it',
+    summary: 'keep the kind of a ticket type in this workspace, such as Sub-Bug fix; item new --type uses it',
     usage: '<type> <feature|fix|chore|investigate>',
     run(c) {
       const k = eng()
@@ -211,7 +211,7 @@ const itemCommands: Command[] = [
   },
   {
     path: ['kind', 'list'],
-    summary: 'the kind of each ticket type that this desk learned',
+    summary: 'the kind of each ticket type that this workspace learned',
     run(c) {
       c.out(eng().typeKinds(), all => (all.length ? all.map(t => `${t.type} → ${t.kind}`).join('\n') : 'no type learned yet: /spec asks when it meets a new one'))
     },
@@ -536,7 +536,7 @@ const dayCommands: Command[] = [
     run(c) {
       const since = typeof c.flags.since === 'string' ? new Date(c.flags.since) : new Date(Date.now() - METRICS_SPAN_MS)
       if (Number.isNaN(since.getTime())) throw usage(`--since is not a date: ${c.flags.since}`, 'write it as 2026-10-01')
-      c.out(deskMetrics(eng(), since), metricsText)
+      c.out(workspaceMetrics(eng(), since), metricsText)
     },
   },
   {
@@ -555,7 +555,7 @@ const dayCommands: Command[] = [
     flags: {
       area: { type: 'string', help: 'the one area' },
       kind: { type: 'string', help: 'fix (the default) or chore; a fix needs its root cause before submit' },
-      type: { type: 'string', help: 'the type of the ticket; with no --kind, the kind that the desk learned for it' },
+      type: { type: 'string', help: 'the type of the ticket; with no --kind, the kind that the workspace learned for it' },
     },
     run(c) {
       const area = text(c, 'area')

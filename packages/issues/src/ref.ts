@@ -2,7 +2,7 @@ import { usage } from '@nook/shared/errors.ts'
 
 import type { GitHubSource, IssuesConfig, JiraSource } from './config.ts'
 
-/** A ticket that a desk can pull: its source, the id of the item it makes, and for GitHub its number. */
+/** A ticket that a workspace can pull: its source, the id of the item it makes, and for GitHub its number. */
 export type Ref = { source: GitHubSource; key: string; number: number } | { source: JiraSource; key: string }
 
 const REPO_REF = /^([\w.-]+\/[\w.-]+)#(\d+)$/
@@ -33,5 +33,5 @@ export function resolveRef(ref: string, config: IssuesConfig): Ref {
     if (site) return { source: site, key: ref }
   }
   const example = github[0] ?? { prefix: 'GH', repo: 'acme/shop' }
-  throw usage(`${ref} names no source of this desk`, `use a Jira key such as SHOP-12, a prefix such as ${example.prefix}-482, or a repo of issue-tracker.sources, such as ${example.repo}#482`)
+  throw usage(`${ref} names no source of this workspace`, `use a Jira key such as SHOP-12, a prefix such as ${example.prefix}-482, or a repo of issue-tracker.sources, such as ${example.repo}#482`)
 }

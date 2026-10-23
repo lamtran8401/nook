@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import type { BriefLine, Finding } from '@nook/desk/desks.ts'
+import type { BriefLine, Finding } from '@nook/workspace/workspaces.ts'
 
 import { type BriefFolder, collectBrief, formatBrief, startOfYesterday } from '../src/brief/brief.ts'
 
@@ -11,7 +11,7 @@ describe('collectBrief', () => {
     const gaps: Record<string, Finding[]> = {
       '/a/personal': [
         { level: 'warn', where: 'wiki', text: 'resources/INDEX.md lacks a line', fix: 'nook wiki index --fix' },
-        { level: 'ok', where: '/a/personal', text: '1 desk, no gap' },
+        { level: 'ok', where: '/a/personal', text: '1 workspace, no gap' },
       ],
     }
     const packLines: Record<string, BriefLine[]> = {

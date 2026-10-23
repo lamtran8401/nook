@@ -8,7 +8,7 @@ import { SESSION_LIFE_MS } from '@nook/core/web/pairs.ts'
 
 export type GateRequest = { method: string; url: string; headers: Record<string, string | string[] | undefined> }
 export type GateDecision = { kind: 'pass'; owner: boolean } | { kind: 'login'; cookie: string; location: string } | { kind: 'deny'; status: 401 | 403; reason: string }
-/** The pairs of the desk: `Pairs` of core, or a fake in a test. */
+/** The pairs of the workspace: `Pairs` of core, or a fake in a test. */
 export type PairStore = { redeem: (token: string) => string | null; holds: (session: string) => boolean }
 
 /** Set on a request of a paired browser before Next.js renders it; a header of that name from the browser is dropped. */
@@ -23,7 +23,7 @@ const header = (req: GateRequest, name: string): string | undefined => {
 
 export class Gate {
   readonly #host: string
-  // cookies ignore the port, so the name holds it: two desks on two ports keep two sessions
+  // cookies ignore the port, so the name holds it: two workspaces on two ports keep two sessions
   readonly #cookie: string
   readonly #pairs: PairStore
 

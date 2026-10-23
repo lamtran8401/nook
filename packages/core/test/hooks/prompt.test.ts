@@ -13,7 +13,7 @@ beforeEach(() => {
 afterEach(() => removeDir(root))
 
 describe('promptHook', () => {
-  test('keeps the prompt of the owner in the log of the desk, a token masked, and lets it pass', () => {
+  test('keeps the prompt of the owner in the log of the workspace, a token masked, and lets it pass', () => {
     const result = promptHook({ cwd: root, session_id: 's1', hook_event_name: 'UserPromptSubmit', prompt: 'look good, the key is sk-ant-api03-abcdefghijklmnopqrstuv' })
     expect(result).toEqual({ kind: 'pass' })
     const [day] = readdirSync(join(root, '.nook', 'events'))

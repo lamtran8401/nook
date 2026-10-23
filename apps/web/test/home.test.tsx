@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import type { BriefLine } from '@nook/desk/desks.ts'
+import type { BriefLine } from '@nook/workspace/workspaces.ts'
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 import type { Metrics } from '@nook/engineering/report/metrics.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
@@ -82,7 +82,7 @@ describe('Inbox', () => {
     expect(tile(markup, 'Done since yesterday')).toBe('Done since yesterday 1 SHOP-11 Show the total')
   })
 
-  test('a desk with no engineering shows no numbers and no board', () => {
+  test('a workspace with no engineering shows no numbers and no board', () => {
     const markup = inbox({ metrics: null, trend: null })
     expect(markup).not.toContain('data-slot="trend-tile"')
   })

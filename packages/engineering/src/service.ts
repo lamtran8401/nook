@@ -65,7 +65,7 @@ export type NewItem = {
   state?: State
   /** The item that this one belongs to; it must be in the ledger. */
   parent?: string
-  /** The type of the ticket, such as Sub-Bug: with no kind given, the kind that the desk learned for it. */
+  /** The type of the ticket, such as Sub-Bug: with no kind given, the kind that the workspace learned for it. */
   type?: string
   /** The story points of the ticket, such as 8. */
   points?: number
@@ -196,7 +196,7 @@ export class Engineering {
     return this.item(id)
   }
 
-  /** `kind set`: the desk keeps the kind of a ticket type, so the next ticket of that type gets it. */
+  /** `kind set`: the workspace keeps the kind of a ticket type, so the next ticket of that type gets it. */
   setTypeKind(type: string, kind: string): void {
     this.permissions.assert('kind set')
     if (!isOneOf(ITEM_KINDS, kind)) throw usage(`kind must be one of ${ITEM_KINDS.join(', ')}`)

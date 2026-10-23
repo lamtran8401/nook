@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { mkdirSync, utimesSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { RetroFact } from '@nook/desk/desks.ts'
+import type { RetroFact } from '@nook/workspace/workspaces.ts'
 
 import { blockFacts, errorFacts, eventLines, formatFacts, retroFile, retroSince } from '../src/retro/retro.ts'
 import { removeDir, tempDir } from './helpers.ts'

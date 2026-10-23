@@ -1,4 +1,4 @@
-import type { BriefLine } from '@nook/desk/desks.ts'
+import type { BriefLine } from '@nook/workspace/workspaces.ts'
 import type { BoardCard, Receipt } from '@nook/engineering/read/reader.ts'
 import type { Metrics } from '@nook/engineering/report/metrics.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
@@ -104,7 +104,7 @@ function Lines({ title, lines, empty, base }: { title: string; lines: BriefLine[
   )
 }
 
-/** The home of a desk as an inbox: the moves that wait, acted on in place, the receipts of today, the numbers of the flow, the board, and what runs. */
+/** The home of a workspace as an inbox: the moves that wait, acted on in place, the receipts of today, the numbers of the flow, the board, and what runs. */
 export function Inbox({ brief, questions, metrics, trend, receipts, cards, base }: {
   brief: BriefLine[]
   questions: Question[]

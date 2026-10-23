@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { FeatureModule } from '@nook/desk/desks.ts'
-import { DeskList } from '@nook/desk/desk-list.ts'
+import type { FeatureModule } from '@nook/workspace/workspaces.ts'
+import { WorkspaceList } from '@nook/workspace/workspace-list.ts'
 
 import { init } from '../../src/init/initializer.ts'
 import { initIn, PLUGIN_DIR, removeDir, tempDir } from '../helpers.ts'
@@ -96,9 +96,9 @@ describe('Initializer', () => {
   })
 })
 
-describe('Initializer: the list of desks', () => {
+describe('Initializer: the list of workspaces', () => {
   test('init adds its folder to the list of the owner, once', () => {
-    const list = new DeskList(join(root, 'home', '.config', 'nook', 'desks'))
+    const list = new WorkspaceList(join(root, 'home', '.config', 'nook', 'workspaces'))
     init({ dir: root, with: [], update: false, pluginDir: PLUGIN_DIR, list })
     init({ dir: root, with: [], update: true, pluginDir: PLUGIN_DIR, list })
     expect(list.dirs()).toEqual([root])

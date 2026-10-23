@@ -46,14 +46,14 @@ describe('whose turn it is', () => {
 })
 
 describe('the areas of an item', () => {
-  test('each area of the desk keeps one tone, by its place in nook.yml', () => {
+  test('each area of the workspace keeps one tone, by its place in nook.yml', () => {
     expect(areaTone('api', ['api', 'web', 'worker'])).toBe('primary')
     expect(areaTone('web', ['api', 'web', 'worker'])).toBe('violet')
     expect(areaTone('worker', ['api', 'web', 'worker'])).toBe('aqua')
     expect(areaTone('ghost', ['api', 'web'])).toBe('neutral')
   })
 
-  test('the tags read the areas of the desk from the page', () => {
+  test('the tags read the areas of the workspace from the page', () => {
     const tags = html(<AreaTones names={['api', 'web']}><AreaTags names={['web', 'api']} /></AreaTones>)
     expect([...tags.matchAll(/data-tone="(\w+)" data-variant="label"[^>]*>(\w+)</g)].map(m => `${m[2]}:${m[1]}`)).toEqual(['web:violet', 'api:primary'])
   })

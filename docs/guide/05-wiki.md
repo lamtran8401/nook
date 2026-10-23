@@ -1,6 +1,6 @@
 # 5. The wiki
 
-> In short: the wiki is `docs/wiki/` of your desk. It holds what lasts: how a system works, the lesson of a source, a concept. You and the agents read it; a page changes only after your yes.
+> In short: the wiki is `docs/wiki/` of your workspace. It holds what lasts: how a system works, the lesson of a source, a concept. You and the agents read it; a page changes only after your yes.
 
 ## The shelves
 

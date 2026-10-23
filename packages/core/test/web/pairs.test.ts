@@ -8,19 +8,19 @@ import { Pairs } from '../../src/web/pairs.ts'
 const MINUTE = 60_000
 const DAY = 24 * 60 * MINUTE
 
-let desk: string
+let workspace: string
 let clock: number
 const pairs = () => {
   let n = 0
-  return new Pairs(desk, { now: () => clock, newSecret: () => `secret-${++n}` })
+  return new Pairs(workspace, { now: () => clock, newSecret: () => `secret-${++n}` })
 }
-const file = () => join(desk, '.nook', 'web-pairs.json')
+const file = () => join(workspace, '.nook', 'web-pairs.json')
 
 beforeEach(() => {
-  desk = mkdtempSync(join(tmpdir(), 'nook-pairs-'))
+  workspace = mkdtempSync(join(tmpdir(), 'nook-pairs-'))
   clock = 1_000_000
 })
-afterEach(() => rmSync(desk, { recursive: true, force: true }))
+afterEach(() => rmSync(workspace, { recursive: true, force: true }))
 
 describe('Pairs', () => {
   test('a pair token gives a session once, and the session holds', () => {
@@ -42,7 +42,7 @@ describe('Pairs', () => {
   test('a session holds for 30 days, also for a new reader of the file, as after a restart', () => {
     const p = pairs()
     p.redeem(p.offer())
-    const later = new Pairs(desk, { now: () => clock })
+    const later = new Pairs(workspace, { now: () => clock })
     clock += 30 * DAY
     expect(later.holds('secret-2')).toBe(true)
     clock += 1
@@ -90,7 +90,7 @@ describe('Pairs', () => {
     expect(JSON.parse(readFileSync(file(), 'utf8'))).toEqual({ tokens: [], sessions: [] })
   })
 
-  test('a desk that never paired holds nothing', () => {
+  test('a workspace that never paired holds nothing', () => {
     expect(pairs().holds('secret-1')).toBe(false)
   })
 })

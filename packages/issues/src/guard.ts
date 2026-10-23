@@ -1,18 +1,18 @@
 import { basename } from 'node:path'
 
-import { featureHome } from '@nook/desk/desks.ts'
+import { featureHome } from '@nook/workspace/workspaces.ts'
 import { block, pass, type HookInput, type HookResult } from '@nook/shared/hook.ts'
 import { runCommand } from '@nook/shared/run.ts'
 import { shellCommands } from '@nook/shared/shell.ts'
 
-/** The guard of the trackers: the agents of a desk read tickets and never write them, through `gh` or `twg`. */
+/** The guard of the trackers: the agents of a workspace read tickets and never write them, through `gh` or `twg`. */
 
 export type TwgAccess = 'read' | 'write' | 'unknown'
 /** One command of the map of twg: its words, each with its aliases, and its access. */
 export type TwgCommand = { words: string[][]; access: TwgAccess }
 
 const ASK = 'Ask the owner to do it.'
-const writes = (command: string) => `${command} writes to the tracker: the agents of this desk only read tickets. ${ASK}`
+const writes = (command: string) => `${command} writes to the tracker: the agents of this workspace only read tickets. ${ASK}`
 const unsure = (command: string) => `the guard cannot tell whether ${command} writes to the tracker, so it blocks it. Ask the owner to run it.`
 
 const WORD = '[a-z][\\w-]*'
@@ -151,7 +151,7 @@ export function loadTwgMap(): TwgCommand[] | null {
   return map.length ? map : null
 }
 
-/** PreToolUse Bash: block a write to a tracker, only in a desk that turns the pack issue-tracker on. */
+/** PreToolUse Bash: block a write to a tracker, only in a workspace that turns the pack issue-tracker on. */
 export function trackerHook(input: HookInput, twgMap: () => TwgCommand[] | null = loadTwgMap): HookResult {
   const command = input.tool_input?.command
   if (input.tool_name !== 'Bash' || typeof command !== 'string') return pass

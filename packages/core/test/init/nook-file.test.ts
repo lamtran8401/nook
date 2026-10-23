@@ -5,7 +5,7 @@ import { addSections, nookYaml } from '../../src/init/nook-file.ts'
 describe('nookYaml', () => {
   test('writes the comments and an empty section for each feature named', () => {
     const text = nookYaml(['engineering', 'wiki'])
-    expect(text.startsWith('# Nook: this folder is a desk.')).toBe(true)
+    expect(text.startsWith('# Nook: this folder is a workspace.')).toBe(true)
     expect(text.endsWith('\nengineering: {}\nwiki: {}\n')).toBe(true)
   })
 

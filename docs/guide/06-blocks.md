@@ -52,6 +52,6 @@ Type the `!` command in the Claude Code prompt. It runs in the session, outside 
 ## After an update of Nook
 
 1. Run `bun install` in the Nook repo.
-2. Run `nook init --update` in each desk.
+2. Run `nook init --update` in each workspace.
 3. Start a new Claude Code session. Claude Code loads the hooks and the persona only at the start of a session.
 4. Run `nook doctor`.

@@ -11,9 +11,9 @@ const mark = (level: Finding['level']) =>
 
 export function formatDoctor(report: DoctorReport, from: string): string {
   const lines: string[] = []
-  if (report.desks.length) {
-    lines.push('Desks, the outermost first:')
-    for (const desk of report.desks) lines.push(`  ${desk.dir === from ? '•' : '·'} ${desk.dir}  sections: ${desk.features.join(', ') || 'none'}`)
+  if (report.workspaces.length) {
+    lines.push('Workspaces, the outermost first:')
+    for (const workspace of report.workspaces) lines.push(`  ${workspace.dir === from ? '•' : '·'} ${workspace.dir}  sections: ${workspace.features.join(', ') || 'none'}`)
     lines.push('Features on here, and where each keeps its record:')
     for (const feature of report.features) lines.push(`  ${feature.name.padEnd(14)} ${feature.home === from ? 'here' : feature.home}`)
   }

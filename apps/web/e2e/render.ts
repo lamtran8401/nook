@@ -1,12 +1,12 @@
 // Calls the request handler of the web app under Node with requests made in memory: no port opens.
-// Run: node render.ts; NOOK_DESK names the desk, which gets one pair token. Prints the answers as JSON.
+// Run: node render.ts; NOOK_WORKSPACE names the workspace, which gets one pair token. Prints the answers as JSON.
 import { IncomingMessage, type OutgoingHttpHeaders, ServerResponse } from 'node:http'
 import { Socket } from 'node:net'
 import { join } from 'node:path'
 
 import { Pairs } from '@nook/core/web/pairs.ts'
 
-import { listDesks } from '../lib/desks.ts'
+import { listWorkspaces } from '../lib/workspaces.ts'
 import { createHandler, type WebHandler } from '../lib/handler.ts'
 
 const PORT = 4321
@@ -33,12 +33,12 @@ async function call(handler: WebHandler, url: string, headers: Record<string, st
 
 // the packages find the Nook repo by this variable: in the bundle of Next.js a file has no folder of its own
 process.env.NOOK_PROJECT ??= join(import.meta.dirname, '..', '..', '..')
-const pairs = new Pairs(process.env.NOOK_DESK ?? '')
+const pairs = new Pairs(process.env.NOOK_WORKSPACE ?? '')
 const token = pairs.offer()
 const handler = await createHandler({ dir: join(import.meta.dirname, '..'), port: PORT, pairs })
 const login = await call(handler, `/?t=${token}`, {})
 const cookie = String(login.headers['set-cookie'] ?? '').split(';')[0] ?? ''
-const base = `/${listDesks()[0]!.slug}`
+const base = `/${listWorkspaces()[0]!.slug}`
 const root = await call(handler, '/', { cookie })
 const home = await call(handler, base, { cookie })
 const page = await call(handler, `${base}/works`, { cookie })

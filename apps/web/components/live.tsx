@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-/** Listens on the live stream of the desk at `base` and renders the page again when the desk changes, with no reload. */
+/** Listens on the live stream of the workspace at `base` and renders the page again when the workspace changes, with no reload. */
 export function Live({ base }: { base: string }) {
   const router = useRouter()
   useEffect(() => {

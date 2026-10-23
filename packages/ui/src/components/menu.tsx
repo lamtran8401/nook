@@ -6,7 +6,7 @@ import type * as React from 'react'
 
 import { cn } from '@nook/ui/lib/utils.ts'
 
-/** A menu that floats over the page, such as the desk menu or the Display menu of the board: thick glass, items as soft rows. */
+/** A menu that floats over the page, such as the workspace menu or the Display menu of the board: thick glass, items as soft rows. */
 function Menu(props: React.ComponentProps<typeof MenuPrimitive.Root>) {
   return <MenuPrimitive.Root data-slot="menu" {...props} />
 }

@@ -17,9 +17,9 @@ The mock is the demo artifact `161XM1hA4Mm1Tw31tNza1D`. The compare of the kit i
 |---|---|---|
 | tokens | Bench v1 colors | v2 colors in OKLCH, ground `#f6f6f4`, dark theme |
 | corners | Bench radii, superellipse | the v2 scale, a round arc |
-| shell | dark rail of desks | desk menu in the sidebar; the sidebar docks or floats |
+| shell | dark rail of workspaces | workspace menu in the sidebar; the sidebar docks or floats |
 | keys | none | ⌘K menu, G and a letter, J and K, `[` |
-| home | a brief of the desk | an inbox: act in place, number tiles, receipts |
+| home | a brief of the workspace | an inbox: act in place, number tiles, receipts |
 | board | Bench board, one column for each step | counting lane, four phases, backlog frame, Display menu |
 | item | 80% dialog | a drawer with the overview, a full page with tabs |
 | documents | text blocks | parts of the kit for each section |
@@ -113,7 +113,7 @@ The rules come from the owner. Each part takes one treatment by its role.
 |---|---|---|
 | V1 | kit tokens, the token layer of Bench, the radius scale, the dark theme | kit tests; a test that each mapped token exists in the kit |
 | V2 | kit parts: button, chip, card, tile, segment, input, key hint, empty state, glass menu, drawer, toast | kit tests; a look at each part, light and dark |
-| V3 | the shell: sidebar with the desk menu, dock and float, top bar, ⌘K, the keys | web tests; a live test of ⌘K and `[` in Chrome |
+| V3 | the shell: sidebar with the workspace menu, dock and float, top bar, ⌘K, the keys | web tests; a live test of ⌘K and `[` in Chrome |
 | V4 | points in the ledger and the tracker pull | engineering and issue-tracker tests; migration test |
 | V5 | the board: lane, phases, backlog, Display menu, list, cards | web tests; screenshots of each layout and grouping |
 | V6 | the item: drawer, full page, tabs by kind, document parts, overview | web tests on the four demo items; screenshots of each tab |

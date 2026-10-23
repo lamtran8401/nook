@@ -19,7 +19,7 @@ const FILE = <FileText className="size-5" aria-hidden="true" />
 
 /** The lines that match the search, under their file, each with its heading, as a link to its page. */
 export function SearchResults({ query, hits }: { query: string; hits: Hit[] }) {
-  if (!query.trim()) return <EmptyState icon={FILE} title="Search the desk">Type words in the box at the top: the wiki, the work items and the courses.</EmptyState>
+  if (!query.trim()) return <EmptyState icon={FILE} title="Search the workspace">Type words in the box at the top: the wiki, the work items and the courses.</EmptyState>
   if (!hits.length) return <EmptyState icon={FILE} title={`Nothing holds "${query}"`}>A line matches when it holds every word.</EmptyState>
   return (
     <section className="grid gap-3">

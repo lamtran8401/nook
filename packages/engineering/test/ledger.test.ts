@@ -134,14 +134,14 @@ describe('Ledger', () => {
   test('openReadOnly of a missing ledger is a gap with its fix, and makes no folder', () => {
     const file = join(dir, 'none', 'engineering.db')
     const error = catchError(() => Ledger.openReadOnly(file))
-    expect(error).toMatchObject({ code: Exit.refused, fix: 'run any `nook eng` command in the desk' })
+    expect(error).toMatchObject({ code: Exit.refused, fix: 'run any `nook eng` command in the workspace' })
     expect(existsSync(join(dir, 'none'))).toBe(false)
   })
 
   test('openReadOnly of a ledger that needs a migration is a gap, and runs no migration', () => {
     ledger.run('DELETE FROM migration WHERE n = ?', MIGRATIONS.length)
     const error = catchError(() => Ledger.openReadOnly(join(dir, 'state', 'engineering.db')))
-    expect(error).toMatchObject({ code: Exit.refused, message: 'the ledger needs 1 migration', fix: 'run any `nook eng` command in the desk' })
+    expect(error).toMatchObject({ code: Exit.refused, message: 'the ledger needs 1 migration', fix: 'run any `nook eng` command in the workspace' })
     expect(ledger.all('SELECT n FROM migration')).toEqual([{ n: 1 }, { n: 2 }, { n: 3 }, { n: 4 }, { n: 5 }, { n: 6 }, { n: 7 }])
   })
 })

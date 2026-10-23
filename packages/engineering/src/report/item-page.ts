@@ -1,4 +1,4 @@
-import { uiKit } from '@nook/desk/desks.ts'
+import { uiKit } from '@nook/workspace/workspaces.ts'
 import { usage } from '@nook/shared/errors.ts'
 
 import { dateOf, frontMatter } from '../documents/markdown.ts'

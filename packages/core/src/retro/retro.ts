@@ -1,10 +1,10 @@
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { RetroFact } from '@nook/desk/desks.ts'
-import type { DeskEvent } from '@nook/desk/events.ts'
+import type { RetroFact } from '@nook/workspace/workspaces.ts'
+import type { WorkspaceEvent } from '@nook/workspace/events.ts'
 
-/** `nook retro`: the facts since the last retro of a desk, and the file that the retro of today writes. */
+/** `nook retro`: the facts since the last retro of a workspace, and the file that the retro of today writes. */
 
 const RETRO_DIR = join('docs', 'retro')
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
@@ -42,7 +42,7 @@ export function formatFacts(facts: RetroFact[]): string {
 }
 
 /** The blocks of the guards as facts: each hook and reason once, with its count and its last time, the most frequent first. */
-export function blockFacts(events: DeskEvent[]): RetroFact[] {
+export function blockFacts(events: WorkspaceEvent[]): RetroFact[] {
   return groupFacts(events.filter(e => e.kind === 'block'), 'guard blocks')
 }
 
@@ -50,7 +50,7 @@ export function blockFacts(events: DeskEvent[]): RetroFact[] {
 export type EventGroup = { hook: string; reason: string; count: number; at: string }
 
 /** The events in groups by hook and reason, the most frequent first. */
-export function groupEvents(events: DeskEvent[]): EventGroup[] {
+export function groupEvents(events: WorkspaceEvent[]): EventGroup[] {
   const groups = new Map<string, EventGroup>()
   for (const event of events) {
     const key = `${event.hook}\n${event.reason}`
@@ -60,15 +60,15 @@ export function groupEvents(events: DeskEvent[]): EventGroup[] {
   return [...groups.values()].sort((a, b) => b.count - a.count)
 }
 
-const groupFacts = (events: DeskEvent[], kind: string): RetroFact[] => groupEvents(events).map(g => ({ kind, item: g.hook, text: `${g.count}× ${g.reason}`, at: g.at }))
+const groupFacts = (events: WorkspaceEvent[], kind: string): RetroFact[] => groupEvents(events).map(g => ({ kind, item: g.hook, text: `${g.count}× ${g.reason}`, at: g.at }))
 
 /** The errors of the hooks as facts: each hook and message once, with its count, the most frequent first. */
-export function errorFacts(events: DeskEvent[]): RetroFact[] {
+export function errorFacts(events: WorkspaceEvent[]): RetroFact[] {
   return groupFacts(events.filter(e => e.kind === 'error'), 'hook errors')
 }
 
 /** One line for each event of the log: its time, then the prompt, or the block or error with its hook, its agent and its command. */
-export function eventLines(events: DeskEvent[]): string {
+export function eventLines(events: WorkspaceEvent[]): string {
   return events
     .map(e => (e.kind === 'prompt' ? `${e.at}  prompt  ${e.text}` : `${e.at}  ${e.kind.padEnd(6)}  ${e.hook} (${e.agent}): ${e.reason} · ${e.command}`))
     .join('\n')

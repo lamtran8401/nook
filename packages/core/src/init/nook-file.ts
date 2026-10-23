@@ -1,7 +1,7 @@
-/** The nook.yml of a new desk: the comments that say what goes where, and an empty section for each feature named. */
+/** The nook.yml of a new workspace: the comments that say what goes where, and an empty section for each feature named. */
 export function nookYaml(features: string[]): string {
   return [
-    '# Nook: this folder is a desk. The folders inside it get its features and its rules.',
+    '# Nook: this folder is a workspace. The folders inside it get its features and its rules.',
     '# A feature is on where nook.yml has its section: engineering:, issue-tracker:, wiki:. /setup writes each one.',
     '# rules.off: base rules that you do not want written. secrets: files that no agent may read.',
     ...features.map(name => `${name}: {}`),

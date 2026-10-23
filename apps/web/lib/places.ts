@@ -15,10 +15,10 @@ function itemHref(base: string, rel: string): string {
   return DOC_TABS.includes(tab) ? `${base}/works/${id}?tab=${tab}` : `${base}/works/${id}`
 }
 
-/** The folders of the packs of the desk that exist: the item folders and the wiki; each address starts with `base`. */
-export function deskPlaces(desk: string, base = ''): Place[] {
-  const works = Home.find(desk)?.workRoot
-  const wiki = findWiki(desk)?.dir
+/** The folders of the packs of the workspace that exist: the item folders and the wiki; each address starts with `base`. */
+export function workspacePlaces(workspace: string, base = ''): Place[] {
+  const works = Home.find(workspace)?.workRoot
+  const wiki = findWiki(workspace)?.dir
   return [
     ...(works ? [{ root: works, href: (rel: string) => itemHref(base, rel) }] : []),
     ...(wiki ? [{ root: wiki, href: (rel: string) => `${base}/wiki/${rel}` }] : []),

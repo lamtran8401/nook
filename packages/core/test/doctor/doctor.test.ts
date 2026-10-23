@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { FeatureModule } from '@nook/desk/desks.ts'
+import type { FeatureModule } from '@nook/workspace/workspaces.ts'
 
 import { doctor } from '../../src/doctor/doctor.ts'
 import { formatDoctor } from '../../src/doctor/format.ts'
@@ -28,15 +28,15 @@ const fakeFeature = (gap: boolean, configured = true): FeatureModule => ({
 })
 
 describe('Doctor', () => {
-  test('outside a desk it reports one error with the fix to init', () => {
+  test('outside a workspace it reports one error with the fix to init', () => {
     expect(report().findings).toEqual([
-      { level: 'error', where: root, text: 'not inside a desk: no nook.yml here or above', fix: 'run `nook init` in this folder or in one above it' },
+      { level: 'error', where: root, text: 'not inside a workspace: no nook.yml here or above', fix: 'run `nook init` in this folder or in one above it' },
     ])
   })
 
-  test('a fresh desk with its plugin on has no gap', () => {
+  test('a fresh workspace with its plugin on has no gap', () => {
     initIn(root)
-    expect(texts()).toEqual(['1 desk above, 1 feature on, no gap'])
+    expect(texts()).toEqual(['1 workspace above, 1 feature on, no gap'])
   })
 
   test('a rule of the owner with the name of a base rule is a gap with the fix to turn one off', () => {
@@ -81,13 +81,13 @@ describe('Doctor: the plugins of Claude Code', () => {
     ])
   })
 
-  test('a plugin that the settings of the desk turn on counts', () => {
+  test('a plugin that the settings of the workspace turn on counts', () => {
     initIn(root)
     claudeDir = claudeDirWith(root, [])
     const settings = join(root, '.claude', 'settings.local.json')
     mkdirSync(join(root, '.claude'), { recursive: true })
     writeFileSync(settings, JSON.stringify({ enabledPlugins: { 'nook@nook': true } }))
-    expect(texts()).toEqual(['1 desk above, 1 feature on, no gap'])
+    expect(texts()).toEqual(['1 workspace above, 1 feature on, no gap'])
   })
 })
 
@@ -103,7 +103,7 @@ describe('Doctor: the gaps of a feature', () => {
   test('the health line of a feature is not a gap', () => {
     initIn(root)
     writeFileSync(join(root, 'nook.yml'), 'engineering: {}\n')
-    expect(texts([fakeFeature(false)])).toEqual(['1 desk above, 2 features on, no gap'])
+    expect(texts([fakeFeature(false)])).toEqual(['1 workspace above, 2 features on, no gap'])
   })
 
   test('a feature whose section is not filled in is a gap with the fix to run /setup', () => {
@@ -116,7 +116,7 @@ describe('Doctor: the gaps of a feature', () => {
 })
 
 describe('formatDoctor', () => {
-  test('the line of each desk lists the sections of its nook.yml', () => {
+  test('the line of each workspace lists the sections of its nook.yml', () => {
     initIn(root, ['engineering'])
     expect(formatDoctor(report(), root).split('\n')[1]).toBe(`  • ${root}  sections: engineering`)
   })

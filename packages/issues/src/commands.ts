@@ -1,7 +1,7 @@
 import type { Program } from '@nook/shared/cli.ts'
 import { Exit, usage } from '@nook/shared/errors.ts'
 import { readInput, runHook } from '@nook/shared/hook.ts'
-import { hookRecorder } from '@nook/desk/events.ts'
+import { hookRecorder } from '@nook/workspace/events.ts'
 
 import { listFields } from './fields.ts'
 import { trackerHook } from './guard.ts'
@@ -51,7 +51,7 @@ export const issuesProgram: Program = {
     },
     {
       path: ['sources'],
-      summary: 'the sources of this desk, and whether the CLI of each one is on the path and has a login',
+      summary: 'the sources of this workspace, and whether the CLI of each one is on the path and has a login',
       run(c) {
         const checks = requireIssues().config.sources.map(source => checkSource(source))
         c.out(checks, all => (all.length ? all.map(line).join('\n') : 'no source: add one to issue-tracker.sources with /setup'))

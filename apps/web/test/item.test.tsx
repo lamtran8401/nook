@@ -248,8 +248,8 @@ describe('DocTab', () => {
 
 describe('DocTab of each kind', () => {
   test('a root cause leads with its type and what the type means', () => {
-    const markup = html(<DocTab item={view.item} name="root-cause" text={'---\ntype: missing test\n---\n# SHOP-42: the root cause\n\nNo test opened an empty desk.\n'} criteria={[]} />)
-    expect(text(markup)).toBe('works/SHOP-42/root-cause.md missing test The earliest point where the bug was made. Retro counts each type across the desk. No test opened an empty desk.')
+    const markup = html(<DocTab item={view.item} name="root-cause" text={'---\ntype: missing test\n---\n# SHOP-42: the root cause\n\nNo test opened an empty workspace.\n'} criteria={[]} />)
+    expect(text(markup)).toBe('works/SHOP-42/root-cause.md missing test The earliest point where the bug was made. Retro counts each type across the workspace. No test opened an empty workspace.')
   })
 
   test('a root cause with no type yet says to write one', () => {

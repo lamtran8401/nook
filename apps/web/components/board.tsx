@@ -163,7 +163,7 @@ function ItemList({ cards, group, base }: { cards: BoardCard[]; group: BoardOpti
   )
 }
 
-/** The items of the desk: the lane that counts each phase, a filter of kinds, then the layout that the Display menu chose. */
+/** The items of the workspace: the lane that counts each phase, a filter of kinds, then the layout that the Display menu chose. */
 export function Board({ cards, options, base }: { cards: BoardCard[]; options: BoardOptions; base: string }) {
   if (!cards.length) return <EmptyState icon={<Inbox className="size-5" aria-hidden="true" />} title="No item yet">Type /intake in the agent session to start one.</EmptyState>
   const shown = visibleCards(cards, options.kind)

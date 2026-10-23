@@ -1,9 +1,9 @@
 # The wiki pack
 
-> In short: the wiki is `docs/wiki/` of a desk, in shelves, each shelf with one `INDEX.md`. Nook adds and checks the index lines; the skills read and write the pages after the owner's yes.
+> In short: the wiki is `docs/wiki/` of a workspace, in shelves, each shelf with one `INDEX.md`. Nook adds and checks the index lines; the skills read and write the pages after the owner's yes.
 
 This file states how the code works now. The code is in `packages/wiki/`; the plugin is `plugins/wiki/`.
-The home of the wiki is the nearest desk above a folder that turns `wiki` on.
+The home of the wiki is the nearest workspace above a folder that turns `wiki` on.
 
 ## The section of nook.yml
 
@@ -72,8 +72,8 @@ The gaps of `nook wiki index`:
 
 `packages/wiki/src/read.ts` gives the web app two reads, and writes nothing:
 
-- `readWiki(desk)`: each shelf with its use and the lines of its index, and the drafts that wait for a yes.
-- `readPage(desk, path)`: the text of one page or draft, and each link with the page that it reaches, or null for a broken link. A path outside the wiki, a file that is not Markdown, a missing file, a folder and a secret file are refused. The check runs on the real path, so a page that is a link to a file outside the wiki is refused too.
+- `readWiki(workspace)`: each shelf with its use and the lines of its index, and the drafts that wait for a yes.
+- `readPage(workspace, path)`: the text of one page or draft, and each link with the page that it reaches, or null for a broken link. A path outside the wiki, a file that is not Markdown, a missing file, a folder and a secret file are refused. The check runs on the real path, so a page that is a link to a file outside the wiki is refused too.
 
 `nook wiki links` and `readPage` read the links with the same code.
 

@@ -13,18 +13,18 @@ import { Gate, gateAnswer } from '../lib/gate.ts'
 import { chromePath } from './layout-probe.ts'
 
 let server: Server | null = null
-let desk: string
+let workspace: string
 beforeEach(() => {
-  desk = mkdtempSync(join(tmpdir(), 'nook-login-desk-'))
+  workspace = mkdtempSync(join(tmpdir(), 'nook-login-workspace-'))
 })
 afterEach(() => {
   server?.close()
   server = null
-  rmSync(desk, { recursive: true, force: true })
+  rmSync(workspace, { recursive: true, force: true })
 })
 
 /**
- * The gate of the web app, on the pairs of a temporary desk, in front of a page that says if the browser is paired;
+ * The gate of the web app, on the pairs of a temporary workspace, in front of a page that says if the browser is paired;
  * on a free port of 127.0.0.1 for this test only. `redirect` answers the token with a 303, to show what a browser
  * does with it.
  */
@@ -43,7 +43,7 @@ async function serveGate(redirect: boolean): Promise<number> {
   })
   await new Promise<void>(resolve => server!.listen(0, '127.0.0.1', resolve))
   const port = (server!.address() as AddressInfo).port
-  gate = new Gate(port, new Pairs(desk))
+  gate = new Gate(port, new Pairs(workspace))
   return port
 }
 
@@ -60,7 +60,7 @@ async function chrome(address: string): Promise<string> {
 
 /** The first open of `nook web`: through the page on the disk that holds a new pair token. */
 async function openFromDisk(port: number): Promise<string> {
-  const { dir, page } = writeOpenPage(`http://127.0.0.1:${port}/?t=${new Pairs(desk).offer()}`)
+  const { dir, page } = writeOpenPage(`http://127.0.0.1:${port}/?t=${new Pairs(workspace).offer()}`)
   try {
     return await chrome(`file://${page}`)
   } finally {
@@ -79,6 +79,6 @@ describe('pairing a browser, in a real browser', () => {
 
   test('the link of nook web pair, pasted in a second browser, pairs it', async () => {
     const port = await serveGate(false)
-    expect(await chrome(`http://127.0.0.1:${port}/?t=${new Pairs(desk).offer()}`)).toContain('<p id="paired">true</p>')
+    expect(await chrome(`http://127.0.0.1:${port}/?t=${new Pairs(workspace).offer()}`)).toContain('<p id="paired">true</p>')
   })
 })

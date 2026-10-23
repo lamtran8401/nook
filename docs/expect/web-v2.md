@@ -18,10 +18,10 @@ The plan is `docs/plan/web-v2.md`. Each row must pass before its slice is done.
 
 | # | Given | When | Then |
 |---|---|---|---|
-| E8 | a desk list with two desks | the owner opens the desk menu | each desk shows with its open count; the open desk has a check |
+| E8 | a workspace list with two workspaces | the owner opens the workspace menu | each workspace shows with its open count; the open workspace has a check |
 | E9 | the docked sidebar | the owner presses `[` | the sidebar hides; it floats over the page when the pointer reaches the left edge |
 | E10 | a page of 390 px | it shows | the sidebar floats; no line runs off the page |
-| E11 | any page | the owner presses ⌘K | the menu lists the moves that wait first, then items, pages and desks |
+| E11 | any page | the owner presses ⌘K | the menu lists the moves that wait first, then items, pages and workspaces |
 | E12 | the ⌘K menu | the owner runs Approve | the confirm step shows first; Cancel runs nothing |
 | E13 | any page | the owner presses G, then B | the board opens |
 

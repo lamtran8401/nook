@@ -1,9 +1,9 @@
 # The issue-tracker pack
 
-> In short: the pack reads tickets from Jira through `twg` and from GitHub through `gh`, and never writes to a tracker. A desk maps the fields of each team by their use, such as the acceptance criteria.
+> In short: the pack reads tickets from Jira through `twg` and from GitHub through `gh`, and never writes to a tracker. A workspace maps the fields of each team by their use, such as the acceptance criteria.
 
 This file states how the code works now. The code is in `packages/issues/`; the plugin is `plugins/issue-tracker/`, named `nk-issues`.
-`nook init --pack issue-tracker` turns the pack on. The pack belongs to the nearest desk above a folder that turns it on.
+`nook init --pack issue-tracker` turns the pack on. The pack belongs to the nearest workspace above a folder that turns it on.
 
 ## The section of nook.yml
 
@@ -19,7 +19,7 @@ issue-tracker:
         points: customfield_10016            # the story points: intake gives them to the item
       projects:                               # a project with other fields overrides the map
         PAY: { fields: { acceptanceCriteria: customfield_10210 } }
-      skip: [Release, Test]                   # optional: the types with no local work in this desk
+      skip: [Release, Test]                   # optional: the types with no local work in this workspace
     - type: github
       repo: acme/shop
       prefix: GH                              # issue 482 becomes the item GH-482; the default
@@ -69,8 +69,8 @@ The pull checks every ref before it writes a file. It reads a GitHub issue with 
 
 A Jira work item:
 - A key such as `SHOP-12` goes to the only Jira source, or to the site whose `projects` name its project. Two sites that both fit stop the pull with the fix.
-- The pull writes the type of the ticket as a row `Type:` of Fields. The pack maps no type onto a kind: engineering learns the kind of each type in the desk (`nook eng kind set`), so a pasted ticket with a `Type:` line works the same.
-- A type in `skip` stops the pull with exit 3: it has no local work in this desk. Every other type is pulled.
+- The pull writes the type of the ticket as a row `Type:` of Fields. The pack maps no type onto a kind: engineering learns the kind of each type in the workspace (`nook eng kind set`), so a pasted ticket with a `Type:` line works the same.
+- A type in `skip` stops the pull with exit 3: it has no local work in this workspace. Every other type is pulled.
 - The parent of a ticket, such as the story of a sub-bug, is a row `Parent:` of Fields. `/intake` makes the item with `--parent` when the parent is in the ledger.
 - The map of the key is the map of the source with the override of its project, use by use.
 - Rich text in the Atlassian Document Format becomes Markdown: headings, lists, code, quotes, tables, links, mentions and panels.
@@ -100,7 +100,7 @@ Nook keeps no token: `twg` and `gh` hold the logins. A check reads only the exit
 
 ## The guard
 
-The hook `nook issues hook bash` blocks each write of `twg` and `gh` in a Bash call of an agent. It runs only in a desk that turns the pack on. The pack reads with its own calls, so the guard never stops a pull.
+The hook `nook issues hook bash` blocks each write of `twg` and `gh` in a Bash call of an agent. It runs only in a workspace that turns the pack on. The pack reads with its own calls, so the guard never stops a pull.
 
 | Call | The guard |
 |---|---|
@@ -120,5 +120,5 @@ The hook `nook issues hook bash` blocks each write of `twg` and `gh` in a Bash c
 - The guard reads each simple command with the shell parser of `packages/shared`. A call inside `$(...)`, backticks, `eval`, `sh -c` or a heredoc to a shell counts.
 - Only the command word is a call, such as `gh` in `FOO=1 gh issue close 1`. A word in the arguments of another program passes, such as `grep -rn twg src`.
 - After a program that runs a command, such as `xargs`, `env`, `sudo`, `timeout` or `find -exec`, each `gh` or `twg` word is a call.
-- A block names the command and says to ask the owner, such as `gh issue comment writes to the tracker: the agents of this desk only read tickets. Ask the owner to do it.`
+- A block names the command and says to ask the owner, such as `gh issue comment writes to the tracker: the agents of this workspace only read tickets. Ask the owner to do it.`
 - The guard fails closed: when it fails, it blocks the call with the reason.

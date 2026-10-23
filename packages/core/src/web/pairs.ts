@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { STATE_DIR } from '@nook/shared/names.ts'
 
 /**
- * The browsers that may run owner moves on the web app of a desk. `nook web` and `nook web pair` offer a one-time
+ * The browsers that may run owner moves on the web app of a workspace. `nook web` and `nook web pair` offer a one-time
  * token; the gate swaps it for a session. `.nook/web-pairs.json` holds only hashes, so the file opens no door.
  */
 
@@ -24,8 +24,8 @@ export class Pairs {
   readonly #now: () => number
   readonly #newSecret: () => string
 
-  constructor(desk: string, options: PairOptions = {}) {
-    this.#file = join(desk, STATE_DIR, 'web-pairs.json')
+  constructor(workspace: string, options: PairOptions = {}) {
+    this.#file = join(workspace, STATE_DIR, 'web-pairs.json')
     this.#now = options.now ?? Date.now
     this.#newSecret = options.newSecret ?? (() => randomBytes(32).toString('base64url'))
   }

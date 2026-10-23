@@ -1,4 +1,4 @@
-import type { RetroFact } from '@nook/desk/desks.ts'
+import type { RetroFact } from '@nook/workspace/workspaces.ts'
 
 import { duration } from '../format.ts'
 import type { Engineering } from '../service.ts'
@@ -89,11 +89,11 @@ export function metricsOf(histories: History[], since: Date, until: Date): Metri
 }
 
 /** The events of each item of the ledger, with the root cause that its submit kept. */
-export const deskHistories = (eng: Engineering): History[] =>
+export const workspaceHistories = (eng: Engineering): History[] =>
   eng.stores.items.list().map(item => ({ item: item.id, events: eng.stores.events.history(item.id), rootCause: item.root_cause }))
 
-/** The metrics of a desk for the span, from each item of its ledger. */
-export const deskMetrics = (eng: Engineering, since: Date, until = new Date()): Metrics => metricsOf(deskHistories(eng), since, until)
+/** The metrics of a workspace for the span, from each item of its ledger. */
+export const workspaceMetrics = (eng: Engineering, since: Date, until = new Date()): Metrics => metricsOf(workspaceHistories(eng), since, until)
 
 const LABEL = 12
 const share = (s: Share, words: string) => (s.whole ? `${Math.round((s.part / s.whole) * 100)}%  ${s.part} of ${s.whole} ${words}` : 'no data')

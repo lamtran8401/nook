@@ -1,6 +1,6 @@
 import { createServer } from 'node:net'
 
-/** A free port on 127.0.0.1: the preferred one, such as the last port of the desk, when it is free. */
+/** A free port on 127.0.0.1: the preferred one, such as the last port of the workspace, when it is free. */
 export async function freePort(preferred?: number): Promise<number> {
   if (preferred && (await listens(preferred))) return preferred
   return new Promise((resolve, reject) => {

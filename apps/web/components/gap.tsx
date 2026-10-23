@@ -4,7 +4,7 @@ import { EvError } from '@nook/shared/errors.ts'
 
 import { Callout } from '@nook/ui/components/callout.tsx'
 
-/** A gap of the desk, such as a ledger that needs a migration, with its fix, in place of the data of a page. */
+/** A gap of the workspace, such as a ledger that needs a migration, with its fix, in place of the data of a page. */
 export function Gap({ error }: { error: EvError }) {
   return (
     <Callout tone="warning" icon="!" label={error.message.charAt(0).toUpperCase() + error.message.slice(1)}>
@@ -13,7 +13,7 @@ export function Gap({ error }: { error: EvError }) {
   )
 }
 
-/** The page that a read renders, or the gap of the desk that stops the read. */
+/** The page that a read renders, or the gap of the workspace that stops the read. */
 export function orGap(render: () => ReactNode): ReactNode {
   try {
     return render()

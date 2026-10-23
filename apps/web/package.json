@@ -5,7 +5,7 @@
   "type": "module",
   "dependencies": {
     "@nook/core": "workspace:*",
-    "@nook/desk": "workspace:*",
+    "@nook/workspace": "workspace:*",
     "@nook/engineering": "workspace:*",
     "@nook/shared": "workspace:*",
     "@nook/ui": "workspace:*",

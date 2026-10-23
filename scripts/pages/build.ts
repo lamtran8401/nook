@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 
-import { uiKit } from '@nook/desk/ui-kit.ts'
+import { uiKit } from '@nook/workspace/ui-kit.ts'
 
 /**
  * The two pages of the docs, the guide book and the build report, built from the Markdown of `docs/`.
@@ -13,7 +13,7 @@ type Tab = { id: string; label: string }
 type LinkMap = (href: string, text: string) => string | null
 
 const HERE = import.meta.dir
-const GUIDE_FILES = ['README.md', '01-start.md', '02-desks.md', '03-day.md', '04-work.md', '05-wiki.md', '06-blocks.md']
+const GUIDE_FILES = ['README.md', '01-start.md', '02-workspaces.md', '03-day.md', '04-work.md', '05-wiki.md', '06-blocks.md']
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const unesc = (s: string) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&')
@@ -106,23 +106,23 @@ function pathsDiagram(): string {
   return figure({ type: 'graph', cols: 3, colGap: 40, rowGap: 14, nodes, edges, groups }, 'Three paths for one item, in the colours of the flow above. Each one ends at your accept.')
 }
 
-function deskDiagram(): string {
+function workspaceDiagram(): string {
   return figure(
     {
       type: 'graph', cols: 3, colGap: 30, rowGap: 40,
       groups: [{ at: [1, 1, 2, 2], label: 'company/ · one ledger, one wiki for the tree', icon: 'folder', pad: 14 }],
       nodes: [
-        { id: 'company', at: [1, 1], span: [1, 2], icon: 'folder', kicker: 'top desk', title: 'company/', tags: ['engineering', 'wiki'], tone: 'primary' },
-        { id: 'shop', at: [2, 1], w: 200, icon: 'folder', kicker: 'child desk', title: 'shop/', tags: ['− wiki'], meta: 'packs here: engineering' },
+        { id: 'company', at: [1, 1], span: [1, 2], icon: 'folder', kicker: 'top workspace', title: 'company/', tags: ['engineering', 'wiki'], tone: 'primary' },
+        { id: 'shop', at: [2, 1], w: 200, icon: 'folder', kicker: 'child workspace', title: 'shop/', tags: ['− wiki'], meta: 'packs here: engineering' },
         { id: 'billing', at: [2, 2], w: 200, icon: 'folder', title: 'billing/', meta: 'no nook.yml · packs here: engineering, wiki', line: 'dashed' },
-        { id: 'personal', at: [1, 3], span: [2, 1], w: 210, align: 'center', icon: 'folder', kicker: 'top desk', title: 'personal/', tags: ['engineering', 'wiki'], meta: 'its own ledger and wiki', tone: 'success' },
+        { id: 'personal', at: [1, 3], span: [2, 1], w: 210, align: 'center', icon: 'folder', kicker: 'top workspace', title: 'personal/', tags: ['engineering', 'wiki'], meta: 'its own ledger and wiki', tone: 'success' },
       ],
       edges: [
         { from: 'company', to: 'shop', label: 'packs flow down', split: true, a: 'b' },
         { from: 'company', to: 'billing', split: true, a: 'b' },
       ],
     },
-    'Packs flow down. A child desk adds a pack or turns one off. The folder that holds both top desks is not a desk.',
+    'Packs flow down. A child workspace adds a pack or turns one off. The folder that holds both top workspaces is not a workspace.',
   )
 }
 
@@ -140,8 +140,8 @@ function archDiagram(): string {
         wide('app', 3, 'terminal', 'apps/nook', 'the one binary: joins the commands'),
         pack('core', 1, 'core', 'init, doctor, guards', 'neutral'), pack('eng', 2, 'engineering', 'ledger, machine, git', 'primary'),
         pack('wiki', 3, 'wiki', 'shelves, indexes', 'success'),
-        wide('base', 5, 'box', 'shared · desk', 'CLI router, hook I/O, desks, nook.yml'),
-        wide('disk', 6, 'folder', 'the desk on disk', 'nook.yml · .claude/ · .nook/engineering.db · works/ · docs/wiki/', { fill: 'soft' }),
+        wide('base', 5, 'box', 'shared · workspace', 'CLI router, hook I/O, workspaces, nook.yml'),
+        wide('disk', 6, 'folder', 'the workspace on disk', 'nook.yml · .claude/ · .nook/engineering.db · works/ · docs/wiki/', { fill: 'soft' }),
       ],
       edges: [
         { from: 'session', to: 'plugins', label: 'hooks, skills, agents' }, { from: 'plugins', to: 'app', label: 'bin/nook' },
@@ -149,14 +149,14 @@ function archDiagram(): string {
         { from: 'base', to: 'disk', label: 'reads and writes' },
       ],
     },
-    'The layers. A pack package imports only <code>shared</code> and <code>desk</code>; a plugin holds no code.',
+    'The layers. A pack package imports only <code>shared</code> and <code>workspace</code>; a plugin holds no code.',
   )
 }
 
 /** A text block whose first line names a diagram becomes that diagram; any other ASCII tree becomes a Bench tree. `DRAWN` keeps each diagram in step with its doc text. */
 function figureFor(text: string): string | null {
   if (text.startsWith('backlog ──/spec──▶')) return flowDiagram()
-  if (text.startsWith('company/              a top desk')) return deskDiagram()
+  if (text.startsWith('company/              a top workspace')) return workspaceDiagram()
   if (text.startsWith('Claude Code session')) return archDiagram()
   if (/[├└]── /.test(text)) return figure(treeSpec(text))
   return null
@@ -207,8 +207,8 @@ type Source = { file: string; heading: string; kind: 'block' | 'table'; fingerpr
 export const DRAWN: Record<string, Source> = {
   flowDiagram: { file: 'guide/04-work.md', heading: 'The flow', kind: 'block', fingerprint: 'f1b21a777f92' },
   pathsDiagram: { file: 'guide/04-work.md', heading: 'Pick a path', kind: 'table', fingerprint: '167c69b0cf6d' },
-  deskDiagram: { file: 'guide/02-desks.md', heading: 'Nested desks', kind: 'block', fingerprint: '7a9853e7354a' },
-  archDiagram: { file: 'report.md', heading: 'How it is built', kind: 'block', fingerprint: '267fdd1dbb2a' },
+  workspaceDiagram: { file: 'guide/02-workspaces.md', heading: 'Nested workspaces', kind: 'block', fingerprint: 'c25ffa697af5' },
+  archDiagram: { file: 'report.md', heading: 'How it is built', kind: 'block', fingerprint: 'd5a44af8ad5e' },
 }
 
 /** The first fenced block or table in the `## heading` section of a Markdown file, or null. */
@@ -310,7 +310,7 @@ function guidePage(docs: string, report: string, reportUrl: string, now: Date): 
   return page({
     title: 'Nook Guide Book',
     eyebrow: 'Nook · Guide book',
-    heading: 'A careful senior developer in Claude Code, on your own <mark>desk</mark>',
+    heading: 'A careful senior developer in Claude Code, on your own <mark>workspace</mark>',
     lead: 'How to use Nook, one task for each chapter. Read chapter 1 first; read the others when you need them.',
     meta: [`As of ${dateText(now)}`, `${GUIDE_FILES.length - 1} chapters`, `${esc(packs)} packs`.replace(/^(\d+): (.*) packs$/, '$1 packs: $2')],
     tabs,

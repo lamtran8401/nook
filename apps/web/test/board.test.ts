@@ -19,7 +19,7 @@ const cards = [
   card('SHOP-41', 'done', { points: 3, next: { owner: true, skill: 'owner: /close SHOP-41' } }),
 ]
 
-describe('the board of a desk', () => {
+describe('the board of a workspace', () => {
   test('four phases hold the steps: Shape framing and planning, Build ready and cooking, Review, Done', () => {
     expect(phaseColumns(cards).map(c => `${c.phase.name}:${c.cards.map(x => x.id).join(',')}`)).toEqual([
       'Shape:SHOP-45,SHOP-43',

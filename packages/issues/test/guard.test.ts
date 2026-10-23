@@ -55,14 +55,14 @@ describe('the write guard of the trackers', () => {
   })
 
   test('an issue write of gh is blocked, with the reason', () => {
-    expect(verdict('gh issue comment 482 --body "done"')).toBe('gh issue comment writes to the tracker: the agents of this desk only read tickets. Ask the owner to do it.')
+    expect(verdict('gh issue comment 482 --body "done"')).toBe('gh issue comment writes to the tracker: the agents of this workspace only read tickets. Ask the owner to do it.')
     for (const command of ['gh issue create -t x', 'gh issue edit 482 --add-label x', 'gh issue close 482', 'gh issue delete 482', 'gh -R acme/shop issue reopen 9'])
       expect(verdict(command)).toContain('writes to the tracker')
   })
 
   test('a gh api call with a write method or fields is blocked', () => {
     for (const command of ['gh api -X POST repos/acme/shop/issues/1/comments', 'gh api --method=PATCH repos/x', 'gh api repos/x/issues -f title=y', 'gh api graphql -F query=@q.graphql', 'gh api repos/x --input body.json', 'gh api -Xdelete repos/x'])
-      expect([command, verdict(command)]).toEqual([command, 'gh api with a write method or fields writes to the tracker: the agents of this desk only read tickets. Ask the owner to do it.'])
+      expect([command, verdict(command)]).toEqual([command, 'gh api with a write method or fields writes to the tracker: the agents of this workspace only read tickets. Ask the owner to do it.'])
   })
 
   test('a twg command passes when its map marks it a read, global options and their values skipped', () => {
@@ -71,7 +71,7 @@ describe('the write guard of the trackers', () => {
   })
 
   test('a twg write is blocked, and so is a command the map does not know or marks unknown', () => {
-    expect(verdict('twg jira workitem update SHOP-12 --summary x')).toBe('twg jira workitem update writes to the tracker: the agents of this desk only read tickets. Ask the owner to do it.')
+    expect(verdict('twg jira workitem update SHOP-12 --summary x')).toBe('twg jira workitem update writes to the tracker: the agents of this workspace only read tickets. Ask the owner to do it.')
     expect(verdict('twg jira workitem comment create --issue-id SHOP-12 --body x')).toContain('twg jira workitem comment create writes')
     expect(verdict('twg bb pipeline run 7')).toContain('twg bitbucket pipeline run writes')
     expect(verdict('twg login --site x')).toContain('twg login writes')
@@ -115,13 +115,13 @@ describe('the hook of the write guard', () => {
 
   const bash = (command: string) => ({ tool_name: 'Bash', tool_input: { command }, cwd: root })
 
-  test('in a desk that turns the pack on, a write is blocked with its reason', () => {
+  test('in a workspace that turns the pack on, a write is blocked with its reason', () => {
     writeFileSync(join(root, 'nook.yml'), 'issue-tracker: {}\n')
-    expect(trackerHook(bash('gh issue close 1'), () => MAP)).toEqual({ kind: 'block', reason: 'gh issue close writes to the tracker: the agents of this desk only read tickets. Ask the owner to do it.' })
+    expect(trackerHook(bash('gh issue close 1'), () => MAP)).toEqual({ kind: 'block', reason: 'gh issue close writes to the tracker: the agents of this workspace only read tickets. Ask the owner to do it.' })
     expect(trackerHook(bash('twg jira workitem get SHOP-1'), () => MAP)).toEqual({ kind: 'pass' })
   })
 
-  test('in a desk with the pack off, a write passes', () => {
+  test('in a workspace with the pack off, a write passes', () => {
     writeFileSync(join(root, 'nook.yml'), 'secrets: []\n')
     expect(trackerHook(bash('gh issue close 1'), () => MAP)).toEqual({ kind: 'pass' })
   })

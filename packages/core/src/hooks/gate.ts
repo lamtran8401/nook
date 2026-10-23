@@ -1,4 +1,4 @@
-import { activeFeatures, type FeatureModule } from '@nook/desk/desks.ts'
+import { activeFeatures, type FeatureModule } from '@nook/workspace/workspaces.ts'
 import { block, context, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { ancestorCommands, inBackground, startedByTool } from './session.ts'

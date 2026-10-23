@@ -46,7 +46,7 @@ describe('issuesModule', () => {
     expect(issuesDoctor(root, working).map(f => [f.level, f.text, f.fix])).toEqual([['warn', 'issue-tracker has no source', 'add a jira or github source to issue-tracker.sources with /setup']])
   })
 
-  test('a desk that does not turn the pack on gets nothing', () => {
+  test('a workspace that does not turn the pack on gets nothing', () => {
     yml('wiki: {}\n')
     expect(issuesDoctor(root, working)).toEqual([])
   })

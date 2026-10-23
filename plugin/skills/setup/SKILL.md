@@ -1,16 +1,16 @@
 ---
 name: setup
-description: "Set up a Nook desk after nook init, for each pack that is on: read the disk, ask what it cannot settle, write each pack's section of nook.yml and the map in CLAUDE.md. Use on setup, a new pack, or a changed repo or check."
+description: "Set up a Nook workspace after nook init, for each pack that is on: read the disk, ask what it cannot settle, write each pack's section of nook.yml and the map in CLAUDE.md. Use on setup, a new pack, or a changed repo or check."
 argument-hint: "[what changed]"
 disable-model-invocation: true
 allowed-tools: Bash(nook *), Bash(git *), Bash(ls *), Bash(cat *), Read, Glob, Grep, Edit, Write
 ---
 
-Goal: this folder becomes a desk that an agent can work in with no guess, for every pack that is on. `nook init` wrote `nook.yml`, the Nook block and the rules. You write the rest with the owner; step 8 makes the folders of each pack.
+Goal: this folder becomes a workspace that an agent can work in with no guess, for every pack that is on. `nook init` wrote `nook.yml`, the Nook block and the rules. You write the rest with the owner; step 8 makes the folders of each pack.
 Run it again after a pack is turned on: `nook init` then says which pack needs its section.
 
 ## Order
-1. Run `nook doctor`. If the folder is not a desk, stop and say to run `nook init` first. Each line that starts with a pack name is a gap of that pack: this run must close it.
+1. Run `nook doctor`. If the folder is not a workspace, stop and say to run `nook init` first. Each line that starts with a pack name is a gap of that pack: this run must close it.
 2. Read the disk before you ask anything: `nook.yml`, `CLAUDE.md`, the git repos below (remote, default branch), build files, scripts, CI files, `.env.example`, the folders of docs or notes.
 3. Write down what the disk settled: each repo as a candidate area with its kind (`frontend`, `backend`, `docs`, `data`, `tool`), its checks (the lint, test and build scripts that exist), its test command with `{files}`, its install command from the lockfile.
 4. Ask the owner, in one round, only what the disk cannot settle. The usual questions: which candidates are areas (an area is guarded: its files change only through an item in cooking, so a repo that you edit by hand stays out); the kind of an area the disk does not show; a check that you could not find; the pack issue-tracker with its sources (a Jira site, a GitHub repo), or none; the secret files and where the shelves of the wiki go. Recommended answers first.
@@ -26,7 +26,7 @@ Run it again after a pack is turned on: `nook init` then says which pack needs i
 
 ## Gotchas
 - Never ask what the disk answers: a `test` script in `package.json` is the test check.
-- A folder that holds two desks that must stay apart (company and personal) gets no packs.
+- A folder that holds two workspaces that must stay apart (company and personal) gets no packs.
 - The Nook block in `CLAUDE.md` is not yours. Write above or below it.
 - A check that you did not run is a guess. Run each one once in its area, or mark it "not run".
 - Do not write a secret value anywhere. The `secrets` list holds paths only.
