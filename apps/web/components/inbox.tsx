@@ -1,5 +1,5 @@
 import type { BriefLine } from '@nook/workspace/workspaces.ts'
-import type { BoardCard, Receipt } from '@nook/engineering/read/reader.ts'
+import type { BoardCard, ItemView, Receipt } from '@nook/engineering/read/reader.ts'
 import type { Metrics } from '@nook/engineering/report/metrics.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
 import { Button } from '@nook/ui/components/button.tsx'
@@ -12,6 +12,7 @@ import { Tile } from '@nook/ui/components/tile.tsx'
 
 import { FlowTiles } from '@/components/flow-tiles.tsx'
 import { AnswerForm } from '@/components/item/answer-forms.tsx'
+import { GateEvidence } from '@/components/item/gate-bar.tsx'
 import { Move } from '@/components/item/move.tsx'
 import { InboxList, type InboxListRow } from '@/components/inbox-list.tsx'
 import { STATE_TONE } from '@/components/tones.ts'
@@ -24,14 +25,16 @@ const capital = (word: string) => word.charAt(0).toUpperCase() + word.slice(1)
 const Muted = ({ children }: { children: string }) => <p className="text-[13px] text-muted-foreground">{children}</p>
 
 /** The parts of a row that act: Review and the gate move with its key, the answer box, or the command to type under the line. */
-function rowOf(row: InboxRowData, base: string, questions: Question[]): InboxListRow {
+function rowOf(row: InboxRowData, base: string, questions: Question[], gates: ItemView[]): InboxListRow {
   const href = row.item ? `${base}/works/${row.item.id}` : undefined
   const fixed = { key: row.key, tone: row.tone, id: row.item?.id, sub: row.sub }
   const title = href ? <a href={href} className="hover:underline">{row.title}</a> : row.title
-  if (row.gate && row.item)
+  if (row.gate && row.item) {
+    const view = gates.find(g => g.next.id === row.item!.id)
     return {
       ...fixed,
       title,
+      ...(view ? { below: <div className="grid gap-1.5"><GateEvidence view={view} /></div> } : {}),
       actions: (
         <>
           <Button asChild variant="secondary" size="sm">
@@ -45,19 +48,20 @@ function rowOf(row: InboxRowData, base: string, questions: Question[]): InboxLis
         </>
       ),
     }
+  }
   const question = questions.find(q => q.item === row.item?.id && q.id === row.question)
   if (question && row.item) return { ...fixed, title, below: <AnswerForm item={row.item.id} question={question} /> }
   return { ...fixed, title, ...(row.command ? { below: <CopyCommand text={row.command} /> } : {}) }
 }
 
-function Waits({ brief, questions, base }: { brief: BriefLine[]; questions: Question[]; base: string }) {
+function Waits({ brief, questions, gates, base }: { brief: BriefLine[]; questions: Question[]; gates: ItemView[]; base: string }) {
   const rows = inboxRows(brief)
   return (
     <Tile title="Waits for you" note={rows.length}>
       {rows.length ? (
         <>
           <p className="-mt-2 text-xs text-muted-foreground">J and K pick a row · A approves or accepts · R answers</p>
-          <InboxList rows={rows.map(row => rowOf(row, base, questions))} />
+          <InboxList rows={rows.map(row => rowOf(row, base, questions, gates))} />
         </>
       ) : (
         <Muted>Nothing waits for you.</Muted>
@@ -105,9 +109,11 @@ function Lines({ title, lines, empty, base }: { title: string; lines: BriefLine[
 }
 
 /** The home of a workspace as an inbox: the moves that wait, acted on in place, the receipts of today, the numbers of the flow, the board, and what runs. */
-export function Inbox({ brief, questions, metrics, trend, receipts, cards, base }: {
+export function Inbox({ brief, questions, gates, metrics, trend, receipts, cards, base }: {
   brief: BriefLine[]
   questions: Question[]
+  /** The items of the gate rows, for the evidence and the notes of the door under each one. */
+  gates: ItemView[]
   metrics: Metrics | null
   trend: Metrics[] | null
   receipts: Receipt[]
@@ -117,7 +123,7 @@ export function Inbox({ brief, questions, metrics, trend, receipts, cards, base 
   return (
     <div className="grid items-start gap-3 min-[1100px]:grid-cols-[minmax(0,1fr)_380px]">
       <div className="grid min-w-0 gap-3">
-        <Waits brief={brief} questions={questions} base={base} />
+        <Waits brief={brief} questions={questions} gates={gates} base={base} />
         <Tile title="Receipts" note={`today · ${receipts.length}`}>
           {receipts.length ? <ReceiptList rows={receipts.slice(0, RECEIPTS).map((r, i) => ({ key: `${r.at}${i}`, time: clock(r.at), tone: r.tone, ...whoOf(r.title), title: `${r.item} · ${r.title}`, ...(r.text ? { text: r.text } : {}) }))} /> : <Muted>Nothing happened today yet.</Muted>}
         </Tile>

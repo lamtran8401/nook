@@ -16,12 +16,12 @@ export type CommandActs = { go: (href: string) => void; move: (move: string, ite
 
 const capital = (word: string) => word.charAt(0).toUpperCase() + word.slice(1)
 
-/** The keys of each page: G and its first letter; a letter that an earlier page took gives no keys. */
+/** The keys of each page: G and the first letter of its name that no earlier page took; a name with no free letter gives no keys. */
 function pageKeys(pages: CommandData['pages']): (string[] | undefined)[] {
   const taken = new Set<string>()
   return pages.map(page => {
-    const letter = page.label.charAt(0).toLowerCase()
-    if (taken.has(letter)) return undefined
+    const letter = [...page.label.toLowerCase()].find(char => /[a-z]/.test(char) && !taken.has(char))
+    if (!letter) return undefined
     taken.add(letter)
     return ['g', letter]
   })

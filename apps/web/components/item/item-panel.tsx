@@ -36,7 +36,7 @@ export function ItemPanel({ view, docs, now, base }: { view: ItemView; docs: Ite
       </SidePanelBody>
       {ownerGate(view.next) ? (
         <SidePanelFooter>
-          <GateBar next={view.next} />
+          <GateBar view={view} />
         </SidePanelFooter>
       ) : null}
     </>

@@ -63,13 +63,13 @@ describe('editGuard', () => {
 
 describe('editLog', () => {
   const log = (file: string, extra: Partial<HookInput> = {}) => editLog({ cwd: t.root, session_id: 'sess-1', tool_name: 'Edit', tool_input: { file_path: file, new_string: 'x' }, ...extra })
-  const edits = (id = 'SHOP-1') => t.eng(LEAD).stores.events.history(id).filter(e => e.type === 'edit').map(e => e.reason)
+  const edits = (id = 'SHOP-1') => t.eng(LEAD).stores.events.history(id).filter(e => e.type === 'file').map(e => e.reason)
 
   test('an area file that changes with no running slice is logged once on the item that holds the area', () => {
     itemAt(t, 'cooking', 'SHOP-1', SPEC({ areas: ['bff'] }), TASKS([{ id: 'T1' }]))
     expect(log('projects/bff/src/a.ts').kind).toBe('pass')
     log(join(t.root, 'projects/bff/src/a.ts'))
-    expect(edits()).toEqual(['outside a slice: projects/bff/src/a.ts'])
+    expect(edits()).toEqual(['projects/bff/src/a.ts'])
   })
 
   test('an edit inside a running slice, outside every area or with no item that holds the area is not logged', () => {

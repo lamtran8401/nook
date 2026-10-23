@@ -5,7 +5,9 @@ import { Ledger } from '../ledger.ts'
 import { MOVE_NAMES, type MoveName, type State } from '../machine.ts'
 import { isArchived, type Next, nextFor } from '../report/next.ts'
 import { flowOf } from '../flows.ts'
-import { Engineering } from '../service.ts'
+import { Workspace } from '@nook/workspace/workspaces.ts'
+
+import { Engineering, type NextGaps } from '../service.ts'
 import type { CheckRun } from '../stores/checks.ts'
 import type { Event } from '../stores/events.ts'
 import type { Criterion } from '../stores/criteria.ts'
@@ -45,6 +47,10 @@ export type ItemView = {
   events: EventLine[]
   checks: CheckRun[]
   changes: AreaChange[]
+  /** The gaps that hold the next move and the notes that inform it, as `nook eng item check` prints them. */
+  door: NextGaps
+  /** The agents that worked on the item, by the name of each, against the most that the budget of the workspace starts. */
+  agents: { count: number; names: string[]; budget: 'lean' | 'deep'; limit: number | null }
 }
 const DOC_FILES = { spec: 'spec.md', 'root-cause': 'root-cause.md', plan: 'plan.md', tasks: 'tasks.md', walkthrough: 'walkthrough.md', findings: 'findings.md' } as const
 export type DocName = keyof typeof DOC_FILES
@@ -150,8 +156,18 @@ export function readItem(workspace: string, id: string): ItemView {
       events: history.map(eventLine),
       checks: eng.stores.checks.lastRun(item),
       changes: changesOf(eng, item),
+      door: eng.nextGaps(id),
+      agents: agentsOf(history, Workspace.read(eng.home.dir).config.budget ?? 'lean'),
     }
   })
+}
+
+/** A lean budget starts at most two agents for an item: one fresh reviewer and one builder for a second area. */
+const LEAN_LIMIT = 2
+
+function agentsOf(history: Event[], budget: 'lean' | 'deep'): ItemView['agents'] {
+  const names = history.filter(e => e.type === 'agent').map(e => e.reason ?? 'agent')
+  return { count: names.length, names, budget, limit: budget === 'lean' ? LEAN_LIMIT : null }
 }
 
 const isMove = (type: string): type is ItemMove['move'] => type === 'new' || (MOVE_NAMES as readonly string[]).includes(type)

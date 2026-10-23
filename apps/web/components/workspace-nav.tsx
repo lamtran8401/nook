@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart3, BookOpen, Bot, House, LayoutGrid, ScrollText, Settings } from 'lucide-react'
+import { BarChart3, BookOpen, Bot, House, LayoutGrid, ScrollText, Wrench } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 
@@ -20,7 +20,7 @@ const ICONS: Record<string, ReactNode> = {
   metrics: <BarChart3 aria-hidden="true" />,
   agents: <Bot aria-hidden="true" />,
   events: <ScrollText aria-hidden="true" />,
-  settings: <Settings aria-hidden="true" />,
+  harness: <Wrench aria-hidden="true" />,
 }
 
 /** The page of an address: its own address, or one above it; the home of a workspace marks only itself. */

@@ -16,7 +16,10 @@ const namesEnvFile = (word: string): boolean => {
   return isEnvFile(name) && !CODE_ENV.test(name)
 }
 
-/** The secret files: env files except `.env.example`, `.npmrc`, `~/.ssh`, `~/.aws`, `~/.config/twg`, `~/.config/gh`, and the `secrets` of nook.yml. */
+/** The secret files that every workspace guards, as patterns for a page (`.env.example` is free); nook.yml adds its own `secrets`. */
+export const ALWAYS_SECRET = ['.env', '.env.*', '*.env', '.npmrc', '~/.ssh', '~/.aws', '~/.config/twg', '~/.config/gh']
+
+/** The secret files: the files of ALWAYS_SECRET (an env file but `.env.example`) and the `secrets` of nook.yml. */
 export class SecretPolicy {
   private readonly listed: string[]
 

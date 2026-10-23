@@ -16,14 +16,16 @@ export default async function Home({ params }: { params: Promise<{ workspace: st
     const now = new Date()
     const { brief } = home(workspace.dir)
     const flow = metrics(workspace.dir)
-    // an answer row takes its words in place, so it needs the open questions of its item
-    const asking = [...new Set(brief.filter(line => line.part === 'waits' && line.action?.startsWith('nook eng answer ')).flatMap(line => (line.item ? [line.item.id] : [])))]
+    // an answer row takes its words in place, so it needs the open questions of its item; a gate row shows its evidence
+    const itemsOf = (prefix: string) => [...new Set(brief.filter(line => line.part === 'waits' && line.action?.startsWith(prefix)).flatMap(line => (line.item ? [line.item.id] : [])))]
+    const asking = itemsOf('nook eng answer ')
     return (
       <>
         <PageHeader title={greeting(now)} description={summary(brief)} />
         <Inbox
           brief={brief}
           questions={asking.flatMap(id => itemView(workspace.dir, id).needs.questions)}
+          gates={itemsOf('/gate ').map(id => itemView(workspace.dir, id))}
           metrics={flow}
           trend={trend(workspace.dir)}
           receipts={flow ? receipts(workspace.dir, startOfToday(now)) : []}

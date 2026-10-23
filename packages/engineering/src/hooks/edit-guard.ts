@@ -35,10 +35,10 @@ export function editLog(input: HookInput): HookResult {
   const eng = Engineering.open(target.home, whoOf(Caller.from(input), input.session_id))
   const { slices, items, events } = eng.stores
   if (slices.running().some(s => s.itemState === 'cooking' && s.area === area.name)) return pass
-  const reason = `outside a slice: ${relative(target.home.dir, target.file)}`
+  const file = relative(target.home.dir, target.file)
   const holders = items.list().filter(item => (item.state === 'cooking' || item.state === 'review') && item.areas.includes(area.name))
   eng.ledger.write(() => {
-    for (const item of holders) if (!events.history(item.id).some(e => e.type === 'edit' && e.reason === reason)) events.record(item.id, 'edit', { reason })
+    for (const item of holders) if (!events.history(item.id).some(e => e.type === 'file' && e.reason === file)) events.record(item.id, 'file', { reason: file })
   })
   return pass
 }

@@ -1,9 +1,12 @@
+import { basename, relative } from 'node:path'
+
 import { notFound } from 'next/navigation'
 
 import { EvError } from '@nook/shared/errors.ts'
 
 import { type HomeView, readHome } from '@nook/core/read.ts'
-import { activeFeatures } from '@nook/workspace/workspaces.ts'
+import { activeFeatures, type Budget, type Commands, commandsAbove, secretsAbove, Workspace } from '@nook/workspace/workspaces.ts'
+import { ALWAYS_SECRET } from '@nook/workspace/secrets.ts'
 import { engineeringModule } from '@nook/engineering/module.ts'
 import { type BoardCard, type ItemDocs, type ItemView, readAreas, readBoard, readDocs, readItem, readMetrics, type Receipt, readReceipts, readTrend } from '@nook/engineering/read/reader.ts'
 import type { Metrics } from '@nook/engineering/report/metrics.ts'
@@ -36,7 +39,7 @@ const PAGES: WorkspacePage[] = [
   { key: 'metrics', label: 'Metrics', path: '/metrics', feature: 'engineering' },
   { key: 'agents', label: 'Agents and skills', path: '/agents' },
   { key: 'events', label: 'Events', path: '/events' },
-  { key: 'settings', label: 'Settings', path: '/settings', footer: true },
+  { key: 'harness', label: 'Harness', path: '/harness', footer: true },
 ]
 
 /** The pages of a workspace that its features turn on. */
@@ -81,6 +84,23 @@ export function events(dir: string, filter: { kind?: WorkspaceEvent['kind']; day
   return (filter.day ? all.filter(event => dayOf(new Date(event.at)) === filter.day) : all).reverse()
 }
 
-/** What the settings page shows: the features, the file of the workspace, and the engineering home when there is one. */
-export type WorkspaceSettings = { features: string[]; file: string; engineering: EngineeringSettings | null }
-export const settings = (dir: string): WorkspaceSettings => ({ features: activeFeatures(dir).map(f => f.name), file: `${dir}/nook.yml`, engineering: readSettings(dir) })
+/** What the harness page shows: each feature and the workspace it comes from, the budget, the guards, the file, and the engineering home when there is one. */
+export type Harness = {
+  features: { name: string; from: string | null }[]
+  budget: Budget | null
+  secrets: { always: string[]; listed: string[] }
+  commands: Commands
+  file: string
+  engineering: EngineeringSettings | null
+}
+
+export function harness(dir: string): Harness {
+  return {
+    features: activeFeatures(dir).map(f => ({ name: f.name, from: f.home.dir === dir ? null : basename(f.home.dir) })),
+    budget: Workspace.read(dir).config.budget,
+    secrets: { always: ALWAYS_SECRET, listed: secretsAbove(dir).map(file => relative(dir, file)) },
+    commands: commandsAbove(dir),
+    file: `${dir}/nook.yml`,
+    engineering: readSettings(dir),
+  }
+}

@@ -44,7 +44,7 @@ export function ItemPage({ view, docs, tab, now, base }: { view: ItemView; docs:
       </div>
       {ownerGate(view.next) ? (
         <FloatBar>
-          <GateBar next={view.next} />
+          <GateBar view={view} />
         </FloatBar>
       ) : null}
     </div>

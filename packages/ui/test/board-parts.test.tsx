@@ -34,6 +34,14 @@ describe('the parts of the board', () => {
     expect(text(html(<Frame title="Backlog" count={1} about="Not started."><p>SHOP-46</p></Frame>))).toBe('Backlog 1 Not started. SHOP-46')
   })
 
+  test('a folded frame starts shut as one strip: its header is the summary and its cards open under it', () => {
+    const markup = html(<Frame title="Done" count={2} points={5} folded><p>SHOP-41</p></Frame>)
+    expect(markup).toStartWith('<details data-slot="frame"')
+    expect(markup).not.toContain(' open=""')
+    expect(markup).toMatch(/<summary[^>]*>.*Done.*2.*5 pt.*<\/summary>/)
+    expect(text(markup)).toBe('Done 2 5 pt SHOP-41')
+  })
+
   test('an item card links to its item and shows its id, its points, its areas and its title; a card that waits for the owner is marked', () => {
     const card = html(<ItemCard href="/shop/works/SHOP-42" kind={<i />} id="SHOP-42" points={8} areas={['api', 'web']} title="Pay for an order with a saved card" steps={<StepBar count={7} at={4} />} needs />)
     expect(card).toStartWith('<a data-slot="item-card" href="/shop/works/SHOP-42"')

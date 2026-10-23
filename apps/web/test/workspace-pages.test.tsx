@@ -5,7 +5,7 @@ import type { Metrics } from '@nook/engineering/report/metrics.ts'
 import { AgentsPage } from '@/components/workspace/agents-page.tsx'
 import { EventsPage } from '@/components/workspace/events-page.tsx'
 import { MetricsPage } from '@/components/workspace/metrics-page.tsx'
-import { SettingsPage } from '@/components/workspace/settings-page.tsx'
+import { HarnessPage } from '@/components/workspace/harness-page.tsx'
 import { html, text } from '@/test/markup.ts'
 
 const H = 3_600_000
@@ -85,21 +85,38 @@ describe('EventsPage', () => {
   })
 })
 
-describe('SettingsPage', () => {
-  test('shows the features, the areas with their checks, the kinds learned, the root cause types and the file, each on its row', () => {
-    const settings = {
-      features: ['core', 'engineering'],
-      file: '/d/nook.yml',
-      engineering: { areas: [{ name: 'api', path: 'projects/api', kind: 'backend', checks: ['bun test'] }], kinds: [{ type: 'Sub-Bug', kind: 'fix' as const }], rootCauses: ['Integration error', 'Unknown'], unknownRootCause: 'Unknown' },
-    }
-    expect(text(html(<SettingsPage settings={settings} />))).toBe(
-      'Features On where nook.yml has their section. core on engineering on Areas Where builders work. Area Folder Kind Checks api projects/api backend bun test ' +
+describe('HarnessPage', () => {
+  const harness = {
+    features: [{ name: 'core', from: null }, { name: 'engineering', from: null }, { name: 'wiki', from: 'company' }],
+    budget: 'lean' as const,
+    secrets: { always: ['Env files', '.npmrc', '~/.ssh'], listed: ['deploy/keys.txt'] },
+    commands: { allow: ['gh pr create'], ask: ['git push'], deny: [] },
+    file: '/d/nook.yml',
+    engineering: { areas: [{ name: 'api', path: 'projects/api', kind: 'backend', checks: ['bun test'] }], kinds: [{ type: 'Sub-Bug', kind: 'fix' as const }], rootCauses: ['Integration error', 'Unknown'], unknownRootCause: 'Unknown' },
+  }
+
+  test('shows the features with the workspace each comes from, the budget, the guards, the areas, the kinds learned, the root cause types and the file', () => {
+    expect(text(html(<HarnessPage harness={harness} />))).toBe(
+      'Features On where nook.yml has their section. core on engineering on wiki from company ' +
+        'Agent budget How many agents a skill starts. lean A skill starts at most one fresh reviewer and one builder for a second area. ' +
+        'Secrets No agent reads or writes them. Env files .npmrc ~/.ssh deploy/keys.txt ' +
+        'Commands What an agent runs, asks for first, or never runs. Allow gh pr create Ask git push Deny none ' +
+        'Areas Where builders work. Area Folder Kind Checks api projects/api backend bun test ' +
         'Learned kinds Learned from your answers, with no setup. Ticket type Kind Sub-Bug fix Root cause types A fix names one at submit. Integration error Unknown ' +
-        'File Edit it to change a feature or an area. /d/nook.yml',
+        'File Edit it to change the harness. /d/nook.yml',
     )
   })
 
-  test('a workspace with no engineering shows its features and its file only', () => {
-    expect(text(html(<SettingsPage settings={{ features: ['core'], file: '/d/nook.yml', engineering: null }} />))).toBe('Features On where nook.yml has their section. core on File Edit it to change a feature or an area. /d/nook.yml')
+  test('a budget that Nook does not know says so and names the two it knows', () => {
+    expect(text(html(<HarnessPage harness={{ ...harness, budget: null }} />))).toContain('Agent budget How many agents a skill starts. Not a known budget: write lean or deep in nook.yml.')
+  })
+
+  test('a workspace with no engineering and no list of its own shows the features, the budget, the guards and the file only', () => {
+    const bare = { ...harness, features: [{ name: 'core', from: null }], budget: 'deep' as const, secrets: { always: ['Env files'], listed: [] }, commands: { allow: [], ask: [], deny: [] }, engineering: null }
+    expect(text(html(<HarnessPage harness={bare} />))).toBe(
+      'Features On where nook.yml has their section. core on Agent budget How many agents a skill starts. deep A skill starts the agents that the work needs. ' +
+        'Secrets No agent reads or writes them. Env files ' +
+        'Commands What an agent runs, asks for first, or never runs. Allow none Ask none Deny none File Edit it to change the harness. /d/nook.yml',
+    )
   })
 })

@@ -17,13 +17,20 @@ const card = (fields: Partial<BoardCard> = {}): BoardCard => ({
 
 const specOf = (markup: string) => JSON.parse(/data-diagram="([^"]*)"/.exec(markup)![1]!.replaceAll('&quot;', '"').replaceAll('&amp;', '&'))
 
-const BOARD: BoardOptions = { layout: 'board', group: 'phase', kind: 'all' }
-const frames = (markup: string) => [...markup.matchAll(/<section data-slot="frame"[\s\S]*?<\/section>/g)].map(found => text(found[0]))
+const BOARD: BoardOptions = { view: 'all', layout: 'board', group: 'phase', kind: 'all' }
+const frames = (markup: string) => [...markup.matchAll(/<(section|details) data-slot="frame"[\s\S]*?<\/\1>/g)].map(found => text(found[0]))
 
 describe('Board', () => {
   test('shows a frame for each phase in the order of the flow, then the backlog; a blocked item counts in the step it was blocked from', () => {
     const markup = html(<Board cards={[card({ id: 'SHOP-3', state: 'done' }), card({ id: 'SHOP-1', state: 'backlog' }), card({ id: 'SHOP-4', state: 'blocked', blocked_from: 'review' })]} options={BOARD} base="/personal" />)
     expect(frames(markup).map(words => words.split(' ').slice(0, 2).join(' '))).toEqual(['Shape 0', 'Build 0', 'Review 1', 'Done 1', 'Backlog 1'])
+  })
+
+  test('Done and the backlog fold shut while none of their items waits for you; a Done item that waits for its close keeps Done open', () => {
+    const quiet = html(<Board cards={[card({ id: 'SHOP-3', state: 'done' }), card({ id: 'SHOP-1', state: 'backlog' })]} options={BOARD} base="/personal" />)
+    expect([...quiet.matchAll(/<details data-slot="frame"[\s\S]*?<\/summary>/g)].map(found => text(found[0]).split(' ')[0])).toEqual(['Done', 'Backlog'])
+    const waits = html(<Board cards={[card({ id: 'SHOP-3', state: 'done', next: { owner: true, skill: 'owner: /close SHOP-3' } })]} options={BOARD} base="/personal" />)
+    expect(waits).not.toContain('<details data-slot="frame"')
   })
 
   test('a card shows its points, and its frame and the lane count them', () => {

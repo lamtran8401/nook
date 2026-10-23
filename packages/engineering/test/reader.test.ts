@@ -141,6 +141,22 @@ describe('readItem', () => {
     expect(readItem(t.root, 'SHOP-2').next.owner).toBe(false)
   })
 
+  test('gives the door of the next move: its gaps and its notes', () => {
+    itemAt(t, 'ready')
+    writeDoc(t, 'SHOP-1', 'plan.md', `${PLAN}\nmore\n`)
+    const door = readItem(t.root, 'SHOP-1').door
+    expect(door.move).toBe('begin')
+    expect(door.notes.map(n => n.text)).toContain('plan.md changed since the approve')
+  })
+
+  test('counts the agents that worked on the item, against the budget of the workspace', () => {
+    itemAt(t, 'cooking')
+    const events = t.eng(LEAD).stores.events
+    events.record('SHOP-1', 'agent', { reason: 'scout' })
+    events.record('SHOP-1', 'agent', { reason: 'reviewer' })
+    expect(readItem(t.root, 'SHOP-1').agents).toEqual({ count: 2, names: ['scout', 'reviewer'], budget: 'lean', limit: 2 })
+  })
+
   test('gives each change of state with its move and its time, and leaves out the other events', () => {
     itemAt(t, 'cooking')
     t.eng(LEAD).ask('SHOP-1', 'Does the export keep the filter?', false)

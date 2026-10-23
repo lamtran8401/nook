@@ -40,6 +40,8 @@ const RECORDS: Record<string, string> = {
   import: 'imported the slices',
   quick: 'made the item quick',
   archive: 'archived the item',
+  file: 'changed a file outside a slice',
+  agent: 'worked on the item as an agent',
 }
 
 const whoOf = (event: Event) => (event.role === 'owner' ? 'You' : event.role === 'lead' ? 'The lead' : event.actor)

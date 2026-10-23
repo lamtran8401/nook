@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
 import type { BriefLine } from '@nook/workspace/workspaces.ts'
-import type { BoardCard } from '@nook/engineering/read/reader.ts'
+import type { BoardCard, ItemView } from '@nook/engineering/read/reader.ts'
 import type { Metrics } from '@nook/engineering/report/metrics.ts'
 import type { Question } from '@nook/engineering/stores/questions.ts'
 
@@ -33,7 +33,7 @@ const EMPTY: Metrics = { ...METRICS, rework: { part: 0, whole: 0, rejects: 0 }, 
 const card = (id: string, state: BoardCard['state']) => ({ id, state }) as BoardCard
 
 const inbox = (fields: Partial<Parameters<typeof Inbox>[0]> = {}) =>
-  html(<Inbox brief={BRIEF} questions={[Q2]} metrics={METRICS} trend={[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, METRICS]} receipts={[]} cards={[]} base="/personal" {...fields} />)
+  html(<Inbox brief={BRIEF} questions={[Q2]} metrics={METRICS} trend={[EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, METRICS]} receipts={[]} cards={[]} gates={[]} base="/personal" {...fields} />)
 const rows = (markup: string) => [...markup.matchAll(/<li data-slot="inbox-row"[\s\S]*?<\/li>(?=<li data-slot="inbox-row"|<\/ol>)/g)].map(m => m[0])
 const tile = (markup: string, title: string) => [...markup.matchAll(/<section data-slot="(?:tile|trend-tile)"[\s\S]*?<\/section>/g)].map(m => text(m[0])).find(words => words.startsWith(title))!
 
@@ -43,6 +43,19 @@ describe('Inbox', () => {
     expect(text(gate!)).toBe('SHOP-13 Export the order list Waits for your approve Review Approve A')
     expect(gate).toContain('<input type="hidden" name="kind" value="gate"/><input type="hidden" name="item" value="SHOP-13"/><input type="hidden" name="move" value="approve"/>')
     expect(gate).toContain('data-key="a"')
+  })
+
+  test('an accept row shows the evidence and the notes of the door under its line', () => {
+    const accept: BriefLine = { part: 'waits', text: 'SHOP-15 waits for your accept: Send a mail', action: '/gate accept SHOP-15', urgent: true, item: { id: 'SHOP-15', title: 'Send a mail', state: 'review' } }
+    const view = {
+      next: { id: 'SHOP-15', state: 'review', skill: 'owner: /gate accept SHOP-15', owner: true, gaps: [], detail: '' },
+      criteria: [{ n: 1, done: true }, { n: 2, done: true }],
+      checks: [{ result: 'pass' }],
+      slices: [],
+      door: { id: 'SHOP-15', state: 'review', move: 'accept', gaps: [], notes: [{ text: '1 file changed outside a slice: src/mail.ts', fix: 'read their diff before your accept' }] },
+    } as unknown as ItemView
+    const [row] = rows(inbox({ brief: [accept], gates: [view] }))
+    expect(text(row!)).toBe('SHOP-15 Send a mail Waits for your accept Review Accept A 2 of 2 criteria met 1 of 1 checks pass 1 file changed outside a slice: src/mail.ts read their diff before your accept')
   })
 
   test('a blocking question takes its answer in its row, with the answer that the lead recommends', () => {

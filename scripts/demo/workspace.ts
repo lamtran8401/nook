@@ -21,6 +21,8 @@ const OWNER = new Who('owner', 'owner', null)
 const LEAD = new Who('lead', 'lead', 'demo')
 const API_BUILDER = new Who('builder', 'backend-builder-a1', 'demo')
 const WEB_BUILDER = new Who('builder', 'frontend-builder-b2', 'demo')
+const VERIFIER = new Who('reader', 'verifier-c3', 'demo')
+const REVIEWER = new Who('reader', 'reviewer-d4', 'demo')
 
 const NOOK_YML = `secrets: []
 
@@ -110,6 +112,12 @@ class Demo {
     builder.moveSlice('start', id, slice)
     builder.moveSlice('done', id, slice, { files })
   }
+
+  /** An agent that ended on the item, as the SubagentStop hook logs it. */
+  agentEnded(id: string, who: Who, type: string): void {
+    const agent = this.as(who)
+    agent.ledger.write(() => agent.stores.events.record(id, 'agent', { reason: type }))
+  }
 }
 
 // the story points of each item, as a ticket gives them
@@ -138,6 +146,9 @@ function buildItems(demo: Demo): void {
   demo.toCooking('SHOP-44', 'Send a mail when an order ships', 'S', ['worker'])
   commit(workspace, 'worker', 'SHOP-44: the shipped mail', { 'src/jobs/shipped-mail.ts': 'export const job = 1\n', 'src/mail/templates.ts': 'export const shipped = 1\n' })
   demo.finish('SHOP-44', 'T1', API_BUILDER, ['src/jobs/shipped-mail.ts'])
+  demo.agentEnded('SHOP-44', API_BUILDER, 'backend-builder')
+  demo.agentEnded('SHOP-44', VERIFIER, 'verifier')
+  demo.agentEnded('SHOP-44', REVIEWER, 'reviewer')
   lead().verify('SHOP-44')
   lead().moveItem('submit', 'SHOP-44')
   lead().markCriterion('SHOP-44', 1, 'shipped-mail.test.ts: one mail with the link', 'run')
@@ -161,6 +172,7 @@ function buildItems(demo: Demo): void {
   commit(workspace, 'web', 'SHOP-42: saved cards at checkout', { 'src/checkout/SavedCards.tsx': 'export const SavedCards = 1\n', 'src/checkout/Checkout.tsx': 'export const Checkout = 2\n' })
   demo.finish('SHOP-42', 'T1', API_BUILDER, ['src/payments/cards.ts'])
   demo.finish('SHOP-42', 'T2', API_BUILDER, ['src/payments/vault.ts'])
+  demo.agentEnded('SHOP-42', API_BUILDER, 'backend-builder')
   demo.as(WEB_BUILDER).moveSlice('start', 'SHOP-42', 'T3')
   const api42 = demo.as(API_BUILDER)
   api42.moveSlice('start', 'SHOP-42', 'T4')

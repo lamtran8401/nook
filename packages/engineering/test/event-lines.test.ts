@@ -67,4 +67,9 @@ describe('eventLine', () => {
       tone: 'neutral',
     })
   })
+
+  test('a file changed outside a slice and an agent that worked on the item each read as a record with its words', () => {
+    expect(eventLine(event({ type: 'file', role: 'lead', actor: 'lead', reason: 'projects/web/a.ts' }))).toMatchObject({ title: 'The lead changed a file outside a slice', text: 'projects/web/a.ts', step: false })
+    expect(eventLine(event({ type: 'agent', role: 'reader', actor: 'scout-0001', reason: 'scout' }))).toMatchObject({ title: 'scout-0001 worked on the item as an agent', text: 'scout', step: false })
+  })
 })

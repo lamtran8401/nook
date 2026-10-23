@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import type { BoardCard } from '@nook/engineering/read/reader.ts'
 
-import { boardOptions, flagOf, holderGroups, laneOf, phaseColumns, phaseGroups, visibleCards } from '@/lib/board.ts'
+import { BACKLOG, boardHref, boardOptions, flagOf, folds, holderGroups, laneOf, PHASES, phaseColumns, phaseGroups, visibleCards } from '@/lib/board.ts'
 
 const card = (id: string, state: BoardCard['state'], fields: Partial<BoardCard> = {}): BoardCard => ({
   id, title: `item ${id}`, kind: 'feature', size: 'M', points: null, mode: 'normal', state, blocked_from: null, areas: ['api'],
@@ -52,13 +52,34 @@ describe('the board of a workspace', () => {
   })
 
   test('a kind filter keeps the items of that kind', () => {
-    expect(visibleCards(cards, 'fix').map(c => c.id)).toEqual(['SHOP-48'])
-    expect(visibleCards(cards, 'all')).toHaveLength(8)
+    expect(visibleCards(cards, { kind: 'fix', view: 'all' }).map(c => c.id)).toEqual(['SHOP-48'])
+    expect(visibleCards(cards, { kind: 'all', view: 'all' })).toHaveLength(8)
   })
 
-  test('the address picks the layout, the grouping and the kind; anything else falls back to the board by phase', () => {
-    expect(boardOptions({ layout: 'list', group: 'holder', kind: 'fix' })).toEqual({ layout: 'list', group: 'holder', kind: 'fix' })
-    expect(boardOptions({ layout: 'grid', group: ['x'], kind: 'bug' })).toEqual({ layout: 'board', group: 'phase', kind: 'all' })
+  test('the view Needs me keeps the items whose next move is the owner\'s, and Running keeps the items the lead runs', () => {
+    expect(visibleCards(cards, { kind: 'all', view: 'mine' }).map(c => c.id)).toEqual(['SHOP-43', 'SHOP-44', 'SHOP-41'])
+    expect(visibleCards(cards, { kind: 'all', view: 'running' }).map(c => c.id)).toEqual(['SHOP-45', 'SHOP-42', 'SHOP-48'])
+    expect(visibleCards(cards, { kind: 'fix', view: 'mine' })).toEqual([])
+  })
+
+  test('the address picks the view, the layout, the grouping and the kind; anything else falls back to all items on the board by phase', () => {
+    expect(boardOptions({ view: 'mine', layout: 'list', group: 'holder', kind: 'fix' })).toEqual({ view: 'mine', layout: 'list', group: 'holder', kind: 'fix' })
+    expect(boardOptions({ view: 'later', layout: 'grid', group: ['x'], kind: 'bug' })).toEqual({ view: 'all', layout: 'board', group: 'phase', kind: 'all' })
+  })
+
+  test('the address of a view keeps the other options and leaves each default out', () => {
+    const options = boardOptions({ kind: 'fix' })
+    expect(boardHref('/shop', options, { view: 'running' })).toBe('/shop/works?view=running&kind=fix')
+    expect(boardHref('/shop', options, { kind: 'all' })).toBe('/shop/works')
+  })
+
+  test('Done and the backlog fold to a strip while none of their items waits for the owner; a busy phase never folds', () => {
+    const [shape, , , done] = PHASES
+    expect(folds(BACKLOG, [card('SHOP-46', 'backlog')])).toBe(true)
+    expect(folds(done!, [card('SHOP-40', 'done', { next: { owner: false, skill: 'closed' } })])).toBe(true)
+    expect(folds(done!, [card('SHOP-41', 'done', { next: { owner: true, skill: 'owner: /close SHOP-41' } })])).toBe(false)
+    expect(folds(shape!, [card('SHOP-45', 'framing')])).toBe(false)
+    expect(folds(BACKLOG, [])).toBe(false)
   })
 
   test('the last line of a card says who holds the next move, with the dot of its tone', () => {

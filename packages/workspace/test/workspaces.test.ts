@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { Workspace } from '../src/workspace.ts'
 import { activeFeatures, featuresHere, pluginId } from '../src/features.ts'
 import { NookConfig } from '../src/nook-config.ts'
+import { commandsAbove } from '../src/workspaces.ts'
 
 let root: string
 beforeEach(() => {
@@ -57,6 +58,14 @@ describe('Workspace', () => {
     expect(Workspace.above(inner).map(workspace => workspace.dir)).toEqual([root, join(root, 'company')])
     expect(Workspace.nearest(inner)?.dir).toBe(join(root, 'company'))
     expect(Workspace.nearest(inner)?.secretFiles()).toEqual([join(root, 'company', 'infra.yaml')])
+  })
+
+  test('the command lists of a folder join those of each workspace above, with no doubles: a child adds and drops nothing', () => {
+    const inner = join(root, 'company')
+    mkdirSync(inner)
+    writeFileSync(join(root, 'nook.yml'), 'guards:\n  commands:\n    allow: [gh pr create]\n    deny: [rm -rf]\n')
+    writeFileSync(join(inner, 'nook.yml'), 'guards:\n  commands:\n    allow: [gh pr create, gh pr view]\n    ask: [git push]\n')
+    expect(commandsAbove(inner)).toEqual({ allow: ['gh pr create', 'gh pr view'], ask: ['git push'], deny: ['rm -rf'] })
   })
 })
 

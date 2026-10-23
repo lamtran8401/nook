@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { type Commands, FEATURE_NAMES, type FeatureModule, featuresHere, NOOK_FILE, STATE_DIR, Workspace } from '@nook/workspace/workspaces.ts'
+import { type Commands, commandsAbove, FEATURE_NAMES, type FeatureModule, featuresHere, NOOK_FILE, STATE_DIR, Workspace } from '@nook/workspace/workspaces.ts'
 import type { WorkspaceList } from '@nook/workspace/workspace-list.ts'
 import { usage } from '@nook/shared/errors.ts'
 
@@ -111,7 +111,7 @@ export class Initializer {
     const file = this.path(SETTINGS_FILE)
     const current = existsSync(file) ? (JSON.parse(readFileSync(file, 'utf8')) as Settings) : {}
     const template = readJson(join(this.options.pluginDir, 'templates', 'settings.json'))
-    const commands = commandRules(joinCommands(Workspace.above(this.options.dir).map(workspace => workspace.config.commands)))
+    const commands = commandRules(commandsAbove(this.options.dir))
     const wanted = mergeSettings(template, { permissions: commands })
     const rules = rulesOf(wanted)
     const before = this.writtenRules()
@@ -157,13 +157,6 @@ export class Initializer {
 }
 
 const readJson = (file: string): Settings => JSON.parse(readFileSync(file, 'utf8')) as Settings
-
-/** The lists of each workspace, the outermost first, with no doubles: a child adds to its parents and drops nothing. */
-const joinCommands = (all: Commands[]): Commands => ({
-  allow: [...new Set(all.flatMap(c => c.allow))],
-  ask: [...new Set(all.flatMap(c => c.ask))],
-  deny: [...new Set(all.flatMap(c => c.deny))],
-})
 
 const rulesOf = (settings: Settings): Commands => ({
   allow: settings.permissions?.allow ?? [],

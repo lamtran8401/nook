@@ -271,8 +271,8 @@ describe('EditsOutsideSlices', () => {
   test('names each file that changed outside a slice, once, in the order of the edits', () => {
     itemAt(t, 'cooking', 'SHOP-1', SPEC({ areas: ['bff'] }), TASKS([{ id: 'T1' }]))
     const events = t.eng(LEAD).stores.events
-    events.record('SHOP-1', 'edit', { reason: 'outside a slice: projects/bff/a.ts' })
-    events.record('SHOP-1', 'edit', { reason: 'outside a slice: projects/bff/b.ts' })
+    events.record('SHOP-1', 'file', { reason: 'projects/bff/a.ts' })
+    events.record('SHOP-1', 'file', { reason: 'projects/bff/b.ts' })
     expect(new EditsOutsideSlices().check(ctx())).toEqual([{ text: '2 files changed outside a slice: projects/bff/a.ts, projects/bff/b.ts', fix: 'read their diff before your accept' }])
   })
 

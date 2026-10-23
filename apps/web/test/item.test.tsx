@@ -60,6 +60,8 @@ const view: ItemView = {
     { id: 2, item: 'SHOP-42', area: 'api', check: 'lint', result: 'fail', output: '', at: '2026-10-16T14:50:00Z' },
   ],
   changes: [{ area: 'api', branch: 'nook/SHOP-42-pay-with-a-saved-card', files: [{ path: 'src/pay.ts', state: 'new', add: 120, del: 0 }, { path: 'src/cart.ts', state: 'changed', add: 12, del: 4 }] }],
+  door: { id: 'SHOP-42', state: 'cooking', move: 'submit', gaps: [], notes: [] },
+  agents: { count: 1, names: ['reviewer'], budget: 'lean', limit: 2 },
 }
 const NOW = new Date('2026-10-16T15:10:00Z')
 const specOf = (markup: string) => JSON.parse(/data-diagram="([^"]*)"/.exec(markup)![1]!.replaceAll('&quot;', '"').replaceAll('&amp;', '&'))
@@ -117,16 +119,16 @@ describe('NextStep', () => {
 })
 
 describe('the owner moves on a page', () => {
-  const approve = { ...view.next, state: 'planning' as const, owner: true, skill: 'owner: /gate approve SHOP-42' }
+  const approve = { ...view, next: { ...view.next, state: 'planning' as const, owner: true, skill: 'owner: /gate approve SHOP-42' } }
 
   test('a browser with no pair gets each button off, and the form names the command that pairs it', () => {
-    const markup = html(<GateBar next={approve} />)
+    const markup = html(<GateBar view={approve} />)
     expect(markup).toContain('title="Pair this browser to run your moves: nook web pair"')
     expect(/<fieldset[^>]*>/.exec(markup)![0]).toContain('disabled=""')
   })
 
   test('a paired browser gets the buttons on', () => {
-    const markup = html(<Owner paired><GateBar next={approve} /></Owner>)
+    const markup = html(<Owner paired><GateBar view={approve} /></Owner>)
     expect(/<fieldset[^>]*>/.exec(markup)![0]).not.toContain(' disabled=""')
     expect(markup).not.toContain('title="Pair this browser')
   })
@@ -186,6 +188,17 @@ describe('Overview', () => {
     expect(tile(html(<Overview view={view} docs={[spec, plan]} now={NOW} />), 'In short')).toBe('In short A shopper pays with a saved card.')
     const planning = { ...view, item: { ...view.item, state: 'planning' as const } }
     expect(tile(html(<Overview view={planning} docs={[spec, plan]} now={NOW} />), 'The plan in short')).toBe('The plan in short The api keeps a token.')
+  })
+
+  test('names the agents that worked on the item against the agent budget, and warns when they pass it', () => {
+    expect(tile(html(<Overview view={view} docs={[]} now={NOW} />), 'Agents')).toBe('Agents 1 of 2 on a lean budget reviewer')
+    const busy = { ...view, agents: { count: 3, names: ['reviewer', 'verifier', 'skeptic'], budget: 'lean' as const, limit: 2 } }
+    const markup = html(<Overview view={busy} docs={[]} now={NOW} />)
+    expect(tile(markup, 'Agents')).toBe('Agents 3 of 2 on a lean budget reviewer verifier skeptic 1 more than the lean budget starts. Each agent costs credits.')
+    const deep = { ...view, agents: { count: 4, names: ['a', 'b', 'c', 'd'], budget: 'deep' as const, limit: null } }
+    expect(tile(html(<Overview view={deep} docs={[]} now={NOW} />), 'Agents')).toBe('Agents 4 on a deep budget a b c d')
+    const none = { ...view, agents: { count: 0, names: [], budget: 'lean' as const, limit: 2 } }
+    expect(tile(html(<Overview view={none} docs={[]} now={NOW} />), 'Agents')).toBeUndefined()
   })
 
   test('gives the time in each step, the step it is in counted up to now', () => {
@@ -292,22 +305,24 @@ describe('ItemPage', () => {
 })
 
 describe('GateBar', () => {
-  test('at the plan step gives Approve, and says that a change of the plan goes to the lead', () => {
-    const markup = html(<GateBar next={{ ...view.next, state: 'planning', owner: true, skill: 'owner: /gate approve SHOP-42' }} />)
-    expect(text(markup)).toBe('To change the plan, tell the lead in the agent session. Approve')
+  test('at the plan step gives the slices and the criteria, Approve, and says that a change of the plan goes to the lead', () => {
+    const markup = html(<GateBar view={{ ...view, next: { ...view.next, state: 'planning', owner: true, skill: 'owner: /gate approve SHOP-42' } }} />)
+    expect(text(markup)).toBe('4 slices 2 criteria To change the plan, tell the lead in the agent session. Approve')
     expect(markup).toContain('<input type="hidden" name="kind" value="gate"/><input type="hidden" name="item" value="SHOP-42"/><input type="hidden" name="move" value="approve"/>')
   })
 
-  test('at review gives a reason to send it back, Send back and Accept, each its own move', () => {
-    const markup = html(<GateBar next={{ ...view.next, state: 'review', owner: true, skill: 'owner: /gate accept SHOP-42' }} />)
-    expect(text(markup)).toBe('Send back Accept')
+  test('at review gives the evidence and the door beside the accept, a reason to send it back, Send back and Accept', () => {
+    const door = { id: 'SHOP-42', state: 'review' as const, move: 'accept' as const, gaps: [], notes: [{ text: 'plan.md changed since the approve', fix: 'nook eng item replan SHOP-42, or go on as it is' }] }
+    const markup = html(<GateBar view={{ ...view, door, next: { ...view.next, state: 'review', owner: true, skill: 'owner: /gate accept SHOP-42' } }} />)
+    expect(text(markup)).toBe('1 of 2 criteria met 1 of 2 checks pass plan.md changed since the approve nook eng item replan SHOP-42, or go on as it is Send back Accept')
+    expect(markup).toContain('data-slot="door-notes"')
     expect(markup).toContain('<input type="hidden" name="kind" value="back"/><input type="hidden" name="item" value="SHOP-42"/>')
     expect(/<input[^>]*aria-label="Reason to send it back"[^>]*>/.exec(markup)![0]).toContain('required=""')
     expect(markup).toContain('<input type="hidden" name="move" value="accept"/>')
   })
 
   test('shows nothing when no gate waits for the owner', () => {
-    expect(html(<GateBar next={view.next} />)).toBe('')
+    expect(html(<GateBar view={view} />)).toBe('')
   })
 })
 

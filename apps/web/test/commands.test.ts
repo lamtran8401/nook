@@ -9,7 +9,7 @@ const data: CommandData = {
   pages: [
     { label: 'Home', href: '/personal' },
     { label: 'Board', href: '/personal/works' },
-    { label: 'Settings', href: '/personal/settings' },
+    { label: 'Harness', href: '/personal/harness' },
   ],
   workspaces: [{ name: 'company', href: '/company', open: 7 }],
 }
@@ -32,10 +32,10 @@ describe('the commands of a workspace', () => {
     expect(workspaceCommands(data, false, { go() {}, move() {} }).some(c => c.group === 'Your moves')).toBe(false)
   })
 
-  test('each page takes G and its first letter, and goes to its page', () => {
+  test('each page takes G and the first letter of its name that no earlier page took, and goes to its page', () => {
     const went: string[] = []
     const pages = workspaceCommands(data, true, { go: href => went.push(href), move() {} }).filter(c => c.group === 'Go to')
-    expect(pages.map(c => `${c.label}:${c.keys?.join('')}`)).toEqual(['Home:gh', 'Board:gb', 'Settings:gs'])
+    expect(pages.map(c => `${c.label}:${c.keys?.join('')}`)).toEqual(['Home:gh', 'Board:gb', 'Harness:ga'])
     pages[1]!.run()
     expect(went).toEqual(['/personal/works'])
   })

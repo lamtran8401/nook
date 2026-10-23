@@ -128,6 +128,28 @@ function QuestionsTile({ questions, guesses }: { questions: Question[]; guesses:
   )
 }
 
+function agentsNote({ count, budget, limit }: ItemView['agents']): string {
+  return limit === null ? `${count} on a ${budget} budget` : `${count} of ${limit} on a ${budget} budget`
+}
+
+/** The agents that worked on the item against the agent budget of the workspace; past the budget, a warning on the cost. */
+function AgentsTile({ agents }: { agents: ItemView['agents'] }) {
+  if (!agents.count) return null
+  const over = agents.limit === null ? 0 : agents.count - agents.limit
+  return (
+    <Tile title="Agents" note={agentsNote(agents)}>
+      <ul className="flex flex-wrap gap-1.5">
+        {agents.names.map(name => (
+          <li key={name}>
+            <Mark id={name} />
+          </li>
+        ))}
+      </ul>
+      {over > 0 ? <p className="text-[12.5px] text-warning">{`${over} more than the ${agents.budget} budget starts. Each agent costs credits.`}</p> : null}
+    </Tile>
+  )
+}
+
 /** The In short of the spec; at the plan step, the In short of the plan, which waits for the approve. */
 function InShortTile({ view, docs }: { view: ItemView; docs: ItemDocs }) {
   const planning = view.item.state === 'planning'
@@ -168,7 +190,7 @@ export function Receipts({ events, limit }: { events: EventLine[]; limit?: numbe
   )
 }
 
-/** The first tab of an item: who moves next, the criteria or the answers, the slices, the questions, the time in each step, the lanes, the code and the receipts. */
+/** The first tab of an item: who moves next, the criteria or the answers, the slices, the questions, the agents, the time in each step, the lanes, the code and the receipts. */
 export function Overview({ view, docs, now }: { view: ItemView; docs: ItemDocs; now: Date }) {
   // an investigation has findings and no criteria; its slices are optional
   const findings = docs.find(doc => doc.name === 'findings')
@@ -180,6 +202,7 @@ export function Overview({ view, docs, now }: { view: ItemView; docs: ItemDocs; 
         {findings && !view.slices.length ? null : <SlicesTile slices={view.slices} />}
         <QuestionsTile questions={view.questions} guesses={view.guesses} />
         <InShortTile view={view} docs={docs} />
+        <AgentsTile agents={view.agents} />
       </div>
       <TimeTile view={view} now={now} />
       <Lanes slices={view.slices} />

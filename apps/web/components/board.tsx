@@ -20,6 +20,7 @@ import {
   boardHref,
   FLOW,
   flagOf,
+  folds,
   holderGroups,
   KINDS,
   laneOf,
@@ -28,6 +29,7 @@ import {
   phaseGroups,
   pointsOf,
   stepOf,
+  VIEWS,
   visibleCards,
 } from '@/lib/board.ts'
 import { turnTitle } from '@/lib/turn.ts'
@@ -78,7 +80,17 @@ function stepChips(phase: Phase, cards: BoardCard[]) {
 
 function PhaseFrame({ phase, cards, kind, base, layout = 'column' }: { phase: Phase; cards: BoardCard[]; kind: string; base: string; layout?: 'column' | 'grid' }) {
   return (
-    <Frame title={phase.name} tone={phase.tone} count={cards.length} points={pointsOf(cards)} about={phase.about} chips={stepChips(phase, cards)} layout={layout} empty={emptyText(kind, phase.name)}>
+    <Frame
+      title={phase.name}
+      tone={phase.tone}
+      count={cards.length}
+      points={pointsOf(cards)}
+      about={phase.about}
+      chips={stepChips(phase, cards)}
+      layout={layout}
+      empty={emptyText(kind, phase.name)}
+      folded={folds(phase, cards)}
+    >
       {cards.length ? cards.map(card => <Card key={card.id} card={card} base={base} />) : null}
     </Frame>
   )
@@ -163,15 +175,17 @@ function ItemList({ cards, group, base }: { cards: BoardCard[]; group: BoardOpti
   )
 }
 
-/** The items of the workspace: the lane that counts each phase, a filter of kinds, then the layout that the Display menu chose. */
+/** The items of the workspace: the lane that counts each phase, the saved views and the kinds, then the layout that the Display menu chose. */
 export function Board({ cards, options, base }: { cards: BoardCard[]; options: BoardOptions; base: string }) {
   if (!cards.length) return <EmptyState icon={<Inbox className="size-5" aria-hidden="true" />} title="No item yet">Type /intake in the agent session to start one.</EmptyState>
-  const shown = visibleCards(cards, options.kind)
+  const shown = visibleCards(cards, options)
+  const views = VIEWS.map(view => ({ href: boardHref(base, options, { view: view.key }), label: view.name, current: view.key === options.view }))
   const kinds = KINDS.map(kind => ({ href: boardHref(base, options, { kind }), label: kind, current: kind === options.kind }))
   return (
     <div className="flex flex-col gap-4">
       <FlowLane parts={laneOf(shown)} />
       <div className="flex flex-wrap items-center gap-3">
+        <LinkTabs tabs={views} label="Saved views" variant="segment" />
         <LinkTabs tabs={kinds} label="Kinds of items" variant="segment" />
         <span className="ml-auto text-xs text-faint">{`${shown.length} of ${cards.length} items`}</span>
       </div>
