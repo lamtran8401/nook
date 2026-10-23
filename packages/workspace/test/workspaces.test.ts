@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { Workspace } from '../src/workspace.ts'
-import { activeFeatures, featuresHere, pluginId } from '../src/features.ts'
+import { activeFeatures, featuresHere, pluginId, rulesAt } from '../src/features.ts'
 import { NookConfig } from '../src/nook-config.ts'
 import { commandsAbove } from '../src/workspaces.ts'
 
@@ -96,6 +96,23 @@ describe('activeFeatures', () => {
 
   test('outside every workspace no feature is on', () => {
     expect(activeFeatures(root)).toEqual([])
+  })
+})
+
+describe('rulesAt', () => {
+  test('names each base rule of the features on, off when the nook.yml that writes it lists it under rules.off', () => {
+    const child = join(root, 'shop')
+    mkdirSync(child)
+    writeFileSync(join(root, 'nook.yml'), 'wiki: {}\nrules: { off: [wiki, comments] }\n')
+    writeFileSync(join(child, 'nook.yml'), 'rules: { off: [writing] }\n')
+    expect(rulesAt(child)).toEqual([
+      { name: 'writing', on: false },
+      { name: 'safety', on: true },
+      { name: 'questions', on: true },
+      { name: 'approach', on: true },
+      { name: 'comments', on: true },
+      { name: 'wiki', on: false },
+    ])
   })
 })
 

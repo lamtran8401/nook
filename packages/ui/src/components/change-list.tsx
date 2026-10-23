@@ -19,7 +19,7 @@ export function ChangeList({ changes }: { changes: Change[] }) {
               <div className="grid min-w-0 gap-1.5 pt-1">
                 <div className="flex flex-wrap items-center gap-2">{change.head}</div>
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <span><b className="font-semibold text-foreground">{change.files}</b> files</span>
+                  <span className="whitespace-nowrap"><b className="font-semibold text-foreground">{change.files}</b> files</span>
                   {change.add ? <span className="font-mono text-success">+{change.add}</span> : null}
                   {change.del ? <span className="font-mono text-danger">−{change.del}</span> : null}
                   {total ? (

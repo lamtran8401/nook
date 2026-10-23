@@ -25,12 +25,12 @@ export function ItemPage({ view, docs, tab, now, base }: { view: ItemView; docs:
   const doc = docs.find(d => d.name === tab)
   const tabs = tabsOf(docs).map(name => ({ href: tabHref(base, item.id, name), label: name.replace('-', ' '), current: name === tab }))
   return (
-    <div className="grid w-full gap-4">
+    <div className="grid w-full grid-cols-[minmax(0,1fr)] gap-4">
       <ItemHead view={view} />
       <div className="sticky top-3 z-30 flex justify-center">
         <LinkTabs label="Item" variant="bar" tabs={tabs} />
       </div>
-      <div className="grid items-start gap-3 min-[1100px]:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-3 min-[1100px]:grid-cols-[minmax(0,1fr)_280px]">
         <div className="grid min-w-0 gap-3">
           {doc ? (
             <DocTab item={item} name={doc.name} text={doc.text} criteria={view.criteria} slices={view.slices} />

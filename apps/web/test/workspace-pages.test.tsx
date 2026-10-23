@@ -91,6 +91,8 @@ describe('HarnessPage', () => {
     budget: 'lean' as const,
     secrets: { always: ['Env files', '.npmrc', '~/.ssh'], listed: ['deploy/keys.txt'] },
     commands: { allow: ['gh pr create'], ask: ['git push'], deny: [] },
+    rules: [{ name: 'safety', on: true }, { name: 'writing', on: false }],
+    hooks: [{ event: 'PreToolUse', matcher: 'Bash', commands: ['nook hook bash', 'nook eng hook bash'] }, { event: 'Stop', matcher: null, commands: ['nook eng hook stop'] }],
     file: '/d/nook.yml',
     engineering: { areas: [{ name: 'api', path: 'projects/api', kind: 'backend', checks: ['bun test'] }], kinds: [{ type: 'Sub-Bug', kind: 'fix' as const }], rootCauses: ['Integration error', 'Unknown'], unknownRootCause: 'Unknown' },
   }
@@ -101,6 +103,8 @@ describe('HarnessPage', () => {
         'Agent budget How many agents a skill starts. lean A skill starts at most one fresh reviewer and one builder for a second area. ' +
         'Secrets No agent reads or writes them. Env files .npmrc ~/.ssh deploy/keys.txt ' +
         'Commands What an agent runs, asks for first, or never runs. Allow gh pr create Ask git push Deny none ' +
+        'Rules The base rules that each agent reads. safety writing off ' +
+        'Hooks What the plugin checks at each event. PreToolUse Bash nook hook bash nook eng hook bash Stop all nook eng hook stop ' +
         'Areas Where builders work. Area Folder Kind Checks api projects/api backend bun test ' +
         'Learned kinds Learned from your answers, with no setup. Ticket type Kind Sub-Bug fix Root cause types A fix names one at submit. Integration error Unknown ' +
         'File Edit it to change the harness. /d/nook.yml',
@@ -116,7 +120,9 @@ describe('HarnessPage', () => {
     expect(text(html(<HarnessPage harness={bare} />))).toBe(
       'Features On where nook.yml has their section. core on Agent budget How many agents a skill starts. deep A skill starts the agents that the work needs. ' +
         'Secrets No agent reads or writes them. Env files ' +
-        'Commands What an agent runs, asks for first, or never runs. Allow none Ask none Deny none File Edit it to change the harness. /d/nook.yml',
+        'Commands What an agent runs, asks for first, or never runs. Allow none Ask none Deny none ' +
+        'Rules The base rules that each agent reads. safety writing off ' +
+        'Hooks What the plugin checks at each event. PreToolUse Bash nook hook bash nook eng hook bash Stop all nook eng hook stop File Edit it to change the harness. /d/nook.yml',
     )
   })
 })

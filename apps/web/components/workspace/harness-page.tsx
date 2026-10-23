@@ -74,6 +74,37 @@ function CommandLists({ commands }: { commands: Harness['commands'] }) {
   )
 }
 
+function RuleChips({ rules }: { rules: Harness['rules'] }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {rules.map(rule => (
+        <Badge key={rule.name} tone="neutral" className={rule.on ? undefined : 'text-faint line-through'}>
+          {rule.name}
+          {rule.on ? null : <span className="sr-only"> off</span>}
+        </Badge>
+      ))}
+    </div>
+  )
+}
+
+function HookList({ hooks }: { hooks: Harness['hooks'] }) {
+  return (
+    <ul className="grid gap-2.5 text-[13px]">
+      {hooks.map(hook => (
+        <li key={`${hook.event} ${hook.matcher}`} className="min-w-0">
+          <p className="flex flex-wrap items-baseline gap-x-2">
+            <span className="font-medium">{hook.event}</span>
+            <span className="font-mono text-xs text-muted-foreground [overflow-wrap:anywhere]">{hook.matcher ?? 'all'}</span>
+          </p>
+          <p className="flex flex-wrap gap-x-3 font-mono text-xs text-muted-foreground">
+            {hook.commands.map(command => <span key={command}>{command}</span>)}
+          </p>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 function EngineeringRows({ eng }: { eng: NonNullable<Harness['engineering']> }) {
   return (
     <>
@@ -116,7 +147,7 @@ function EngineeringRows({ eng }: { eng: NonNullable<Harness['engineering']> }) 
   )
 }
 
-/** The harness of the workspace as its nook.yml sets it: the features, the agent budget, the guards, the engineering setup and the file. */
+/** The harness of the workspace as its nook.yml sets it: the features, the agent budget, the guards, the rules, the hooks, the engineering setup and the file. */
 export function HarnessPage({ harness }: { harness: Harness }) {
   return (
     <SettingRows>
@@ -134,6 +165,12 @@ export function HarnessPage({ harness }: { harness: Harness }) {
       </SettingRow>
       <SettingRow title="Commands" about="What an agent runs, asks for first, or never runs.">
         <CommandLists commands={harness.commands} />
+      </SettingRow>
+      <SettingRow title="Rules" about="The base rules that each agent reads.">
+        <RuleChips rules={harness.rules} />
+      </SettingRow>
+      <SettingRow title="Hooks" about="What the plugin checks at each event.">
+        <HookList hooks={harness.hooks} />
       </SettingRow>
       {harness.engineering ? <EngineeringRows eng={harness.engineering} /> : null}
       <SettingRow title="File" about="Edit it to change the harness.">

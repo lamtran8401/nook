@@ -8,6 +8,9 @@ import { pluginDir } from './features.ts'
 /** One agent or skill of the plugin, as the web app shows it: its name and its job in one sentence. */
 export type Part = { kind: 'agent' | 'skill'; name: string; job: string }
 
+/** One hook of the plugin: the event of Claude Code, the tools it matches (null for all), and the nook commands it runs. */
+export type Hook = { event: string; matcher: string | null; commands: string[] }
+
 const FRONT = /^---\r?\n([\s\S]*?)\r?\n---/
 
 /** The name and the first sentence of the description in the front matter of a file; null when it has none. */
@@ -36,4 +39,16 @@ export function parts(dir = pluginDir()): Part[] {
       return part ? [{ kind, ...part }] : []
     })
   return [...read('agent', partFiles(join(dir, 'agents'), entry => entry)), ...read('skill', partFiles(join(dir, 'skills'), entry => join(entry, 'SKILL.md')))]
+}
+
+type HookFile = { hooks: Record<string, { matcher?: string; hooks: { command: string }[] }[]> }
+// each command calls the shim of the plugin, such as "${CLAUDE_PLUGIN_ROOT}/bin/nook" eng hook bash
+const SHIM = /^"\$\{CLAUDE_PLUGIN_ROOT\}\/bin\/nook"/
+
+/** The hooks of the plugin in the order of hooks.json. */
+export function hooks(dir = pluginDir()): Hook[] {
+  const file = JSON.parse(readFileSync(join(dir, 'hooks', 'hooks.json'), 'utf8')) as HookFile
+  return Object.entries(file.hooks).flatMap(([event, groups]) =>
+    groups.map(group => ({ event, matcher: group.matcher ?? null, commands: group.hooks.map(hook => hook.command.replace(SHIM, 'nook')) })),
+  )
 }

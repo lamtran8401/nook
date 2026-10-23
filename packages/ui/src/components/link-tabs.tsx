@@ -12,8 +12,9 @@ const TAB = 'inline-flex h-8 shrink-0 items-center rounded-full px-3 text-sm fon
  */
 export function LinkTabs({ tabs, label, variant = 'pills' }: { tabs: LinkTab[]; label: string; variant?: 'pills' | 'bar' | 'segment' }) {
   return (
-    <NavigationMenu viewport={false} aria-label={label} className="max-w-full flex-none justify-start">
-      <NavigationMenuList className={cn('gap-1 overflow-x-auto [scrollbar-width:none]', variant === 'bar' && 'rounded-full bg-muted/55 p-1 ring-1 ring-hairline backdrop-blur-md backdrop-saturate-[1.8]', variant === 'segment' && 'gap-0.5 rounded-full bg-muted p-0.5')}>
+    // Radix wraps the list in a div; letting it shrink is what makes a long row scroll instead of widening the page
+    <NavigationMenu viewport={false} aria-label={label} className="max-w-full flex-none justify-start [&>div]:min-w-0">
+      <NavigationMenuList className={cn('justify-center-safe gap-1 overflow-x-auto [scrollbar-width:none]', variant === 'bar' && 'rounded-full bg-muted/55 p-1 ring-1 ring-hairline backdrop-blur-md backdrop-saturate-[1.8]', variant === 'segment' && 'gap-0.5 rounded-full bg-muted p-0.5')}>
         {tabs.map(tab => (
           <NavigationMenuItem key={tab.href}>
             <NavigationMenuLink asChild active={tab.current} className={cn(TAB, variant === 'bar' && 'h-[30px] px-3.5 text-[13.5px]', variant === 'segment' && 'h-7 px-3 text-[12.5px] data-[active]:shadow-xs')}>

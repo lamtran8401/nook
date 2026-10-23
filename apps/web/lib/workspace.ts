@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { EvError } from '@nook/shared/errors.ts'
 
 import { type HomeView, readHome } from '@nook/core/read.ts'
-import { activeFeatures, type Budget, type Commands, commandsAbove, secretsAbove, Workspace } from '@nook/workspace/workspaces.ts'
+import { activeFeatures, type Budget, type Commands, commandsAbove, rulesAt, secretsAbove, Workspace } from '@nook/workspace/workspaces.ts'
 import { ALWAYS_SECRET } from '@nook/workspace/secrets.ts'
 import { engineeringModule } from '@nook/engineering/module.ts'
 import { type BoardCard, type ItemDocs, type ItemView, readAreas, readBoard, readDocs, readItem, readMetrics, type Receipt, readReceipts, readTrend } from '@nook/engineering/read/reader.ts'
@@ -14,7 +14,7 @@ import { wikiModule } from '@nook/wiki/module.ts'
 import { type PageView, readPage, readWiki, type WikiView } from '@nook/wiki/read.ts'
 import { type EventGroup, groupEvents } from '@nook/core/retro/retro.ts'
 import { dayOf, type WorkspaceEvent, readEvents } from '@nook/workspace/events.ts'
-import { type Part, parts as pluginParts } from '@nook/workspace/parts.ts'
+import { type Hook, hooks, type Part, parts as pluginParts } from '@nook/workspace/parts.ts'
 import { type EngineeringSettings, readSettings } from '@nook/engineering/read/reader.ts'
 import { METRICS_SPAN_MS } from '@nook/engineering/report/metrics.ts'
 
@@ -84,12 +84,14 @@ export function events(dir: string, filter: { kind?: WorkspaceEvent['kind']; day
   return (filter.day ? all.filter(event => dayOf(new Date(event.at)) === filter.day) : all).reverse()
 }
 
-/** What the harness page shows: each feature and the workspace it comes from, the budget, the guards, the file, and the engineering home when there is one. */
+/** What the harness page shows: each feature and the workspace it comes from, the budget, the guards, the rules, the hooks, the file, and the engineering home when there is one. */
 export type Harness = {
   features: { name: string; from: string | null }[]
   budget: Budget | null
   secrets: { always: string[]; listed: string[] }
   commands: Commands
+  rules: { name: string; on: boolean }[]
+  hooks: Hook[]
   file: string
   engineering: EngineeringSettings | null
 }
@@ -100,6 +102,8 @@ export function harness(dir: string): Harness {
     budget: Workspace.read(dir).config.budget,
     secrets: { always: ALWAYS_SECRET, listed: secretsAbove(dir).map(file => relative(dir, file)) },
     commands: commandsAbove(dir),
+    rules: rulesAt(dir),
+    hooks: hooks(),
     file: `${dir}/nook.yml`,
     engineering: readSettings(dir),
   }

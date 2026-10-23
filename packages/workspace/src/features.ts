@@ -36,6 +36,18 @@ export function activeFeatures(from = process.cwd()): ActiveFeature[] {
 export const featureHome = (name: FeatureName, from = process.cwd()): Workspace | null =>
   activeFeatures(from).find(feature => feature.name === name)?.home ?? null
 
+/**
+ * Each base rule of the features on in `from`, off when the nook.yml that writes it lists it under `rules.off`.
+ * Every workspace writes the core rules for itself; a feature's rules come from its home.
+ */
+export function rulesAt(from = process.cwd()): { name: string; on: boolean }[] {
+  const nearest = Workspace.nearest(from)
+  return activeFeatures(from).flatMap(({ name, home }) => {
+    const writer = name === 'core' && nearest ? nearest : home
+    return FEATURES.find(feature => feature.name === name)!.rules.map(rule => ({ name: rule, on: !writer.config.rules.off.includes(rule) }))
+  })
+}
+
 /** Core and each feature whose section is in the nook.yml of the workspace itself. */
 export const featuresHere = (workspace: Workspace): Feature[] => FEATURES.filter(feature => feature.name === 'core' || workspace.config.has(feature.name))
 
