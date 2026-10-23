@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { benchSchema, checkSpec } from '../src/bench-check.ts'
-import { Catalog } from '../src/catalog.ts'
+import { pluginDir } from '../src/features.ts'
 
 describe('benchSchema', () => {
   test('reads the fields of each diagram type from DIAGRAMS.md, with the fields of the items of a graph, a file tree and a board', () => {
@@ -57,7 +57,7 @@ describe('checkSpec', () => {
 
 describe('the examples of DIAGRAMS.md', () => {
   test('each JSON example passes the schema that the same doc gives', () => {
-    const doc = readFileSync(join(Catalog.load().dirOf('core'), 'ui', 'bench', 'DIAGRAMS.md'), 'utf8')
+    const doc = readFileSync(join(pluginDir(), 'ui', 'bench', 'DIAGRAMS.md'), 'utf8')
     const examples = [...doc.matchAll(/```json\n([\s\S]*?)\n```/g)].map(m => JSON.parse(m[1]!) as { type?: string })
     const problems = examples.flatMap(spec => checkSpec(spec).map(problem => `${spec.type}: ${problem}`))
     expect(examples.length).toBeGreaterThan(10)

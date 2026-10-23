@@ -11,13 +11,13 @@ describe('sessionStart', () => {
   })
   afterEach(() => removeDir(root))
 
-  test('adds the desk and its packs as context', () => {
+  test('adds the desk and its features as context', () => {
     expect(sessionStart({ cwd: root })).toEqual({
       kind: 'json',
       value: {
         hookSpecificOutput: {
           hookEventName: 'SessionStart',
-          additionalContext: `Nook desk: ${root}. Packs on: core. The base rules are in .claude/rules/nook/. Run \`nook doctor\` for the desks above and every gap.`,
+          additionalContext: `Nook desk: ${root}. Features on: core. The base rules are in .claude/rules/nook/. Run \`nook doctor\` for the desks above and every gap.`,
         },
       },
     })

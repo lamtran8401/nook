@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { runInNewContext } from 'node:vm'
 
-import { Catalog } from '../src/catalog.ts'
+import { pluginDir } from '../src/features.ts'
 
 type Fake = { innerHTML: string; children: Fake[] }
 
@@ -41,7 +41,7 @@ function fakeElement(): Fake {
 
 /** The element that the Bench bundle draws one board spec into. */
 function drawBoard(spec: object): Fake {
-  const js = readFileSync(join(Catalog.load().dirOf('core'), 'ui', 'bench', 'bundle.js'), 'utf8')
+  const js = readFileSync(join(pluginDir(), 'ui', 'bench', 'bundle.js'), 'utf8')
   const document = { readyState: 'complete', querySelectorAll: () => [], addEventListener() {}, createElement: fakeElement, documentElement: { dataset: {}, setAttribute() {}, getAttribute: () => null }, body: fakeElement() }
   const sandbox: Record<string, unknown> = {
     document, console, localStorage: { getItem: () => null, setItem() {} }, matchMedia: () => ({ matches: false, addEventListener() {} }),

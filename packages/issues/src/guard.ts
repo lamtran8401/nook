@@ -1,6 +1,6 @@
 import { basename } from 'node:path'
 
-import { activePacks } from '@nook/desk/desks.ts'
+import { featureHome } from '@nook/desk/desks.ts'
 import { block, pass, type HookInput, type HookResult } from '@nook/shared/hook.ts'
 import { runCommand } from '@nook/shared/run.ts'
 import { shellCommands } from '@nook/shared/shell.ts'
@@ -155,7 +155,7 @@ export function loadTwgMap(): TwgCommand[] | null {
 export function trackerHook(input: HookInput, twgMap: () => TwgCommand[] | null = loadTwgMap): HookResult {
   const command = input.tool_input?.command
   if (input.tool_name !== 'Bash' || typeof command !== 'string') return pass
-  if (!activePacks(input.cwd ?? process.cwd()).some(pack => pack.name === 'issue-tracker')) return pass
+  if (!featureHome('issue-tracker', input.cwd ?? process.cwd())) return pass
   let map: TwgCommand[] | null | undefined
   const reason = writeGuard(command, () => (map === undefined ? (map = twgMap()) : map))
   return reason ? block(reason) : pass

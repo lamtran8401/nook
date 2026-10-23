@@ -1,9 +1,0 @@
-{
-  "name": "wiki",
-  "description": "the wiki of the desk: the shelves of docs/wiki/, their indexes, the references, and the skills that read and write the pages",
-  "rules": [
-    "templates/rules/wiki.md"
-  ],
-  "settings": "templates/settings.json",
-  "state": []
-}

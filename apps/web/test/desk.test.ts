@@ -13,19 +13,19 @@ afterEach(() => rmSync(desk, { recursive: true, force: true }))
 
 describe('deskPages', () => {
   test('gives Home, then a page for each pack on in the desk that has one', () => {
-    writeFileSync(join(desk, 'nook.yml'), 'packs: [engineering, wiki]\n')
+    writeFileSync(join(desk, 'nook.yml'), 'engineering: {}\nwiki: {}\n')
     expect(deskPages(desk).map(page => [page.key, page.path])).toEqual([['home', ''], ['works', '/works'], ['wiki', '/wiki'], ['metrics', '/metrics'], ['agents', '/agents'], ['events', '/events'], ['settings', '/settings']])
   })
 
   test('gives Home and the pages of core in a desk with no pack', () => {
-    writeFileSync(join(desk, 'nook.yml'), 'packs: []\n')
+    writeFileSync(join(desk, 'nook.yml'), 'secrets: []\n')
     expect(deskPages(desk).map(page => page.key)).toEqual(['home', 'agents', 'events', 'settings'])
   })
 })
 
 describe('openCount', () => {
   test('a desk whose ledger cannot be read gives no count, so the shell still shows and the page shows the gap', () => {
-    writeFileSync(join(desk, 'nook.yml'), 'packs: [engineering]\n')
+    writeFileSync(join(desk, 'nook.yml'), 'engineering: {}\n')
     expect(openCount(desk)).toBeUndefined()
   })
 })

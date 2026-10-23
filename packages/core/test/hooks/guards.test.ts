@@ -9,7 +9,7 @@ let root: string
 beforeEach(() => {
   root = tempDir('nook-hooks-')
   initIn(root)
-  writeFileSync(join(root, 'nook.yml'), 'packs: []\nsecrets: [config/infra.local.yaml]\n')
+  writeFileSync(join(root, 'nook.yml'), 'secrets: [config/infra.local.yaml]\n')
 })
 afterEach(() => removeDir(root))
 

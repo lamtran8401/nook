@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { runInNewContext } from 'node:vm'
 
-import { Catalog } from '../src/catalog.ts'
+import { pluginDir } from '../src/features.ts'
 
 type Node = { id: string; at?: [number, number]; span?: [number, number]; [field: string]: unknown }
 type Edge = { from: string; to: string; label?: string; a?: string; b?: string; split?: boolean }
@@ -12,7 +12,7 @@ type Spec = { type: 'graph'; nodes: Node[]; edges?: Edge[]; groups?: Group[]; co
 
 /** The layout of the Bench bundle, loaded with a small fake DOM: it needs no page. */
 function loadLayout(): (spec: Spec) => Spec {
-  const js = readFileSync(join(Catalog.load().dirOf('core'), 'ui', 'bench', 'bundle.js'), 'utf8')
+  const js = readFileSync(join(pluginDir(), 'ui', 'bench', 'bundle.js'), 'utf8')
   const element = () => ({ getContext: () => ({ measureText: () => ({ width: 40 }), font: '' }), style: {}, setAttribute() {}, appendChild() {} })
   const document = { readyState: 'complete', querySelectorAll: () => [], addEventListener() {}, createElement: element, documentElement: { dataset: {}, setAttribute() {}, getAttribute: () => null }, body: { appendChild() {} } }
   const sandbox: Record<string, unknown> = { document, console, localStorage: { getItem: () => null, setItem() {} }, matchMedia: () => ({ matches: false, addEventListener() {} }) }

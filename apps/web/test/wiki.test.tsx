@@ -37,7 +37,7 @@ describe('WikiHome', () => {
   })
 
   test('says how to turn the wiki on in a desk with none', () => {
-    expect(text(html(<WikiHome wiki={null} base="/personal" />))).toBe('This desk has no wiki Add wiki to the packs of nook.yml, then run /setup in the agent session.')
+    expect(text(html(<WikiHome wiki={null} base="/personal" />))).toBe('This desk has no wiki Add a wiki: section to nook.yml: run /setup in the agent session.')
   })
 })
 

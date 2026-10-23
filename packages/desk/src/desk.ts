@@ -8,7 +8,7 @@ import { NookConfig } from './nook-config.ts'
 export { STATE_DIR }
 export const NOOK_FILE = 'nook.yml'
 
-/** A folder with a `nook.yml`: its packs and rules reach every folder inside it. */
+/** A folder with a `nook.yml`: its features and rules reach every folder inside it. */
 export class Desk {
   constructor(
     readonly dir: string,

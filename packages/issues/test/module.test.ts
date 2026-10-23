@@ -16,19 +16,19 @@ const working = () => ({ code: 0, out: '', err: '' })
 
 describe('issuesModule', () => {
   test('with no section, the pack is not configured and the doctor names the fix', () => {
-    yml('packs: [issue-tracker]\n')
+    yml('issue-tracker: {}\n')
     expect(issuesModule.configured(root)).toBe(false)
     expect(issuesDoctor(root, working).map(f => [f.level, f.text, f.fix])).toEqual([['warn', 'nook.yml has no issue-tracker section with the sources', 'write it with /setup']])
   })
 
   test('setup makes the backlog folder of the tickets', () => {
-    yml('packs: [issue-tracker]\nissue-tracker:\n  sources:\n    - { type: github, repo: acme/shop }\n')
+    yml('issue-tracker:\n  sources:\n    - { type: github, repo: acme/shop }\n')
     expect(issuesModule.setup(root)).toEqual(['backlog/'])
     expect(existsSync(join(root, 'backlog'))).toBe(true)
   })
 
   test('the doctor gives each source that works, and each gap with its fix', () => {
-    yml('packs: [issue-tracker]\nissue-tracker:\n  sources:\n    - { type: github, repo: acme/shop }\n    - { type: jira, site: company.atlassian.net }\n')
+    yml('issue-tracker:\n  sources:\n    - { type: github, repo: acme/shop }\n    - { type: jira, site: company.atlassian.net }\n')
     const noTwg = (argv: string[]) => (argv[0] === 'twg' ? { code: 1, out: '', err: 'spawnSync twg ENOENT' } : working())
     expect(issuesDoctor(root, noTwg).map(f => [f.level, f.text, f.fix])).toEqual([
       ['ok', 'github acme/shop: gh has a login', undefined],
@@ -37,17 +37,17 @@ describe('issuesModule', () => {
   })
 
   test('a broken section is one error with the fix of the config', () => {
-    yml('packs: [issue-tracker]\nissue-tracker:\n  sources:\n    - { type: jira, site: company.atlassian.net, fields: { acceptanceCriteria: acceptance } }\n')
+    yml('issue-tracker:\n  sources:\n    - { type: jira, site: company.atlassian.net, fields: { acceptanceCriteria: acceptance } }\n')
     expect(issuesDoctor(root, working).map(f => [f.level, f.text])).toEqual([['error', 'nook.yml: issue-tracker.sources[0].fields.acceptanceCriteria is "acceptance", not a Jira field id']])
   })
 
   test('a section with no source is a gap', () => {
-    yml('packs: [issue-tracker]\nissue-tracker:\n  sources: []\n')
+    yml('issue-tracker:\n  sources: []\n')
     expect(issuesDoctor(root, working).map(f => [f.level, f.text, f.fix])).toEqual([['warn', 'issue-tracker has no source', 'add a jira or github source to issue-tracker.sources with /setup']])
   })
 
   test('a desk that does not turn the pack on gets nothing', () => {
-    yml('packs: [wiki]\n')
+    yml('wiki: {}\n')
     expect(issuesDoctor(root, working)).toEqual([])
   })
 })

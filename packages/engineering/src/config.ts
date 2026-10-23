@@ -73,7 +73,8 @@ export class EngineeringConfig {
   static parse(source: string, file: string): EngineeringConfig {
     const data = (parse(source) ?? {}) as Raw
     const section = data.engineering
-    if (section === undefined || section === null) return EngineeringConfig.empty()
+    // `engineering:` alone or `engineering: {}` turns engineering on, with a section that /setup has not filled in
+    if (section === undefined || section === null || (typeof section === 'object' && !Array.isArray(section) && !Object.keys(section).length)) return EngineeringConfig.empty()
     if (typeof section !== 'object' || Array.isArray(section))
       throw usage(`${file}: engineering must be a map`, 'see docs/reference/engineering.md section 2')
     const raw = section as Raw

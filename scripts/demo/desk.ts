@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { dirname, join, resolve } from 'node:path'
 
 import { init } from '@nook/core/init/initializer.ts'
-import { Catalog } from '@nook/desk/catalog.ts'
+import { pluginDir } from '@nook/desk/desks.ts'
 import { Home } from '@nook/engineering/home.ts'
 import { engineeringModule } from '@nook/engineering/module.ts'
 import { Engineering } from '@nook/engineering/service.ts'
@@ -22,8 +22,7 @@ const LEAD = new Who('lead', 'lead', 'demo')
 const API_BUILDER = new Who('builder', 'backend-builder-a1', 'demo')
 const WEB_BUILDER = new Who('builder', 'frontend-builder-b2', 'demo')
 
-const NOOK_YML = `packs: [engineering]
-secrets: []
+const NOOK_YML = `secrets: []
 
 engineering:
   areas:
@@ -203,7 +202,7 @@ export function buildDemo(target: string): string {
   makeArea(desk, 'api', { 'src/orders/total.ts': 'export const total = 0\n' })
   makeArea(desk, 'web', { 'src/checkout/Checkout.tsx': 'export const Checkout = 1\n' })
   makeArea(desk, 'worker', { 'src/mail/templates.ts': 'export const receipt = 1\n' })
-  init({ dir: desk, packs: ['engineering'], update: false, coreDir: Catalog.load().dirOf('core'), modules: [engineeringModule] })
+  init({ dir: desk, with: [], update: false, pluginDir: pluginDir(), modules: [engineeringModule] })
   buildItems(new Demo(desk))
   return desk
 }

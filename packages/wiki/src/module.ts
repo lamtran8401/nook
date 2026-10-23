@@ -1,22 +1,22 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
-import { activePacks, type PackModule } from '@nook/desk/desks.ts'
+import { featureHome, type FeatureModule } from '@nook/desk/desks.ts'
 import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { WikiConfig } from './config.ts'
 import { Wiki } from './wiki.ts'
 
-/** The wiki of the nearest desk above `cwd` that turns the pack on. */
+/** The wiki of the nearest desk above `cwd` whose nook.yml has a `wiki:` section. */
 export function findWiki(cwd = process.cwd()): Wiki | null {
-  const pack = activePacks(cwd).find(p => p.name === 'wiki')
-  return pack ? new Wiki(pack.home.dir, WikiConfig.from(pack.home.config.section('wiki'))) : null
+  const home = featureHome('wiki', cwd)
+  return home ? new Wiki(home.dir, WikiConfig.from(home.config.section('wiki'))) : null
 }
 
 export function requireWiki(cwd = process.cwd()): Wiki {
   const wiki = findWiki(cwd)
   if (wiki) return wiki
-  throw new EvError('not inside a desk that turns the wiki pack on', Exit.error, 'add `wiki` to `packs:` in nook.yml, then run /setup')
+  throw new EvError('not inside a desk that turns the wiki on', Exit.error, 'add a `wiki:` section to nook.yml with /setup')
 }
 
 /** The wiki of `dir` only when `dir` itself turns the pack on: a child does not set up its parent. */
@@ -25,7 +25,7 @@ const wikiAt = (dir: string): Wiki | null => {
   return wiki && wiki.home === dir ? wiki : null
 }
 
-export const wikiModule: PackModule = {
+export const wikiModule: FeatureModule = {
   name: 'wiki',
 
   setup(dir) {

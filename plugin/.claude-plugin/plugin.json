@@ -1,0 +1,9 @@
+{
+  "name": "nook",
+  "version": "0.4.0",
+  "description": "Nook: a harness kit for a developer in Claude Code. The base rules, the guards, the item flow with your gates, the skills and the agents. Init any folder to make a workspace.",
+  "author": {
+    "name": "Lam"
+  },
+  "license": "MIT"
+}

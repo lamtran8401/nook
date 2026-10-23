@@ -8,7 +8,7 @@ import { removeDir, tempDir } from '../helpers.ts'
 let root: string
 beforeEach(() => {
   root = tempDir()
-  writeFileSync(join(root, 'nook.yml'), 'packs: [core]\n')
+  writeFileSync(join(root, 'nook.yml'), 'secrets: []\n')
 })
 afterEach(() => removeDir(root))
 

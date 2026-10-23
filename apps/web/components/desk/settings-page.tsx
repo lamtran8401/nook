@@ -8,17 +8,17 @@ import type { DeskSettings } from '@/lib/desk.ts'
 
 const Muted = ({ children }: { children: React.ReactNode }) => <p className="text-[13px] text-muted-foreground">{children}</p>
 
-/** The setup of the desk in one card: its packs, its areas with their checks, the kinds it learned, its root cause types and its file. */
+/** The setup of the desk in one card: its features, its areas with their checks, the kinds it learned, its root cause types and its file. */
 export function SettingsPage({ settings }: { settings: DeskSettings }) {
   const eng = settings.engineering
   return (
     <SettingRows>
-      <SettingRow title="Packs" about={<>From <code className="font-mono">nook.yml</code>.</>}>
+      <SettingRow title="Features" about={<>On where <code className="font-mono">nook.yml</code> has their section.</>}>
         <div className="flex flex-wrap gap-1.5">
-          {settings.packs.map(pack => (
-            <span key={pack} className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1 shadow-xs">
+          {settings.features.map(feature => (
+            <span key={feature} className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1 shadow-xs">
               <i data-tone="success" className="size-2 rounded-full bg-tone" aria-hidden="true" />
-              {pack}
+              {feature}
               <span className="text-muted-foreground">on</span>
             </span>
           ))}
@@ -63,7 +63,7 @@ export function SettingsPage({ settings }: { settings: DeskSettings }) {
           </SettingRow>
         </>
       ) : null}
-      <SettingRow title="File" about="Edit it to change a pack or an area.">
+      <SettingRow title="File" about="Edit it to change a feature or an area.">
         <code className="font-mono text-xs [overflow-wrap:anywhere]">{settings.file}</code>
       </SettingRow>
     </SettingRows>

@@ -2,11 +2,11 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { PackModule } from '@nook/desk/desks.ts'
+import type { FeatureModule } from '@nook/desk/desks.ts'
 import { DeskList } from '@nook/desk/desk-list.ts'
 
 import { init } from '../../src/init/initializer.ts'
-import { CORE_DIR, initIn, removeDir, tempDir } from '../helpers.ts'
+import { initIn, PLUGIN_DIR, removeDir, tempDir } from '../helpers.ts'
 
 let root: string
 beforeEach(() => {
@@ -34,9 +34,9 @@ describe('Initializer', () => {
     ])
   })
 
-  test('the block names the packs that are on', () => {
+  test('the block names the features that are on', () => {
     initIn(root)
-    expect(readText('CLAUDE.md')).toContain('Packs on here: core.')
+    expect(readText('CLAUDE.md')).toContain('Features on here: core.')
   })
 
   test('the text that the owner wrote in CLAUDE.md stays above the block', () => {
@@ -59,24 +59,24 @@ describe('Initializer', () => {
 
   test('a rule turned off in nook.yml goes away on update, and the other rules stay', () => {
     initIn(root)
-    writeFileSync(join(root, 'nook.yml'), 'packs: []\nrules: { off: [writing] }\n')
+    writeFileSync(join(root, 'nook.yml'), 'rules: { off: [writing] }\n')
     expect(initIn(root, [], true).wrote).toEqual(['.claude/rules/nook/writing.md (removed)'])
     expect(nookRules()).toEqual(['approach.md', 'comments.md', 'questions.md', 'safety.md'])
   })
 
-  test('a pack that Nook does not ship is refused', () => {
-    expect(() => initIn(root, ['nope'])).toThrow('no pack is named "nope"')
+  test('a feature that Nook does not have is refused', () => {
+    expect(() => initIn(root, ['nope'])).toThrow('no feature is named "nope"')
   })
 
-  test('core is always on, so naming it writes an empty pack list', () => {
-    expect(initIn(root, ['core']).packs).toEqual(['core'])
-    expect(readText('nook.yml')).toContain('packs: []\n')
+  test('core is always on, so naming it writes no section', () => {
+    expect(initIn(root, ['core']).features).toEqual(['core'])
+    expect(readText('nook.yml')).not.toContain('core:')
   })
 
-  test('a pack named on a second init goes into nook.yml, and its rules keep their own file names', () => {
+  test('a feature named on a second init gets an empty section, and its rules keep their own file names', () => {
     initIn(root)
-    expect(initIn(root, ['engineering']).packs).toEqual(['core', 'engineering'])
-    expect(readText('nook.yml')).toContain('packs: [engineering]\n')
+    expect(initIn(root, ['engineering']).features).toEqual(['core', 'engineering'])
+    expect(readText('nook.yml').endsWith('\nengineering: {}\n')).toBe(true)
     expect(nookRules()).toEqual(['approach.md', 'comments.md', 'engineering.md', 'questions.md', 'safety.md', 'testing.md', 'writing.md'])
   })
 
@@ -99,35 +99,35 @@ describe('Initializer', () => {
 describe('Initializer: the list of desks', () => {
   test('init adds its folder to the list of the owner, once', () => {
     const list = new DeskList(join(root, 'home', '.config', 'nook', 'desks'))
-    init({ dir: root, packs: [], update: false, coreDir: CORE_DIR, list })
-    init({ dir: root, packs: [], update: true, coreDir: CORE_DIR, list })
+    init({ dir: root, with: [], update: false, pluginDir: PLUGIN_DIR, list })
+    init({ dir: root, with: [], update: true, pluginDir: PLUGIN_DIR, list })
     expect(list.dirs()).toEqual([root])
   })
 })
 
-describe('Initializer: the packs on here', () => {
+describe('Initializer: the features on here', () => {
   const calls: string[] = []
-  const pack = (configured: boolean): PackModule => ({
+  const feature = (configured: boolean): FeatureModule => ({
     name: 'engineering',
     setup: dir => (calls.push(dir), ['works/']),
     configured: () => configured,
     doctor: () => [],
   })
-  const initWith = (module: PackModule, packs: string[]) => init({ dir: root, packs, update: false, coreDir: CORE_DIR, modules: [module] })
+  const initWith = (module: FeatureModule, features: string[]) => init({ dir: root, with: features, update: false, pluginDir: PLUGIN_DIR, modules: [module] })
 
-  test('runs the setup of each pack on here and reports what it made', () => {
+  test('runs the setup of each feature on here and reports what it made', () => {
     calls.length = 0
-    expect(initWith(pack(true), ['engineering']).wrote.at(-1)).toBe('works/')
+    expect(initWith(feature(true), ['engineering']).wrote.at(-1)).toBe('works/')
     expect(calls).toEqual([root])
   })
 
-  test('names a pack whose section of nook.yml is not written yet', () => {
-    expect(initWith(pack(false), ['engineering']).unset).toEqual(['engineering'])
+  test('names a feature whose section /setup has not filled in yet', () => {
+    expect(initWith(feature(false), ['engineering']).unset).toEqual(['engineering'])
   })
 
-  test('does not set up a pack that is not on here', () => {
+  test('does not set up a feature that is not on here', () => {
     calls.length = 0
-    expect(initWith(pack(false), []).unset).toEqual([])
+    expect(initWith(feature(false), []).unset).toEqual([])
     expect(calls).toEqual([])
   })
 })

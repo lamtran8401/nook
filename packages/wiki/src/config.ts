@@ -25,7 +25,8 @@ export class WikiConfig {
   ) {}
 
   static from(section: unknown): WikiConfig {
-    if (section === undefined || section === null) return new WikiConfig('docs/wiki', 'docs/references', 'archive/wiki', [], true)
+    // `wiki:` alone or `wiki: {}` turns the wiki on, with a section that /setup has not filled in
+    if (section === undefined || section === null || isEmptyMap(section)) return new WikiConfig('docs/wiki', 'docs/references', 'archive/wiki', [], true)
     if (typeof section !== 'object' || Array.isArray(section)) throw usage('nook.yml: wiki must be a map of keys')
     const raw = section as Raw
     const shelves = Array.isArray(raw.shelves) ? raw.shelves.map(shelfOf) : []
@@ -39,3 +40,5 @@ function shelfOf(value: unknown): Shelf {
   if (!name) throw usage('nook.yml: each shelf of wiki needs a name', 'write shelves as - { name: ideas, use: "..." }')
   return { name, use: text(raw.use, ''), index: raw.index !== false }
 }
+
+const isEmptyMap = (value: unknown): boolean => typeof value === 'object' && value !== null && !Array.isArray(value) && !Object.keys(value).length

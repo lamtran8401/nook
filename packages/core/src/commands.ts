@@ -1,12 +1,11 @@
 import { resolve } from 'node:path'
 
 import { arg, list, type Program } from '@nook/shared/cli.ts'
-import { activePacks, desksAbove, nearestDesk, type PackModule, projectRoot } from '@nook/desk/desks.ts'
+import { activeFeatures, desksAbove, FEATURES, type FeatureModule, nearestDesk, pluginDir, projectRoot } from '@nook/desk/desks.ts'
 import { DeskList } from '@nook/desk/desk-list.ts'
 import { hookRecorder, readEvents } from '@nook/desk/events.ts'
 import { Exit, usage } from '@nook/shared/errors.ts'
 import { readInput, runHook } from '@nook/shared/hook.ts'
-import { Catalog } from '@nook/desk/pack.ts'
 
 import { briefSources, collectBrief, formatBrief, startOfYesterday } from './brief/brief.ts'
 import { doctor } from './doctor/doctor.ts'
@@ -19,8 +18,6 @@ import { init } from './init/initializer.ts'
 import { markdownFiles, scoreFile } from './ste.ts'
 import { forgetWeb, pairWeb, startWeb, webDeps } from './web/start.ts'
 
-const coreDir = () => Catalog.load().dirOf('core')
-
 /** The folders of the brief: the list of the owner, and the desk of `cwd` when the list lacks it. */
 const briefDirs = (cwd: string): string[] => {
   const dirs = DeskList.mine().dirs()
@@ -28,7 +25,6 @@ const briefDirs = (cwd: string): string[] => {
   return here && !dirs.includes(here) ? [...dirs, here] : dirs
 }
 
-/** The commands of the core. `modules` are the pack packages that `nook init` and `nook doctor` reach. */
 /** The desk of the web commands: the nearest one above the folder. */
 function webDesk(): string {
   const desk = nearestDesk(process.cwd())
@@ -36,19 +32,20 @@ function webDesk(): string {
   return desk.dir
 }
 
-export const coreProgram =(modules: PackModule[] = []): Program => ({
+/** The commands of the core. `modules` are the feature packages that `nook init` and `nook doctor` reach. */
+export const coreProgram = (modules: FeatureModule[] = []): Program => ({
   name: 'nook',
   summary: 'Nook: a base layer for Claude Code that you init into any folder',
   commands: [
     {
       path: ['init'],
       summary: 'make this folder a desk: nook.yml, the nook block of CLAUDE.md, the base rules, the nook settings keys, .nook/',
-      usage: '[--pack a,b] [--update]',
-      flags: { pack: { type: 'string', list: true, help: 'a pack to turn on here; repeat it, or join names with a comma' }, update: { type: 'boolean', help: 'replace what Nook owns; never a line of yours' } },
+      usage: '[--with a,b] [--update]',
+      flags: { with: { type: 'string', list: true, help: 'a feature to turn on here with an empty section; repeat it, or join names with a comma' }, update: { type: 'boolean', help: 'replace what Nook owns; never a line of yours' } },
       run(c) {
-        const report = init({ dir: process.cwd(), packs: list(c, 'pack'), update: c.flags.update === true, coreDir: coreDir(), modules, list: DeskList.mine() })
+        const report = init({ dir: process.cwd(), with: list(c, 'with'), update: c.flags.update === true, pluginDir: pluginDir(), modules, list: DeskList.mine() })
         c.out(report, r => {
-          const lines = [`packs on here: ${r.packs.join(', ')}`]
+          const lines = [`features on here: ${r.features.join(', ')}`]
           if (r.wrote.length) lines.push(`wrote: ${r.wrote.join(', ')}`)
           if (r.kept.length) lines.push(`kept: ${r.kept.join(', ')}`)
           if (r.unset.length) lines.push(`next: in Claude Code, run /setup: it writes the section of ${r.unset.join(', ')} in nook.yml`)
@@ -59,7 +56,7 @@ export const coreProgram =(modules: PackModule[] = []): Program => ({
     },
     {
       path: ['doctor'],
-      summary: 'the desks above this folder, the packs each one gives, and every gap with its fix',
+      summary: 'the desks above this folder, the features each one turns on, and every gap with its fix',
       run(c) {
         const from = process.cwd()
         const report = doctor(from, { modules })
@@ -92,17 +89,15 @@ export const coreProgram =(modules: PackModule[] = []): Program => ({
       },
     },
     {
-      path: ['packs'],
-      summary: 'the packs on in this folder, where each keeps its record, and the packs that Nook ships',
+      path: ['features'],
+      summary: 'the features on in this folder and where each keeps its record; a feature is on where nook.yml has its section',
       run(c) {
-        const on = activePacks(process.cwd())
-        const shipped = Catalog.load().all().map(p => ({ name: p.manifest.name, description: p.manifest.description }))
-        c.out({ on, shipped }, () => [
+        const on = activeFeatures(process.cwd()).map(f => ({ name: f.name, home: f.home.dir }))
+        const off = FEATURES.filter(f => !on.some(o => o.name === f.name)).map(f => f.name)
+        c.out({ on, off }, r => [
           'on here:',
-          '  core         (every desk)',
-          ...on.map(p => `  ${p.name.padEnd(12)} ${p.home.dir}`),
-          'shipped by this nook:',
-          ...shipped.map(p => `  ${p.name.padEnd(12)} ${p.description}`),
+          ...r.on.map(f => `  ${f.name.padEnd(14)} ${f.home}`),
+          ...(r.off.length ? ['off here (add the section to nook.yml):', ...r.off.map(name => `  ${name}`)] : []),
         ].join('\n'))
       },
     },
@@ -137,9 +132,9 @@ export const coreProgram =(modules: PackModule[] = []): Program => ({
         const desk = nearestDesk(process.cwd())
         if (!desk) throw usage('not inside a desk', 'run nook init in a folder first')
         const since = retroSince(desk.dir)
-        const facts = activePacks(desk.dir)
-          .filter(p => p.home.dir === desk.dir)
-          .flatMap(p => modules.find(m => m.name === p.name)?.retro?.(desk.dir, since) ?? [])
+        const facts = activeFeatures(desk.dir)
+          .filter(f => f.home.dir === desk.dir)
+          .flatMap(f => modules.find(m => m.name === f.name)?.retro?.(desk.dir, since) ?? [])
           .concat(blockFacts(readEvents(desk.dir, { kind: 'block', since })), errorFacts(readEvents(desk.dir, { kind: 'error', since })))
         const file = retroFile(desk.dir)
         c.out({ desk: desk.dir, since: since.toISOString(), file, facts }, r =>

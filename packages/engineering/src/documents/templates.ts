@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { pluginDir } from '@nook/desk/pack.ts'
+import { pluginDir } from '@nook/desk/desks.ts'
 
 import { flowOf } from '../flows.ts'
 import { now } from '../ledger.ts'
@@ -30,7 +30,7 @@ export class Templates {
     const file = folder.path(doc)
     if (existsSync(file)) return []
     mkdirSync(folder.dir, { recursive: true })
-    this.dir ??= join(pluginDir('engineering'), 'templates')
+    this.dir ??= join(pluginDir(), 'templates')
     writeFileSync(file, fill(readFileSync(join(this.dir, doc), 'utf8'), item, this.date()))
     return [`wrote ${file}`]
   }

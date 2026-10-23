@@ -1,19 +1,19 @@
 import { readFileSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 
-import { nearestDesk, type PackModule } from '@nook/desk/desks.ts'
+import { nearestDesk, type FeatureModule } from '@nook/desk/desks.ts'
 import { block, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { score } from '../ste.ts'
 import { benchFaults, benchReport } from './bench.ts'
 
-export type StyleDeps = { modules: PackModule[] }
+export type StyleDeps = { modules: FeatureModule[] }
 
 /** Old work: read it, never rewrite it to the standard. */
 const SKIPPED = join('docs', 'archive')
 
-/** The folders of the record: `docs/` of the desk, and the folders that each pack names as its record. */
-const recordFolders = (deskDir: string, modules: PackModule[]): string[] => [
+/** The folders of the record: `docs/` of the desk, and the folders that each feature names as its record. */
+const recordFolders = (deskDir: string, modules: FeatureModule[]): string[] => [
   join(deskDir, 'docs'),
   ...modules.flatMap(module => module.records?.(deskDir) ?? []),
 ]
@@ -23,7 +23,7 @@ const inside = (folder: string, file: string) => {
   return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel)
 }
 
-function recordPath(input: HookInput, modules: PackModule[]): { full: string; rel: string } | null {
+function recordPath(input: HookInput, modules: FeatureModule[]): { full: string; rel: string } | null {
   const cwd = input.cwd ?? process.cwd()
   const desk = nearestDesk(cwd)
   const target = String(input.tool_input?.file_path ?? '')

@@ -205,6 +205,6 @@ describe('bashGuard: a reader and the item page', () => {
 
 describe('bashGuard: a reader and the core commands', () => {
   test('the block names each read command of the core', () => {
-    expect(reason(bash('nook init', SCOUT))).toBe('a reader may run only the read commands of nook (doctor, packs, where, ste, help).')
+    expect(reason(bash('nook init', SCOUT))).toBe('a reader may run only the read commands of nook (doctor, features, where, ste, help).')
   })
 })

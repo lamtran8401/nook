@@ -58,7 +58,7 @@ describe('engineeringModule', () => {
     clearFolders()
     const child = join(t.root, 'projects', 'notes')
     mkdirSync(child, { recursive: true })
-    writeFileSync(join(child, 'nook.yml'), 'packs: []\n')
+    writeFileSync(join(child, 'nook.yml'), 'secrets: []\n')
     expect(engineeringModule.setup(child)).toEqual([])
     expect(existsSync(join(t.root, 'works'))).toBe(false)
   })

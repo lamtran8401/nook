@@ -3,7 +3,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { Catalog } from '@nook/desk/catalog.ts'
+import { pluginDir } from '@nook/desk/desks.ts'
 import { runCommand } from '@nook/shared/run.ts'
 
 import { type Block, parseDoc } from '../lib/blocks.ts'
@@ -13,7 +13,7 @@ const repo = join(import.meta.dirname, '..', '..', '..')
 
 /** The JSON examples of DIAGRAMS.md, each named by its place and the heading above it. */
 function catalogSpecs(): Diagram[] {
-  const doc = readFileSync(join(Catalog.load().dirOf('core'), 'ui', 'bench', 'DIAGRAMS.md'), 'utf8')
+  const doc = readFileSync(join(pluginDir(), 'ui', 'bench', 'DIAGRAMS.md'), 'utf8')
   const specs: Diagram[] = []
   let heading = ''
   for (const m of doc.matchAll(/^#{2,4} (.+)$|^```json\n([\s\S]*?)\n```/gm)) {
@@ -27,9 +27,9 @@ const inner = (block: Block): Block[] =>
   'blocks' in block ? block.blocks : block.kind === 'list' ? block.items.flat() : block.kind === 'columns' ? block.columns.flat() : block.kind === 'tasks' ? block.items.flatMap(item => item.blocks) : []
 const specsOf = (blocks: Block[]): object[] => blocks.flatMap(block => (block.kind === 'diagram' ? [block.spec] : specsOf(inner(block))))
 
-/** Each drawn fence (mermaid, tree, bench) of the Markdown under docs/, plugins/ and the demo desk, as the web app draws it. */
+/** Each drawn fence (mermaid, tree, bench) of the Markdown under docs/, plugin/ and the demo desk, as the web app draws it. */
 function fenceDiagrams(): Diagram[] {
-  return ['docs', 'plugins', 'scripts/demo'].flatMap(top =>
+  return ['docs', 'plugin', 'scripts/demo'].flatMap(top =>
     readdirSync(join(repo, top), { recursive: true, encoding: 'utf8' })
       .filter(rel => rel.endsWith('.md'))
       .sort()
@@ -94,7 +94,7 @@ describe('the diagrams of Bench', () => {
     const diagrams = [...fenceDiagrams(), ...pageDiagrams()]
     const sources = new Set(diagrams.map(d => d.name.replace(/ \d+(:.*)?$/, '')))
     expect([...sources]).toEqual([
-      'docs/plan/v0.3.md', 'plugins/engineering/skills/write-plan/sections.md', 'plugins/engineering/skills/write-walkthrough/parts.md',
+      'docs/plan/v0.3.md', 'plugin/skills/write-plan/sections.md', 'plugin/skills/write-walkthrough/parts.md',
       'scripts/demo/items/SHOP-41/walkthrough.md', 'scripts/demo/items/SHOP-42/plan.md', 'scripts/demo/items/SHOP-43/plan.md', 'scripts/demo/items/SHOP-44/walkthrough.md',
       'the guide page', 'the report page',
     ])

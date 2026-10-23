@@ -2,27 +2,36 @@ import { parse } from 'yaml'
 
 import { EvError, usage } from '@nook/shared/errors.ts'
 
-/** The part of `nook.yml` that the core reads. Each pack reads its own section by its name. */
+/** The keys that an older Nook read and this one does not: `nook doctor` names each as a gap. */
+export const RETIRED_KEYS = ['packs', 'learn'] as const
+
+/** The part of `nook.yml` that the core reads. Each feature reads its own section by its name. */
 export class NookConfig {
   private constructor(
-    readonly packs: string[],
-    /** Packs of a parent desk that this one turns off. */
-    readonly off: string[],
     readonly rules: { off: string[] },
     readonly secrets: string[],
     private readonly data: Record<string, unknown>,
   ) {}
 
-  /** `packs: [a, b]` or `packs: { on: [a], off: [b] }`; `rules: { off: [...] }`; `secrets: [...]`. */
+  /** `rules: { off: [...] }`; `secrets: [...]`; one section for each feature that is on. */
   static parse(source: string, file: string): NookConfig {
     const data = readMap(source, file)
-    const { packs, off } = readPacks(data.packs, file)
     const rules = isMap(data.rules) ? data.rules : {}
-    return new NookConfig(packs, off, { off: strings(rules.off, `${file}: rules.off`) }, strings(data.secrets, `${file}: secrets`), data)
+    return new NookConfig({ off: strings(rules.off, `${file}: rules.off`) }, strings(data.secrets, `${file}: secrets`), data)
+  }
+
+  /** True when the file has the key, even with no value under it: `wiki:` alone turns the wiki on. */
+  has(name: string): boolean {
+    return Object.hasOwn(this.data, name)
   }
 
   section(name: string): unknown {
     return this.data[name]
+  }
+
+  /** The retired keys that the file still has. */
+  retired(): string[] {
+    return RETIRED_KEYS.filter(key => this.has(key))
   }
 }
 
@@ -35,12 +44,6 @@ function readMap(source: string, file: string): Record<string, unknown> {
   }
   if (!isMap(data)) throw usage(`${file} must hold a map of keys`)
   return data
-}
-
-function readPacks(value: unknown, file: string): { packs: string[]; off: string[] } {
-  if (Array.isArray(value)) return { packs: strings(value, `${file}: packs`), off: [] }
-  if (!isMap(value)) return { packs: [], off: [] }
-  return { packs: strings(value.on, `${file}: packs.on`), off: strings(value.off, `${file}: packs.off`) }
 }
 
 const isMap = (value: unknown): value is Record<string, unknown> =>

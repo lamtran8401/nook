@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve } from 'node:path'
 
-import { activePacks, STATE_DIR } from '@nook/desk/desks.ts'
+import { featureHome, STATE_DIR } from '@nook/desk/desks.ts'
 import { EvError, Exit, refused } from '@nook/shared/errors.ts'
 
 import { type Area, EngineeringConfig } from './config.ts'
@@ -14,18 +14,17 @@ export class Home {
   ) {}
 
   static find(cwd = process.cwd()): Home | null {
-    const pack = activePacks(cwd).find(p => p.name === 'engineering')
-    if (!pack) return null
-    return new Home(pack.home.dir, EngineeringConfig.read(pack.home.dir))
+    const home = featureHome('engineering', cwd)
+    return home ? new Home(home.dir, EngineeringConfig.read(home.dir)) : null
   }
 
   static require(cwd = process.cwd()): Home {
     const home = Home.find(cwd)
     if (home) return home
     throw new EvError(
-      'not inside a desk that turns the engineering pack on',
+      'not inside a desk that turns engineering on',
       Exit.error,
-      'run `nook init --pack engineering` in the folder of the project, or add `engineering` to `packs:` in its nook.yml',
+      'run `nook init --with engineering` in the folder of the project, or add an `engineering:` section to its nook.yml',
     )
   }
 

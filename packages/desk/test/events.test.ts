@@ -11,7 +11,7 @@ beforeEach(() => {
 })
 afterEach(() => rmSync(root, { recursive: true, force: true }))
 
-const desk = (dir: string) => (mkdirSync(dir, { recursive: true }), writeFileSync(join(dir, 'nook.yml'), 'packs: [core]\n'))
+const desk = (dir: string) => (mkdirSync(dir, { recursive: true }), writeFileSync(join(dir, 'nook.yml'), 'secrets: []\n'))
 const NOW = new Date(2026, 9, 19, 9, 30)
 const AT = NOW.toISOString()
 const dayFile = (dir: string, day = '2026-10-19') => join(dir, '.nook', 'events', `${day}.jsonl`)

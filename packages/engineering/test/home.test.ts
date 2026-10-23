@@ -34,19 +34,18 @@ describe('Home', () => {
 
   test('require outside a home exits 1 and names nook init as the fix', () => {
     const outside = makeHome()
-    writeFileSync(join(outside.root, 'nook.yml'), 'packs: []\n')
+    writeFileSync(join(outside.root, 'nook.yml'), 'secrets: []\n')
     try {
       const error = caught(() => Home.require(outside.root))
       expect(error.code).toBe(Exit.error)
-      expect(error.fix).toContain('nook init --pack engineering')
+      expect(error.fix).toContain('nook init --with engineering')
     } finally {
       outside.cleanup()
     }
   })
 
   test('areaOf picks the deepest area that holds the file', () => {
-    writeFileSync(join(t.root, 'nook.yml'), `packs: [engineering]
-engineering:
+    writeFileSync(join(t.root, 'nook.yml'), `engineering:
   areas:
     - { name: shop, path: projects, kind: tool }
     - { name: bff, path: projects/bff, kind: backend }

@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern'
 
-import { pluginDir } from '@nook/desk/pack.ts'
+import { pluginDir } from '@nook/desk/desks.ts'
 import { hold, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { ownerStartedAuto } from '../guards/yolo.ts'
@@ -18,7 +18,7 @@ import { Caller, whoOf } from './caller.ts'
 export const MAX_HOLDS = 6
 const MAX_REJECTS = 2
 
-const pluginRoot = () => process.env.CLAUDE_PLUGIN_ROOT ?? pluginDir('engineering')
+const pluginRoot = () => process.env.CLAUDE_PLUGIN_ROOT ?? pluginDir()
 const skillFile = (stage: string) => `${pluginRoot()}/skills/${stage}/SKILL.md`
 
 type Stage = { skill: string; note: string }

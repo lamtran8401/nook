@@ -4,7 +4,7 @@ import { join } from 'node:path'
 
 import { removeDir, tempDir } from './helpers.ts'
 
-const SHIM = join(import.meta.dir, '..', '..', '..', 'plugins', 'core', 'bin', 'nook')
+const SHIM = join(import.meta.dir, '..', '..', '..', 'plugin', 'bin', 'nook')
 
 /** A copy of the shim with no nook project around it and no nook on the PATH, as in a plugin cache. */
 let copy: string

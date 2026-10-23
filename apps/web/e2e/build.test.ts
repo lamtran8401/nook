@@ -20,7 +20,7 @@ let build: ReturnType<typeof runCommand>
 /** A desk with the engineering pack and two items in its ledger. */
 function makeDesk(): string {
   const dir = mkdtempSync(join(tmpdir(), 'nook-web-'))
-  writeFileSync(join(dir, 'nook.yml'), 'packs: [engineering]\n')
+  writeFileSync(join(dir, 'nook.yml'), 'engineering: {}\n')
   const ledger = Ledger.open(join(dir, '.nook', 'engineering.db'))
   for (const [id, title] of [['SHOP-12', 'Filter shipments by status'], ['SHOP-13', 'Export the list']])
     ledger.run("INSERT INTO item (id, title, state, created, updated) VALUES (?, ?, 'backlog', 'now', 'now')", id!, title!)

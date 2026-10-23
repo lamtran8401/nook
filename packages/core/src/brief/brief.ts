@@ -1,6 +1,6 @@
 import { basename } from 'node:path'
 
-import { activePacks, type BriefLine, type Finding, type PackModule } from '@nook/desk/desks.ts'
+import { activeFeatures, type BriefLine, type FeatureModule, type Finding } from '@nook/desk/desks.ts'
 
 import { doctor } from '../doctor/doctor.ts'
 
@@ -8,16 +8,16 @@ import { doctor } from '../doctor/doctor.ts'
 
 export type BriefFolder = { dir: string; lines: BriefLine[] }
 
-/** Where the lines of one folder come from: the gaps of the doctor, and the lines of the packs on there. */
+/** Where the lines of one folder come from: the gaps of the doctor, and the lines of the features on there. */
 export type BriefSources = { gaps: (dir: string) => Finding[]; lines: (dir: string, since: Date) => BriefLine[] }
 
-/** The sources of the brief: the gaps of the doctor, and the lines of each pack that the folder itself turns on. */
-export const briefSources = (modules: PackModule[]): BriefSources => ({
+/** The sources of the brief: the gaps of the doctor, and the lines of each feature that the folder itself turns on. */
+export const briefSources = (modules: FeatureModule[]): BriefSources => ({
   gaps: dir => doctor(dir, { modules }).findings,
   lines: (dir, since) =>
-    activePacks(dir)
-      .filter(p => p.home.dir === dir)
-      .flatMap(p => modules.find(m => m.name === p.name)?.brief?.(dir, since) ?? []),
+    activeFeatures(dir)
+      .filter(f => f.home.dir === dir)
+      .flatMap(f => modules.find(m => m.name === f.name)?.brief?.(dir, since) ?? []),
 })
 
 /** A broken setup comes first: each gap of the doctor is an urgent wait with its fix. A gap that folders share shows once. */

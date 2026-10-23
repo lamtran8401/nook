@@ -77,7 +77,8 @@ export class IssuesConfig {
   ) {}
 
   static from(section: unknown): IssuesConfig {
-    if (section === undefined || section === null) return new IssuesConfig('backlog', [], true)
+    // `issue-tracker:` alone or `issue-tracker: {}` turns it on, with a section that /setup has not filled in
+    if (section === undefined || section === null || (isMap(section) && !Object.keys(section).length)) return new IssuesConfig('backlog', [], true)
     if (!isMap(section)) throw usage('nook.yml: issue-tracker must be a map of keys')
     if (section.sources !== undefined && !Array.isArray(section.sources)) throw usage('nook.yml: issue-tracker.sources must be a list')
     return new IssuesConfig(text(section.backlog) || 'backlog', ((section.sources as unknown[] | undefined) ?? []).map(source), false)

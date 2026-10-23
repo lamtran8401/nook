@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { EvError } from '@nook/shared/errors.ts'
 
 import { type HomeView, readHome } from '@nook/core/read.ts'
-import { activePacks } from '@nook/desk/desks.ts'
+import { activeFeatures } from '@nook/desk/desks.ts'
 import { engineeringModule } from '@nook/engineering/module.ts'
 import { type BoardCard, type ItemDocs, type ItemView, readAreas, readBoard, readDocs, readItem, readMetrics, type Receipt, readReceipts, readTrend } from '@nook/engineering/read/reader.ts'
 import type { Metrics } from '@nook/engineering/report/metrics.ts'
@@ -11,7 +11,7 @@ import { wikiModule } from '@nook/wiki/module.ts'
 import { type PageView, readPage, readWiki, type WikiView } from '@nook/wiki/read.ts'
 import { type EventGroup, groupEvents } from '@nook/core/retro/retro.ts'
 import { dayOf, type DeskEvent, readEvents } from '@nook/desk/events.ts'
-import { type PackPart, packParts } from '@nook/desk/pack-parts.ts'
+import { type Part, parts as pluginParts } from '@nook/desk/parts.ts'
 import { type EngineeringSettings, readSettings } from '@nook/engineering/read/reader.ts'
 import { METRICS_SPAN_MS } from '@nook/engineering/report/metrics.ts'
 
@@ -25,27 +25,27 @@ export async function openDesk(params: Promise<{ desk: string }>): Promise<DeskR
   return { ...desk, base: `/${desk.slug}` }
 }
 
-/** A page of the sidebar: its address under the desk, and the pack that it needs, when one. */
-export type DeskPage = { key: string; label: string; path: string; pack?: string; footer?: boolean }
+/** A page of the sidebar: its address under the desk, and the feature that it needs, when one. */
+export type DeskPage = { key: string; label: string; path: string; feature?: string; footer?: boolean }
 
-// the pages of the sidebar in their order; a page with a pack shows only when the pack is on in the desk
+// the pages of the sidebar in their order; a page with a feature shows only when the feature is on in the desk
 const PAGES: DeskPage[] = [
   { key: 'home', label: 'Home', path: '' },
-  { key: 'works', label: 'Board', path: '/works', pack: 'engineering' },
-  { key: 'wiki', label: 'Wiki', path: '/wiki', pack: 'wiki' },
-  { key: 'metrics', label: 'Metrics', path: '/metrics', pack: 'engineering' },
+  { key: 'works', label: 'Board', path: '/works', feature: 'engineering' },
+  { key: 'wiki', label: 'Wiki', path: '/wiki', feature: 'wiki' },
+  { key: 'metrics', label: 'Metrics', path: '/metrics', feature: 'engineering' },
   { key: 'agents', label: 'Agents and skills', path: '/agents' },
   { key: 'events', label: 'Events', path: '/events' },
   { key: 'settings', label: 'Settings', path: '/settings', footer: true },
 ]
 
-/** The pages of a desk that its packs turn on. */
+/** The pages of a desk that its features turn on. */
 export function deskPages(dir: string): DeskPage[] {
-  const on = new Set(activePacks(dir).map(pack => pack.name))
-  return PAGES.filter(page => !page.pack || on.has(page.pack))
+  const on = new Set<string>(activeFeatures(dir).map(feature => feature.name))
+  return PAGES.filter(page => !page.feature || on.has(page.feature))
 }
 
-// the packs of the nook binary that read the disk only, so the home page gives what `nook brief` and `nook doctor` give;
+// the features of the nook binary that read the disk only, so the home page gives what `nook brief` and `nook doctor` give;
 // issue-tracker asks each tracker for its login, so its gaps stay with `nook doctor` and `nook issues sources`
 const MODULES = [engineeringModule, wikiModule]
 
@@ -70,7 +70,7 @@ export const item = (dir: string, id: string): { view: ItemView; docs: ItemDocs 
 export const wiki = (dir: string): WikiView | null => readWiki(dir)
 export const wikiPage = (dir: string, path: string): PageView => readPage(dir, path)
 export const find = (dir: string, query: string, base: string): Hit[] => search(dir, query, base)
-export const parts = (dir: string): PackPart[] => packParts(dir)
+export const parts = (): Part[] => pluginParts()
 
 /** The guard blocks of the last 30 days, each reason once with its count, the most frequent first. */
 export const blocks = (dir: string, now = new Date()): EventGroup[] => groupEvents(readEvents(dir, { kind: 'block', since: new Date(now.getTime() - METRICS_SPAN_MS) }))
@@ -81,6 +81,6 @@ export function events(dir: string, filter: { kind?: DeskEvent['kind']; day?: st
   return (filter.day ? all.filter(event => dayOf(new Date(event.at)) === filter.day) : all).reverse()
 }
 
-/** What the settings page shows: the packs, the file of the desk, and the engineering home when there is one. */
-export type DeskSettings = { packs: string[]; file: string; engineering: EngineeringSettings | null }
-export const settings = (dir: string): DeskSettings => ({ packs: ['core', ...activePacks(dir).map(p => p.name).filter(n => n !== 'core')], file: `${dir}/nook.yml`, engineering: readSettings(dir) })
+/** What the settings page shows: the features, the file of the desk, and the engineering home when there is one. */
+export type DeskSettings = { features: string[]; file: string; engineering: EngineeringSettings | null }
+export const settings = (dir: string): DeskSettings => ({ features: activeFeatures(dir).map(f => f.name), file: `${dir}/nook.yml`, engineering: readSettings(dir) })

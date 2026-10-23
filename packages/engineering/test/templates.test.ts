@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { fill, type TemplateItem, Templates } from '../src/documents/templates.ts'
 import { WorkFolder } from '../src/documents/work-folder.ts'
 
-const TEMPLATES = join(import.meta.dir, '..', '..', '..', 'plugins', 'engineering', 'templates')
+const TEMPLATES = join(import.meta.dir, '..', '..', '..', 'plugin', 'templates')
 const ITEM: TemplateItem = { id: 'SHOP-12', title: 'Filter by status', kind: 'feature', size: 'M', areas: ['bff', 'web'] }
 
 let dir: string

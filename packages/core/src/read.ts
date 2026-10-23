@@ -1,4 +1,4 @@
-import type { BriefLine, Finding, PackModule } from '@nook/desk/desks.ts'
+import type { BriefLine, Finding, FeatureModule } from '@nook/desk/desks.ts'
 
 import { briefSources, collectBrief, startOfYesterday } from './brief/brief.ts'
 import { doctor } from './doctor/doctor.ts'
@@ -7,7 +7,7 @@ import { doctor } from './doctor/doctor.ts'
 
 export type HomeView = { dir: string; brief: BriefLine[]; findings: Finding[] }
 
-export function readHome(desk: string, modules: PackModule[], now = new Date()): HomeView {
+export function readHome(desk: string, modules: FeatureModule[], now = new Date()): HomeView {
   const { findings } = doctor(desk, { modules })
   const [folder] = collectBrief([desk], startOfYesterday(now), { ...briefSources(modules), gaps: () => findings })
   return { dir: desk, brief: folder?.lines ?? [], findings }

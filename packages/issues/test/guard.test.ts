@@ -116,18 +116,18 @@ describe('the hook of the write guard', () => {
   const bash = (command: string) => ({ tool_name: 'Bash', tool_input: { command }, cwd: root })
 
   test('in a desk that turns the pack on, a write is blocked with its reason', () => {
-    writeFileSync(join(root, 'nook.yml'), 'packs: [issue-tracker]\n')
+    writeFileSync(join(root, 'nook.yml'), 'issue-tracker: {}\n')
     expect(trackerHook(bash('gh issue close 1'), () => MAP)).toEqual({ kind: 'block', reason: 'gh issue close writes to the tracker: the agents of this desk only read tickets. Ask the owner to do it.' })
     expect(trackerHook(bash('twg jira workitem get SHOP-1'), () => MAP)).toEqual({ kind: 'pass' })
   })
 
   test('in a desk with the pack off, a write passes', () => {
-    writeFileSync(join(root, 'nook.yml'), 'packs: [core]\n')
+    writeFileSync(join(root, 'nook.yml'), 'secrets: []\n')
     expect(trackerHook(bash('gh issue close 1'), () => MAP)).toEqual({ kind: 'pass' })
   })
 
   test('the map of twg is read once for a line with several twg calls, and not at all with none', () => {
-    writeFileSync(join(root, 'nook.yml'), 'packs: [issue-tracker]\n')
+    writeFileSync(join(root, 'nook.yml'), 'issue-tracker: {}\n')
     let reads = 0
     const counted = () => (reads++, MAP)
     trackerHook(bash('twg whoami && twg jira workitem get SHOP-1'), counted)

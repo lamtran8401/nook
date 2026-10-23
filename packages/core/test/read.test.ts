@@ -3,19 +3,19 @@ import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import type { PackModule } from '@nook/desk/desks.ts'
+import type { FeatureModule } from '@nook/desk/desks.ts'
 
 import { readHome } from '../src/read.ts'
 
 let desk: string
 beforeEach(() => {
   desk = realpathSync(mkdtempSync(join(tmpdir(), 'nook-read-')))
-  writeFileSync(join(desk, 'nook.yml'), 'packs: [engineering]\n')
+  writeFileSync(join(desk, 'nook.yml'), 'engineering: {}\n')
 })
 afterEach(() => rmSync(desk, { recursive: true, force: true }))
 
 const GAP = { level: 'warn' as const, where: 'SHOP-2', text: 'SHOP-2: plan.md changed after the approve', fix: 'nook eng item replan SHOP-2' }
-const pack: PackModule = {
+const pack: FeatureModule = {
   name: 'engineering',
   setup: () => [],
   configured: () => true,
@@ -39,7 +39,7 @@ describe('readHome', () => {
   })
 
   test('gives no line of a pack that the desk does not turn on', () => {
-    writeFileSync(join(desk, 'nook.yml'), 'packs: []\n')
+    writeFileSync(join(desk, 'nook.yml'), 'secrets: []\n')
     expect(readHome(desk, [pack]).brief.map(l => l.text)).not.toContain('SHOP-1 waits for your approve')
   })
 })

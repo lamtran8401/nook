@@ -1,7 +1,0 @@
-{
-  "name": "nk-wiki",
-  "version": "0.1.0",
-  "description": "Nook wiki: the shelves of docs/wiki/ with their indexes, the references, /wiki-ask, /wiki-add, /wiki-merge and /wiki-tidy, and a librarian agent.",
-  "author": { "name": "Lam" },
-  "license": "MIT"
-}

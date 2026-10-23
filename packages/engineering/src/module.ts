@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, renameSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
-import type { GateResult, PackModule } from '@nook/desk/desks.ts'
+import type { GateResult, FeatureModule } from '@nook/desk/desks.ts'
 import { EvError } from '@nook/shared/errors.ts'
 
 import { DEFAULTS, LEGACY_DIR } from './config.ts'
@@ -48,7 +48,7 @@ function reading<T>(home: Home, read: (eng: Engineering) => T, onGap: (gap: EvEr
   }
 }
 
-export const engineeringModule: PackModule = {
+export const engineeringModule: FeatureModule = {
   name: 'engineering',
 
   setup(dir) {

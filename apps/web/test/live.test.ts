@@ -10,7 +10,7 @@ import { watchDesk } from '@/lib/watch.ts'
 let desk: string
 beforeEach(() => {
   desk = realpathSync(mkdtempSync(join(tmpdir(), 'nook-live-')))
-  writeFileSync(join(desk, 'nook.yml'), 'packs: [engineering]\n')
+  writeFileSync(join(desk, 'nook.yml'), 'engineering: {}\n')
   mkdirSync(join(desk, 'works', 'SHOP-42'), { recursive: true })
   mkdirSync(join(desk, '.nook'), { recursive: true })
   mkdirSync(join(desk, 'projects', 'api'), { recursive: true })

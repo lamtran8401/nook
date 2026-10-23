@@ -1,43 +1,25 @@
 import { describe, expect, test } from 'bun:test'
 
-import { addPacks, nookYaml } from '../../src/init/nook-file.ts'
+import { addSections, nookYaml } from '../../src/init/nook-file.ts'
 
-describe('addPacks', () => {
-  test('adds to a flow list and changes no other line', () => {
-    expect(addPacks('# note\npacks: [a]\nrules: { off: [] }\n', ['b'])).toBe('# note\npacks: [a, b]\nrules: { off: [] }\n')
+describe('nookYaml', () => {
+  test('writes the comments and an empty section for each feature named', () => {
+    const text = nookYaml(['engineering', 'wiki'])
+    expect(text.startsWith('# Nook: this folder is a desk.')).toBe(true)
+    expect(text.endsWith('\nengineering: {}\nwiki: {}\n')).toBe(true)
   })
 
-  test('fills an empty flow list', () => {
-    expect(addPacks('packs: []\n', ['b'])).toBe('packs: [b]\n')
-  })
-
-  test('adds a line to a block list with the indent of its items, and a comment stays on its line', () => {
-    expect(addPacks('# mine\npacks:\n  - a   # first\nrules: {}\n', ['b'])).toBe('# mine\npacks:\n  - a   # first\n  - b\nrules: {}\n')
-  })
-
-  test('adds to the on list of a packs map', () => {
-    expect(addPacks('packs: { on: [a], off: [x] }\n', ['b'])).toBe('packs: { on: [a, b], off: [x] }\n')
-  })
-
-  test('adds a packs line when nook.yml has none', () => {
-    expect(addPacks('secrets: []\n', ['b'])).toBe('secrets: []\npacks: [b]\n')
-  })
-
-  test('a pack that is there already is not added twice', () => {
-    expect(addPacks('packs: [a]\n', ['a'])).toBe('packs: [a]\n')
-  })
-
-  test('a packs value that is not a list is refused', () => {
-    expect(() => addPacks('packs: everything\n', ['b'])).toThrow('nook.yml has no list of packs that Nook can add to')
+  test('with no feature writes the comments only', () => {
+    expect(nookYaml([]).split('\n').filter(line => line && !line.startsWith('#'))).toEqual([])
   })
 })
 
-describe('nookYaml', () => {
-  test('ends with the pack list in flow form', () => {
-    expect(nookYaml(['a', 'b']).endsWith('\npacks: [a, b]\n')).toBe(true)
+describe('addSections', () => {
+  test('adds an empty section at the end and keeps every other byte', () => {
+    expect(addSections('# mine\nsecrets: [a.yaml]\n', ['wiki'])).toBe('# mine\nsecrets: [a.yaml]\nwiki: {}\n')
   })
 
-  test('a desk with no pack gets an empty list, not an empty key', () => {
-    expect(nookYaml([]).endsWith('\npacks: []\n')).toBe(true)
+  test('with nothing missing gives the file back as it was', () => {
+    expect(addSections('wiki: {}\n', [])).toBe('wiki: {}\n')
   })
 })

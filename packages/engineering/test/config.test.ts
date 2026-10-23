@@ -24,7 +24,7 @@ const caught = (work: () => unknown): EvError => {
 
 describe('EngineeringConfig: the old tracker key', () => {
   test('a tracker key of any form is read no more, and only marks the section', () => {
-    writeFileSync(join(t.root, 'nook.yml'), 'packs: [engineering]\nengineering:\n  tracker: { type: trello }\n')
+    writeFileSync(join(t.root, 'nook.yml'), 'engineering:\n  tracker: { type: trello }\n')
     expect(EngineeringConfig.read(t.root).oldTracker).toBe(true)
   })
 })
@@ -45,7 +45,7 @@ describe('EngineeringConfig', () => {
       ['engineering: [a]\n', /engineering must be a map/],
     ]
     for (const [section, pattern] of faults) {
-      writeFileSync(file, `packs: [engineering]\n${section}`)
+      writeFileSync(file, section)
       let error: EvError | undefined
       try {
         EngineeringConfig.read(t.root)
@@ -56,7 +56,7 @@ describe('EngineeringConfig', () => {
       expect(error?.code).toBe(Exit.usage)
       expect(error?.fix).toBeTruthy()
     }
-    writeFileSync(file, 'packs: [engineering]\n')
+    writeFileSync(file, 'engineering: {}\n')
     expect(EngineeringConfig.read(t.root)).toMatchObject({ missing: true, areas: [], dir: 'works' })
   })
 

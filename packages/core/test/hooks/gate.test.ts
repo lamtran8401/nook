@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { GateResult, PackModule } from '@nook/desk/desks.ts'
+import type { GateResult, FeatureModule } from '@nook/desk/desks.ts'
 
 import { gateHook } from '../../src/hooks/gate.ts'
 import { inBackground, startedByTool, underClaude } from '../../src/hooks/session.ts'
@@ -13,12 +13,12 @@ const calls: string[][] = []
 beforeEach(() => {
   root = tempDir('nook-gate-')
   initIn(root)
-  writeFileSync(join(root, 'nook.yml'), 'packs: [engineering]\n')
+  writeFileSync(join(root, 'nook.yml'), 'engineering: {}\n')
   calls.length = 0
 })
 afterEach(() => removeDir(root))
 
-const pack = (result: GateResult = { ok: true, lines: ['IT-1 is ready', 'next: /cook IT-1'] }): PackModule => ({
+const pack = (result: GateResult = { ok: true, lines: ['IT-1 is ready', 'next: /cook IT-1'] }): FeatureModule => ({
   name: 'engineering',
   setup: () => [],
   configured: () => true,
@@ -54,8 +54,8 @@ describe('gateHook', () => {
     expect(calls).toEqual([])
   })
 
-  test('a move that no pack here owns is blocked with the moves that exist', () => {
-    expect(run('ship IT-1')).toEqual({ kind: 'block', reason: 'no pack here has the owner move "ship". The moves here: approve, accept, mode.' })
+  test('a move that no feature here owns is blocked with the moves that exist', () => {
+    expect(run('ship IT-1')).toEqual({ kind: 'block', reason: 'no feature here has the owner move "ship". The moves here: approve, accept, mode.' })
   })
 
   test('an expansion inside an agent is blocked and runs nothing', () => {

@@ -12,7 +12,7 @@ const write = (path: string, text: string) => {
 }
 beforeEach(() => {
   desk = realpathSync(mkdtempSync(join(tmpdir(), 'nook-wiki-read-')))
-  write('nook.yml', 'packs: [wiki]\nwiki:\n  shelves:\n    - { name: ideas, use: "An idea that has not started." }\n    - { name: resources, use: "How a system works." }\n')
+  write('nook.yml', 'wiki:\n  shelves:\n    - { name: ideas, use: "An idea that has not started." }\n    - { name: resources, use: "How a system works." }\n')
   write('docs/wiki/resources/INDEX.md', '# Resources\n\n| Page | Type | Summary |\n|---|---|---|\n| [cart.md](cart.md) | resource | How the cart keeps its lines. |\n')
   write('docs/wiki/resources/cart.md', '# Cart\n\nThe cart calls [[checkout]] and [the old page](missing.md).\n')
   write('docs/wiki/resources/checkout.md', '# Checkout\n')
@@ -33,7 +33,7 @@ describe('readWiki', () => {
   })
 
   test('is null in a desk with no wiki', () => {
-    write('nook.yml', 'packs: []\n')
+    write('nook.yml', 'secrets: []\n')
     expect(readWiki(desk)).toBeNull()
   })
 })

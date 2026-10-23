@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import type { PackModule } from '@nook/desk/desks.ts'
+import type { FeatureModule } from '@nook/desk/desks.ts'
 
 import { styleCheck } from '../../src/hooks/style.ts'
 import { initIn, removeDir, tempDir } from '../helpers.ts'
@@ -17,7 +17,7 @@ beforeEach(() => {
 afterEach(() => removeDir(root))
 
 /** Writes the file and runs the check on it, as the PostToolUse hook does. */
-const check = (rel: string, text: string, modules: PackModule[] = []) => {
+const check = (rel: string, text: string, modules: FeatureModule[] = []) => {
   const file = join(root, rel)
   mkdirSync(join(file, '..'), { recursive: true })
   writeFileSync(file, text)
@@ -25,7 +25,7 @@ const check = (rel: string, text: string, modules: PackModule[] = []) => {
 }
 
 /** A pack whose record lives in works/. */
-const itemsPack = { name: 'items', setup: () => [], configured: () => true, doctor: () => [], records: () => [join(root, 'works')] } satisfies PackModule
+const itemsPack = { name: 'items', setup: () => [], configured: () => true, doctor: () => [], records: () => [join(root, 'works')] } satisfies FeatureModule
 
 describe('styleCheck', () => {
   test('a long document under docs/ comes back with each failing sentence and why', () => {

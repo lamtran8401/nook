@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { Catalog } from './catalog.ts'
+import { pluginDir } from './features.ts'
+import { projectRoot } from './project.ts'
 
 /**
  * The UI kit of the pages that Nook builds: the tokens and the `bn-*` components of Bench, kept as files in
- * `plugins/core/ui/bench/`. A page inlines what this module returns, since an artifact loads no other stylesheet.
+ * `plugin/ui/bench/`. A page inlines what this module returns, since an artifact loads no other stylesheet.
  */
 
 type Themed = string | Record<string, string>
@@ -48,9 +49,9 @@ export function tokensCss(tokens: Tokens): string {
 let cached: UiKit | null = null
 
 /** The tokens as CSS, the component styles and the behaviour script of the UI kit. */
-export function uiKit(catalog = Catalog.load()): UiKit {
+export function uiKit(root = projectRoot()): UiKit {
   if (cached) return cached
-  const dir = join(catalog.dirOf('core'), ...DIR)
+  const dir = join(pluginDir(root), ...DIR)
   const tokens = JSON.parse(readFileSync(join(dir, 'tokens.json'), 'utf8')) as Tokens
   // the fonts come from the @import of the bundle, which must stay the first rule of the sheet
   const bundle = readFileSync(join(dir, 'bundle.css'), 'utf8')

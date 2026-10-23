@@ -60,7 +60,7 @@ ${dir ? `  dir: ${dir}\n` : ''}  backlog: backlog
     - { name: bff, path: projects/bff, kind: backend, ${checks ? `${checks}, ` : ''}${options.install ? `install: "${options.install}", ` : ''}test: "sh test.sh {files}" }
     - { name: web, path: projects/web, kind: frontend, checks: [sh test.sh], test: "sh test.sh {files}" }
 ${options.extra ?? ''}`
-  writeFileSync(join(root, 'nook.yml'), `packs: [engineering]\n${section}`)
+  writeFileSync(join(root, 'nook.yml'), section || 'engineering: {}\n')
   mkdirSync(join(root, dir ?? 'works'), { recursive: true })
   const home = Home.find(root)!
   return {

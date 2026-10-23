@@ -1,7 +1,0 @@
-{
-  "name": "nk-eng",
-  "version": "0.1.0",
-  "description": "Nook engineering: the item flow from intake to the owner's accept (intake, spec, recipe, cook, deep-review, close), the ledger and its gates, builders and reviewers.",
-  "author": { "name": "Lam" },
-  "license": "MIT"
-}

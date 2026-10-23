@@ -15,7 +15,7 @@ const write = (rel: string, text: string) => {
 
 beforeEach(() => {
   desk = realpathSync(mkdtempSync(join(tmpdir(), 'nook-search-')))
-  write('nook.yml', 'packs: [engineering, wiki]\nsecrets: [docs/wiki/resources/keys.md]\nwiki:\n  shelves:\n    - { name: resources, use: "how a system works" }\n')
+  write('nook.yml', 'engineering: {}\nsecrets: [docs/wiki/resources/keys.md]\nwiki:\n  shelves:\n    - { name: resources, use: "how a system works" }\n')
   write('works/SHOP-42/plan.md', '# SHOP-42: the plan\n\n## Risks\n\nA payment retry that runs twice charges twice.\n')
   write('docs/wiki/resources/payment-vault.md', '# Payment vault\n\n## Retries\n\nThe vault takes a Payment Retry with a new key.\n')
 })

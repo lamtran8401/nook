@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { Catalog } from './catalog.ts'
+import { pluginDir } from './features.ts'
 
 /**
  * The check of a Bench diagram spec, as an agent writes it in a `bench` block. The fields come from the tables of
@@ -24,7 +24,7 @@ let cached: BenchSchema | null = null
 
 export function benchSchema(): BenchSchema {
   if (cached) return cached
-  const lines = readFileSync(join(Catalog.load().dirOf('core'), 'ui', 'bench', 'DIAGRAMS.md'), 'utf8').split('\n')
+  const lines = readFileSync(join(pluginDir(), 'ui', 'bench', 'DIAGRAMS.md'), 'utf8').split('\n')
   const schema: BenchSchema = {}
   let section = ''
   let sub = ''

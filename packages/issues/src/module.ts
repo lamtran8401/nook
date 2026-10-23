@@ -1,30 +1,30 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { activePacks, type Finding, type PackModule } from '@nook/desk/desks.ts'
+import { featureHome, type FeatureModule, type Finding } from '@nook/desk/desks.ts'
 import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { IssuesConfig } from './config.ts'
 import { checkSource, type Runner } from './sources.ts'
 
-/** The pack issue-tracker of a desk: the folder of the desk and its config. */
+/** The issue-tracker of a desk: the folder of the desk and its config. */
 export type Issues = { home: string; config: IssuesConfig }
 
-const PACK = 'issue-tracker'
+const FEATURE = 'issue-tracker'
 
-/** The pack of the nearest desk above `cwd` that turns it on. */
+/** The issue-tracker of the nearest desk above `cwd` whose nook.yml has its section. */
 export function findIssues(cwd = process.cwd()): Issues | null {
-  const pack = activePacks(cwd).find(p => p.name === PACK)
-  return pack ? { home: pack.home.dir, config: IssuesConfig.from(pack.home.config.section(PACK)) } : null
+  const home = featureHome(FEATURE, cwd)
+  return home ? { home: home.dir, config: IssuesConfig.from(home.config.section(FEATURE)) } : null
 }
 
 export function requireIssues(cwd = process.cwd()): Issues {
   const issues = findIssues(cwd)
   if (issues) return issues
-  throw new EvError('not inside a desk that turns the issue-tracker pack on', Exit.error, 'run nook init --pack issue-tracker, then /setup')
+  throw new EvError('not inside a desk that turns the issue-tracker on', Exit.error, 'add an `issue-tracker:` section to nook.yml with /setup')
 }
 
-/** The pack of `dir` only when `dir` itself turns it on: a child does not check its parent. */
+/** The issue-tracker of `dir` only when `dir` itself turns it on: a child does not check its parent. */
 function issuesAt(dir: string): Issues | null {
   const issues = findIssues(dir)
   return issues && issues.home === dir ? issues : null
@@ -36,21 +36,21 @@ export function issuesDoctor(dir: string, runner?: Runner): Finding[] {
   try {
     issues = issuesAt(dir)
   } catch (error) {
-    if (error instanceof EvError) return [{ level: 'error', where: PACK, text: error.message, ...(error.fix ? { fix: error.fix } : {}) }]
+    if (error instanceof EvError) return [{ level: 'error', where: FEATURE, text: error.message, ...(error.fix ? { fix: error.fix } : {}) }]
     throw error
   }
   if (!issues) return []
-  if (issues.config.missing) return [{ level: 'warn', where: PACK, text: 'nook.yml has no issue-tracker section with the sources', fix: 'write it with /setup' }]
-  if (!issues.config.sources.length) return [{ level: 'warn', where: PACK, text: 'issue-tracker has no source', fix: 'add a jira or github source to issue-tracker.sources with /setup' }]
+  if (issues.config.missing) return [{ level: 'warn', where: FEATURE, text: 'nook.yml has no issue-tracker section with the sources', fix: 'write it with /setup' }]
+  if (!issues.config.sources.length) return [{ level: 'warn', where: FEATURE, text: 'issue-tracker has no source', fix: 'add a jira or github source to issue-tracker.sources with /setup' }]
   return issues.config.sources.map(source => {
     const check = checkSource(source, runner)
-    if (check.ok) return { level: 'ok' as const, where: PACK, text: `${check.label}: ${check.tool} has a login` }
-    return { level: 'error' as const, where: PACK, text: `${check.label}: ${check.problem}`, ...(check.fix ? { fix: check.fix } : {}) }
+    if (check.ok) return { level: 'ok' as const, where: FEATURE, text: `${check.label}: ${check.tool} has a login` }
+    return { level: 'error' as const, where: FEATURE, text: `${check.label}: ${check.problem}`, ...(check.fix ? { fix: check.fix } : {}) }
   })
 }
 
-export const issuesModule: PackModule = {
-  name: PACK,
+export const issuesModule: FeatureModule = {
+  name: FEATURE,
 
   setup(dir) {
     const issues = issuesAt(dir)

@@ -4,12 +4,12 @@ import { join } from 'node:path'
 import { parse } from 'yaml'
 
 import type { Finding } from '@nook/desk/desks.ts'
-import { pluginDir } from '@nook/desk/pack.ts'
+import { pluginDir } from '@nook/desk/desks.ts'
 import { EvError, Exit } from '@nook/shared/errors.ts'
 
 import { ITEM_KINDS, type ItemKind } from './vocabulary.ts'
 
-/** The flow of each kind: what the guards of the moves ask for, read from `plugins/engineering/flows/<kind>.yml`. */
+/** The flow of each kind: what the guards of the moves ask for, read from `plugin/flows/<kind>.yml`. */
 
 export type Need = 'required' | 'optional' | 'none'
 export type SubmitCheck = 'findings' | 'root-cause'
@@ -81,20 +81,20 @@ export function readFlows(dir: string): { flows: Map<ItemKind, Flow>; problems: 
   return { flows, problems }
 }
 
-const packFlowsDir = () => join(pluginDir('engineering'), 'flows')
-let packFlows: Map<ItemKind, Flow> | undefined
+const flowsDir = () => join(pluginDir(), 'flows')
+let loadedFlows: Map<ItemKind, Flow> | undefined
 
-/** The flow of a kind in the pack. A flow file with a problem stops the caller, so a guard never runs on a broken flow. */
+/** The flow of a kind in the plugin. A flow file with a problem stops the caller, so a guard never runs on a broken flow. */
 export function flowOf(kind: ItemKind): Flow {
-  if (!packFlows) {
-    const read = readFlows(packFlowsDir())
+  if (!loadedFlows) {
+    const read = readFlows(flowsDir())
     if (read.problems.length) throw new EvError(`the flow files of engineering have problems: ${read.problems.join('; ')}`, Exit.error, 'nook doctor names each one')
-    packFlows = read.flows
+    loadedFlows = read.flows
   }
-  return packFlows.get(kind)!
+  return loadedFlows.get(kind)!
 }
 
 /** The problems of the flow files as doctor findings. */
-export function flowFindings(dir = packFlowsDir()): Finding[] {
+export function flowFindings(dir = flowsDir()): Finding[] {
   return readFlows(dir).problems.map(text => ({ level: 'error' as const, where: 'engineering flows', text, fix: `fix the flow files in ${dir}` }))
 }

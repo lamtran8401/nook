@@ -5,7 +5,7 @@ import { join } from 'node:path'
 const root = join(import.meta.dirname, '..', '..', '..')
 const read = (...parts: string[]) => readFileSync(join(root, ...parts), 'utf8')
 const layer = read('packages', 'ui', 'src', 'styles', 'v2.css')
-const bench = read('plugins', 'core', 'ui', 'bench', 'bundle.css')
+const bench = read('plugin', 'ui', 'bench', 'bundle.css')
 
 /** The custom properties of the first block that opens with `head`, such as `:root {`. */
 function tokens(css: string, head: string): Map<string, string> {

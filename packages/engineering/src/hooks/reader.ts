@@ -72,7 +72,7 @@ const BRANCH_TAKES_COMMIT = new Set(['--contains', '--no-contains', '--merged', 
 // the words of shell structure: what follows them is the command, and `for x in …` lists words only
 const KEYWORDS = new Set(['if', 'then', 'else', 'elif', 'while', 'until', 'do', '!', '{'])
 const CLOSERS = new Set(['done', 'fi', 'esac', '}'])
-const CORE_READ = new Set(['doctor', 'packs', 'where', 'ste', 'help', '--help', '-h'])
+const CORE_READ = new Set(['doctor', 'features', 'where', 'ste', 'help', '--help', '-h'])
 const READ_CALLS = [
   ['item', 'show'],
   ['item', 'list'],
@@ -158,7 +158,7 @@ function nookDenial(tokens: string[], kind: CallerKind, who: string): string | n
   if (!inPack)
     return !rest[0] || CORE_READ.has(rest[0])
       ? null
-      : `${who} may run only the read commands of nook (doctor, packs, where, ste, help).`
+      : `${who} may run only the read commands of nook (doctor, features, where, ste, help).`
   const path = rest.slice(1)
   if ((path[0] === 'item' || path[0] === 'doc') && path[1] === 'page' && tokens.some(t => t.startsWith('--out')))
     return `${who} is read-only: \`${path[0]} page\` prints the page; --out writes a file.`

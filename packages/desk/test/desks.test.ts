@@ -3,10 +3,9 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { Catalog } from '../src/catalog.ts'
 import { Desk } from '../src/desk.ts'
+import { activeFeatures, featuresHere, pluginId } from '../src/features.ts'
 import { NookConfig } from '../src/nook-config.ts'
-import { activePacks } from '../src/packs.ts'
 
 let root: string
 beforeEach(() => {
@@ -15,16 +14,24 @@ beforeEach(() => {
 afterEach(() => rmSync(root, { recursive: true, force: true }))
 
 describe('NookConfig', () => {
-  test('reads the two forms of packs, the rules, the secrets and a section of a pack', () => {
-    const list = NookConfig.parse('packs: [a, b]\nsecrets: [x.yaml]\nengineering: { dir: work }\n', 'nook.yml')
-    expect([list.packs, list.off, list.secrets]).toEqual([['a', 'b'], [], ['x.yaml']])
-    expect(list.section('engineering')).toEqual({ dir: 'work' })
-    const map = NookConfig.parse('packs: { on: [a], off: [b] }\nrules: { off: [writing] }\n', 'nook.yml')
-    expect([map.packs, map.off, map.rules.off]).toEqual([['a'], ['b'], ['writing']])
+  test('reads the rules, the secrets and the section of a feature', () => {
+    const config = NookConfig.parse('secrets: [x.yaml]\nrules: { off: [writing] }\nengineering: { dir: work }\n', 'nook.yml')
+    expect([config.secrets, config.rules.off]).toEqual([['x.yaml'], ['writing']])
+    expect(config.section('engineering')).toEqual({ dir: 'work' })
+  })
+
+  test('a key with no value still counts as the section of a feature', () => {
+    const config = NookConfig.parse('wiki:\nengineering: {}\n', 'nook.yml')
+    expect([config.has('wiki'), config.has('engineering'), config.has('issue-tracker')]).toEqual([true, true, false])
+  })
+
+  test('names the retired keys that the file still has', () => {
+    expect(NookConfig.parse('packs: [engineering]\nlearn:\n  dir: learn\nwiki: {}\n', 'nook.yml').retired()).toEqual(['packs', 'learn'])
+    expect(NookConfig.parse('wiki: {}\n', 'nook.yml').retired()).toEqual([])
   })
 
   test('a fault names the file and the key', () => {
-    expect(() => NookConfig.parse('packs: [a', 'nook.yml')).toThrow('nook.yml is not valid YAML')
+    expect(() => NookConfig.parse('secrets: [a', 'nook.yml')).toThrow('nook.yml is not valid YAML')
     expect(() => NookConfig.parse('- a\n', 'nook.yml')).toThrow('nook.yml must hold a map of keys')
     expect(() => NookConfig.parse('secrets: x\n', 'nook.yml')).toThrow('nook.yml: secrets must be a list of strings')
   })
@@ -34,39 +41,50 @@ describe('Desk', () => {
   test('the desks above a folder come outermost first; the nearest is the last', () => {
     const inner = join(root, 'company', 'projects', 'shop')
     mkdirSync(inner, { recursive: true })
-    writeFileSync(join(root, 'nook.yml'), 'packs: []\n')
-    writeFileSync(join(root, 'company', 'nook.yml'), 'packs: [engineering]\nsecrets: [infra.yaml]\n')
+    writeFileSync(join(root, 'nook.yml'), 'secrets: []\n')
+    writeFileSync(join(root, 'company', 'nook.yml'), 'engineering: {}\nsecrets: [infra.yaml]\n')
     expect(Desk.above(inner).map(desk => desk.dir)).toEqual([root, join(root, 'company')])
     expect(Desk.nearest(inner)?.dir).toBe(join(root, 'company'))
     expect(Desk.nearest(inner)?.secretFiles()).toEqual([join(root, 'company', 'infra.yaml')])
   })
 })
 
-describe('activePacks', () => {
-  test('a pack flows down to every folder inside its desk, which holds its record', () => {
+describe('activeFeatures', () => {
+  test('core and each feature with a section flow down to every folder inside the desk, which holds their record', () => {
     const shop = join(root, 'projects', 'shop')
     mkdirSync(shop, { recursive: true })
-    writeFileSync(join(root, 'nook.yml'), 'packs: [engineering, wiki]\n')
-    expect(activePacks(shop).map(p => [p.name, p.home.dir])).toEqual([['engineering', root], ['wiki', root]])
+    writeFileSync(join(root, 'nook.yml'), 'engineering: {}\nwiki: {}\n')
+    expect(activeFeatures(shop).map(f => [f.name, f.home.dir])).toEqual([['core', root], ['engineering', root], ['wiki', root]])
   })
 
-  test('a child turns a pack of a parent off, and naming a pack again makes the child its home', () => {
+  test('a child with its own section becomes the home of the feature; a feature with no section above is off', () => {
     const client = join(root, 'projects', 'client-x')
     mkdirSync(client, { recursive: true })
-    writeFileSync(join(root, 'nook.yml'), 'packs: [engineering, wiki]\n')
-    writeFileSync(join(client, 'nook.yml'), 'packs:\n  on: [engineering]\n  off: [wiki]\n')
-    expect(activePacks(client).map(p => [p.name, p.home.dir])).toEqual([['engineering', client]])
+    writeFileSync(join(root, 'nook.yml'), 'engineering: {}\n')
+    writeFileSync(join(client, 'nook.yml'), 'engineering:\n  dir: works\n')
+    expect(activeFeatures(client).map(f => [f.name, f.home.dir])).toEqual([['core', root], ['engineering', client]])
+  })
+
+  test('a child with no section of its own gets the feature of its parent', () => {
+    const child = join(root, 'shop')
+    mkdirSync(child, { recursive: true })
+    writeFileSync(join(root, 'nook.yml'), 'engineering: {}\n')
+    writeFileSync(join(child, 'nook.yml'), 'secrets: []\n')
+    expect(activeFeatures(child).find(f => f.name === 'engineering')?.home.dir).toBe(root)
+    expect(featuresHere(Desk.read(child)).map(f => f.name)).toEqual(['core'])
+  })
+
+  test('outside every desk no feature is on', () => {
+    expect(activeFeatures(root)).toEqual([])
   })
 })
 
-describe('Catalog', () => {
-  test('the plugins of a project, by the name in pack.json; an unknown pack is an error that names it', () => {
-    mkdirSync(join(root, 'plugins', 'core'), { recursive: true })
-    mkdirSync(join(root, 'plugins', 'notes'), { recursive: true })
-    writeFileSync(join(root, 'plugins', 'core', 'pack.json'), '{ "name": "core", "description": "d" }')
-    const catalog = Catalog.load(root)
-    expect(catalog.all().map(p => p.manifest.name)).toEqual(['core'])
-    expect(catalog.dirOf('core')).toBe(join(root, 'plugins', 'core'))
-    expect(() => catalog.dirOf('wiki')).toThrow('the nook project has no plugin for the pack wiki')
+describe('pluginId', () => {
+  test('joins the name of the plugin and the name of the marketplace', () => {
+    mkdirSync(join(root, 'plugin', '.claude-plugin'), { recursive: true })
+    mkdirSync(join(root, '.claude-plugin'), { recursive: true })
+    writeFileSync(join(root, 'plugin', '.claude-plugin', 'plugin.json'), '{ "name": "nook" }')
+    writeFileSync(join(root, '.claude-plugin', 'marketplace.json'), '{ "name": "shelf" }')
+    expect(pluginId(root)).toBe('nook@shelf')
   })
 })

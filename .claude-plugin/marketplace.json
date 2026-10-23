@@ -9,23 +9,8 @@
   "plugins": [
     {
       "name": "nook",
-      "source": "./plugins/core",
-      "description": "The core: the nook tool, the base rules, the persona, the secret guards and the writing check."
-    },
-    {
-      "name": "nk-eng",
-      "source": "./plugins/engineering",
-      "description": "The item flow from intake to the owner's accept, the ledger and its gates, builders and reviewers."
-    },
-    {
-      "name": "nk-wiki",
-      "source": "./plugins/wiki",
-      "description": "The wiki of the desk: the shelves and their indexes, the references, /wiki-ask, /wiki-add, /wiki-merge and /wiki-tidy, and a librarian agent."
-    },
-    {
-      "name": "nk-issues",
-      "source": "./plugins/issue-tracker",
-      "description": "Tickets of Jira (twg) and GitHub (gh) into the backlog, read only: the sources with their logins and the map of the fields of each team."
+      "source": "./plugin",
+      "description": "The harness kit: the base rules, the guards, the item flow with your gates, the skills and the agents."
     }
   ]
 }

@@ -56,18 +56,12 @@ describe('MetricsPage', () => {
 })
 
 describe('AgentsPage', () => {
-  const PARTS = [{ kind: 'agent' as const, pack: 'engineering', name: 'scout', job: 'Reads code.' }, { kind: 'skill' as const, pack: 'core', name: 'setup', job: 'Sets up a desk.' }]
+  const PARTS = [{ kind: 'agent' as const, name: 'scout', job: 'Reads code.' }, { kind: 'skill' as const, name: 'setup', job: 'Sets up a desk.' }]
 
-  test('a small card for each agent and each skill, with its pack and its job, in the color of its pack, under a filter by pack', () => {
-    const markup = html(<AgentsPage parts={PARTS} base="/personal" />)
-    expect(text(markup)).toBe('all engineering core Agents scout engineering Reads code. Skills /setup core Sets up a desk.')
+  test('a small card for each agent and each skill with its job, agents in blue and skills in ink', () => {
+    const markup = html(<AgentsPage parts={PARTS} />)
+    expect(text(markup)).toBe('Agents scout Reads code. Skills /setup Sets up a desk.')
     expect([...markup.matchAll(/data-slot="icon-tile" data-tone="(\w+)"/g)].map(m => m[1])).toEqual(['primary', 'ink'])
-  })
-
-  test('a pack in the filter shows only its parts', () => {
-    const markup = html(<AgentsPage parts={PARTS} pack="core" base="/personal" />)
-    expect(text(markup)).toBe('all engineering core Skills /setup core Sets up a desk.')
-    expect(markup).toContain('href="/personal/agents?pack=core" data-active="" aria-current="page"')
   })
 })
 
@@ -92,20 +86,20 @@ describe('EventsPage', () => {
 })
 
 describe('SettingsPage', () => {
-  test('shows the packs, the areas with their checks, the kinds learned, the root cause types and the file, each on its row', () => {
+  test('shows the features, the areas with their checks, the kinds learned, the root cause types and the file, each on its row', () => {
     const settings = {
-      packs: ['core', 'engineering'],
+      features: ['core', 'engineering'],
       file: '/d/nook.yml',
       engineering: { areas: [{ name: 'api', path: 'projects/api', kind: 'backend', checks: ['bun test'] }], kinds: [{ type: 'Sub-Bug', kind: 'fix' as const }], rootCauses: ['Integration error', 'Unknown'], unknownRootCause: 'Unknown' },
     }
     expect(text(html(<SettingsPage settings={settings} />))).toBe(
-      'Packs From nook.yml . core on engineering on Areas Where builders work. Area Folder Kind Checks api projects/api backend bun test ' +
+      'Features On where nook.yml has their section. core on engineering on Areas Where builders work. Area Folder Kind Checks api projects/api backend bun test ' +
         'Learned kinds Learned from your answers, with no setup. Ticket type Kind Sub-Bug fix Root cause types A fix names one at submit. Integration error Unknown ' +
-        'File Edit it to change a pack or an area. /d/nook.yml',
+        'File Edit it to change a feature or an area. /d/nook.yml',
     )
   })
 
-  test('a desk with no engineering shows its packs and its file only', () => {
-    expect(text(html(<SettingsPage settings={{ packs: ['core'], file: '/d/nook.yml', engineering: null }} />))).toBe('Packs From nook.yml . core on File Edit it to change a pack or an area. /d/nook.yml')
+  test('a desk with no engineering shows its features and its file only', () => {
+    expect(text(html(<SettingsPage settings={{ features: ['core'], file: '/d/nook.yml', engineering: null }} />))).toBe('Features On where nook.yml has their section. core on File Edit it to change a feature or an area. /d/nook.yml')
   })
 })

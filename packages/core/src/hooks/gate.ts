@@ -1,15 +1,15 @@
-import { activePacks, type PackModule } from '@nook/desk/desks.ts'
+import { activeFeatures, type FeatureModule } from '@nook/desk/desks.ts'
 import { block, context, type HookInput, type HookResult, pass } from '@nook/shared/hook.ts'
 
 import { ancestorCommands, inBackground, startedByTool } from './session.ts'
 
 /**
- * UserPromptExpansion of /gate and of the typed commands of a pack, as /yolo: they run as the owner because the owner
+ * UserPromptExpansion of /gate and of the typed commands of a feature, as /yolo: they run as the owner because the owner
  * typed them. Claude Code fires this event only for a command that a person types, never for a skill that the model
  * calls; the hook also refuses an agent and a session that a tool started.
  */
 
-export type GateDeps = { modules: PackModule[]; startedByTool?: () => boolean; inBackground?: () => boolean }
+export type GateDeps = { modules: FeatureModule[]; startedByTool?: () => boolean; inBackground?: () => boolean }
 
 const EVENT = 'UserPromptExpansion'
 const BACKGROUND =
@@ -23,9 +23,9 @@ export function gateHook(input: HookInput, deps: GateDeps): HookResult {
   const nested = deps.startedByTool ?? (() => startedByTool(ancestorCommands()))
   if (nested()) return block(`/${name} runs only in a session that the owner started, not in a session that a tool started.`)
   const cwd = input.cwd ?? process.cwd()
-  const active = activePacks(cwd)
-  const modules = deps.modules.filter(m => active.some(p => p.name === m.name))
-  const homeOf = (m: PackModule) => active.find(p => p.name === m.name)!.home.dir
+  const active = activeFeatures(cwd)
+  const modules = deps.modules.filter(m => active.some(f => f.name === m.name))
+  const homeOf = (m: FeatureModule) => active.find(f => f.name === m.name)!.home.dir
   const args = String(input.command_args ?? '').trim()
   if (name !== 'gate') {
     const background = (deps.inBackground ?? (() => inBackground(ancestorCommands())))()
@@ -36,7 +36,7 @@ export function gateHook(input: HookInput, deps: GateDeps): HookResult {
   const owner = modules.find(m => m.gates?.includes(words[0]!))
   if (!owner?.gate) {
     const moves = modules.flatMap(m => m.gates ?? [])
-    return block(`no pack here has the owner move "${words[0]}". The moves here: ${moves.join(', ') || 'none'}.`)
+    return block(`no feature here has the owner move "${words[0]}". The moves here: ${moves.join(', ') || 'none'}.`)
   }
   const result = owner.gate(homeOf(owner), words, input.session_id ?? null)
   const head = `Nook gate: the owner typed /gate ${words.join(' ')}. ${result.ok ? 'The move ran.' : 'The move was refused.'}`
@@ -46,8 +46,8 @@ export function gateHook(input: HookInput, deps: GateDeps): HookResult {
 function typedCommand(
   name: string,
   args: string,
-  modules: PackModule[],
-  homeOf: (m: PackModule) => string,
+  modules: FeatureModule[],
+  homeOf: (m: FeatureModule) => string,
   session: string | null,
   background: boolean,
 ): HookResult {
@@ -58,7 +58,7 @@ function typedCommand(
   return context(EVENT, [head, ...result.lines, ...(background ? [BACKGROUND] : [])].join('\n'))
 }
 
-function waitingText(modules: PackModule[], homeOf: (m: PackModule) => string): string {
+function waitingText(modules: FeatureModule[], homeOf: (m: FeatureModule) => string): string {
   const waiting = modules.flatMap(m => m.waiting?.(homeOf(m)) ?? [])
   if (!waiting.length) return 'Nook gate: no owner move waits now.'
   return ['Nook gate: the owner moves that wait now:', ...waiting.map(w => `- /gate ${w.words} (${w.why})`)].join('\n')
