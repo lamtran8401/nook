@@ -21,14 +21,14 @@ export function nextFor(eng: Engineering, item: Item): Next {
     return { ...base, skill, owner: true, detail: blocking.map(q => `${q.id} ${q.text}`).join('; ') }
   }
   return match(item.state)
-    .with('backlog', () => ({ ...base, skill: `/spec ${id}` }))
-    .with('framing', () => ({ ...base, skill: `/spec ${id}`, detail: 'continue the spec' }))
+    .with('backlog', () => ({ ...base, skill: `/specify ${id}` }))
+    .with('framing', () => ({ ...base, skill: `/specify ${id}`, detail: 'continue the spec' }))
     .with('planning', () => {
       const found = eng.gaps(item, 'approve')
       if (!found.length) return { ...base, skill: ownerStep(`approve ${id}`), owner: true }
       return {
         ...base,
-        skill: `/recipe ${id}`,
+        skill: `/plan ${id}`,
         gaps: found,
         detail: `${plural(found.length, 'gap')} before the approve`,
       }

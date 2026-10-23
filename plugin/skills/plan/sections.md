@@ -58,4 +58,4 @@ flowchart TB
 | 1, 2, 3 | api, call | `pending` gives the two pending shipments; an empty status gives all four; `lost` and `Pending` give the 400. Negative: `shipped` never gives a pending one |
 | 4, 5, 7 | web, page | the select lists All first; opened with no status, the URL is a bare `/shipments`. Negative: no option has the value `all` |
 ```
-Two full plans, of size M and size L: `${CLAUDE_PLUGIN_ROOT}/skills/recipe/example.md`.
+Two full plans, of size M and size L: `${CLAUDE_PLUGIN_ROOT}/skills/plan/example.md`.

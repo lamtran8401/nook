@@ -27,7 +27,7 @@ describe('renderTicket', () => {
   test('says so when the ticket has no acceptance criteria, no description or no comment', () => {
     const empty = renderTicket({ ...TICKET, description: '', sections: [{ use: 'acceptanceCriteria', text: null }], comments: [] })
     expect(empty).toContain('## Description\nNone in the ticket.\n')
-    expect(empty).toContain('## Acceptance criteria\nNone in the ticket. /spec writes them with the owner.\n')
+    expect(empty).toContain('## Acceptance criteria\nNone in the ticket. /specify writes them with the owner.\n')
     expect(empty).toContain('## Comments\nNone.\n')
   })
 
@@ -38,7 +38,7 @@ describe('renderTicket', () => {
   })
 
   test('a ticket with no map for the acceptance criteria still has the section', () => {
-    expect(renderTicket({ ...TICKET, sections: [] })).toContain('## Acceptance criteria\nNone in the ticket. /spec writes them with the owner.\n')
+    expect(renderTicket({ ...TICKET, sections: [] })).toContain('## Acceptance criteria\nNone in the ticket. /specify writes them with the owner.\n')
   })
 })
 

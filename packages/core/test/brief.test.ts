@@ -70,9 +70,9 @@ describe('formatBrief', () => {
   test('more than one folder: each line names its folder', () => {
     const text = formatBrief([
       lines('/a/personal', [{ part: 'waits', urgent: true, text: 'IT-7 waits for your accept', action: '/gate accept IT-7' }]),
-      lines('/a/company', [{ part: 'runs', text: 'SHOP-12 planning: filter', action: '/recipe SHOP-12' }]),
+      lines('/a/company', [{ part: 'runs', text: 'SHOP-12 planning: filter', action: '/plan SHOP-12' }]),
     ])
-    expect(text).toBe(['Waits for you', '- personal: IT-7 waits for your accept → /gate accept IT-7', '', 'Runs', '- company: SHOP-12 planning: filter → /recipe SHOP-12'].join('\n'))
+    expect(text).toBe(['Waits for you', '- personal: IT-7 waits for your accept → /gate accept IT-7', '', 'Runs', '- company: SHOP-12 planning: filter → /plan SHOP-12'].join('\n'))
   })
 
   test('a quiet day says that nothing waits, then what is done', () => {

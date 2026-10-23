@@ -1,5 +1,5 @@
 ---
-name: diagnose
+name: debug
 description: "Find the cause of a failing test, build or behavior: reproduce, isolate, read, state the cause with evidence, fix the cause, run again. Use when a check fails, a test is red or a result is unexpected, and the cause is not clear after one read."
 allowed-tools: Bash(nook eng *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Edit
 ---

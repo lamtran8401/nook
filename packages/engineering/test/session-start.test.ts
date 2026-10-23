@@ -16,6 +16,6 @@ describe('sessionStart', () => {
     const result = sessionStart({ cwd: t.root })
     expect(result.kind).toBe('json')
     expect(reason(result)).toContain('Nothing waits for you.')
-    expect(reason(result)).toContain('/spec SHOP-1')
+    expect(reason(result)).toContain('/specify SHOP-1')
   })
 })

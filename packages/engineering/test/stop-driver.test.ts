@@ -53,10 +53,10 @@ describe('stopDriver', () => {
     pickup(lead, 'SHOP-1')
     expect(stop().kind).toBe('pass')
     owner.setMode('SHOP-1', 'yolo')
-    expect(reason(stop())).toContain('skills/spec/SKILL.md')
+    expect(reason(stop())).toContain('skills/specify/SKILL.md')
     writeDoc(t, 'SHOP-1', 'spec.md', SPEC())
     lead.moveItem('agree', 'SHOP-1')
-    expect(reason(stop({ stop_hook_active: true }))).toContain('skills/recipe/SKILL.md')
+    expect(reason(stop({ stop_hook_active: true }))).toContain('skills/plan/SKILL.md')
     writeDoc(t, 'SHOP-1', 'plan.md', PLAN)
     writeDoc(t, 'SHOP-1', 'tasks.md', TASKS([{ id: 'T1' }]))
     lead.importTasks('SHOP-1')
@@ -100,7 +100,7 @@ describe('stopDriver', () => {
     itemAt(t, 'framing')
     pickup(t.eng(LEAD), 'SHOP-1')
     t.eng(OWNER).setMode('SHOP-1', 'yolo')
-    const agent = { id: 'a-1', type: 'subagent', status: 'running', agent_type: 'nk-eng:reviewer' }
+    const agent = { id: 'a-1', type: 'subagent', status: 'running', agent_type: 'nook:reviewer' }
     expect(stop({ background_tasks: [agent] }).kind).toBe('pass')
     expect(stop({ background_tasks: [{ ...agent, status: 'completed' }] }).kind).toBe('json')
     expect(reason(stop({ stop_hook_active: true }))).toContain(`hold 2 of ${MAX_HOLDS}`)
@@ -110,7 +110,7 @@ describe('stopDriver', () => {
     const owner = t.eng(new Who('owner', 'owner via /yolo', 'sess-1'))
     owner.newItem({ id: 'SHOP-1', title: 'the export date is off' })
     owner.setMode('SHOP-1', 'yolo')
-    expect(reason(stop())).toContain('skills/spec/SKILL.md')
+    expect(reason(stop())).toContain('skills/specify/SKILL.md')
   })
 
   test('a yolo item that no session leads holds no session', () => {

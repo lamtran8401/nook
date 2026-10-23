@@ -1,6 +1,6 @@
 # Two plans and one list of slices
 
-The files that `/recipe` writes. SHOP-12 is size M: no Flow section. SHOP-30 is size L: a table with "If it fails" and a Flow section.
+The files that `/plan` writes. SHOP-12 is size M: no Flow section. SHOP-30 is size L: a table with "If it fails" and a Flow section.
 The lanes of the slices are not in `tasks.md`: `nook eng item page` draws them from the ledger.
 
 ## SHOP-12: plan.md (size M)

@@ -63,8 +63,8 @@ function flowDiagram(): string {
     {
       type: 'graph', cols: 3, colGap: 52, rowGap: 40,
       nodes: [
-        state('backlog', [1, 1], '/intake', PHASE_TONE.wait), state('framing', [1, 2], '/spec', PHASE_TONE.plan),
-        state('planning', [1, 3], '/recipe', PHASE_TONE.plan), state('ready', [2, 3], 'approved', PHASE_TONE.plan),
+        state('backlog', [1, 1], '/intake', PHASE_TONE.wait), state('framing', [1, 2], '/specify', PHASE_TONE.plan),
+        state('planning', [1, 3], '/plan', PHASE_TONE.plan), state('ready', [2, 3], 'approved', PHASE_TONE.plan),
         state('cooking', [2, 2], '/cook', PHASE_TONE.build), state('review', [3, 2], '/deep-review', PHASE_TONE.check),
         state('done', [3, 3], '/close', PHASE_TONE.done),
       ],
@@ -85,14 +85,14 @@ function flowDiagram(): string {
 
 function pathsDiagram(): string {
   const PHASE: Record<string, string> = {
-    '/intake': 'wait', '/spec': 'plan', '/recipe': 'plan', 'one criterion': 'plan', spec: 'plan', plan: 'plan', proceed: 'plan',
+    '/intake': 'wait', '/specify': 'plan', '/plan': 'plan', 'one criterion': 'plan', spec: 'plan', plan: 'plan', proceed: 'plan',
     '/cook': 'build', '/quick': 'build', 'test first': 'build', build: 'build', '/yolo': 'wait',
-    '/deep-review': 'check', proof: 'check', review: 'check', '/guesses': 'check', '/close': 'done',
+    '/deep-review': 'check', proof: 'check', review: 'check', guesses: 'check', '/close': 'done',
   }
   const lanes: [string, string[]][] = [
-    ['Full: a feature or a contract', ['/intake', '/spec', '/recipe', '★ approve', '/cook', '/deep-review', '★ accept', '/close']],
+    ['Full: a feature or a contract', ['/intake', '/specify', '/plan', '★ approve', '/cook', '/deep-review', '★ accept', '/close']],
     ['Quick: one area, size S', ['/quick', 'one criterion', 'test first', 'proof', '★ accept', '/close']],
-    ['Yolo: it runs alone', ['/yolo', 'spec', 'plan', 'proceed', 'build', 'review', '★ accept', '/guesses']],
+    ['Yolo: it runs alone', ['/yolo', 'spec', 'plan', 'proceed', 'build', 'review', '★ accept', 'guesses']],
   ]
   const nodes = lanes.flatMap(([, steps], c) =>
     steps.map((step, r) => {
@@ -155,7 +155,7 @@ function archDiagram(): string {
 
 /** A text block whose first line names a diagram becomes that diagram; any other ASCII tree becomes a Bench tree. `DRAWN` keeps each diagram in step with its doc text. */
 function figureFor(text: string): string | null {
-  if (text.startsWith('backlog ──/spec──▶')) return flowDiagram()
+  if (text.startsWith('backlog ──/specify──▶')) return flowDiagram()
   if (text.startsWith('company/              a top workspace')) return workspaceDiagram()
   if (text.startsWith('Claude Code session')) return archDiagram()
   if (/[├└]── /.test(text)) return figure(treeSpec(text))

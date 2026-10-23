@@ -1,6 +1,6 @@
 ---
 name: deep-review
-description: "Review a submitted item in the `review` state: the reviewer marks each criterion with evidence and a grade, the code reviewer reads the diff, then the item waits for the owner's accept or goes back. Use when the owner says check, review or 'is it done'."
+description: "Review a submitted item in the `review` state: fresh reviewers mark each criterion with evidence and a grade and read the diff, then the item waits for the owner's accept or goes back. Use when an item is in review and the owner says deep review, check it or 'is it done'."
 argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(nook eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep
@@ -13,11 +13,11 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
 
 ## Order
 1. Run `nook eng pickup <id>`. The state must be `review`; else say so and stop.
-2. Read the last verify: `nook eng item verify <id> --last`. No code changes in `review`, so it holds. When it is missing or failed, run `verify` first.
-3. Start two agents, one after the other, each with `nook eng item brief <id>`, the folder of each area and the verify output:
-   - `code-review` first: one fresh reviewer on the full diff of every area. A blocking finding goes to step 5 before any AC is marked.
-   - then `nk-eng:reviewer`: it reads the spec and the diff, finds one negative case for each AC, and marks each met AC itself with `nook eng item ac done <id> <n> --evidence "<text>" --grade run|sourced|judged|owner`.
-   For a contract change, add `contract-check`. Start no other agent.
+2. Read the last verify: `nook eng item verify <id> --last`. No code changes in `review`, so it holds. When it is missing or failed, run `nook eng item verify <id>` first.
+3. Start the fresh reviewers with `nook eng item brief <id>`, the folder of each area and the verify output. The budget in the context of the session picks how many:
+   - lean (the default): one agent, `nook:reviewer`. It reads the spec and the diff, finds one negative case for each AC, marks each met AC itself with `nook eng item ac done <id> <n> --evidence "<text>" --grade run|sourced|judged|owner`, and checks the diff against the blocking list of `${CLAUDE_PLUGIN_ROOT}/agents/code-reviewer.md`.
+   - deep: `/review` first, one fresh code reviewer on the full diff of every area; a blocking finding goes to step 5 before any AC is marked. Then `nook:reviewer` for the criteria. For a contract change, add `/contract-check`.
+   Start no other agent.
    A second round after a reject: review only what changed, and give the reviewer only the ACs that the change touches.
    Send the second round to the code-reviewer and the reviewer of the first round, with SendMessage to the ids in `nook eng notes <id>`.
 4. Read `nook eng item ac list <id>`. Check each mark: the evidence names a test, a file and line, or output. A mark with no evidence text is a gap: `nook eng item ac undo <id> <n>`.
@@ -26,9 +26,9 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`. The verdict, the grades
    An AC with several cases shows one evidence line for each case, so the owner sees that no case rests on another's test.
    With nits: clean them in this item before the accept, always. Run `nook eng item reject <id> --reason "nits: <list>"`, then `/cook <id>` fixes them and `/deep-review` runs again. Never leave a nit for a later item.
    A finding about the behavior of this item that no AC covers, such as an error text that the page hides: ask the owner once. Fix it in this item with `nook eng item reframe <id> --reason`, or record it as out of scope in the report. Never open a new item for it on your own.
-   Say: accept: type `/gate accept <id>`. Offer `/view <id>`: the page with the walkthrough. Stop. Next: `/close <id>`.
+   Say: accept: type `/gate accept <id>`. Offer `/write-walkthrough <id>`: the walkthrough of the work, for the page of the item. Stop. Next: `/close <id>`.
 
-Kind `investigate`: the reviewer checks `findings.md` and its `## Results`. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
+Kind `investigate`: the reviewer checks `findings.md` and its `## Results`. Read `${CLAUDE_PLUGIN_ROOT}/skills/specify/investigate.md`.
 Kind `fix`: the reviewer also reads `root-cause.md`. A type that names a symptom, such as "the code is wrong", is a finding for the owner: ask what made the bug possible at its earliest point.
 
 ## Gotchas

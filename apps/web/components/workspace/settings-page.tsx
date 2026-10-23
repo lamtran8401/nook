@@ -51,7 +51,7 @@ export function SettingsPage({ settings }: { settings: WorkspaceSettings }) {
                 </TableBody>
               </Table>
             ) : (
-              <Muted>None yet: /spec asks the first time it meets a ticket type.</Muted>
+              <Muted>None yet: /specify asks the first time it meets a ticket type.</Muted>
             )}
           </SettingRow>
           <SettingRow title="Root cause types" about="A fix names one at submit.">

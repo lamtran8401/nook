@@ -1,6 +1,6 @@
 ---
 name: challenge
-description: "Run the skeptic against a plan at the chosen depth, skip, one pass or a full round, and judge each objection with the code. Use in /recipe or when the owner says challenge, attack or find holes in the plan. Not the Risks section: write-plan."
+description: "Run the skeptic against a plan at the chosen depth, skip, one pass or a full round, and judge each objection with the code. Use after /plan for size L or a contract change, or when the owner says challenge, attack or find holes in the plan. Not the Risks section: /plan writes it."
 argument-hint: "<skip|one|full> <item id>"
 allowed-tools: Bash(nook eng *), Read, Glob, Grep, Edit
 ---
@@ -14,16 +14,16 @@ skip   no skeptic                                        S item with no risk sig
 one    one skeptic pass                                  M item
 full   the skeptic, plus the objections of each consumer of a changed contract     L item, every contract change
 ```
-`/recipe` chose the depth from `triage`. With no depth in the arguments, use the one that `triage` recommends.
+`/plan` chose the depth from `triage`. With no depth in the arguments, use the one that `triage` recommends.
 
 ## Order
 - skip: write one line, "challenge skipped, depth skip", and stop.
-- one: start the Agent tool with `subagent_type: nk-eng:skeptic`, the brief (`nook eng item brief <id>`), `spec.md`, the whole `plan.md`, and the question "Where does this plan fail?".
-- full: the same, plus `nk-eng:contract-designer` once for each consumer area of a changed contract, with the contract change and the question "State the objections that the builder of this area would state, and what would change its mind." Start them in the same turn.
+- one: start the Agent tool with `subagent_type: nook:skeptic`, the brief (`nook eng item brief <id>`), `spec.md`, the whole `plan.md`, and the question "Where does this plan fail?".
+- full: the same, plus `nook:contract-designer` once for each consumer area of a changed contract, with the contract change and the question "State the objections that the builder of this area would state, and what would change its mind." Start them in the same turn.
 
 Then judge each objection, in order:
 1. Open the file that the objection names. An objection with no evidence is a question, not a finding.
-2. It holds: change `plan.md`, and say what changed in one line. A change to the contract or the order means `write-plan` for that section and `plan-check` again.
+2. It holds: change `plan.md`, and say what changed in one line. A change to the contract or the order means `/plan` for that section and `/plan` again.
 3. It does not hold: write the reason in one line, with the evidence.
 4. It holds and the plan cannot fix it: add it to Risks as an accepted risk, and tell the owner.
 5. It shows a gap in the spec: stop. Tell the owner. The spec changes only with the owner's word (`nook eng item reframe`).

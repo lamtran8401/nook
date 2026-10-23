@@ -1,18 +1,12 @@
----
-name: write-spec
-description: "Write works/<id>/spec.md from the ticket and the answers: front matter with dates, In short, Why, What changes, checkable criteria, Details, Out of scope. Use in /spec or when the owner says draft the spec. Not for checking it: spec-check."
-argument-hint: "<item id>"
-allowed-tools: Bash(nook eng *), Read, Glob, Grep, Edit, Write
----
+# Write the spec
 
-Goal: a spec that says what and why, with criteria that anyone can check. It is the contract for the plan, the build and the review.
-Fill the file that `start` scaffolded. Keep its headings and their order.
-The clarify step and the bar for a criterion: `criteria.md` (this folder). A full spec: `${CLAUDE_PLUGIN_ROOT}/skills/spec/example.md`.
+Step 6 of `/specify`. Fill the file that `start` scaffolded. Keep its headings and their order.
+The clarify step and the bar for a criterion: `criteria.md`. A full spec: `example.md`.
 
 ## Read first
 - The ticket (`backlog/<id>/ticket.md`) and its attachments, with the comments that change the scope.
 - The answers: `nook eng questions <id>`. They override the ticket where they differ.
-- The result of `triage` and `find-repos`: the kind, the size, the areas.
+- The result of `triage`: the kind, the size, the areas.
 
 ## Order
 1. Front matter: `kind`, `size`, `areas` from `triage`. It is the source; `agree` copies it into the item. Keep `created`; set `updated` to today on each edit (YYYY-MM-DD).
@@ -30,6 +24,6 @@ The clarify step and the bar for a criterion: `criteria.md` (this folder). A ful
 - "The page works" is not a criterion. Ask what the user sees, or propose one and mark it as proposed.
 - An impact on a related feature is easy to miss: the same call, table or component used elsewhere. Search for it.
 - AC numbers follow the order of the lines. Move lines before the plan names the numbers.
-- Do not write how. The design belongs in `/recipe`.
-- Do not run `nook eng item ac add` for these lines; the file is the source. Do not run `agree`; `/spec` does, after the owner confirms.
+- Do not write how. The design belongs in `/plan`.
+- Do not run `nook eng item ac add` for these lines; the file is the source. Do not run `agree`; `/specify` does, after the owner confirms.
 - Keep the clear words of the ticket. Do not rewrite for style.

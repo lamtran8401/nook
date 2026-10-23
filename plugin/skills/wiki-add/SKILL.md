@@ -15,7 +15,7 @@ Goal: a page that the owner and the agents can read later in place of the source
 4. Draft the page (the format is below). Each point gets one real example from the source or from the work of the owner.
 5. Show the draft and ask the owner once with AskUserQuestion. The options are "Write it" (recommended) and "Keep it for later". The owner types a change, or "drop", in the field of the host.
 6. On yes: write the page into `resources/`, then run `nook wiki index --fix` and `nook wiki links`. Report the path and the index line.
-7. Keep it for later, or no answer before the session ends: write the draft into `docs/wiki/drafts/resources/<page>.md`. `/brief` shows it until the owner decides. On a later yes, move it to its shelf and run step 6; on a no, delete the draft.
+7. Keep it for later, or no answer before the session ends: write the draft into `docs/wiki/drafts/resources/<page>.md`. `/daily-brief` shows it until the owner decides. On a later yes, move it to its shelf and run step 6; on a no, delete the draft.
 
 ## The page
 ```

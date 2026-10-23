@@ -17,10 +17,10 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | Phase | State | Skill | The move at the end | Who |
 |---|---|---|---|---|
 | Intake | backlog | `/intake` | none: the item waits in backlog | lead |
-| Framing | framing | `/spec` | `agree` (`/spec` runs `start` first) | lead, after the owner confirms the spec |
-| Planning | planning | `/recipe` | `approve` | owner, with `/gate` |
+| Framing | framing | `/specify` | `agree` (`/specify` runs `start` first) | lead, after the owner confirms the spec |
+| Planning | planning | `/plan` | `approve` | owner, with `/gate` |
 | Cooking | ready, cooking | `/cook` | `begin`, then `submit` | lead |
-| Review | review | `/deep-review`, `/view` | `accept` | owner, with `/gate` |
+| Review | review | `/deep-review`, `/write-walkthrough` | `accept` | owner, with `/gate` |
 | Close | done | `/close` | none | lead |
 
 ## The gates
@@ -38,10 +38,10 @@ any open ─cancel→ cancelled ─restore→ backlog                 ★ only t
 | Path | For | Stages |
 |---|---|---|
 | quick | a fix or chore in one area, size S, no contract change | `/quick`: one slice, no spec, no plan, test first, the owner accepts |
-| standard | everything else | intake, spec, recipe, cook, deep-review, close |
+| standard | everything else | intake, specify, plan, cook, deep-review, close |
 | yolo | a standard item in mode `yolo` | `/yolo`: the lead runs the phases, records each guess, passes the plan gate with `proceed`, stops at the accept |
 
-Kind `investigate` follows the standard path with Questions in place of criteria: `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
+Kind `investigate` follows the standard path with Questions in place of criteria: `${CLAUDE_PLUGIN_ROOT}/skills/specify/investigate.md`.
 
 ## Who does the work
 | Who | Jobs | Start |
@@ -69,7 +69,7 @@ A builder parks its slice with `nook eng task wait <id> <T> --reason "<question>
 5. A question that does not block becomes a guess: `nook eng guess <id> "<question>" --took "<a>" --other "<b>" --impact low|med|high [--slices T1,T2]`.
 
 ## The confirm question
-The spec at the end of `/spec`, and the plan with the slices at the end of `/recipe`, need the owner's word.
+The spec at the end of `/specify`, and the plan with the slices at the end of `/plan`, need the owner's word.
 Show the document, then ask one question with two options: "Looks right" (recommended) and "Adjust a part".
 On "Adjust a part", ask which part, change it, run the check of the stage again, and ask again.
 Do not end the turn while the document is not confirmed.
@@ -79,7 +79,7 @@ Never ask "shall I proceed" or "do you approve": the gates have their own comman
 - Line 1: what waits for the owner, or "Nothing waits for you".
 - Then: what changed, with paths; the guesses of the stage; what was not checked.
 - Last: the next command to type, and the one or two others that make sense now.
-  When the spec or the plan exists, one of them is `/view <id>`: the local page of the item, open on the tab of its state. Make the page only when the owner asks.
+  When the spec or the plan exists, the owner reads it in the web app: `nook web`, in the owner's own terminal.
   Check it with `nook eng next <id>`; when they differ, the tool is right.
 
 ## Going back

@@ -97,7 +97,7 @@ describe('readBoard', () => {
     t.eng(READER).markCriterion('SHOP-1', 1, 'the date test passes', 'run')
     expect(readBoard(t.root)).toEqual([
       expect.objectContaining({ id: 'SHOP-1', title: 'the export date is off', kind: 'feature', size: 'S', state: 'cooking', areas: ['bff'], criteria: { met: 1, total: 2 } }),
-      { id: 'SHOP-2', title: 'export the list', kind: 'chore', size: 'M', points: null, mode: 'normal', state: 'backlog', blocked_from: null, areas: ['web'], criteria: { met: 0, total: 0 }, slices: { done: 0, total: 0 }, next: { owner: false, skill: '/spec SHOP-2' }, flags: [] },
+      { id: 'SHOP-2', title: 'export the list', kind: 'chore', size: 'M', points: null, mode: 'normal', state: 'backlog', blocked_from: null, areas: ['web'], criteria: { met: 0, total: 0 }, slices: { done: 0, total: 0 }, next: { owner: false, skill: '/specify SHOP-2' }, flags: [] },
     ])
   })
 

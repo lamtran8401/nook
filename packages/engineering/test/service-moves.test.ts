@@ -315,7 +315,7 @@ describe('Engineering.quick', () => {
     const lead = t.eng(LEAD)
     lead.setTypeKind('TA Task', 'chore')
     expect(lead.quick('SHOP-41', 'bff', { type: 'TA Task' }).kind).toBe('chore')
-    fails(() => lead.quick('SHOP-42', 'web', { kind: 'feature' }), Exit.usage, 'quick takes a fix or a chore; a feature goes through /spec')
+    fails(() => lead.quick('SHOP-42', 'web', { kind: 'feature' }), Exit.usage, 'quick takes a fix or a chore; a feature goes through /specify')
   })
 
   test('quick makes a cooking item with one running slice; accept needs an AC and a verify', () => {

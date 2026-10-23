@@ -234,9 +234,9 @@ describe('Timeline', () => {
 })
 
 describe('DocTab', () => {
-  test('a walkthrough not written yet says to type /view in the agent session', () => {
+  test('a walkthrough not written yet says to type /write-walkthrough in the agent session', () => {
     expect(text(html(<DocTab item={view.item} name="walkthrough" text={null} criteria={[]} />))).toBe(
-      'The walkthrough is not written yet The walkthrough comes after the build. When the item reaches review, type /view SHOP-42 in the agent session.',
+      'The walkthrough is not written yet The walkthrough comes after the build. When the item reaches review, type /write-walkthrough SHOP-42 in the agent session.',
     )
   })
 

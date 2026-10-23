@@ -15,7 +15,7 @@ These rules hold in every folder of this workspace. Hooks enforce the moves of t
 
 - Never build on a protected branch (`main`, `master`, `develop`). Run `nook eng item branch <id>` first.
 - Never commit unless the owner asks. Then run `nook eng item commit <id> --run`.
-- Never push. Never start an app, a container or a deploy that the owner did not ask for.
+- Push only when the owner asks, as with `/pr`. Never start an app, a container or a deploy that the owner did not ask for.
 
 ## Code
 

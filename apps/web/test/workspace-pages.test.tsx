@@ -68,13 +68,13 @@ describe('AgentsPage', () => {
 describe('EventsPage', () => {
   const NOW = new Date('2026-10-20T12:00:00Z')
   const EVENTS = [
-    { kind: 'block' as const, at: '2026-10-20T09:05:00Z', hook: 'eng bash', agent: 'nk-eng:reviewer', reason: 'may not run `date`.', command: 'date' },
+    { kind: 'block' as const, at: '2026-10-20T09:05:00Z', hook: 'eng bash', agent: 'nook:reviewer', reason: 'may not run `date`.', command: 'date' },
     { kind: 'prompt' as const, at: '2026-10-19T09:00:00Z', text: 'merge' },
   ]
 
   test('lists the events by day, newest first, each with its time, its kind, its source and its words', () => {
     const markup = html(<EventsPage events={EVENTS} base="/personal" now={NOW} />)
-    expect(text(markup)).toMatch(/^all block error prompt one file a day in \.nook\/events\/ Today \d\d:05 block eng bash may not run `date`\. \(nk-eng:reviewer\) date Yesterday \d\d:00 prompt prompt merge$/)
+    expect(text(markup)).toMatch(/^all block error prompt one file a day in \.nook\/events\/ Today \d\d:05 block eng bash may not run `date`\. \(nook:reviewer\) date Yesterday \d\d:00 prompt prompt merge$/)
     expect(markup).toContain('href="/personal/events" data-active="" aria-current="page"')
   })
 

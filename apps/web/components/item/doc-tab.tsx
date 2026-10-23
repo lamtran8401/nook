@@ -22,11 +22,11 @@ type DocItem = Pick<Item, 'id' | 'areas' | 'state' | 'blocked_from'>
 
 // what writes a document not written yet: the words before the command, and the command to type in the agent session
 const WRITES: Record<DocName, [before: string, command: string]> = {
-  spec: ['The spec comes first. Type', '/spec'],
+  spec: ['The spec comes first. Type', '/specify'],
   'root-cause': ['The root cause comes with the build of a fix. Type', '/cook'],
-  plan: ['The plan comes after the spec. Type', '/recipe'],
-  tasks: ['The slices come with the plan. Type', '/recipe'],
-  walkthrough: ['The walkthrough comes after the build. When the item reaches review, type', '/view'],
+  plan: ['The plan comes after the spec. Type', '/plan'],
+  tasks: ['The slices come with the plan. Type', '/plan'],
+  walkthrough: ['The walkthrough comes after the build. When the item reaches review, type', '/write-walkthrough'],
   findings: ['The findings come with the work of the investigation. Type', '/cook'],
 }
 

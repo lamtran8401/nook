@@ -36,7 +36,7 @@ const program: Program = {
       path: ['eng', 'item', 'approve'],
       summary: 'approve one item',
       run() {
-        throw refused('approve SHOP-1: 1 gap\n- the plan is empty\n    fix: /recipe SHOP-1', '/recipe SHOP-1')
+        throw refused('approve SHOP-1: 1 gap\n- the plan is empty\n    fix: /plan SHOP-1', '/plan SHOP-1')
       },
     },
     { path: ['doctor'], summary: 'the gaps', run: () => 1 },
@@ -92,6 +92,6 @@ describe('run', () => {
 
   test('a refusal exits 3 and prints the fix once when the message holds it already', async () => {
     expect(await run(program, ['eng', 'item', 'approve'])).toBe(3)
-    expect(err).toBe('nook eng item approve: approve SHOP-1: 1 gap\n- the plan is empty\n    fix: /recipe SHOP-1\n')
+    expect(err).toBe('nook eng item approve: approve SHOP-1: 1 gap\n- the plan is empty\n    fix: /plan SHOP-1\n')
   })
 })

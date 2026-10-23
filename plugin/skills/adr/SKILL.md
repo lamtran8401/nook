@@ -1,6 +1,6 @@
 ---
 name: adr
-description: "Draft a decision record in docs/adr/ for a decision that outlives the item, with status proposed; /close accepts it. Use in /recipe, or when the owner says record this decision or ADR. Not for a detail of one item: that goes in the Design section."
+description: "Draft a decision record in docs/adr/ for a decision that outlives the item, with status proposed; /close accepts it. Use in /plan, or when the owner says record this decision or ADR. Not for a detail of one item: that goes in the Design section."
 argument-hint: "<title> [--item <id>]"
 allowed-tools: Bash(nook eng *), Read, Glob, Edit, Write
 ---

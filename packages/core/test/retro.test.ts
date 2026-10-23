@@ -73,8 +73,8 @@ describe('errorFacts', () => {
 
 describe('eventLines', () => {
   test('gives one line for each event: its time, then the prompt or the block with its hook', () => {
-    expect(eventLines([{ kind: 'prompt', at: '2026-10-19T09:00:00Z', text: 'merge' }, { kind: 'block', at: '2026-10-19T09:05:00Z', hook: 'eng bash', agent: 'nk-eng:reviewer', reason: 'no', command: 'date' }, { kind: 'error', at: '2026-10-19T09:06:00Z', hook: 'core start', agent: 'lead', reason: 'boom', command: '' }])).toBe(
-      '2026-10-19T09:00:00Z  prompt  merge\n2026-10-19T09:05:00Z  block   eng bash (nk-eng:reviewer): no · date\n2026-10-19T09:06:00Z  error   core start (lead): boom · ',
+    expect(eventLines([{ kind: 'prompt', at: '2026-10-19T09:00:00Z', text: 'merge' }, { kind: 'block', at: '2026-10-19T09:05:00Z', hook: 'eng bash', agent: 'nook:reviewer', reason: 'no', command: 'date' }, { kind: 'error', at: '2026-10-19T09:06:00Z', hook: 'core start', agent: 'lead', reason: 'boom', command: '' }])).toBe(
+      '2026-10-19T09:00:00Z  prompt  merge\n2026-10-19T09:05:00Z  block   eng bash (nook:reviewer): no · date\n2026-10-19T09:06:00Z  error   core start (lead): boom · ',
     )
   })
 })

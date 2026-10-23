@@ -33,9 +33,9 @@ describe('the event log of a workspace', () => {
   test('a block of a hook writes one line to the file of its day in the log of the nearest workspace, the command masked', () => {
     workspace(root)
     mkdirSync(join(root, 'shop'))
-    const input = { cwd: join(root, 'shop'), session_id: 's1', agent_type: 'nk-eng:reviewer', tool_name: 'Bash', tool_input: { command: 'date && echo ghp_abcdefghijklmnopqrstuvwx1234' } }
+    const input = { cwd: join(root, 'shop'), session_id: 's1', agent_type: 'nook:reviewer', tool_name: 'Bash', tool_input: { command: 'date && echo ghp_abcdefghijklmnopqrstuvwx1234' } }
     hookRecorder(input, 'eng bash', NOW)(block)
-    expect(lines(root)).toEqual([{ at: AT, kind: 'block', session: 's1', hook: 'eng bash', agent: 'nk-eng:reviewer', tool: 'Bash', reason: 'the reviewer is read-only: may not run `date`.', command: 'date && echo [secret]' }])
+    expect(lines(root)).toEqual([{ at: AT, kind: 'block', session: 's1', hook: 'eng bash', agent: 'nook:reviewer', tool: 'Bash', reason: 'the reviewer is read-only: may not run `date`.', command: 'date && echo [secret]' }])
   })
 
   test('the lead is the agent of an event with no agent type; an edit names its file; a long command keeps 200 characters', () => {

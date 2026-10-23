@@ -1,6 +1,6 @@
 ---
 name: system-designer
-description: "Gives the architecture facts and two or three design options with trade-offs and slice cost, a recommendation and the condition that changes it. Started by write-plan in /recipe with the brief."
+description: "Gives the architecture facts and two or three design options with trade-offs and slice cost, a recommendation and the condition that changes it. Started by /plan on a deep budget, with the brief."
 model: inherit
 tools: Read, Grep, Glob, Bash
 maxTurns: 30

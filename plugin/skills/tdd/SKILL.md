@@ -21,7 +21,7 @@ A test that you saw fail for the right reason proves the code. A test that passe
 4. Run the test, then the tests of the file.
 5. Refactor with the tests green: `clean-code`, inside the scope of the slice.
 6. Repeat for the next behavior, with one negative case for each AC: an input or a state that must be refused or left unchanged.
-7. Run the checks of the area (`checks` in `nook.yml`). Fix each failure; `diagnose` when the cause is not clear after one read.
+7. Run the checks of the area (`checks` in `nook.yml`). Fix each failure; `/debug` when the cause is not clear after one read.
 8. Run `nook eng task prove <id> <T> --files <the new test files>`. It runs your new tests on the base of the branch, without your change.
    `proven`: they fail there. `weak`: they pass there, so they cannot fail; fix the test. `none`: a load or import error; read the note.
 

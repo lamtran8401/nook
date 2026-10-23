@@ -1,6 +1,6 @@
 ---
 name: close
-description: "Close an accepted item in done: accept its ADRs, keep the knowledge, send its own loose ends back into it, ask about the commits, archive the ticket. Use when the owner says close, wrap up, finish or commit an accepted item."
+description: "Close an accepted item in done: accept its ADRs, keep the knowledge, send its own loose ends back into it, ask about the commits, archive the ticket. Use when the owner says close, finish or commit an accepted item."
 argument-hint: "[item id]"
 disable-model-invocation: true
 allowed-tools: Bash(nook eng *), Bash(git status *), Bash(git log *), Read, Glob, Grep, Write, Edit
@@ -16,12 +16,12 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 3. ADRs and guesses: ask the owner once, in one round. Ask accept or drop for each proposed ADR of the item, and accept or flip for each open guess.
    Run `nook eng adr accept <n>` for an accepted ADR. A decision that replaces an old one: `nook eng adr supersede <old> --by <new>`. Never edit the status line by hand.
    Run `nook eng guess accept <id> <G>` or `nook eng guess flip <id> <G> --answer "<answer>"`. A flip changes the work of this item: stop the close and send the item back, as step 5 says.
-4. Knowledge: each `ADD` or `CHANGE` criterion changes a page. When the wiki pack is on:
+4. Knowledge: each `ADD` or `CHANGE` criterion changes a page. When the wiki is on:
    - Find the page of each topic in `resources/INDEX.md` of the wiki. A topic with no page gets a new page, `type: system`.
    - Draft each change: how the system works now, the pitfalls that remain, one History line `<date>: <id>`.
    - Show the drafts in the question round of step 3, with yes or no for each. Write the accepted ones, then run `nook wiki index --fix` and `nook wiki links`.
-   - A draft that the owner keeps for later goes to `docs/wiki/drafts/<shelf>/<page>.md`, and `/brief` shows it until the owner decides.
-   With no wiki pack, list the pages that the owner must write.
+   - A draft that the owner keeps for later goes to `docs/wiki/drafts/<shelf>/<page>.md`, and `/daily-brief` shows it until the owner decides.
+   With no wiki, list the pages that the owner must write.
    A `NONE` or `REMOVE` tag changes a page only when it removes a behavior that a page states.
 5. Loose ends of this item: a nit, a gap in its own behavior, or a flipped guess is work of this item, never a new item.
    Stop the close. Send the item back: `nook eng item reopen <id> --reason "<the loose ends>"`, then `nook eng item reframe <id> --reason` when a criterion must change. The owner runs the item again; close runs at the end.
@@ -30,7 +30,7 @@ The flow: `${CLAUDE_PLUGIN_ROOT}/skills/pickup/flow.md`.
 7. Hand-over: when work stays open, write `handoff.md` as `/handoff` says. Else skip it.
 8. Archive: `nook eng item archive <id>` moves the ticket folder to `backlog/archive/`. `nook eng doctor` at the end. Report.
 
-Kind `investigate`: no commit unless the owner says so; for each line of `## Results`, a ticket for the owner to create, a wiki page or a session; a follow-up for each Follow-up line that the owner says yes to. Read `${CLAUDE_PLUGIN_ROOT}/skills/spec/investigate.md`.
+Kind `investigate`: no commit unless the owner says so; for each line of `## Results`, a ticket for the owner to create, a wiki page or a session; a follow-up for each Follow-up line that the owner says yes to. Read `${CLAUDE_PLUGIN_ROOT}/skills/specify/investigate.md`.
 
 ## The report
 ```

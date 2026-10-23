@@ -1,12 +1,12 @@
 ---
 name: clean-code
-description: "Read your own diff as the next reader will: names, one job for each function, the helpers of the area reused, no dead code, every error handled, no secret in a log. Use in the refactor step and before task done. Not for another's diff: code-review."
+description: "Read your own diff as the next reader will: names, one job for each function, the helpers of the area reused, no dead code, every error handled, no secret in a log. Use in the refactor step and before task done. Not for another's diff: /review."
 allowed-tools: Bash(git diff *), Bash(git status *), Read, Glob, Grep, Edit
 ---
 
 Goal: a diff that a reviewer reads once and understands, with nothing to remove.
-The code rules are in the pack rules (`.claude/rules/nook/engineering.md`). This skill is how you check a diff against them.
-The fresh reviewer blocks on a fixed list; find those points yourself first, in the agent file of `nk-eng:code-reviewer`.
+The code rules are in the base rules (`.claude/rules/nook/engineering.md`). This skill is how you check a diff against them.
+The fresh reviewer blocks on a fixed list; find those points yourself first, in the agent file of `nook:code-reviewer`.
 
 ## When
 1. In the refactor step of `tdd`, with the tests green: the code of the behavior you just made pass.

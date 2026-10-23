@@ -1,6 +1,6 @@
 ---
 name: skeptic
-description: "Argues against a plan from evidence and returns numbered objections with what would change its mind, then a verdict: proceed, change the plan, or stop. Started by challenge in /recipe at the chosen depth."
+description: "Argues against a plan from evidence and returns numbered objections with what would change its mind, then a verdict: proceed, change the plan, or stop. Started by challenge in /plan at the chosen depth."
 model: opus
 tools: Read, Grep, Glob
 maxTurns: 30

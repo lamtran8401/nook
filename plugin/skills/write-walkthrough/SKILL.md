@@ -1,6 +1,6 @@
 ---
 name: write-walkthrough
-description: "Write walkthrough.md, the explanation of finished work: what works now in plain words, the changed files, where to start reading, the key code, the met criteria, how to try it, the risks. It is the source of the Walkthrough tab of the page. Use in /view. Not for showing the page: /view does that."
+description: "Write walkthrough.md, the explanation of finished work: what works now in plain words, the changed files, where to start reading, the key code, the met criteria, how to try it, the risks. It is the source of the Walkthrough tab of the web app. Use after /deep-review, or for a question about the code."
 argument-hint: "[item id] or a question about the code"
 allowed-tools: Bash(nook eng *), Bash(git status *), Bash(git diff *), Bash(git log *), Read, Glob, Grep, Write, Edit
 ---
@@ -13,11 +13,11 @@ The parts in full, and the path with no item: `parts.md` (this folder).
 ## Order
 1. Decide the subject:
    - an item id: `nook eng item brief <id>`, `nook eng item ac list <id>`, `nook eng guesses <id>`.
-   - a question (`/view how does the export job retry?`): no item. Find the code with `nook eng area status` and a search.
+   - a question (`/write-walkthrough how does the export job retry?`): no item. Find the code with `nook eng area status` and a search.
 2. Read the work itself: the diff of each area on the branch (`git -C <folder> diff <base>`), or the code that the question names.
    Explain the code that exists, not the plan.
 3. Write `walkthrough.md` with the parts of `parts.md`, in their order. 60 lines or fewer for size S and M, 90 for size L; the tree of What changed does not count. It is the source of the page, as `spec.md` is the source of the Spec tab.
-4. Return the path to `/view`. It builds the page.
+4. Report the path. The web app shows it on the Walkthrough tab of the item.
 
 ## The parts that you write
 ```

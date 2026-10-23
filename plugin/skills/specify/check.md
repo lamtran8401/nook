@@ -1,12 +1,6 @@
----
-name: spec-check
-description: "Gate before the owner reads a spec: front matter complete, areas in nook.yml, each criterion checkable and sourced, the ticket covered, no gap for agree. Use in /spec or when the owner asks if the spec is ready. Not for writing it: write-spec."
-argument-hint: "<item id>"
-allowed-tools: Bash(nook eng *), Read, Glob, Grep, Edit
----
+# Check the spec
 
-Goal: a spec that passes the guard of `agree` and that the owner reads once and agrees with.
-A gap left here comes back as a failed review. This is the cheapest place to find it, so be strict.
+Step 7 of `/specify`. A gap left here comes back as a failed review. This is the cheapest place to find it, so be strict.
 
 ## Order
 Read `works/<id>/spec.md`, the ticket and `nook eng item brief <id>`. Name each gap in one line, with the line of the file.
@@ -30,7 +24,7 @@ Read `works/<id>/spec.md`, the ticket and `nook eng item brief <id>`. Name each 
 - Run the check again after each fix. A moved line changes the AC numbers.
 
 ```
-spec-check SHOP-12: 2 gaps
+check of SHOP-12: 2 gaps
 - AC2 "The list is fast" is not checkable. Proposed: "[NONE] A selected status shows the filtered list in under 1 second for 500 shipments." The owner confirms the number.
 - Out of scope is empty. Proposed: "Saved filters."
 Passed: front matter and dates, why, coverage, sources, no open question, item check.

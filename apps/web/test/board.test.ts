@@ -5,7 +5,7 @@ import { boardOptions, flagOf, holderGroups, laneOf, phaseColumns, phaseGroups, 
 
 const card = (id: string, state: BoardCard['state'], fields: Partial<BoardCard> = {}): BoardCard => ({
   id, title: `item ${id}`, kind: 'feature', size: 'M', points: null, mode: 'normal', state, blocked_from: null, areas: ['api'],
-  criteria: { met: 0, total: 0 }, slices: { done: 0, total: 0 }, next: { owner: false, skill: `/spec ${id}` }, flags: [], ...fields,
+  criteria: { met: 0, total: 0 }, slices: { done: 0, total: 0 }, next: { owner: false, skill: `/specify ${id}` }, flags: [], ...fields,
 })
 
 const cards = [
@@ -65,13 +65,13 @@ describe('the board of a workspace', () => {
     expect([
       flagOf(card('SHOP-1', 'cooking', { flags: ['Q2 blocks'], next: { owner: true, skill: 'answer Q2: nook eng answer SHOP-1 Q2' } })),
       flagOf(card('SHOP-2', 'planning', { next: { owner: true, skill: 'owner: /gate approve SHOP-2' } })),
-      flagOf(card('SHOP-3', 'framing', { next: { owner: false, skill: '/spec SHOP-3' } })),
+      flagOf(card('SHOP-3', 'framing', { next: { owner: false, skill: '/specify SHOP-3' } })),
       flagOf(card('SHOP-4', 'done', { next: { owner: false, skill: '/close SHOP-4' } })),
       flagOf(card('SHOP-5', 'done', { next: { owner: false, skill: 'closed' } })),
     ]).toEqual([
       { words: 'Q2 blocks', tone: 'danger' },
       { words: 'waits for your approve', tone: 'danger' },
-      { words: 'the lead runs /spec', tone: 'violet' },
+      { words: 'the lead runs /specify', tone: 'violet' },
       { words: 'waits for /close', tone: 'warning' },
       { words: 'done' },
     ])

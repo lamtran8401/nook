@@ -24,7 +24,7 @@ Nothing waits for you.
 SHOP-12: cooking, mode normal, standard path. Lead: this session.
 Hand-over (yesterday): T1 done in bff. T2 was running in frontend; the builder is gone, restart it.
 Blocks: none. doctor: no drift. Guess G2 (med) is open.
-Next: /cook SHOP-12 (restart T2). /guesses SHOP-12 to review G2 first.
+Next: /cook SHOP-12 (restart T2). `nook eng guesses SHOP-12` shows G2 first.
 ```
 
 ## Gotchas

@@ -82,10 +82,10 @@ export function holdReasons(eng: Engineering, item: Item): string[] {
 function autoStage(eng: Engineering, item: Item): Stage | null {
   const plain = (skill: string): Stage => ({ skill, note: '' })
   return match(item.state)
-    .with('backlog', 'framing', () => plain('spec'))
+    .with('backlog', 'framing', () => plain('specify'))
     .with('planning', () =>
       eng.gaps(item, 'approve').length
-        ? plain('recipe')
+        ? plain('plan')
         : { skill: 'cook', note: `the plan is ready: run \`nook eng item proceed ${item.id}\`, then ` },
     )
     .with('ready', () => plain('cook'))

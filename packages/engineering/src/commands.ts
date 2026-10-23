@@ -213,7 +213,7 @@ const itemCommands: Command[] = [
     path: ['kind', 'list'],
     summary: 'the kind of each ticket type that this workspace learned',
     run(c) {
-      c.out(eng().typeKinds(), all => (all.length ? all.map(t => `${t.type} → ${t.kind}`).join('\n') : 'no type learned yet: /spec asks when it meets a new one'))
+      c.out(eng().typeKinds(), all => (all.length ? all.map(t => `${t.type} → ${t.kind}`).join('\n') : 'no type learned yet: /specify asks when it meets a new one'))
     },
   },
   {

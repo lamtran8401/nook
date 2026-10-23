@@ -1,6 +1,6 @@
 ---
 name: gate
-description: "The owner's moves at a gate, typed in the prompt: /gate approve <id>, /gate accept <id>, /gate mode <id> yolo|normal, or /gate alone for what waits. Only the owner types it; a Nook hook runs the move before this text."
+description: "The owner's moves at a gate, typed in the prompt: /gate approve <id>, /gate accept <id>, /gate mode <id> yolo|normal, or /gate alone for what waits. Only the owner types it; a Nook hook runs the move before this text. Use when the owner types /gate."
 argument-hint: "[approve|accept|mode] [<id>] [yolo|normal]"
 disable-model-invocation: true
 ---

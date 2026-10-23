@@ -1,6 +1,6 @@
 # Issue tracker
 
-The pack issue-tracker reads tickets from Jira through `twg` and from GitHub through `gh`. It never writes to a tracker.
+The issue-tracker reads tickets from Jira through `twg` and from GitHub through `gh`. It never writes to a tracker.
 
 - Read a ticket through `nook issues` only.
 - Never write to a tracker: no comment, no update, no transition, no new issue. The guard blocks each write of `twg` and `gh`.

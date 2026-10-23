@@ -1,6 +1,6 @@
 ---
 name: triage
-description: "Classify an item with one line of evidence for each point: kind, size, areas, contract flag, risk, path and challenge depth. Use in /spec and /quick, or when the owner asks how big or how risky a change is. Not for the areas in the code: find-repos."
+description: "Classify an item with one line of evidence for each point: kind, size, areas, contract flag, risk, path and challenge depth. Use in /specify and /quick, or when the owner asks how big or how risky a change is. It names the areas from nook.yml; /specify proves each one in the code."
 argument-hint: "<item id or title>"
 allowed-tools: Bash(nook eng *), Read, Glob, Grep
 ---
@@ -18,7 +18,7 @@ Run it before framing, and again when the plan changes the scope.
 kind       fix (repairs behavior that must work already) · feature (adds behavior) · chore (build, tools, docs) · investigate ("find out why", "check if")
 size       S one area · M two areas · L three or more, or a step that is hard to undo
            at least M: a contract change, a data or schema change, a business rule that is unclear
-areas      the areas of nook.yml that change; run find-repos when two readings exist
+areas      the areas of nook.yml that change; read the repos when two readings exist
 contract   yes when a shared interface changes: a proto, GraphQL, OpenAPI or event schema, even in one area
 risk       data migration · shared contract · many consumers · unclear requirement · no tests today · hard to undo
 path       quick (fix or chore, one area, S, no contract) · standard · yolo when the mode is yolo · investigate

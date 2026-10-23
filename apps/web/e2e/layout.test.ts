@@ -94,7 +94,7 @@ describe('the diagrams of Bench', () => {
     const diagrams = [...fenceDiagrams(), ...pageDiagrams()]
     const sources = new Set(diagrams.map(d => d.name.replace(/ \d+(:.*)?$/, '')))
     expect([...sources]).toEqual([
-      'docs/plan/v0.3.md', 'plugin/skills/write-plan/sections.md', 'plugin/skills/write-walkthrough/parts.md',
+      'docs/plan/v0.3.md', 'plugin/skills/plan/sections.md', 'plugin/skills/write-walkthrough/parts.md',
       'scripts/demo/items/SHOP-41/walkthrough.md', 'scripts/demo/items/SHOP-42/plan.md', 'scripts/demo/items/SHOP-43/plan.md', 'scripts/demo/items/SHOP-44/walkthrough.md',
       'the guide page', 'the report page',
     ])

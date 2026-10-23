@@ -1,13 +1,13 @@
 # An investigate item
 
-Read this file from `/spec`, `/recipe`, `/cook`, `/deep-review` and `/close` when the kind of the item is `investigate`.
+Read this file from `/specify`, `/plan`, `/cook`, `/deep-review` and `/close` when the kind of the item is `investigate`.
 The item asks questions and leaves results: a tech spike, a technical solution, a research, a kaizen.
 It can change no code, or build a proof of concept in slices. Everything else follows the standard flow.
 
 | Stage | What changes |
 |---|---|
 | spec | `## Questions` in place of `## Acceptance criteria`: one bullet for each question. `agree` needs at least one question. |
-| recipe | `plan.md` is short: Today names where to look; Approach has one row for each question, with how it gets its answer; Proof names the evidence each answer needs; Risks names what the code cannot answer. No skeptic. With no code: no `tasks.md`, and Impact is one line, "None: the item changes no code". With a proof of concept: write `tasks.md` with slices in their areas and `acs: none`; they run and verify as the slices of a feature. |
+| plan | `plan.md` is short: Today names where to look; Approach has one row for each question, with how it gets its answer; Proof names the evidence each answer needs; Risks names what the code cannot answer. No skeptic. With no code: no `tasks.md`, and Impact is one line, "None: the item changes no code". With a proof of concept: write `tasks.md` with slices in their areas and `acs: none`; they run and verify as the slices of a feature. |
 | cook | With no slices: no branch and no builders. `begin`, then the lead and the read-only agents do the research. With slices: the standard cook for them. Write `findings.md` with its `## Results`, then `submit`. |
 | check | The reviewer checks `findings.md`, not criteria. Each question needs an answer with evidence. |
 | close | No commit of a proof of concept unless the owner says so. For each line of `## Results`: a ticket that the owner creates, a wiki page, a session to plan. |
@@ -39,7 +39,7 @@ The shipment list call takes 4 seconds at peak. Find the cause before anyone cha
 
 ## The research in cook
 1. Run `nook eng item begin <id>`.
-2. Start one read-only agent for each question, in the same turn: `nk-eng:scout` for a question about facts, `nk-eng:system-designer` for a question about how the parts connect.
+2. Find the evidence for each question. On a lean budget, read the code yourself, one question at a time. On a deep budget, start one read-only agent for each question, in the same turn: `nook:scout` for a question about facts, `nook:system-designer` for a question about how the parts connect.
    Give each the brief (`nook eng item brief <id>`) and its one question.
 3. Check each claim that matters: open the file and read the line.
 4. Write `works/<id>/findings.md`: one section `## Q<n>` for each question with the lines `Answer`, `Evidence`, `Open`, and `Follow-up` when there is one.

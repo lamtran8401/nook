@@ -25,7 +25,7 @@ Run `nook eng next <id>`: it names the stage. Read `${CLAUDE_PLUGIN_ROOT}/skills
 |---|---|
 | intake | pull the ticket, no rank |
 | spec | take the recommended answer of each blocking question and record it as a guess; no confirm question; run `agree` yourself |
-| recipe | take the recommended depth and the recommended option of each design choice, as guesses; no confirm question; pass the gate with `nook eng item proceed <id>` |
+| plan | take the recommended depth and the recommended option of each design choice, as guesses; no confirm question; pass the gate with `nook eng item proceed <id>` |
 | cook | answer a waiting slice from the documents, or take the most likely answer as a guess |
 | deep-review | run the agents as written; not met: `reject`, then cook again; at most two reject cycles; stop at the accept |
 
@@ -42,7 +42,7 @@ Stop, write `handoff.md` (`/handoff`), and report, when:
 - the spec has a gap that changes what the owner asked for (a gap in the plan needs only `nook eng item replan <id> --reason`, then a new `proceed`);
 - two reject cycles in review did not meet every AC;
 - a step is hard to undo (a push, a migration, a deletion, a breaking contract change): register it with `nook eng ask <id> "<text>" --blocking --rec "<answer>"` and ask;
-- the accept: say "accept: type `/gate accept <id>`"; offer `/guesses <id>` and `/view <id>`.
+- the accept: say "accept: type `/gate accept <id>`"; say that the guesses wait in the web app and in `nook eng guesses <id>`.
 
 ## Gotchas
 - A yolo run that the model started is a breach: check `mode_by` first.

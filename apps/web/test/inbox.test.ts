@@ -9,7 +9,7 @@ const BRIEF: BriefLine[] = [
   { part: 'waits', text: 'SHOP-41 is done and waits for its close: Show the order total', action: '/close SHOP-41', item: item('SHOP-41', 'Show the order total with tax', 'done') },
   { part: 'waits', text: 'SHOP-43 waits for your approve: Export the order list as CSV', action: '/gate approve SHOP-43', urgent: true, item: item('SHOP-43', 'Export the order list as CSV') },
   { part: 'waits', text: 'SHOP-42 Q2 blocks: Must a refund go to the same card?', action: 'nook eng answer SHOP-42 Q2 "<answer>"', urgent: true, item: item('SHOP-42', 'Pay with a saved card', 'cooking') },
-  { part: 'runs', text: 'SHOP-45 framing', action: '/spec SHOP-45', item: item('SHOP-45', 'Search orders', 'framing') },
+  { part: 'runs', text: 'SHOP-45 framing', action: '/specify SHOP-45', item: item('SHOP-45', 'Search orders', 'framing') },
   { part: 'done', text: 'SHOP-40 accepted: Filter shipments', item: item('SHOP-40', 'Filter shipments', 'done') },
 ]
 

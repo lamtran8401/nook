@@ -102,7 +102,7 @@ describe('the web app', () => {
     expect(home).toMatch(/>Engineering: works\/ is missing<\/p>/)
     expect(home).toMatch(/<code data-slot="copy-command"[^>]*>nook init --update<button/)
     expect(home).toContain(`<a href="${answer().base}/works/SHOP-12" class="flex min-w-0 gap-2 hover:underline">`)
-    expect(home).toMatch(/<code data-slot="copy-command"[^>]*>\/spec SHOP-12<button/)
+    expect(home).toMatch(/<code data-slot="copy-command"[^>]*>\/specify SHOP-12<button/)
   })
 
   test('/works gives the board: the lane of the phases, a card for each item that links to it, and the Display menu', () => {
@@ -117,7 +117,7 @@ describe('the web app', () => {
     const item = body('item')
     expect(item).toMatch(/<h1 [^>]*>Filter shipments by status<\/h1>/)
     expect(new RegExp(`<a [^>]*href="${answer().base}/works/SHOP-12\\?tab=walkthrough"[^>]*>walkthrough</a>`).exec(item)![0]).toContain('aria-current="page"')
-    expect(item).toMatch(/type <code data-slot="copy-command"[^>]*>\/view SHOP-12<button/)
+    expect(item).toMatch(/type <code data-slot="copy-command"[^>]*>\/write-walkthrough SHOP-12<button/)
     expect(item).not.toContain('Open page')
   })
 

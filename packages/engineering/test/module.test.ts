@@ -136,7 +136,7 @@ describe('engineeringModule: a typed /yolo', () => {
   test('an id sets the mode of that item as the owner, with the actor owner via /yolo', () => {
     t = makeHome()
     itemAt(t, 'framing')
-    expect(yolo('SHOP-1 keep the old export')).toEqual({ ok: true, lines: ['SHOP-1 mode yolo', 'next: /spec SHOP-1'] })
+    expect(yolo('SHOP-1 keep the old export')).toEqual({ ok: true, lines: ['SHOP-1 mode yolo', 'next: /specify SHOP-1'] })
     const last = t.eng(LEAD).stores.events.history('SHOP-1').at(-1)!
     expect([last.type, last.actor, last.role]).toEqual(['mode', 'owner via /yolo', 'owner'])
   })
@@ -145,20 +145,20 @@ describe('engineeringModule: a typed /yolo', () => {
     t = makeHome()
     expect(yolo('add a CSV export to the shipments page')).toEqual({
       ok: true,
-      lines: ['IT-001 made from the prompt', 'IT-001 mode yolo', 'next: /spec IT-001'],
+      lines: ['IT-001 made from the prompt', 'IT-001 mode yolo', 'next: /specify IT-001'],
     })
     expect(t.eng(LEAD).item('IT-001').title).toBe('add a CSV export to the shipments page')
   })
 
   test('a key that is no item yet makes the item with that key', () => {
     t = makeHome()
-    expect(yolo('SHOP-12').lines).toEqual(['SHOP-12 made from the prompt', 'SHOP-12 mode yolo', 'next: /spec SHOP-12'])
+    expect(yolo('SHOP-12').lines).toEqual(['SHOP-12 made from the prompt', 'SHOP-12 mode yolo', 'next: /specify SHOP-12'])
   })
 
   test('a key typed with a space or in lower case names that key, never a new item from the words', () => {
     t = makeHome()
     itemAt(t, 'framing', 'BKM-14478')
-    expect(yolo('BKM 14478').lines).toEqual(['BKM-14478 mode yolo', 'next: /spec BKM-14478'])
+    expect(yolo('BKM 14478').lines).toEqual(['BKM-14478 mode yolo', 'next: /specify BKM-14478'])
     expect(yolo('bkm-14478').lines[0]).toBe('BKM-14478 mode yolo')
     expect(t.eng(LEAD).stores.items.list().map(i => i.id)).toEqual(['BKM-14478'])
   })
@@ -214,7 +214,7 @@ describe('engineeringModule: the daily brief', () => {
       { part: 'waits', urgent: true, text: 'SHOP-1 waits for your approve: the export date is off', action: '/gate approve SHOP-1', item: { id: 'SHOP-1', title: 'the export date is off', state: 'planning' } },
       { part: 'waits', urgent: false, text: 'SHOP-2 is done and waits for its close: the export date is off', action: '/close SHOP-2', item: { id: 'SHOP-2', title: 'the export date is off', state: 'done' } },
       { part: 'done', text: 'SHOP-2 accepted: the export date is off', item: { id: 'SHOP-2', title: 'the export date is off', state: 'done' } },
-      { part: 'runs', text: 'SHOP-3 backlog: the new export', action: '/spec SHOP-3', item: { id: 'SHOP-3', title: 'the new export', state: 'backlog' } },
+      { part: 'runs', text: 'SHOP-3 backlog: the new export', action: '/specify SHOP-3', item: { id: 'SHOP-3', title: 'the new export', state: 'backlog' } },
     ])
   })
 })

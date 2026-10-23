@@ -2,22 +2,24 @@
 
 A builder works in its own context and does not see this conversation.
 The brief is all that it knows about the item, so it comes from the tool, not from your memory.
-One builder for each area of the item, at most 4 at once.
+Each agent loads the rules and reads the files again, so the budget of the workspace decides how many run.
 
 ## Who builds a slice
-| Case | Who | Why |
+| Budget | Case | Who |
 |---|---|---|
-| a quick item, or size S with one slice | the lead itself | one slice is one job; a builder would cost a brief and a return for nothing |
-| an area with one slice | a background subagent, no `name`, the brief as its prompt | one job, a summary back, its context never enters the lead's |
-| an area with two or more slices | a teammate `name: <area>-builder`, alive from `begin` to `submit` | the second slice reuses what the first one learned about the area |
+| lean (the default) | one area | the lead itself, slice after slice, with the same commands as a builder |
+| lean | two areas or more | the lead builds one area; one background subagent builds the other areas, one after the other |
+| deep | an area with one slice | a background subagent, no `name`, the brief as its prompt |
+| deep | an area with two or more slices | a teammate `name: <area>-builder`, alive from `begin` to `submit` |
 
-A teammate costs many times the tokens of a subagent. Give a `name` only in the last case.
+A teammate costs many times the tokens of a subagent. Give a `name` only on a deep budget, in the last case.
+The lead that builds a slice runs `nook eng task start`, `task prove` and `task done` itself, so the slice runs while its files change.
 
 ## The call of a teammate
 1. Run `nook eng task brief <id> <T>`. It prints the slice: the item, the area and its folder, the ACs, the `done when` line, the open guesses, and the commands the builder runs.
 2. Call the Agent tool:
    - `name`: `<area>-builder`, for example `bff-builder`. The name makes it a teammate, and the TeammateIdle hook holds it on its slice by this name.
-   - `subagent_type`: `nk-eng:backend-builder` for an area of kind `backend`, `nk-eng:frontend-builder` for `frontend`. Another kind (`docs`, `data`, `tool`) gets the backend builder.
+   - `subagent_type`: `nook:backend-builder` for an area of kind `backend`, `nook:frontend-builder` for `frontend`. Another kind (`docs`, `data`, `tool`) gets the backend builder.
    - no `run_in_background`.
    - `prompt`: the output of `task brief`, word for word. Add a line only when the brief lacks the folder of the area.
 3. The next slice of the same area: `nook eng task brief <id> <T2>`, then SendMessage to `<area>-builder` with the brief, word for word. A message is plain text; the builder runs the commands itself.

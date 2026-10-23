@@ -1,6 +1,6 @@
 ---
-name: code-review
-description: "Review a done slice or the full diff of an item with fresh eyes through the code-reviewer agent: a fixed blocking list sends work back, the rest are nits. Use in /cook (L) and /deep-review. Not for your own diff: clean-code. Not the bundled one."
+name: review
+description: "Review a done slice or the full diff of an item with fresh eyes through the code-reviewer agent: a fixed blocking list sends work back, the rest are nits. Use when the owner asks for a review, in /cook (L, deep budget) and /deep-review. Not for your own diff: clean-code. Not the bundled one."
 argument-hint: "<item id> [<T>]"
 allowed-tools: Bash(nook eng *), Bash(git diff *), Read
 ---
@@ -20,7 +20,7 @@ A second round of `/deep-review` reviews only the files that changed since the l
 
 ## Order
 1. Take the scope: the files of the slice, or the full diff of each area.
-2. Start the Agent tool (no `name`: a subagent) with `subagent_type: nk-eng:code-reviewer` and this prompt:
+2. Start the Agent tool (no `name`: a subagent) with `subagent_type: nook:code-reviewer` and this prompt:
    ```
    Item: <id>. Scope: slice <T> | the full item.
    Areas: <area> folder <path> base <branch>, one line for each area. Files: <list> | the full diff.

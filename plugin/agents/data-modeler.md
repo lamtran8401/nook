@@ -1,6 +1,6 @@
 ---
 name: data-modeler
-description: "Finds the schema and data impact of a change for each entity: the migration, the existing rows, the indexes, the backfill, the rollback and the order. Started by write-plan in /recipe when an item changes data or schema."
+description: "Finds the schema and data impact of a change for each entity: the migration, the existing rows, the indexes, the backfill, the rollback and the order. Started by /plan on a deep budget when an item changes data or schema."
 model: inherit
 tools: Read, Grep, Glob, Bash
 maxTurns: 30

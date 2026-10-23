@@ -447,7 +447,7 @@ export class Engineering {
   quick(idOrTitle: string, areaName: string, options: { kind?: string; type?: string } = {}): Item {
     this.permissions.assert('quick')
     const kind = options.kind ?? (options.type ? this.stores.typeKinds.kindOf(options.type) : null) ?? 'fix'
-    if (kind !== 'fix' && kind !== 'chore') throw usage(`quick takes a fix or a chore; a ${kind} goes through /spec`)
+    if (kind !== 'fix' && kind !== 'chore') throw usage(`quick takes a fix or a chore; a ${kind} goes through /specify`)
     const named = ID_PATTERN.test(idOrTitle) ? idOrTitle : undefined
     const area = this.home.areaNamed(areaName)
     const other = this.stores.items.cookingIn(area.name)

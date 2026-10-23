@@ -49,7 +49,7 @@ export function renderTicket(ticket: Ticket): string {
     `# ${ticket.key}: ${ticket.title}`,
     part('Fields', ticket.fields.map(([name, value]) => `- ${name}: ${value}`).join('\n')),
     part('Description', ticket.description.trim() ? demote(ticket.description.trim()) : NONE),
-    part('Acceptance criteria', criteria ? demote(criteria) : `${NONE} /spec writes them with the owner.`),
+    part('Acceptance criteria', criteria ? demote(criteria) : `${NONE} /specify writes them with the owner.`),
     ...others.map(s => part(headingOf(s.use), s.text ? demote(s.text) : NONE)),
     part('Comments', ticket.comments.length ? ticket.comments.map(comment).join('\n') : 'None.'),
     ...(ticket.files?.length ? [part('Attachments', ticket.files.map(file).join('\n'))] : []),

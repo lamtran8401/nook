@@ -1,6 +1,6 @@
 ---
-name: brief
-description: "The daily brief in chat: what waits for the owner, what is done since yesterday and what runs, in every folder that the owner made a workspace. Writes no file. Use when the owner types /brief, at the start of a day or after a break."
+name: daily-brief
+description: "The daily brief in chat: what waits for the owner, what is done since yesterday and what runs, in every folder that the owner made a workspace. Writes no file. Use when the owner types /daily-brief, at the start of a day or after a break."
 disable-model-invocation: true
 allowed-tools: Bash(nook brief*), Bash(nook doctor*)
 ---
@@ -16,5 +16,5 @@ Goal: in one short read, the owner knows what to do first today, and nothing mor
 ## Gotchas
 - The brief writes no file and makes no page. The owner reads it in chat.
 - Do not run the actions of the lines. Each one is the owner's choice, and some are owner moves.
-- Do not add a line that `nook brief` did not print. A thing that is missing belongs in the pack that owns it.
+- Do not add a line that `nook brief` did not print. A thing that is missing belongs in the feature that owns it.
 - More than one folder: each line names its folder. Keep the names.

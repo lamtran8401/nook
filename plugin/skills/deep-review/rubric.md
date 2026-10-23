@@ -5,7 +5,7 @@
 - send back: one AC is not met, a check fails, or a blocking finding remains.
 - A blocking finding breaks an AC, a changed contract or the scope of the spec, or it is a test that cannot fail.
   It has four parts: where (file and line), what, why it matters, how to show it fails.
-- The blocking list of `nk-eng:code-reviewer` is in its agent file. Only that list sends work back from the code review.
+- The blocking list of `nook:code-reviewer` is in its agent file. Only that list sends work back from the code review.
 - A nit does not change the behavior: a name, a comment, a style point. Nits go to the owner as a list. They never send the item back.
 - Not confirmed: what the agents could not check, and where they looked. The owner reads it before the accept.
 
@@ -42,6 +42,6 @@ Verdict: accept. Weakest evidence first:
 - AC1, AC2, AC3 run: list.test.ts:42-71, fail on the base and pass on the branch.
 Blocking: none. Nits: list.ts:44 names the parameter `s`.
 Not confirmed: the time for 500 shipments; looked in list.test.ts and the Proof section.
-Next: /close SHOP-12 after the accept. /view SHOP-12 for the page with the walkthrough.
+Next: /close SHOP-12 after the accept. /write-walkthrough SHOP-12 for the walkthrough of the work.
 ```
 A send-back starts with the unmet AC or the blocking finding, then the `nook eng item reject` that ran, then `/cook <id>`.

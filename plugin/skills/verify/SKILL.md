@@ -1,6 +1,6 @@
 ---
 name: verify
-description: "Run the checks of every area of an item and the proof of each done slice through the verifier agent; report the true result with counts and the first error lines. Use before submit, in /deep-review, or when the owner asks if it passes. Not the bundled one."
+description: "Run the checks of every area of an item and the proof of each done slice, by yourself or through the verifier agent on a deep budget; report the true result with counts and the first error lines. Use before submit, in /deep-review, or when the owner asks if it passes. Not the bundled one."
 argument-hint: "<item id> [--area <a>]"
 allowed-tools: Bash(nook eng *), Read
 ---
@@ -9,8 +9,8 @@ Goal: a true answer to one question: do the checks pass for the code on the bran
 The answer gates `submit` and the review. A false pass costs the most of any mistake in the flow, because the owner trusts it.
 
 ## Order
-1. Start the Agent tool (no `name`: a subagent) with `subagent_type: nk-eng:verifier` and the item id, plus an area when only one failed before.
-   It runs `nook eng item verify <id>` (the `checks` of each area, in the area folder; one `check_run` row for each) and `nook eng task prove <id> <T>` for each done slice.
+1. Run the checks. On a lean budget, run them yourself; on a deep budget, start the Agent tool (no `name`: a subagent) with `subagent_type: nook:verifier` and the item id, plus an area when only one failed before.
+   The checks are `nook eng item verify <id>` (the `checks` of each area, in the area folder; one `check_run` row for each) and `nook eng task prove <id> <T>` for each done slice.
 2. Read its report against the ledger: `nook eng item verify <id> --last` shows the last run and its output; `nook eng task show <id> <T>` shows the proof.
 3. Report each area as pass or fail for each check, with the counts when the output shows them, and each proof as `proven`, `weak`, `none` or `skipped`.
 4. A failure goes back to the builder of the slice with the first error lines, the file and the line. A `weak` proof goes back too: the test cannot fail.

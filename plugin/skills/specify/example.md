@@ -1,6 +1,6 @@
 # A spec of size M: SHOP-12
 
-The file that `/spec` writes for a ticket in two areas, after one question round.
+The file that `/specify` writes for a ticket in two areas, after one question round.
 
 ````markdown
 ---
@@ -45,7 +45,7 @@ A person who looks for the pending shipments reads the whole list today and pick
 ## Out of scope
 
 - One shipment by id, the sort order, the columns and the error banner text: they stay as they are.
-- The DOM entry of the page and the wiring of the select. (owner, at /recipe)
+- The DOM entry of the page and the wiring of the select. (owner, at /plan)
 - Several statuses in one request.
 - The status in the page address.
 - Statuses in another case, such as `Pending`: they are unknown.

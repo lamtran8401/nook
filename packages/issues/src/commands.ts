@@ -16,7 +16,7 @@ const line = (check: SourceCheck) => (check.ok ? `✓ ${check.label}: ${check.to
 function pulled(report: PullReport): string {
   const lines = [`✓ ${report.key} ${report.status}: ${report.file}`, `  ${report.title} · ${report.link}`]
   if (report.changed.length) lines.push(`  changed: ${report.changed.join(', ')}`)
-  if (!report.criteria) lines.push('  no acceptance criteria in the ticket: /spec asks for them')
+  if (!report.criteria) lines.push('  no acceptance criteria in the ticket: /specify asks for them')
   const missing = report.missing.filter(use => use !== 'acceptanceCriteria')
   if (missing.length) lines.push(`  not in the ticket: ${missing.map(headingOf).join(', ')}`)
   return lines.join('\n')

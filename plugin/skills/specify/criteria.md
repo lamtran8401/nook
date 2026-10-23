@@ -9,7 +9,7 @@ Do not copy the ticket. Think it through as the person who must build it.
    - a conflict: two requirements that cannot both hold;
    - an impact on a related feature: another screen, caller, export or report that uses the same call, table or component. Read the callers.
 3. Resolve each finding:
-   - it changes the work: a blocking question in the round of `/spec`;
+   - it changes the work: a blocking question in the round of `/specify`;
    - it does not block: a guess, `nook eng guess <id> "<question>" --took "<a>" --other "<b>" --impact low|med|high`;
    - neither: give it a line in Details that ends with `(open)`.
 
